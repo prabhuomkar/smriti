@@ -1,0 +1,733 @@
+openapi: 3.0.3
+info:
+  title: Pixel API
+  description: Smarter Home for all your Photos and Videos
+  version: 0.1.0
+servers:
+  - url: https://localhost:5000/api/
+tags:
+  - name: MediaItems
+    description: Everything related to your Photos & Videos
+  - name: Library
+    description: Manage your collections of Photos & Videos
+  - name: Explore
+    description: Features on top of your MediaItems & Albums
+  - name: Albums
+    description: Collection of your Photos & Videos
+  - name: Sharing
+    description: Share your Photos, Videos or Albums
+  - name: Authentication
+    description: Authentication for your application
+paths:
+  /v1/mediaItems:
+    get:
+      tags:
+        - MediaItems
+      summary: Get all existing mediaItems
+      description: Get all existing mediaItems
+      operationId: getMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - MediaItems
+      summary: Upload a new mediaItem
+      description: Upload a new mediaItem
+      operationId: postMediaItem
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/mediaItems/{id}:
+    get:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get an existing mediaItem
+      description: Get an existing mediaItem
+      operationId: getMediaItem
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update an existing mediaItem
+      description: Update an existing mediaItem
+      operationId: putMediaItem
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Delete an existing mediaItem
+      description: Delete an existing mediaItem
+      operationId: deleteMediaItem
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/favourites:
+    get:
+      tags:
+        - Library
+      summary: Get all favourite mediaItems
+      description: Get all favourite mediaItems
+      operationId: getFavouriteMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/archived:
+    get:
+      tags:
+        - Library
+      summary: Get all archived mediaItems
+      description: Get all archived mediaItems
+      operationId: getArchivedMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/trash:
+    get:
+      tags:
+        - Library
+      summary: Get all deleted mediaItems
+      description: Get all deleted mediaItems
+      operationId: getDeletedMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/places:
+    get:
+      tags:
+        - Explore
+      summary: Get all place entities
+      description: Get all place entities
+      operationId: getPlaces
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/places/{placeId}/mediaItems:
+    get:
+      tags:
+        - Explore
+      summary: Get mediaItems of a place entity
+      description: Get mediaItems of a place entity
+      operationId: getPlaceMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/people:
+    get:
+      tags:
+        - Explore
+      summary: Get all people entities
+      description: Get all people entities
+      operationId: getPeople
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/people/{peopleId}/mediaItems:
+    get:
+      tags:
+        - Explore
+      summary: Get mediaItems of a people entity
+      description: Get mediaItems of a people entity
+      operationId: getPeopleMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/things:
+    get:
+      tags:
+        - Explore
+      summary: Get all thing entities
+      description: Get all thing entities
+      operationId: getThings
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/things/{thingId}/mediaItems:
+    get:
+      tags:
+        - Explore
+      summary: Get mediaItems of a thing entity
+      description: Get mediaItems of a thing entity
+      operationId: getThingMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/yearsAgo/{monthDate}/mediaItems:
+    get:
+      tags:
+        - Explore
+      summary: Get all mediaItems which are N years ago from given month & date
+      description: Get all mediaItems which are N years ago from given month & date
+      operationId: getYearsAgoMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/albums:
+    get:
+      tags:
+        - Albums
+      summary: Get all existing albums
+      description: Get all existing albums
+      operationId: getAlbums
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - Albums
+      summary: Create a new album
+      description: Create a new album
+      operationId: postAlbum
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/albums/{id}:
+    get:
+      tags:
+        - Albums
+      parameters:
+        - name: id
+          in: path
+          description: ID of album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get an existing album
+      description: Get an existing album
+      operationId: getAlbum
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Albums
+      parameters:
+        - name: id
+          in: path
+          description: ID of album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update an existing album
+      description: Update an existing album
+      operationId: putAlbum
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Albums
+      parameters:
+        - name: id
+          in: path
+          description: ID of album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Delete an existing album
+      description: Delete an existing album
+      operationId: deleteAlbum
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/albums/{id}/mediaItems:
+    get:
+      tags:
+        - Albums
+      parameters:
+        - name: id
+          in: path
+          description: ID of album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get mediaItems of an existing album
+      description: Get mediaItems of an existing album
+      operationId: getAlbumMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Albums
+      parameters:
+        - name: id
+          in: path
+          description: ID of album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update mediaItems of an existing album
+      description: Update mediaItems of an existing album
+      operationId: putAlbumMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Albums
+      parameters:
+        - name: id
+          in: path
+          description: ID of album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Remove mediaItems from an existing album
+      description: Remove mediaItems from an existing album
+      operationId: deleteAlbumMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/sharing:
+    get:
+      tags:
+        - Sharing
+      summary: Get all existing shared collections
+      description: Get all existing shared collections
+      operationId: getSharings
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - Sharing
+      summary: Create a new shared collection
+      description: Create a new shared collection
+      operationId: postSharing
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/sharing/{id}:
+    get:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared collection
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get an existing shared collection
+      description: Get an existing shared collection
+      operationId: getSharing
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared collection
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update an existing shared collection
+      description: Update an existing shared collection
+      operationId: putSharing
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared collection
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Delete an existing shared collection
+      description: Delete an existing shared collection
+      operationId: deleteSharing
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/sharing/{id}/mediaItems:
+    get:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared collection
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get mediaItems of an existing shared collection
+      description: Get mediaItems of an existing shared collection
+      operationId: getSharingMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared collection
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update mediaItems of an existing shared collection
+      description: Update mediaItems of an existing shared collection
+      operationId: putSharingMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared collection
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Remove mediaItems from an existing shared collection
+      description: Remove mediaItems from an existing shared collection
+      operationId: deleteSharingMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/auth/login:
+    post:
+      tags:
+        - Authentication
+      summary: User Login
+      description: User Login
+      operationId: authLogin
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/auth/refresh:
+    post:
+      tags:
+        - Authentication
+      summary: User Refresh Token
+      description: User Refresh Token
+      operationId: authRefresh
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/auth/logout:
+    post:
+      tags:
+        - Authentication
+      summary: User Logout
+      description: User Logout
+      operationId: authLogout
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+components:
+  schemas:
+    MediaItem:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+    Album:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+    Sharing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
