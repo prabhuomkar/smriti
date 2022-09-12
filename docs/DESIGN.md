@@ -8,6 +8,17 @@ TODO(omkar): Add architecture diagram
 
 ## High Level Design
 
+### Components
+
+#### API
+TODO(omkar): REST API, Business Logic & Uploads
+
+#### Database
+TODO(omkar): Database integration
+
+#### Worker
+TODO(omkar): Background processing of files & inference
+
 ### REST API Design
 TODO(omkar): Add more information
 
