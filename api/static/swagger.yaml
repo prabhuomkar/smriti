@@ -89,7 +89,7 @@ paths:
             format: uuid
       summary: Update an existing mediaItem
       description: Update an existing mediaItem
-      operationId: putMediaItem
+      operationId: updateMediaItem
       responses:
         '204':
           description: No Content
@@ -142,13 +142,13 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
-  /v1/archived:
+  /v1/hidden:
     get:
       tags:
         - Library
-      summary: Get all archived mediaItems
-      description: Get all archived mediaItems
-      operationId: getArchivedMediaItems
+      summary: Get all hidden mediaItems
+      description: Get all hidden mediaItems
+      operationId: getHiddenMediaItems
       responses:
         '200':
           description: Success
@@ -190,6 +190,24 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
+  /v1/explore/places/{placeId}:
+    put:
+      tags:
+        - Explore
+      summary: Update a place entity
+      description: Update a place entity
+      operationId: updatePlace
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /v1/explore/places/{placeId}/mediaItems:
     get:
       tags:
@@ -197,38 +215,6 @@ paths:
       summary: Get mediaItems of a place entity
       description: Get mediaItems of a place entity
       operationId: getPlaceMediaItems
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
-          description: Internal Server Error
-  /v1/explore/people:
-    get:
-      tags:
-        - Explore
-      summary: Get all people entities
-      description: Get all people entities
-      operationId: getPeople
-      responses:
-        '200':
-          description: Success
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
-          description: Internal Server Error
-  /v1/explore/people/{peopleId}/mediaItems:
-    get:
-      tags:
-        - Explore
-      summary: Get mediaItems of a people entity
-      description: Get mediaItems of a people entity
-      operationId: getPeopleMediaItems
       responses:
         '200':
           description: Success
@@ -254,6 +240,24 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
+  /v1/explore/things/{thingsId}:
+    put:
+      tags:
+        - Explore
+      summary: Update a things entity
+      description: Update a things entity
+      operationId: updateThing
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /v1/explore/things/{thingId}/mediaItems:
     get:
       tags:
@@ -261,6 +265,56 @@ paths:
       summary: Get mediaItems of a thing entity
       description: Get mediaItems of a thing entity
       operationId: getThingMediaItems
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/people:
+    get:
+      tags:
+        - Explore
+      summary: Get all people entities
+      description: Get all people entities
+      operationId: getPeople
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/explore/people/{peopleId}:
+    put:
+      tags:
+        - Explore
+      summary: Update a people entity
+      description: Update a people entity
+      operationId: updatePeople
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/explore/people/{peopleId}/mediaItems:
+    get:
+      tags:
+        - Explore
+      summary: Get mediaItems of a people entity
+      description: Get mediaItems of a people entity
+      operationId: getPeopleMediaItems
       responses:
         '200':
           description: Success
@@ -358,7 +412,7 @@ paths:
             format: uuid
       summary: Update an existing album
       description: Update an existing album
-      operationId: putAlbum
+      operationId: updateAlbum
       responses:
         '204':
           description: No Content
@@ -434,7 +488,7 @@ paths:
             format: uuid
       summary: Update mediaItems of an existing album
       description: Update mediaItems of an existing album
-      operationId: putAlbumMediaItems
+      operationId: updateAlbumMediaItems
       responses:
         '204':
           description: No Content
@@ -541,7 +595,7 @@ paths:
             format: uuid
       summary: Update an existing shared collection
       description: Update an existing shared collection
-      operationId: putSharing
+      operationId: updateSharing
       responses:
         '204':
           description: No Content
@@ -617,7 +671,7 @@ paths:
             format: uuid
       summary: Update mediaItems of an existing shared collection
       description: Update mediaItems of an existing shared collection
-      operationId: putSharingMediaItems
+      operationId: updateSharingMediaItems
       responses:
         '204':
           description: No Content
@@ -710,6 +764,71 @@ paths:
           description: Internal Server Error
 components:
   schemas:
+    PhotoMetadata:
+      type: object
+      properties:
+        cameraMake:
+          type: string
+          example: Apple
+        cameraModel:
+          type: string
+          example: iPhone 12
+        focalLength:
+          type: string
+          example: 5.49 mm
+        apertureFNumber:
+          type: string
+          example: f/1.8
+        isoEquivalent:
+          type: string
+          example: ISO758
+        exposureTime:
+          type: string
+          example: 1/20
+        status:
+          type: string
+          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
+    VideoMetadata:
+      type: object
+      properties:
+        cameraMake:
+          type: string
+          example: Apple
+        cameraModel:
+          type: string
+          example: iPhone 12
+        fps:
+          type: string
+          example: 60
+        status:
+          type: string
+          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
+    MediaItemMetadata:
+      type: object
+      properties:
+        type:
+          type: string
+          enum: ["photo", "video"]
+        width:
+          type: integer
+          example: 1080
+        height:
+          type: integer
+          example: 720
+        creationTime:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        latitude:
+          type: float
+          example: 19.384982
+        longitude:
+          type: float
+          example: -70.638324
+        photo:
+          $ref: '#/components/schemas/PhotoMetadata'
+        video:
+          $ref: '#/components/schemas/VideoMetadata'
     MediaItem:
       type: object
       properties:
@@ -717,6 +836,31 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        filename:
+          type: string
+          example: IMG_4942.jpg
+        description:
+          type: string
+          example: Picture of a pizza from New York
+        mimeType:
+          type: string
+          example: image/jpeg
+        sourceUrl:
+          type: string
+          example: https://cdn.pixel/source
+        thumbnailUrl:
+          type: string
+          example: https://cdn.pixel/thumbnail
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        mediaItemMetadata:
+          $ref: '#/components/schemas/MediaItemMetadata'
     Album:
       type: object
       properties:
@@ -724,6 +868,27 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        name:
+          type: string
+          example: Jane's Wedding
+        description:
+          type: string
+          example: Pictures from Wedding of Jane and Doe
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        coverMediaItemThumbnailUrl:
+          type: string
+          example: https://cdn.pixel/thumbnail
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
     Sharing:
       type: object
       properties:
@@ -731,3 +896,84 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        name:
+          type: string
+          example: Jane's Wedding
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        coverMediaItemThumbnailUrl:
+          type: string
+          example: https://cdn.pixel/thumbnail
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+    Place:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        postcode:
+          type: string
+          example: 421201
+        town:
+          type: string
+          example: Dallas
+        city:
+          type: string
+          example: Mumbai
+        state:
+          type: string
+          example: Washington
+        country:
+          type: string
+          example: India
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        coverMediaItemThumbnailUrl:
+          type: string
+          example: https://cdn.pixel/thumbnail
+    Thing:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        name:
+          type: string
+          example: Cars
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        coverMediaItemThumbnailUrl:
+          type: string
+          example: https://cdn.pixel/thumbnail
+    People:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        name:
+          type: string
+          example: Cars
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        coverMediaItemThumbnailUrl:
+          type: string
+          example: https://cdn.pixel/thumbnail

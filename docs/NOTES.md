@@ -14,7 +14,7 @@
 - Get all mediaitems for home screen
 ```sql
 SELECT * FROM mediaitems 
-WHERE is_archived=false OR is_deleted=false;
+WHERE is_hidden=false OR is_deleted=false;
 ```
 - Get one mediaitem
 ```sql
@@ -30,10 +30,10 @@ WHERE mediaitems.id=?;
 SELECT * FROM mediaitems 
 WHERE is_favourite=true;
 ```
-- Get all archived mediaitems
+- Get all hidden mediaitems
 ```sql
 SELECT * FROM mediaitems 
-WHERE is_archived=true;
+WHERE is_hidden=true;
 ```
 - Get all deleted mediaitems
 ```sql
@@ -46,7 +46,8 @@ WHERE is_deleted=true;
 #### Places
 - Get all places
 ```sql
-SELECT * FROM places;
+SELECT * FROM places
+WHERE is_hidden=false;
 ```
 - Get one place
 ```sql
@@ -58,13 +59,14 @@ WHERE id=?;
 SELECT * FROM place_mediaitems 
     INNER JOIN mediaitems 
         ON place_mediaitems.mediaitem_id = mediaitems.id
-WHERE place_mediaitems.place_id=? AND mediaitems.is_archived=false OR mediaitems.is_deleted=false;
+WHERE place_mediaitems.place_id=? AND mediaitems.is_hidden=false OR mediaitems.is_deleted=false;
 ```
 
 #### Things
 - Get all things
 ```sql
-SELECT * FROM things;
+SELECT * FROM things
+WHERE is_hidden=false;
 ```
 - Get one thing
 ```sql
@@ -76,13 +78,14 @@ WHERE id=?;
 SELECT * FROM thing_mediaitems 
     INNER JOIN mediaitems 
         ON thing_mediaitems.mediaitem_id = mediaitems.id
-WHERE thing_mediaitems.thing_id=? AND mediaitems.is_archived=false OR mediaitems.is_deleted=false;
+WHERE thing_mediaitems.thing_id=? AND mediaitems.is_hidden=false OR mediaitems.is_deleted=false;
 ```
 
 #### People
 - Get all people
 ```sql
-SELECT * FROM people;
+SELECT * FROM people
+WHERE is_hidden=false;
 ```
 - Get one people
 ```sql
@@ -94,13 +97,14 @@ WHERE id=?;
 SELECT * FROM people_mediaitems 
     INNER JOIN mediaitems 
         ON people_mediaitems.mediaitem_id = mediaitems.id
-WHERE people_mediaitems.people_id=? AND mediaitems.is_archived=false OR mediaitems.is_deleted=false;
+WHERE people_mediaitems.people_id=? AND mediaitems.is_hidden=false OR mediaitems.is_deleted=false;
 ```
 
 ### Albums
 - Get all albums
 ```sql
-SELECT * FROM albums;
+SELECT * FROM albums
+WHERE is_hidden=false;
 ```
 - Get one album
 ```sql
