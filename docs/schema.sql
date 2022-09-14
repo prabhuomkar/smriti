@@ -11,7 +11,7 @@ CREATE TYPE "mediaitem_status" AS ENUM (
 );
 
 CREATE TABLE "mediaitems" (
-  "id" uuid NOT NULL,
+  "id" uuid PRIMARY KEY NOT NULL,
   "filename" varchar NOT NULL,
   "description" varchar,
   "mime_type" varchar NOT NULL,
@@ -57,7 +57,7 @@ CREATE TABLE "places" (
 
 CREATE TABLE "place_mediaitems" (
   "place_id" uuid NOT NULL,
-  "mediaitem_id" uuid PRIMARY KEY NOT NULL,
+  "mediaitem_id" uuid NOT NULL,
   "latitude" varchar,
   "longitude" varchar,
   PRIMARY KEY ("place_id", "mediaitem_id")
@@ -72,7 +72,7 @@ CREATE TABLE "things" (
 
 CREATE TABLE "thing_mediaitems" (
   "thing_id" uuid NOT NULL,
-  "mediaitem_id" uuid PRIMARY KEY NOT NULL,
+  "mediaitem_id" uuid NOT NULL,
   PRIMARY KEY ("thing_id", "mediaitem_id")
 );
 
@@ -85,7 +85,7 @@ CREATE TABLE "people" (
 
 CREATE TABLE "people_mediaitems" (
   "people_id" uuid NOT NULL,
-  "mediaitem_id" uuid PRIMARY KEY NOT NULL,
+  "mediaitem_id" uuid NOT NULL,
   PRIMARY KEY ("people_id", "mediaitem_id")
 );
 

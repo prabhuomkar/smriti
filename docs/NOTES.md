@@ -58,7 +58,7 @@ WHERE id=?;
 SELECT * FROM place_mediaitems 
     INNER JOIN mediaitems 
         ON place_mediaitems.mediaitem_id = mediaitems.id
-WHERE place_mediaitems.place_id=?;
+WHERE place_mediaitems.place_id=? AND mediaitems.is_archived=false OR mediaitems.is_deleted=false;
 ```
 
 #### Things
@@ -76,7 +76,7 @@ WHERE id=?;
 SELECT * FROM thing_mediaitems 
     INNER JOIN mediaitems 
         ON thing_mediaitems.mediaitem_id = mediaitems.id
-WHERE thing_mediaitems.thing_id=?;
+WHERE thing_mediaitems.thing_id=? AND mediaitems.is_archived=false OR mediaitems.is_deleted=false;
 ```
 
 #### People
@@ -86,7 +86,7 @@ SELECT * FROM people;
 ```
 - Get one people
 ```sql
-SELECT * FROM peoples
+SELECT * FROM people
 WHERE id=?;
 ```
 - Get mediaitems for one people
@@ -94,7 +94,7 @@ WHERE id=?;
 SELECT * FROM people_mediaitems 
     INNER JOIN mediaitems 
         ON people_mediaitems.mediaitem_id = mediaitems.id
-WHERE people_mediaitems.people_id=?;
+WHERE people_mediaitems.people_id=? AND mediaitems.is_archived=false OR mediaitems.is_deleted=false;
 ```
 
 ### Albums
@@ -127,8 +127,8 @@ WHERE id=?;
 ```
 - Get mediaitems for one album
 ```sql
-SELECT * FROM shared_albums_mediaitems 
+SELECT * FROM shared_album_mediaitems 
     INNER JOIN mediaitems 
-        ON shared_albums_mediaitems.mediaitem_id = mediaitems.id
-WHERE shared_albums_mediaitems.shared_album_id=?;
+        ON shared_album_mediaitems.mediaitem_id = mediaitems.id
+WHERE shared_album_mediaitems.shared_album_id=?;
 ```
