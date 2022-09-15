@@ -8,7 +8,7 @@
 
 ## Database Design
 
-[Postgres Schema](schema.sql) is available.
+[Postgres Schema](assets/schema.sql) is available.
 
 ### MediaItems
 - Get all mediaitems for home screen
@@ -106,6 +106,11 @@ WHERE people_mediaitems.people_id=? AND mediaitems.is_hidden=false OR mediaitems
 SELECT * FROM albums
 WHERE is_hidden=false;
 ```
+- Get all shared albums
+```sql
+SELECT * FROM albums
+WHERE is_shared=true AND is_hidden=false;
+```
 - Get one album
 ```sql
 SELECT * FROM albums
@@ -117,24 +122,6 @@ SELECT * FROM album_mediaitems
     INNER JOIN mediaitems 
         ON album_mediaitems.mediaitem_id = mediaitems.id
 WHERE album_mediaitems.album_id=?;
-```
-
-### Sharing
-- Get all shared albums
-```sql
-SELECT * FROM shared_albums;
-```
-- Get one shared album
-```sql
-SELECT * FROM shared_albums
-WHERE id=?;
-```
-- Get mediaitems for one album
-```sql
-SELECT * FROM shared_album_mediaitems 
-    INNER JOIN mediaitems 
-        ON shared_album_mediaitems.mediaitem_id = mediaitems.id
-WHERE shared_album_mediaitems.shared_album_id=?;
 ```
 
 ## System Configuration

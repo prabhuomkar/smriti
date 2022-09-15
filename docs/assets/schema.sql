@@ -36,8 +36,7 @@ CREATE TABLE "mediaitem_metadata" (
   "aperture_fnumber" varchar,
   "iso_equivalent" varchar,
   "exposure_time" varchar,
-  "latitude" double,
-  "longitude" double,
+  "location" point,
   "fps" varchar,
   "status" mediaitem_status
 );
@@ -96,6 +95,7 @@ CREATE TABLE "albums" (
   "id" uuid PRIMARY KEY NOT NULL,
   "name" varchar NOT NULL,
   "description" varchar,
+  "is_shared" boolean,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
   "mediaitems_count" int,
@@ -108,22 +108,6 @@ CREATE TABLE "album_mediaitems" (
   "album_id" uuid NOT NULL,
   "mediaitem_id" uuid NOT NULL,
   PRIMARY KEY ("album_id", "mediaitem_id")
-);
-
-CREATE TABLE "shared_albums" (
-  "id" uuid PRIMARY KEY NOT NULL,
-  "name" varchar NOT NULL,
-  "cover_mediaitem_id" uuid,
-  "cover_mediaitem_thumbnail_url" varchar,
-  "mediaitems_count" int,
-  "created_at" timestamp,
-  "updated_at" timestamp
-);
-
-CREATE TABLE "shared_album_mediaitems" (
-  "shared_album_id" uuid NOT NULL,
-  "mediaitem_id" uuid NOT NULL,
-  PRIMARY KEY ("shared_album_id", "mediaitem_id")
 );
 
 ALTER TABLE "mediaitem_metadata" ADD FOREIGN KEY ("mediaitem_id") REFERENCES "mediaitems" ("id");
@@ -143,7 +127,3 @@ ALTER TABLE "people_mediaitems" ADD FOREIGN KEY ("mediaitem_id") REFERENCES "med
 ALTER TABLE "album_mediaitems" ADD FOREIGN KEY ("album_id") REFERENCES "albums" ("id");
 
 ALTER TABLE "album_mediaitems" ADD FOREIGN KEY ("mediaitem_id") REFERENCES "mediaitems" ("id");
-
-ALTER TABLE "shared_album_mediaitems" ADD FOREIGN KEY ("shared_album_id") REFERENCES "shared_albums" ("id");
-
-ALTER TABLE "shared_album_mediaitems" ADD FOREIGN KEY ("mediaitem_id") REFERENCES "mediaitems" ("id");
