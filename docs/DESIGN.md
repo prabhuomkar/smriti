@@ -8,11 +8,13 @@ MediaItems & Library:
 - As a user I want to hide mediaitems and list hidden mediaitems
 - As a user I want to delete mediaitems and list deleted mediaitems
 - As a user I want to permanently delete mediaitems
+
 Albums:
 - As a user I want to create an album of mediaitems
 - As a user I want to update name, description or cover of an album
 - As a user I want to permanently delete an album
 - As a user I want to hide an album
+
 Explore:
 - As a user I want to see all places from my mediaitems as a list
 - As a user I want to see all mediaitems for a place as a list
