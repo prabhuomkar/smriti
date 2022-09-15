@@ -1,19 +1,7 @@
 # Design Document
 
 ## Requirements
-MediaItems & Library:
-- As a user I want to upload photos or videos and view them
-- As a user I want to view metadata of a mediaitem
-- As a user I want to favourite mediaitems and list liked mediaitems
-- As a user I want to hide mediaitems and list hidden mediaitems
-- As a user I want to delete mediaitems and list deleted mediaitems
-- As a user I want to permanently delete mediaitems
-
-Albums:
-- As a user I want to create an album of mediaitems
-- As a user I want to update name, description or cover of an album
-- As a user I want to permanently delete an album
-- As a user I want to hide an album
+- [EPICs](https://github.com/users/prabhuomkar/projects/5/views/7)
 
 Explore:
 - As a user I want to see all places from my mediaitems as a list
