@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Pixel API
+  title: Pensieve API
   description: Smarter Home for all your Photos and Videos
   version: 0.1.0
 servers:
@@ -847,10 +847,10 @@ components:
           example: image/jpeg
         sourceUrl:
           type: string
-          example: https://cdn.pixel/source
+          example: https://cdn.pensieve/source
         thumbnailUrl:
           type: string
-          example: https://cdn.pixel/thumbnail
+          example: https://cdn.pensieve/thumbnail
         createdAt:
           type: string
           format: date-time
@@ -880,7 +880,7 @@ components:
           example: 102dc522de-1669-48a4-8270-4950a0237599
         coverMediaItemThumbnailUrl:
           type: string
-          example: https://cdn.pixel/thumbnail
+          example: https://cdn.pensieve/thumbnail
         createdAt:
           type: string
           format: date-time
@@ -905,7 +905,7 @@ components:
           example: 102dc522de-1669-48a4-8270-4950a0237599
         coverMediaItemThumbnailUrl:
           type: string
-          example: https://cdn.pixel/thumbnail
+          example: https://cdn.pensieve/thumbnail
         createdAt:
           type: string
           format: date-time
@@ -942,7 +942,7 @@ components:
           example: 102dc522de-1669-48a4-8270-4950a0237599
         coverMediaItemThumbnailUrl:
           type: string
-          example: https://cdn.pixel/thumbnail
+          example: https://cdn.pensieve/thumbnail
     Thing:
       type: object
       properties:
@@ -959,7 +959,7 @@ components:
           example: 102dc522de-1669-48a4-8270-4950a0237599
         coverMediaItemThumbnailUrl:
           type: string
-          example: https://cdn.pixel/thumbnail
+          example: https://cdn.pensieve/thumbnail
     People:
       type: object
       properties:
@@ -976,4 +976,4 @@ components:
           example: 102dc522de-1669-48a4-8270-4950a0237599
         coverMediaItemThumbnailUrl:
           type: string
-          example: https://cdn.pixel/thumbnail
+          example: https://cdn.pensieve/thumbnail

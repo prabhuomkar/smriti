@@ -1,4 +1,4 @@
-# pixel 
+# pensieve 
 Smarter Home for all your Photos and Videos
 
 ## About
