@@ -194,6 +194,14 @@ paths:
     put:
       tags:
         - Explore
+      parameters:
+        - name: placeId
+          in: path
+          description: ID of place
+          required: true
+          schema:
+            type: string
+            format: uuid
       summary: Update a place entity
       description: Update a place entity
       operationId: updatePlace
@@ -212,6 +220,14 @@ paths:
     get:
       tags:
         - Explore
+      parameters:
+        - name: placeId
+          in: path
+          description: ID of place
+          required: true
+          schema:
+            type: string
+            format: uuid
       summary: Get mediaItems of a place entity
       description: Get mediaItems of a place entity
       operationId: getPlaceMediaItems
@@ -240,10 +256,18 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
-  /v1/explore/things/{thingsId}:
+  /v1/explore/things/{thingId}:
     put:
       tags:
         - Explore
+      parameters:
+        - name: thingId
+          in: path
+          description: ID of thing
+          required: true
+          schema:
+            type: string
+            format: uuid
       summary: Update a things entity
       description: Update a things entity
       operationId: updateThing
@@ -262,6 +286,14 @@ paths:
     get:
       tags:
         - Explore
+      parameters:
+        - name: thingId
+          in: path
+          description: ID of thing
+          required: true
+          schema:
+            type: string
+            format: uuid
       summary: Get mediaItems of a thing entity
       description: Get mediaItems of a thing entity
       operationId: getThingMediaItems
@@ -294,6 +326,14 @@ paths:
     put:
       tags:
         - Explore
+      parameters:
+        - name: peopleId
+          in: path
+          description: ID of people
+          required: true
+          schema:
+            type: string
+            format: uuid
       summary: Update a people entity
       description: Update a people entity
       operationId: updatePeople
@@ -312,6 +352,14 @@ paths:
     get:
       tags:
         - Explore
+      parameters:
+        - name: peopleId
+          in: path
+          description: ID of people
+          required: true
+          schema:
+            type: string
+            format: uuid
       summary: Get mediaItems of a people entity
       description: Get mediaItems of a people entity
       operationId: getPeopleMediaItems
@@ -328,6 +376,13 @@ paths:
     get:
       tags:
         - Explore
+      parameters:
+        - name: monthDate
+          in: path
+          description: Month and Date in MMYY format
+          required: true
+          schema:
+            type: string
       summary: Get all mediaItems which are N years ago from given month & date
       description: Get all mediaItems which are N years ago from given month & date
       operationId: getYearsAgoMediaItems
@@ -339,7 +394,7 @@ paths:
         '401':
           description: Unauthenticated
         '404':
-          description: Unauthenticated
+          description: Not Found
         '500':
           description: Internal Server Error
   /v1/albums:
@@ -785,9 +840,6 @@ components:
         exposureTime:
           type: string
           example: 1/20
-        status:
-          type: string
-          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
     VideoMetadata:
       type: object
       properties:
@@ -800,12 +852,12 @@ components:
         fps:
           type: string
           example: 60
-        status:
-          type: string
-          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
     MediaItemMetadata:
       type: object
       properties:
+        status:
+          type: string
+          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
         type:
           type: string
           enum: ["photo", "video"]
@@ -820,10 +872,10 @@ components:
           format: date-time
           example: "2022-09-14T16:58:28Z"
         latitude:
-          type: float
+          type: number
           example: 19.384982
         longitude:
-          type: float
+          type: number
           example: -70.638324
         photo:
           $ref: '#/components/schemas/PhotoMetadata'
