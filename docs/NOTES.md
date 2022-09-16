@@ -20,9 +20,7 @@ WHERE (is_hidden=false OR is_deleted=false) AND status=READY;
 - Get one mediaitem
 ```sql
 SELECT * FROM mediaitems 
-    INNER JOIN mediaitem_metadata 
-        ON mediaitems.id = mediaitem_metadata.mediaitem_id
-WHERE mediaitems.id=? AND mediaitems.status=READY;
+WHERE id=? AND status=READY;
 ```
 - Get places for one mediaitem
 ```sql

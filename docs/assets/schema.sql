@@ -12,21 +12,16 @@ CREATE TYPE "mediaitem_type" AS ENUM (
 
 CREATE TABLE "mediaitems" (
   "id" uuid PRIMARY KEY NOT NULL,
-  "filename" varchar NOT NULL,
+  "filename" varchar,
   "description" varchar,
-  "mime_type" varchar NOT NULL,
-  "source_url" varchar NOT NULL,
-  "thumbnail_url" varchar NOT NULL,
+  "mime_type" varchar,
+  "source_url" varchar,
+  "preview_url" varchar,
+  "thumbnail_url" varchar,
   "is_favourite" boolean,
   "is_hidden" boolean,
   "is_deleted" boolean,
   "status" mediaitem_status,
-  "created_at" timestamp,
-  "updated_at" timestamp
-);
-
-CREATE TABLE "mediaitem_metadata" (
-  "mediaitem_id" uuid PRIMARY KEY NOT NULL,
   "mediaitem_type" mediaitem_type,
   "width" int,
   "height" int,
@@ -38,7 +33,9 @@ CREATE TABLE "mediaitem_metadata" (
   "iso_equivalent" varchar,
   "exposure_time" varchar,
   "location" point,
-  "fps" varchar
+  "fps" varchar,
+  "created_at" timestamp,
+  "updated_at" timestamp
 );
 
 CREATE TABLE "places" (
@@ -109,8 +106,6 @@ CREATE TABLE "album_mediaitems" (
   "mediaitem_id" uuid NOT NULL,
   PRIMARY KEY ("album_id", "mediaitem_id")
 );
-
-ALTER TABLE "mediaitem_metadata" ADD FOREIGN KEY ("mediaitem_id") REFERENCES "mediaitems" ("id");
 
 ALTER TABLE "place_mediaitems" ADD FOREIGN KEY ("place_id") REFERENCES "places" ("id");
 

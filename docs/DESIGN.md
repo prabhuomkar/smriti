@@ -20,7 +20,49 @@
     - Postgres: [dbq](https://github.com/rocketlaunchr/dbq)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
-- Will exchange protobuf with Worker
+- Will exchange protobuf with Worker:
+```protobuf
+message MediaItemResultRequest {
+    string id = 1;
+    string status = 2;
+    optional string filename = 3;
+    optional string mimeType = 4;
+    optional string sourceUrl = 5;
+    optional string previewUrl = 6;
+    optional string thumbnailUrl = 7;
+    optional string type = 8;
+    optional int width = 9;
+    optional int height = 10;
+    optional string creationTime = 11;
+    optional string cameraMake = 12;
+    optional string cameraModel = 13;
+    optional string focalLength = 14;
+    optional string apertureFNumber = 15;
+    optional string isoEquivalent = 16;
+    optional string exposureTime = 17;
+    optional string fps = 18;
+    optional double latitude = 19;
+    optional double longitude = 20;
+}
+
+message MediaItemPlaceRequest {
+    string id = 1;
+    string postcode = 2;
+    string country = 3;
+    string state = 4;
+    string district = 5;
+    string county = 6;
+    string city = 7;
+    string town = 8;
+    string suburb = 9;
+    string road = 10;
+}
+
+service APIService {
+    rpc SaveMediaItemResult(MediaItemResultRequest) returns (google.protobuf.Empty){}
+    rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty){}
+}
+```
 
 #### Database
 - [Postgres DB Schema](assets/schema.sql)
@@ -36,8 +78,26 @@
     - Linting: [pylint](https://pypi.org/project/pylint/)
     - Exiftool: [PyExifTool](https://pypi.org/project/PyExifTool/)
     - LibRaw: [rawpy](https://pypi.org/project/rawpy/)
+    - CDN: TBD, depends on file storage systems
 - Will process images and videos
 - Will exchange protobuf with API
+```protobuf
+message MediaItemProcessRequest {
+    string id = 1;
+    int offset = 2;
+    string command = 3; // start, upload, finish
+    bytes content = 4;
+}
+
+message MediaItemProcessResponse {
+    bool status = 1;
+    string message = 2;
+}
+
+service WorkerService {
+    rpc MediaItemProcess(stream MediaItemProcessRequest) returns (MediaItemProcessResponse){};
+}
+```
 
 ### Image & Video Processing
 
@@ -82,9 +142,9 @@
 - Support for several file storage systems behind a common interface:
 ```
 interface {
-    Init() // initialize client connection
-    Upload() // upload the file in chunks
-    Delete() // delete the file
+    init() // initialize client connection
+    upload() // upload the file in chunks
+    delete() // delete the file
 }
 ```
 - Out of the box incremental support for MinIO, Amazon S3, Google Storage
