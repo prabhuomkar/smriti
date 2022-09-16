@@ -33,7 +33,6 @@ TODO(omkar): Add architecture diagram
 - **Entities**:
     - MediaItem: `mediaitems`, `mediaitem_metadata`
     - Album: `albums`, `album_mediaitems`
-    - Shared Album: `shared_albums`, `shared_album_mediaitems`
     - Explore: `places`, `things`, `people`, `place_mediaitems`, `things_mediaitems`, `people_mediaitems`
 
 #### Worker
