@@ -42,17 +42,41 @@ TODO(omkar): Background processing of files & inference
 ### Image & Video Processing
 
 #### Parsing Metadata 
-- [ExifTool](https://www.exiftool.org/)
+- [ExifTool](https://www.exiftool.org/) - Getting EXIF and XMP data
 
 #### Extracting Thumbnail
-- TBD
+- [LibRaw](https://www.libraw.org/) - Processing and extracting RAW images
 
 #### Supported File Formats
-| Type | Extension | Mime Type | Support |
-| ---- | --------- | --------- | ------- |
-| Photo | .JPG, .JPEG | image/jpg, image/jpeg | ✅ |
-| Video | .MP4 | video/mp4 | ✅ |
-TODO(omkar): Add more supported file formats
+| Type | Extension | Support |
+| ---- | --------- | ------- |
+| Photo | .BMP | ❓ |
+| Photo | .GIF | ❓ |
+| Photo | .HEIC | ❓ |
+| Photo | .ICO | ❓ |
+| Photo | .JPG | ❓ |
+| Photo | .PNG | ❓ |
+| Photo | .TIFF | ❓ |
+| Photo | .WEBP | ❓ |
+| Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ❓ |
+| Video | 3GP | ❓ |
+| Video | 3G2 | ❓ |
+| Video | ASF | ❓ |
+| Video | AVI | ❓ |
+| Video | DIVX | ❓ |
+| Video | M2T | ❓ |
+| Video | M2TS | ❓ |
+| Video | M4V | ❓ |
+| Video | MKV | ❓ |
+| Video | MMV | ❓ |
+| Video | MOD | ❓ |
+| Video | MOV | ❓ |
+| Video | MP4 | ❓ |
+| Video | MPG | ❓ |
+| Video | MTS | ❓ |
+| Video | TOD | ❓ |
+| Video | WMV | ❓ |
+- TODO(omkar): Investiage support for Android Motion Photos, iOS Live Photos
 
 ### File Storage & Retrieval
 - Support for several file storage systems behind a common interface:
