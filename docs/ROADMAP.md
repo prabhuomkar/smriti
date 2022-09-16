@@ -2,7 +2,7 @@
 
 - [ ] Basic API for File Upload & Getting MediaItems (v2022.09.30)
 - [ ] Album Creation & Its CRUD (v2022.09.30)
-- [ ] Library APIs with Favourites, Archive & Trash (v2022.09.30)
+- [ ] Library APIs with Favourites, Hidden & Trash (v2022.09.30)
 - [ ] Get All Places from Photos & its Collection (v2022.09.30)
 - [ ] Get Machine Learning Powered Things & its Collection (v2022.10.31)
 - [ ] Get Machine Learning Powered Faces & People Collection (v2022.10.31)
