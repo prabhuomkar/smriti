@@ -3,18 +3,9 @@
 ## Requirements
 - [EPICs](https://github.com/users/prabhuomkar/projects/5/views/7)
 
-Explore:
-- As a user I want to see all places from my mediaitems as a list
-- As a user I want to see all mediaitems for a place as a list
-- As a user I want to see all things from my mediaitems as a list
-- As a user I want to see all mediaitems for a thing as a list
-- As a user I want to see all people from my mediaitems as a list
-- As a user I want to see all mediaitems for a person as a list
-- As a user I want to update cover mediaitem for a person
-- As a user I want to see list of images which are N years ago from today
 
 ## Architecture
-TODO(omkar): Add architecture diagram
+![Architecture Diagram](assets/architecture.jpeg)
 
 ## High Level Design
 
@@ -22,10 +13,14 @@ TODO(omkar): Add architecture diagram
 
 #### API
 - [Swagger Open API Spec](assets/swagger.yaml)
-- Routing
-- Common Middlewares
-- Packaging and Structure
-- Logging
+- Service written in Golang
+    - REST API: [echo](https://echo.labstack.com/)
+    - RPC: [gRPC + protobuf](https://grpc.io/)
+    - Logging: [zap](https://github.com/uber-go/zap)
+    - Postgres: [dbq](https://github.com/rocketlaunchr/dbq)
+    - Linting: [golangci-lint](https://golangci-lint.run/)
+- Will read/write to Database
+- Will exchange protobuf with Worker
 
 #### Database
 - [Postgres DB Schema](assets/schema.sql)
@@ -36,7 +31,13 @@ TODO(omkar): Add architecture diagram
     - Explore: `places`, `things`, `people`, `place_mediaitems`, `things_mediaitems`, `people_mediaitems`
 
 #### Worker
-TODO(omkar): Background processing of files & inference
+- Service written in Python
+    - RPC: [gRPC + protobuf](https://grpc.io/)
+    - Linting: [pylint](https://pypi.org/project/pylint/)
+    - Exiftool: [PyExifTool](https://pypi.org/project/PyExifTool/)
+    - LibRaw: [rawpy](https://pypi.org/project/rawpy/)
+- Will process images and videos
+- Will exchange protobuf with API
 
 ### Image & Video Processing
 

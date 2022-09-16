@@ -5,6 +5,7 @@
 - API-first techniques and then build Web UI & Mobile Apps
 - Demos can include: deployment on Fly, Heroku, other SaaS, hosting on Raspberry Pis and dockerized deployment on Cloud
 - Logging to make sure consistency across several components
+- Give a comparison of supported file formats between Google Photos and Pensieve
 
 ## Database Design
 
