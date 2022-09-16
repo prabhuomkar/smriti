@@ -23,6 +23,27 @@ SELECT * FROM mediaitems
         ON mediaitems.id = mediaitem_metadata.mediaitem_id
 WHERE mediaitems.id=?;
 ```
+- Get places for one mediaitem
+```sql
+SELECT * FROM places 
+    INNER JOIN place_mediaitems
+        ON places.id = place_mediaitems.place_id
+WHERE place_mediaitems.mediaitem_id=?;
+```
+- Get things for one mediaitem
+```sql
+SELECT * FROM things 
+    INNER JOIN thing_mediaitems
+        ON things.id = thing_mediaitems.thing_id
+WHERE thing_mediaitems.mediaitem_id=?;
+```
+- Get places for one mediaitem
+```sql
+SELECT * FROM people 
+    INNER JOIN people_mediaitems
+        ON people.id = people_mediaitems.people_id
+WHERE people_mediaitems.mediaitem_id=?;
+```
 
 ### Library 
 - Get all favourite mediaitems

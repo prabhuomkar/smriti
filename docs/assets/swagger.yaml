@@ -124,6 +124,84 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
+  /v1/mediaItems/{id}/places:
+    get:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get places from an existing mediaItem
+      description: Get places from an existing mediaItem
+      operationId: getMediaItemPlaces
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/mediaItems/{id}/things:
+    get:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get things from an existing mediaItem
+      description: Get things from an existing mediaItem
+      operationId: getMediaItemThings
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/mediaItems/{id}/people:
+    get:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get people from an existing mediaItem
+      description: Get people from an existing mediaItem
+      operationId: getMediaItemPeople
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /v1/favourites:
     get:
       tags:

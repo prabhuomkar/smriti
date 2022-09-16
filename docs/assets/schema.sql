@@ -1,13 +1,13 @@
-CREATE TYPE "mediaitem_type" AS ENUM (
-  'photo',
-  'video'
-);
-
 CREATE TYPE "mediaitem_status" AS ENUM (
   'UNSPECIFIED',
   'PROCESSING',
   'READY',
   'FAILED'
+);
+
+CREATE TYPE "mediaitem_type" AS ENUM (
+  'photo',
+  'video'
 );
 
 CREATE TABLE "mediaitems" (
@@ -20,6 +20,7 @@ CREATE TABLE "mediaitems" (
   "is_favourite" boolean,
   "is_hidden" boolean,
   "is_deleted" boolean,
+  "status" mediaitem_status,
   "created_at" timestamp,
   "updated_at" timestamp
 );
@@ -37,8 +38,7 @@ CREATE TABLE "mediaitem_metadata" (
   "iso_equivalent" varchar,
   "exposure_time" varchar,
   "location" point,
-  "fps" varchar,
-  "status" mediaitem_status
+  "fps" varchar
 );
 
 CREATE TABLE "places" (
