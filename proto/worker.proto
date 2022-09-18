@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+import "google/protobuf/empty.proto";
+
+message MediaItemProcessRequest {
+    string id = 1;
+    int offset = 2;
+    string command = 3; // start, upload, finish
+    bytes content = 4;
+}
+
+message MediaItemProcessResponse {
+    bool status = 1;
+    string message = 2;
+}
+
+service WorkerService {
+    rpc MediaItemProcess(stream MediaItemProcessRequest) returns (MediaItemProcessResponse);
+}
