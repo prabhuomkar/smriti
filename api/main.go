@@ -12,4 +12,5 @@ func main() {
 	}
 
 	log.Print(cfg.Log.Level)
+	log.Print("hello pensieve!")
 }

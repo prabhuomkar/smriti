@@ -3,13 +3,20 @@ on:
   push:
     branches:    
       - master
+    paths:
+      - api/**
   pull_request:
     branches:
       - master
+    paths:
+      - api/**
 jobs:
   ci:
     name: Integration Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-go@v2
@@ -19,4 +26,5 @@ jobs:
       - uses: golangci/golangci-lint-action@v2
         with:
           version: latest
-      - run: make build
+          working-directory: api
+      - run: go build -o api main.go

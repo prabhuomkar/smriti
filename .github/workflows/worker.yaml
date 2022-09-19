@@ -3,13 +3,20 @@ on:
   push:
     branches:    
       - master
+    paths:
+      - worker/**
   pull_request:
     branches:
       - master
+    paths:
+      - worker/**
 jobs:
   ci:
     name: Integration Check
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./worker
     steps:
       - uses: actions/checkout@v2
       - uses: actions/setup-python@v2
