@@ -2,8 +2,7 @@ package main
 
 import (
 	"api/config"
-
-	"go.uber.org/zap"
+	"log"
 )
 
 func main() {
@@ -12,8 +11,5 @@ func main() {
 		panic(err)
 	}
 
-	log, _ := zap.NewProduction()
-	defer log.Sync()
-
-	log.Info(cfg.Log.Level)
+	log.Print(cfg.Log.Level)
 }

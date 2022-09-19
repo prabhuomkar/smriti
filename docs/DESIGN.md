@@ -16,7 +16,6 @@
 - Service written in Golang
     - REST API: [echo](https://echo.labstack.com/)
     - RPC: [gRPC + protobuf](https://grpc.io/)
-    - Logging: [zap](https://github.com/uber-go/zap)
     - Postgres: [dbq](https://github.com/rocketlaunchr/dbq)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
