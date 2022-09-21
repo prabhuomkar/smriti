@@ -5,6 +5,7 @@ go 1.18
 require github.com/kelseyhightower/envconfig v1.4.0
 
 require (
+	github.com/jmoiron/sqlx v1.3.5 // indirect
 	github.com/labstack/echo v3.3.10+incompatible // indirect
 	github.com/labstack/gommon v0.3.1 // indirect
 	github.com/mattn/go-colorable v0.1.13 // indirect

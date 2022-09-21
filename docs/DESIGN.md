@@ -16,7 +16,7 @@
 - Service written in Golang
     - REST API: [echo](https://echo.labstack.com/)
     - RPC: [gRPC + protobuf](https://grpc.io/)
-    - Postgres: [dbq](https://github.com/rocketlaunchr/dbq)
+    - Postgres: [sqlx](https://github.com/jmoiron/sqlx)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
 - Will exchange protobuf with Worker:
