@@ -15,7 +15,7 @@ tags:
   - name: Albums
     description: Collection of your Photos & Videos
   - name: Authentication
-    description: Authentication for your application
+    description: Authenticationa for your application
 paths:
   /v1/mediaItems:
     get:
@@ -606,7 +606,7 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
-    put:
+    post:
       tags:
         - Albums
       parameters:
@@ -617,9 +617,9 @@ paths:
           schema:
             type: string
             format: uuid
-      summary: Update mediaItems of an existing album
-      description: Update mediaItems of an existing album
-      operationId: updateAlbumMediaItems
+      summary: Add mediaItems to an existing album
+      description: Add mediaItems to an existing album
+      operationId: addAlbumMediaItems
       responses:
         '204':
           description: No Content
@@ -644,7 +644,7 @@ paths:
             format: uuid
       summary: Remove mediaItems from an existing album
       description: Remove mediaItems from an existing album
-      operationId: deleteAlbumMediaItems
+      operationId: removeAlbumMediaItems
       responses:
         '204':
           description: No Content

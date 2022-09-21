@@ -5,40 +5,40 @@ import "github.com/kelseyhightower/envconfig"
 type (
 	// Log ...
 	Log struct {
-		Level string `default:"INFO"`
+		Level string `envconfig:"PENSIEVE_LOG_LEVEL" default:"INFO"`
 	}
 
 	// API ...
 	API struct {
-		Host string `default:"127.0.0.1"`
-		Port int    `default:"5001"`
+		Host string `envconfig:"PENSIEVE_API_HOST" default:"127.0.0.1"`
+		Port int    `envconfig:"PENSIEVE_API_PORT" default:"5001"`
 	}
 
 	// GRPC ...
 	GRPC struct {
-		Host string `default:"127.0.0.1"`
-		Port int    `default:"15001"`
+		Host string `envconfig:"PENSIEVE_GRPC_HOST" default:"127.0.0.1"`
+		Port int    `envconfig:"PENSIEVE_GRPC_PORT" default:"15001"`
 	}
 
 	// Database ...
 	Database struct {
-		Host     string `default:"db"`
-		Port     int    `default:"5432"`
-		Username string `default:"pensieve"`
-		Password string `default:"pensieve"`
+		Host     string `envconfig:"PENSIEVE_DATABASE_HOST" default:"db"`
+		Port     int    `envconfig:"PENSIEVE_DATABASE_PORT" default:"5432"`
+		Username string `envconfig:"PENSIEVE_DATABASE_USERNAME" default:"pensieve"`
+		Password string `envconfig:"PENSIEVE_DATABASE_PASSWORD" default:"pensieve"`
 	}
 
 	// Feature ...
 	Feature struct {
-		Favourites    bool `default:"true"`
-		Hidden        bool `default:"true"`
-		Trash         bool `default:"true"`
-		Albums        bool `default:"true"`
-		Explore       bool `default:"true"`
-		ExplorePlaces bool `default:"true"`
-		ExploreThings bool `default:"true"`
-		ExplorePeople bool `default:"true"`
-		Sharing       bool `default:"true"`
+		Favourites    bool `envconfig:"PENSIEVE_FEATURE_FAVOURITES" default:"true"`
+		Hidden        bool `envconfig:"PENSIEVE_FEATURE_HIDDEN" default:"true"`
+		Trash         bool `envconfig:"PENSIEVE_FEATURE_TRASH" default:"true"`
+		Albums        bool `envconfig:"PENSIEVE_FEATURE_ALBUMS" default:"true"`
+		Explore       bool `envconfig:"PENSIEVE_FEATURE_EXPLORE" default:"true"`
+		ExplorePlaces bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PLACES" default:"true"`
+		ExploreThings bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_THINGS" default:"true"`
+		ExplorePeople bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PEOPLE" default:"true"`
+		Sharing       bool `envconfig:"PENSIEVE_FEATURE_SHARING" default:"true"`
 	}
 
 	// Config ...
