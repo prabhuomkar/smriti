@@ -3,6 +3,7 @@ package server
 import (
 	"api/config"
 	"api/internal/handlers"
+	"api/internal/middlewares"
 	"fmt"
 	"log"
 	"net/http"
@@ -18,35 +19,37 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 		Handler: e,
 	}
 	// routes
-	// todo(omkar): add middleware for feature check
+	// todo(omkar): do this in a better way
 	v1 := e.Group("/v1")
 	// mediaitems
 	mediaItems := v1.Group("/mediaItems")
-	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces)
-	mediaItems.GET("/:id/things", handler.GetMediaItemThings)
-	mediaItems.GET("/:id/people", handler.GetMediaItemPeople)
+	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces, middlewares.IsFeatureEnabled(cfg, "places"))
+	mediaItems.GET("/:id/things", handler.GetMediaItemThings, middlewares.IsFeatureEnabled(cfg, "things"))
+	mediaItems.GET("/:id/people", handler.GetMediaItemPeople, middlewares.IsFeatureEnabled(cfg, "people"))
 	mediaItems.GET("/:id", handler.GetMediaItem)
 	mediaItems.PUT("/:id", handler.UpdateMediaItem)
 	mediaItems.DELETE("/:id", handler.DeleteMediaItem)
 	mediaItems.GET("", handler.GetMediaItems)
 	mediaItems.POST("", handler.UploadMediaItems)
 	// library
-	v1.GET("/favourites", handler.GetFavouriteMediaItems)
-	v1.GET("/hidden", handler.GetHiddenMediaItems)
-	v1.GET("/trash", handler.GetDeletedMediaItems)
+	v1.GET("/favourites", handler.GetFavouriteMediaItems, middlewares.IsFeatureEnabled(cfg, "favourites"))
+	v1.GET("/hidden", handler.GetHiddenMediaItems, middlewares.IsFeatureEnabled(cfg, "hidden"))
+	v1.GET("/trash", handler.GetDeletedMediaItems, middlewares.IsFeatureEnabled(cfg, "trash"))
 	// explore
 	explore := v1.Group("/explore")
-	explore.GET("/places/:placeId/mediaItems", handler.GetPlaceMediaItems)
-	explore.GET("/places/:placeId", handler.GetPlace)
-	explore.GET("/places", handler.GetPlaces)
-	explore.GET("/things/:thingId/mediaItems", handler.GetThingMediaItems)
-	explore.GET("/things/:thingId", handler.GetThing)
-	explore.GET("/things", handler.GetThings)
-	explore.GET("/people/:peopleId/mediaItems", handler.GetPeopleMediaItems)
-	explore.GET("/people/:peopleId", handler.GetPerson)
-	explore.GET("/people", handler.GetPeople)
+	explore.Use(middlewares.IsFeatureEnabled(cfg, "explore"))
+	explore.GET("/places/:placeId/mediaItems", handler.GetPlaceMediaItems, middlewares.IsFeatureEnabled(cfg, "places"))
+	explore.GET("/places/:placeId", handler.GetPlace, middlewares.IsFeatureEnabled(cfg, "places"))
+	explore.GET("/places", handler.GetPlaces, middlewares.IsFeatureEnabled(cfg, "places"))
+	explore.GET("/things/:thingId/mediaItems", handler.GetThingMediaItems, middlewares.IsFeatureEnabled(cfg, "things"))
+	explore.GET("/things/:thingId", handler.GetThing, middlewares.IsFeatureEnabled(cfg, "things"))
+	explore.GET("/things", handler.GetThings, middlewares.IsFeatureEnabled(cfg, "things"))
+	explore.GET("/people/:peopleId/mediaItems", handler.GetPeopleMediaItems, middlewares.IsFeatureEnabled(cfg, "people"))
+	explore.GET("/people/:peopleId", handler.GetPerson, middlewares.IsFeatureEnabled(cfg, "people"))
+	explore.GET("/people", handler.GetPeople, middlewares.IsFeatureEnabled(cfg, "people"))
 	// albums
 	albums := v1.Group("/albums")
+	albums.Use(middlewares.IsFeatureEnabled(cfg, "albums"))
 	albums.GET("/:id/mediaItems", handler.GetAlbumMediaItems)
 	albums.POST("/:id/mediaItems", handler.AddAlbumMediaItems)
 	albums.DELETE("/:id/mediaItems", handler.RemoveAlbumMediaItems)

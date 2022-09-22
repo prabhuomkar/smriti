@@ -31,15 +31,15 @@ type (
 
 	// Feature ...
 	Feature struct {
-		Favourites    bool `envconfig:"PENSIEVE_FEATURE_FAVOURITES" default:"true"`
-		Hidden        bool `envconfig:"PENSIEVE_FEATURE_HIDDEN" default:"true"`
-		Trash         bool `envconfig:"PENSIEVE_FEATURE_TRASH" default:"true"`
-		Albums        bool `envconfig:"PENSIEVE_FEATURE_ALBUMS" default:"true"`
-		Explore       bool `envconfig:"PENSIEVE_FEATURE_EXPLORE" default:"true"`
-		ExplorePlaces bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PLACES" default:"true"`
-		ExploreThings bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_THINGS" default:"true"`
-		ExplorePeople bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PEOPLE" default:"true"`
-		Sharing       bool `envconfig:"PENSIEVE_FEATURE_SHARING" default:"true"`
+		Favourites    bool `envconfig:"PENSIEVE_FEATURE_FAVOURITES" default:"false"`
+		Hidden        bool `envconfig:"PENSIEVE_FEATURE_HIDDEN" default:"false"`
+		Trash         bool `envconfig:"PENSIEVE_FEATURE_TRASH" default:"false"`
+		Albums        bool `envconfig:"PENSIEVE_FEATURE_ALBUMS" default:"false"`
+		Explore       bool `envconfig:"PENSIEVE_FEATURE_EXPLORE" default:"false"`
+		ExplorePlaces bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PLACES" default:"false"`
+		ExploreThings bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_THINGS" default:"false"`
+		ExplorePeople bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PEOPLE" default:"false"`
+		Sharing       bool `envconfig:"PENSIEVE_FEATURE_SHARING" default:"false"`
 	}
 
 	// Config ...
