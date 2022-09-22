@@ -4,13 +4,14 @@ import (
 	"api/config"
 	"api/internal/handlers"
 	"fmt"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
 )
 
 // InitHTTPServer ...
-func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) error {
+func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	e := echo.New()
 	server := http.Server{
 		Addr:    fmt.Sprintf("%s:%d", cfg.API.Host, cfg.API.Port),
@@ -60,5 +61,8 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) error {
 	auth.POST("/refresh", handler.Refresh)
 	auth.POST("/logout", handler.Logout)
 
-	return server.ListenAndServe()
+	log.Printf("starting http api server on: %d", cfg.API.Port)
+	if err := server.ListenAndServe(); err != http.ErrServerClosed {
+		panic(err)
+	}
 }

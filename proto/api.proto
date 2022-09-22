@@ -2,6 +2,8 @@ syntax = "proto3";
 
 import "google/protobuf/empty.proto";
 
+option go_package = "api/";
+
 message MediaItemResultRequest {
     string id = 1;
     string status = 2;
@@ -11,8 +13,8 @@ message MediaItemResultRequest {
     optional string previewUrl = 6;
     optional string thumbnailUrl = 7;
     optional string type = 8;
-    optional int width = 9;
-    optional int height = 10;
+    optional int32 width = 9;
+    optional int32 height = 10;
     optional string creationTime = 11;
     optional string cameraMake = 12;
     optional string cameraModel = 13;
