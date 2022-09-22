@@ -17,6 +17,20 @@ tags:
   - name: Authentication
     description: Authenticationa for your application
 paths:
+  /v1/features:
+    get:
+      summary: Get list of enabled features
+      description: Get list of enabled features
+      operationId: getFeatures
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
   /v1/mediaItems:
     get:
       tags:

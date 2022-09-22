@@ -21,6 +21,7 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	// routes
 	// todo(omkar): do this in a better way
 	v1 := e.Group("/v1")
+	v1.GET("/features", handler.GetFeatures)
 	// mediaitems
 	mediaItems := v1.Group("/mediaItems")
 	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces, middlewares.IsFeatureEnabled(cfg, "places"))

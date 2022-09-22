@@ -33,4 +33,5 @@ func main() {
 		DB:     db,
 	}
 	server.InitHTTPServer(cfg, handler)
+	// todo(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections
 }
