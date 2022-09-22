@@ -1,11 +1,15 @@
 package handlers
 
-import "api/config"
+import (
+	"api/config"
+
+	"github.com/jmoiron/sqlx"
+)
 
 // Handler ...
 type Handler struct {
 	Config *config.Config
-	// database
+	DB     *sqlx.DB
 	// cache
 	// grpc client
 }

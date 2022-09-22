@@ -26,6 +26,7 @@ type (
 		Port     int    `envconfig:"PENSIEVE_DATABASE_PORT" default:"5432"`
 		Username string `envconfig:"PENSIEVE_DATABASE_USERNAME" default:"pensieve"`
 		Password string `envconfig:"PENSIEVE_DATABASE_PASSWORD" default:"pensieve"`
+		Name     string `envconfig:"PENSIEVE_DATABASE_NAME" default:"pensieve"`
 	}
 
 	// Feature ...

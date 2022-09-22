@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/internal/handlers"
 	"api/internal/server"
+	"api/pkg/database"
 	"log"
 	"net/http"
 )
@@ -14,10 +15,14 @@ func main() {
 		panic(err)
 	}
 
-	// todo(omkar): initialize DB connection
+	db, err := database.Init(cfg.Database.Host, cfg.Database.Port, cfg.Database.Username,
+		cfg.Database.Password, cfg.Database.Name)
+	if err != nil {
+		panic(err)
+	}
 	// todo(omkar): initialize GRPC client connection
 
-	log.Printf("starting grpc server on: %d", cfg.API.Port)
+	log.Printf("starting grpc server on: %d", cfg.GRPC.Port)
 	err = server.InitGRPCServer(cfg)
 	if err != nil {
 		panic(err)
@@ -25,6 +30,7 @@ func main() {
 
 	handler := &handlers.Handler{
 		Config: cfg,
+		DB:     db,
 	}
 
 	log.Printf("starting http api server on: %d", cfg.API.Port)

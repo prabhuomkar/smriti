@@ -1,0 +1,39 @@
+version: '3'
+services:
+  # applications
+  api:
+    build: api
+    restart: always
+    container_name: api
+    ports:
+      - '5001:5001'
+      - '15001:15001'
+    depends_on:
+      - database
+      - worker
+    environment:
+      PENSIEVE_DATABASE_HOST: database
+      PENSIEVE_DATABASE_PORT: 5432
+      PENSIEVE_DATABASE_USERNAME: pensieve
+      PENSIEVE_DATABASE_PASSWORD: pensieve
+      PENSIEVE_DATABASE_NAME: pensieve
+  worker:
+    build: worker
+    restart: always
+    container_name: worker
+    ports:  
+      - '15002:15002'
+    environment:
+      LOG_LEVEL: INFO
+  # infra services
+  database:
+    image: postgres:14
+    restart: always
+    container_name: database
+    environment:
+      POSTGRES_USER: pensieve
+      POSTGRES_PASSWORD: pensieve
+    ports:
+      - '5432:5432'
+    volumes:
+      - ./infra/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql
