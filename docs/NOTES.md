@@ -6,6 +6,7 @@
 - Demos can include: deployment on Fly, Heroku, other SaaS, hosting on Raspberry Pis and dockerized deployment on Cloud
 - Logging to make sure consistency across several components
 - Give a comparison of supported file formats between Google Photos and Pensieve
+- Send email on failures to owner or some metric of daily upload success/failed
 
 ## Database Design
 
