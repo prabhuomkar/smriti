@@ -1,7 +1,9 @@
 package handlers
 
 import (
-	"errors"
+	"api/internal/models"
+	"log"
+	"net/http"
 
 	"github.com/labstack/echo"
 )
@@ -38,7 +40,13 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 
 // GetAlbums ...
 func (h *Handler) GetAlbums(ctx echo.Context) error {
-	return errors.New("some error")
+	albums := []models.Album{}
+	err := h.DB.Select(&albums, "SELECT * FROM albums WHERE is_hidden=false")
+	if err != nil {
+		log.Printf("error getting albums: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, albums)
 }
 
 // CreateAlbum ...

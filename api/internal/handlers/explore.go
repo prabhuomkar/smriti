@@ -1,10 +1,22 @@
 package handlers
 
-import "github.com/labstack/echo"
+import (
+	"api/internal/models"
+	"log"
+	"net/http"
+
+	"github.com/labstack/echo"
+)
 
 // GetPlaces ...
 func (h *Handler) GetPlaces(ctx echo.Context) error {
-	return nil
+	places := []models.Place{}
+	err := h.DB.Select(&places, "SELECT * FROM places WHERE is_hidden=false")
+	if err != nil {
+		log.Printf("error getting places: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, places)
 }
 
 // GetPlace ...
@@ -19,7 +31,13 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 
 // GetThings ...
 func (h *Handler) GetThings(ctx echo.Context) error {
-	return nil
+	things := []models.Thing{}
+	err := h.DB.Select(&things, "SELECT * FROM things WHERE is_hidden=false")
+	if err != nil {
+		log.Printf("error getting things: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, things)
 }
 
 // GetThing ...
@@ -34,7 +52,13 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 
 // GetPeople ...
 func (h *Handler) GetPeople(ctx echo.Context) error {
-	return nil
+	people := []models.People{}
+	err := h.DB.Select(&people, "SELECT * FROM people WHERE is_hidden=false")
+	if err != nil {
+		log.Printf("error getting people: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, people)
 }
 
 // GetPerson ...

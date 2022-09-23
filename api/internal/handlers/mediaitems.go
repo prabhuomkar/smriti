@@ -1,6 +1,12 @@
 package handlers
 
-import "github.com/labstack/echo"
+import (
+	"api/internal/models"
+	"log"
+	"net/http"
+
+	"github.com/labstack/echo"
+)
 
 // GetMediaItemPlaces ...
 func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
@@ -34,7 +40,13 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 
 // GetMediaItems ...
 func (h *Handler) GetMediaItems(ctx echo.Context) error {
-	return nil
+	mediaItems := []models.MediaItem{}
+	err := h.DB.Select(&mediaItems, "SELECT * FROM mediaitems WHERE (is_hidden=false OR is_deleted=false)")
+	if err != nil {
+		log.Printf("error getting mediaitems: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
 // UploadMediaItems ...
