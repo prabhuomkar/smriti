@@ -6,11 +6,26 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo"
+	uuid "github.com/satori/go.uuid"
 )
 
 // GetAlbumMediaItems ...
 func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
-	return nil
+	id := ctx.Param("id")
+	uid, err := uuid.FromString(id)
+	if err != nil {
+		log.Printf("error getting album id: %+v", err)
+		return echo.ErrBadRequest
+	}
+	mediaItems := []models.MediaItem{}
+	err = h.DB.Select(&mediaItems, "SELECT * FROM album_mediaitems "+
+		"INNER JOIN mediaitems ON album_mediaitems.mediaitem_id = mediaitems.id "+
+		"WHERE album_mediaitems.album_id=$1", uid)
+	if err != nil {
+		log.Printf("error getting album mediaitems: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
 // AddAlbumMediaItems ...
@@ -25,7 +40,19 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 
 // GetAlbum ...
 func (h *Handler) GetAlbum(ctx echo.Context) error {
-	return nil
+	id := ctx.Param("id")
+	uid, err := uuid.FromString(id)
+	if err != nil {
+		log.Printf("error getting album id: %+v", err)
+		return echo.ErrBadRequest
+	}
+	album := models.Album{}
+	err = h.DB.Get(&album, "SELECT * FROM albums WHERE id=$1", uid)
+	if err != nil {
+		log.Printf("error getting album: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, album)
 }
 
 // UpdateAlbum ...
