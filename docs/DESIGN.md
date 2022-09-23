@@ -20,6 +20,7 @@
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
 - Will exchange protobuf with Worker: [api.proto](../proto/api.proto)
+
 #### Database
 - [Postgres DB Schema](../infra/database/schema.sql)
 - Total number of tables: 12
