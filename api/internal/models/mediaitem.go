@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 type (
 	// MediaItemStatus ...
@@ -48,3 +52,7 @@ const (
 	Photo MediaItemType = "photo"
 	Video MediaItemType = "video"
 )
+
+func (m *MediaItem) NewID() {
+	m.ID = uuid.NewV4().String()
+}

@@ -1,6 +1,10 @@
 package models
 
-import "time"
+import (
+	"time"
+
+	uuid "github.com/satori/go.uuid"
+)
 
 // Album ...
 type Album struct {
@@ -14,4 +18,8 @@ type Album struct {
 	CoverMediaItemThumbnailUrl string    `json:"coverMediaItemThumbnailUrl" db:"cover_mediaitem_thumbnail_url"`
 	CreatedAt                  time.Time `json:"createdAt" db:"created_at"`
 	UpdatedAt                  time.Time `json:"updatedAt" db:"updated_at"`
+}
+
+func (a *Album) NewID() {
+	a.ID = uuid.NewV4().String()
 }
