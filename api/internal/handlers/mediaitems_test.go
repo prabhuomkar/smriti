@@ -17,6 +17,26 @@ var (
 		"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "width",
 		"height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 		"iso_equivalent", "exposure_time", "location", "fps", "created_at", "updated_at"}
+	mediaitem_response_body = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename","description":"description",` +
+		`"mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url","thumbnailUrl":"thumbnail_url",` +
+		`"status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
+		`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
+		`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
+		`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
+	mediaitems_response_body = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename","description":"description",` +
+		`"mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url","thumbnailUrl":"thumbnail_url",` +
+		`"status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
+		`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
+		`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
+		`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","filename":"filename",` +
+		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"thumbnailUrl":"thumbnail_url","status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
+		`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
+		`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
+		`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
 func TestGetMediaItemPlaces(t *testing.T) {
@@ -73,13 +93,7 @@ func TestGetMediaItem(t *testing.T) {
 				return handler.GetMediaItem
 			},
 			http.StatusOK,
-			`{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename","description":"description",` +
-				`"mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url","thumbnailUrl":"thumbnail_url",` +
-				`"status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
-				`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
-				`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
-				`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
-				`"updatedAt":"2022-09-22T11:22:33+05:30"}`,
+			mediaitem_response_body,
 		},
 		{
 			"get mediaitem with error",
@@ -138,19 +152,7 @@ func TestGetMediaItems(t *testing.T) {
 				return handler.GetMediaItems
 			},
 			http.StatusOK,
-			`[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename","description":"description",` +
-				`"mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url","thumbnailUrl":"thumbnail_url",` +
-				`"status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
-				`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
-				`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
-				`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
-				`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","filename":"filename",` +
-				`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
-				`"thumbnailUrl":"thumbnail_url","status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
-				`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
-				`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
-				`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps",` +
-				`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}]`,
+			mediaitems_response_body,
 		},
 		{
 			"get mediaitems with error",

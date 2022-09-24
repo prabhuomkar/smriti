@@ -16,7 +16,66 @@ var (
 )
 
 func TestGetAlbumMediaItems(t *testing.T) {
-
+	tests := []Test{
+		{
+			"get album mediaitems bad request",
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/bad-uuid/mediaItems",
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album id"}`,
+		},
+		{
+			"get album mediaitems not found",
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM album_mediaitems`))
+				expectedQuery.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetAlbumMediaItems
+			},
+			http.StatusOK,
+			"[]",
+		},
+		{
+			"get album mediaitems with 2 rows",
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM album_mediaitems`))
+				expectedQuery.WillReturnRows(getMockedMediaItemRows())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetAlbumMediaItems
+			},
+			http.StatusOK,
+			mediaitems_response_body,
+		},
+		{
+			"get album mediaitems with error",
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM album_mediaitems`))
+				expectedQuery.WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestAddAlbumMediaItems(t *testing.T) {
