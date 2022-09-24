@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -32,6 +33,9 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 	err = h.DB.Get(&place, "SELECT * FROM places WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting place: %+v", err)
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "place not found")
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, place)
@@ -79,6 +83,9 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 	err = h.DB.Get(&thing, "SELECT * FROM things WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting thing: %+v", err)
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, thing)
@@ -120,12 +127,15 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting person id: %+v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid person id")
 	}
 	person := models.People{}
 	err = h.DB.Get(&person, "SELECT * FROM people WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting person: %+v", err)
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "person not found")
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, person)
