@@ -28,3 +28,4 @@ jobs:
           version: latest
           working-directory: api
       - run: make build
+      - run: make test
