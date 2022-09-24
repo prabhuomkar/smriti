@@ -15,7 +15,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting album id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid album id")
 	}
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Select(&mediaItems, "SELECT * FROM album_mediaitems "+
@@ -44,7 +44,7 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting album id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid album id")
 	}
 	album := models.Album{}
 	err = h.DB.Get(&album, "SELECT * FROM albums WHERE id=$1", uid)

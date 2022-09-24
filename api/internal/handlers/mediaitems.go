@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"database/sql"
 	"log"
 	"net/http"
 	"time"
@@ -16,7 +17,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 	places := []models.Place{}
 	err = h.DB.Select(&places, "SELECT * FROM places "+
@@ -35,7 +36,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 	things := []models.Thing{}
 	err = h.DB.Select(&things, "SELECT * FROM things "+
@@ -54,7 +55,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
 	}
 	people := []models.People{}
 	err = h.DB.Select(&people, "SELECT * FROM people "+
@@ -73,12 +74,15 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	mediaItem := models.MediaItem{}
 	err = h.DB.Get(&mediaItem, "SELECT * FROM mediaitems WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting mediaitem: %+v", err)
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "mediaitem not found")
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItem)

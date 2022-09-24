@@ -26,7 +26,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting place id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	place := models.Place{}
 	err = h.DB.Get(&place, "SELECT * FROM places WHERE id=$1", uid)
@@ -43,7 +43,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting place id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Select(&mediaItems, "SELECT * FROM place_mediaitems "+
@@ -73,7 +73,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting thing id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	thing := models.Thing{}
 	err = h.DB.Get(&thing, "SELECT * FROM things WHERE id=$1", uid)
@@ -90,7 +90,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting thing id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Select(&mediaItems, "SELECT * FROM thing_mediaitems "+
@@ -120,7 +120,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting person id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
 	}
 	person := models.People{}
 	err = h.DB.Get(&person, "SELECT * FROM people WHERE id=$1", uid)
@@ -137,7 +137,7 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting person id: %+v", err)
-		return echo.ErrBadRequest
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
 	}
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Select(&mediaItems, "SELECT * FROM people_mediaitems "+

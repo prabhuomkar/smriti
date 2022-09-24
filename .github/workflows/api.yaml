@@ -27,4 +27,4 @@ jobs:
         with:
           version: latest
           working-directory: api
-      - run: go build -o api main.go
+      - run: make build
