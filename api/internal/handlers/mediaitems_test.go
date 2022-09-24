@@ -67,7 +67,7 @@ func TestGetMediaItem(t *testing.T) {
 			nil,
 			func(mock sqlmock.Sqlmock) {
 				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems WHERE id=`))
-				expectedQuery.WillReturnRows(getMockedRows())
+				expectedQuery.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItem
@@ -132,7 +132,7 @@ func TestGetMediaItems(t *testing.T) {
 			nil,
 			func(mock sqlmock.Sqlmock) {
 				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`))
-				expectedQuery.WillReturnRows(getMockedRows())
+				expectedQuery.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItems
@@ -175,7 +175,7 @@ func TestUploadMediaItems(t *testing.T) {
 
 }
 
-func getMockedRows() *sqlmock.Rows {
+func getMockedMediaItemRows() *sqlmock.Rows {
 	return sqlmock.NewRows(mediaitem_cols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", 720,

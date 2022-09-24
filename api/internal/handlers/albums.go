@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"database/sql"
 	"log"
 	"net/http"
 
@@ -50,6 +51,9 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 	err = h.DB.Get(&album, "SELECT * FROM albums WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting album: %+v", err)
+		if err == sql.ErrNoRows {
+			return echo.NewHTTPError(http.StatusNotFound, "album not found")
+		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, album)
