@@ -2,6 +2,6 @@ package handlers
 
 import "testing"
 
-func TestGetFeatur(t *testing.T) {
+func TestGetFeatures(t *testing.T) {
 
 }

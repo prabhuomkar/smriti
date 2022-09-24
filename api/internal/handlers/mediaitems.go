@@ -17,7 +17,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	places := []models.Place{}
 	err = h.DB.Select(&places, "SELECT * FROM places "+
@@ -36,7 +36,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	things := []models.Thing{}
 	err = h.DB.Select(&things, "SELECT * FROM things "+
@@ -55,7 +55,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid id")
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	people := []models.People{}
 	err = h.DB.Select(&people, "SELECT * FROM people "+

@@ -40,15 +40,192 @@ var (
 )
 
 func TestGetMediaItemPlaces(t *testing.T) {
-
+	tests := []Test{
+		{
+			"get mediaitem mediaitem bad request",
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/bad-uuid/places",
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"get mediaitem places with empty table",
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM places INNER JOIN place_mediaitems`))
+				expectedQuery.WillReturnRows(sqlmock.NewRows(place_cols))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusOK,
+			"[]",
+		},
+		{
+			"get mediaitem places with 2 rows",
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM places INNER JOIN place_mediaitems`))
+				expectedQuery.WillReturnRows(getMockedPlaceRows())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusOK,
+			places_response_body,
+		},
+		{
+			"get mediaitem places with error",
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM places INNER JOIN place_mediaitems`))
+				expectedQuery.WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestGetMediaItemThings(t *testing.T) {
-
+	tests := []Test{
+		{
+			"get mediaitem mediaitem bad request",
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/bad-uuid/things",
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"get mediaitem things with empty table",
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM things INNER JOIN thing_mediaitems`))
+				expectedQuery.WillReturnRows(sqlmock.NewRows(thing_cols))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusOK,
+			"[]",
+		},
+		{
+			"get mediaitem things with 2 rows",
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM things INNER JOIN thing_mediaitems`))
+				expectedQuery.WillReturnRows(getMockedThingRows())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusOK,
+			things_response_body,
+		},
+		{
+			"get mediaitem things with error",
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM things INNER JOIN thing_mediaitems`))
+				expectedQuery.WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestGetMediaItemPeople(t *testing.T) {
-
+	tests := []Test{
+		{
+			"get mediaitem mediaitem bad request",
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/bad-uuid/people",
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"get mediaitem people with empty table",
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM people INNER JOIN people_mediaitems`))
+				expectedQuery.WillReturnRows(sqlmock.NewRows(people_cols))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusOK,
+			"[]",
+		},
+		{
+			"get mediaitem people with 2 rows",
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM people INNER JOIN people_mediaitems`))
+				expectedQuery.WillReturnRows(getMockedPeopleRows())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusOK,
+			people_response_body,
+		},
+		{
+			"get mediaitem people with error",
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM people INNER JOIN people_mediaitems`))
+				expectedQuery.WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestGetMediaItem(t *testing.T) {
