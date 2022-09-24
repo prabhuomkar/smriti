@@ -24,7 +24,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 		"WHERE place_mediaitems.mediaitem_id=$1", uid)
 	if err != nil {
 		log.Printf("error getting mediaitem places: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, places)
 }
@@ -43,7 +43,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 		"WHERE thing_mediaitems.mediaitem_id=$1", uid)
 	if err != nil {
 		log.Printf("error getting mediaitem things: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, things)
 }
@@ -62,7 +62,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 		"WHERE people_mediaitems.mediaitem_id=$1", uid)
 	if err != nil {
 		log.Printf("error getting mediaitem people: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, people)
 }
@@ -79,7 +79,7 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 	err = h.DB.Get(&mediaItem, "SELECT * FROM mediaitems WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting mediaitem: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItem)
 }
@@ -100,7 +100,7 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	err := h.DB.Select(&mediaItems, "SELECT * FROM mediaitems WHERE (is_hidden=false OR is_deleted=false)")
 	if err != nil {
 		log.Printf("error getting mediaitems: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
@@ -111,13 +111,13 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	err := h.mockCreateMediaItem(uid)
 	if err != nil {
 		log.Printf("error creating mock mediaitem: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	mediaItem := models.MediaItem{}
 	err = h.DB.Get(&mediaItem, "SELECT * FROM mediaitems WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting mediaitem: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItem)
 }

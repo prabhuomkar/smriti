@@ -15,7 +15,7 @@ func (h *Handler) GetPlaces(ctx echo.Context) error {
 	err := h.DB.Select(&places, "SELECT * FROM places WHERE is_hidden=false")
 	if err != nil {
 		log.Printf("error getting places: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, places)
 }
@@ -32,7 +32,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 	err = h.DB.Get(&place, "SELECT * FROM places WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting place: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, place)
 }
@@ -51,7 +51,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 		"WHERE place_mediaitems.place_id=$1 AND (mediaitems.is_hidden=false OR mediaitems.is_deleted=false)", uid)
 	if err != nil {
 		log.Printf("error getting place mediaitems: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
@@ -62,7 +62,7 @@ func (h *Handler) GetThings(ctx echo.Context) error {
 	err := h.DB.Select(&things, "SELECT * FROM things WHERE is_hidden=false")
 	if err != nil {
 		log.Printf("error getting things: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, things)
 }
@@ -79,7 +79,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 	err = h.DB.Get(&thing, "SELECT * FROM things WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting thing: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, thing)
 }
@@ -98,7 +98,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 		"WHERE thing_mediaitems.thing_id=$1 AND (mediaitems.is_hidden=false OR mediaitems.is_deleted=false)", uid)
 	if err != nil {
 		log.Printf("error getting thing mediaitems: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
@@ -109,7 +109,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 	err := h.DB.Select(&people, "SELECT * FROM people WHERE is_hidden=false")
 	if err != nil {
 		log.Printf("error getting people: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, people)
 }
@@ -126,7 +126,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 	err = h.DB.Get(&person, "SELECT * FROM people WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting person: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, person)
 }
@@ -145,7 +145,7 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 		"WHERE people_mediaitems.people_id=$1 AND (mediaitems.is_hidden=false OR mediaitems.is_deleted=false)", uid)
 	if err != nil {
 		log.Printf("error getting people mediaitems: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }

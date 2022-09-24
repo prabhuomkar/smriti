@@ -14,7 +14,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 	err := h.DB.Select(&favourites, "SELECT * FROM mediaitems WHERE is_favourite=true")
 	if err != nil {
 		log.Printf("error getting favourites: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, favourites)
 }
@@ -25,7 +25,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 	err := h.DB.Select(&hidden, "SELECT * FROM mediaitems WHERE is_hidden=true")
 	if err != nil {
 		log.Printf("error getting hidden: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, hidden)
 }
@@ -36,7 +36,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 	err := h.DB.Select(&deleted, "SELECT * FROM mediaitems WHERE is_deleted=true")
 	if err != nil {
 		log.Printf("error getting deleted: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, deleted)
 }

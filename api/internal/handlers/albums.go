@@ -23,7 +23,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 		"WHERE album_mediaitems.album_id=$1", uid)
 	if err != nil {
 		log.Printf("error getting album mediaitems: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
@@ -50,7 +50,7 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 	err = h.DB.Get(&album, "SELECT * FROM albums WHERE id=$1", uid)
 	if err != nil {
 		log.Printf("error getting album: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, album)
 }
@@ -71,7 +71,7 @@ func (h *Handler) GetAlbums(ctx echo.Context) error {
 	err := h.DB.Select(&albums, "SELECT * FROM albums WHERE is_hidden=false")
 	if err != nil {
 		log.Printf("error getting albums: %+v", err)
-		return echo.ErrInternalServerError
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, albums)
 }
