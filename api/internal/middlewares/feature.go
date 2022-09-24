@@ -6,8 +6,8 @@ import (
 	"github.com/labstack/echo"
 )
 
-// IsFeatureEnabled ...
-func IsFeatureEnabled(cfg *config.Config, feature string) echo.MiddlewareFunc {
+// FeatureCheck ...
+func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			// todo(omkar): do this in a better way
