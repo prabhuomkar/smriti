@@ -4,6 +4,7 @@ import (
 	"api/internal/models"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
@@ -106,5 +107,24 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 
 // UploadMediaItems ...
 func (h *Handler) UploadMediaItems(ctx echo.Context) error {
-	return nil
+	uid := uuid.NewV4()
+	err := h.mockCreateMediaItem(uid)
+	if err != nil {
+		log.Printf("error creating mock mediaitem: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	mediaItem := models.MediaItem{}
+	err = h.DB.Get(&mediaItem, "SELECT * FROM mediaitems WHERE id=$1", uid)
+	if err != nil {
+		log.Printf("error getting mediaitem: %+v", err)
+		return echo.ErrInternalServerError
+	}
+	return ctx.JSON(http.StatusOK, mediaItem)
+}
+
+func (h *Handler) mockCreateMediaItem(uid uuid.UUID) error {
+	_, err := h.DB.Exec(h.DB.Rebind("INSERT into mediaitems VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"),
+		uid, "IMG_284.jpg", "A sample image from wedding", "image/jpeg", "", "", "", false, false, false, models.Ready, models.Photo, 720, 480, time.Now(), "", "", "", "", "", "", nil, "", time.Now(), time.Now())
+
+	return err
 }
