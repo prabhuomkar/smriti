@@ -23,3 +23,12 @@ type Album struct {
 func (a *Album) NewID() {
 	a.ID = uuid.NewV4().String()
 }
+
+func (a *Album) Create() {
+	a.CreatedAt = time.Now()
+	a.UpdatedAt = a.CreatedAt
+}
+
+func (a *Album) Update() {
+	a.UpdatedAt = time.Now()
+}

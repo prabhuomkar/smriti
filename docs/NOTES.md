@@ -9,3 +9,4 @@
 - [ ] Send email on failures to owner or some metric of daily upload success/failed
 - [ ] Release Workflow in GitHub Actions, to deploy Docker images to Docker Hub Registry
 - [ ] Infra Cases: graceful shutdown of api & worker, database reconnects & grpc retry/reconnect
+- [ ] i18n support for languages incrementally: English, Chinese, Japanese, German, French, etc.
