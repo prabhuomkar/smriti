@@ -2,21 +2,22 @@ package handlers
 
 import (
 	"api/internal/models"
-	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 // GetPlaces ...
 func (h *Handler) GetPlaces(ctx echo.Context) error {
 	places := []models.Place{}
-	err := h.DB.Select(&places, "SELECT * FROM places WHERE is_hidden=false")
-	if err != nil {
-		log.Printf("error getting places: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_hidden=false").Find(&places)
+	if result.Error != nil {
+		log.Printf("error getting places: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, places)
 }
@@ -30,13 +31,13 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	place := models.Place{}
-	err = h.DB.Get(&place, "SELECT * FROM places WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error getting place: %+v", err)
-		if err == sql.ErrNoRows {
+	result := h.DB.Where("id = ?", uid).First(&place)
+	if result.Error != nil {
+		log.Printf("error getting thing: %+v", result.Error)
+		if result.Error == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "place not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, place)
 }
@@ -50,23 +51,17 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Select(&mediaItems, "SELECT * FROM place_mediaitems "+
-		"INNER JOIN mediaitems ON place_mediaitems.mediaitem_id = mediaitems.id "+
-		"WHERE place_mediaitems.place_id=$1 AND (mediaitems.is_hidden=false OR mediaitems.is_deleted=false)", uid)
-	if err != nil {
-		log.Printf("error getting place mediaitems: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	fmt.Println(uid)
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
 // GetThings ...
 func (h *Handler) GetThings(ctx echo.Context) error {
 	things := []models.Thing{}
-	err := h.DB.Select(&things, "SELECT * FROM things WHERE is_hidden=false")
-	if err != nil {
-		log.Printf("error getting things: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_hidden=false").Find(&things)
+	if result.Error != nil {
+		log.Printf("error getting things: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, things)
 }
@@ -80,13 +75,13 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	thing := models.Thing{}
-	err = h.DB.Get(&thing, "SELECT * FROM things WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error getting thing: %+v", err)
-		if err == sql.ErrNoRows {
+	result := h.DB.Where("id = ?", uid).First(&thing)
+	if result.Error != nil {
+		log.Printf("error getting thing: %+v", result.Error)
+		if result.Error == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, thing)
 }
@@ -100,23 +95,17 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Select(&mediaItems, "SELECT * FROM thing_mediaitems "+
-		"INNER JOIN mediaitems ON thing_mediaitems.mediaitem_id = mediaitems.id "+
-		"WHERE thing_mediaitems.thing_id=$1 AND (mediaitems.is_hidden=false OR mediaitems.is_deleted=false)", uid)
-	if err != nil {
-		log.Printf("error getting thing mediaitems: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	fmt.Println(uid)
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
 // GetPeople ...
 func (h *Handler) GetPeople(ctx echo.Context) error {
 	people := []models.People{}
-	err := h.DB.Select(&people, "SELECT * FROM people WHERE is_hidden=false")
-	if err != nil {
-		log.Printf("error getting people: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_hidden=false").Find(&people)
+	if result.Error != nil {
+		log.Printf("error getting people: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, people)
 }
@@ -130,13 +119,13 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid person id")
 	}
 	person := models.People{}
-	err = h.DB.Get(&person, "SELECT * FROM people WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error getting person: %+v", err)
-		if err == sql.ErrNoRows {
+	result := h.DB.Where("id = ?", uid).First(&person)
+	if result.Error != nil {
+		log.Printf("error getting person: %+v", result.Error)
+		if result.Error == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "person not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, person)
 }
@@ -150,12 +139,6 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
 	}
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Select(&mediaItems, "SELECT * FROM people_mediaitems "+
-		"INNER JOIN mediaitems ON people_mediaitems.mediaitem_id = mediaitems.id "+
-		"WHERE people_mediaitems.people_id=$1 AND (mediaitems.is_hidden=false OR mediaitems.is_deleted=false)", uid)
-	if err != nil {
-		log.Printf("error getting people mediaitems: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	fmt.Println(uid)
 	return ctx.JSON(http.StatusOK, mediaItems)
 }

@@ -2,13 +2,14 @@ package handlers
 
 import (
 	"api/internal/models"
-	"database/sql"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 type (
@@ -24,15 +25,8 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	mediaItems := []models.MediaItem{}
-	err = h.DB.Select(&mediaItems, "SELECT * FROM album_mediaitems "+
-		"INNER JOIN mediaitems ON album_mediaitems.mediaitem_id = mediaitems.id "+
-		"WHERE album_mediaitems.album_id=$1", uid)
-	if err != nil {
-		log.Printf("error getting album mediaitems: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	return ctx.JSON(http.StatusOK, mediaItems)
+	fmt.Println(uid)
+	return ctx.JSON(http.StatusOK, nil)
 }
 
 // AddAlbumMediaItems ...
@@ -46,7 +40,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 		return err
 	}
 	fmt.Println(uid, mediaItems)
-	return nil
+	return ctx.JSON(http.StatusOK, nil)
 }
 
 // RemoveAlbumMediaItems ...
@@ -60,7 +54,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 		return err
 	}
 	fmt.Println(uid, mediaItems)
-	return nil
+	return ctx.JSON(http.StatusOK, nil)
 }
 
 // GetAlbum ...
@@ -70,13 +64,13 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 		return err
 	}
 	album := models.Album{}
-	err = h.DB.Get(&album, "SELECT * FROM albums WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error getting album: %+v", err)
-		if err == sql.ErrNoRows {
+	result := h.DB.Where("id = ?", uid).First(&album)
+	if result.Error != nil {
+		log.Printf("error getting album: %+v", result.Error)
+		if result.Error == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, album)
 }
@@ -91,15 +85,11 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	album.Update()
-	albumCoverMediaItemID := uuid.FromStringOrNil(album.CoverMediaItemID)
-	_, err = h.DB.Exec("UPDATE albums SET name=$2,description=$3,is_shared=$4,cover_mediaitem_id=$5,"+
-		"cover_mediaitem_thumbnail_url=$6,is_hidden=$7,updated_at=$8 WHERE id=$1", uid, album.Name,
-		album.Description, album.IsShared, albumCoverMediaItemID, album.CoverMediaItemThumbnailUrl,
-		album.IsHidden, album.UpdatedAt)
-	if err != nil {
-		log.Printf("error updating album: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	album.ID = uid
+	result := h.DB.Model(&album).Updates(album)
+	if result.Error != nil || result.RowsAffected != 1 {
+		log.Printf("error updating album: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
 }
@@ -110,10 +100,11 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = h.DB.Exec("DELETE FROM albums WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error deleting album: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	album := models.Album{ID: uid}
+	result := h.DB.Delete(&album)
+	if result.Error != nil || result.RowsAffected != 1 {
+		log.Printf("error deleting album: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
 }
@@ -121,10 +112,10 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 // GetAlbums ...
 func (h *Handler) GetAlbums(ctx echo.Context) error {
 	albums := []models.Album{}
-	err := h.DB.Select(&albums, "SELECT * FROM albums WHERE is_hidden=false")
-	if err != nil {
-		log.Printf("error getting albums: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_hidden=false").Find(&albums)
+	if result.Error != nil {
+		log.Printf("error getting albums: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, albums)
 }
@@ -135,15 +126,13 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	album.NewID()
-	album.Create()
-	albumCoverMediaItemID := uuid.FromStringOrNil(album.CoverMediaItemID)
-	_, err = h.DB.Exec("INSERT INTO albums VALUES($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)", album.ID, album.Name,
-		album.Description, album.IsShared, albumCoverMediaItemID, album.CoverMediaItemThumbnailUrl, 0,
-		album.IsHidden, album.CreatedAt, album.UpdatedAt)
-	if err != nil {
-		log.Printf("error creating album: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	album.ID = uuid.NewV4()
+	album.CreatedAt = time.Now()
+	album.UpdatedAt = time.Now()
+	result := h.DB.Create(&album)
+	if result.Error != nil {
+		log.Printf("error creating album: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusCreated, album)
 }

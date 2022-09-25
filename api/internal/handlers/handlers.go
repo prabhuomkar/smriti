@@ -3,13 +3,13 @@ package handlers
 import (
 	"api/config"
 
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 )
 
 // Handler ...
 type Handler struct {
 	Config *config.Config
-	DB     *sqlx.DB
+	DB     *gorm.DB
 	// cache
 	// grpc client
 }

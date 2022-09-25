@@ -6,13 +6,13 @@ import (
 	"context"
 
 	"github.com/golang/protobuf/ptypes/empty"
-	"github.com/jmoiron/sqlx"
+	"gorm.io/gorm"
 )
 
 // Service ...
 type Service struct {
 	Config *config.Config
-	DB     *sqlx.DB
+	DB     *gorm.DB
 	api.UnimplementedAPIServiceServer
 }
 

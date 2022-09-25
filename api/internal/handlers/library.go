@@ -11,10 +11,10 @@ import (
 // GetFavouriteMediaItems ...
 func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 	favourites := []models.MediaItem{}
-	err := h.DB.Select(&favourites, "SELECT * FROM mediaitems WHERE is_favourite=true")
-	if err != nil {
-		log.Printf("error getting favourites: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_favourite=true").Find(&favourites)
+	if result.Error != nil {
+		log.Printf("error getting favourite mediaitems: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, favourites)
 }
@@ -22,10 +22,10 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 // GetHiddenMediaItems ...
 func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 	hidden := []models.MediaItem{}
-	err := h.DB.Select(&hidden, "SELECT * FROM mediaitems WHERE is_hidden=true")
-	if err != nil {
-		log.Printf("error getting hidden: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_hidden=true").Find(&hidden)
+	if result.Error != nil {
+		log.Printf("error getting hidden mediaitems: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, hidden)
 }
@@ -33,10 +33,10 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 // GetDeletedMediaItems ...
 func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 	deleted := []models.MediaItem{}
-	err := h.DB.Select(&deleted, "SELECT * FROM mediaitems WHERE is_deleted=true")
-	if err != nil {
-		log.Printf("error getting deleted: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_deleted=true").Find(&deleted)
+	if result.Error != nil {
+		log.Printf("error getting deleted mediaitems: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, deleted)
 }

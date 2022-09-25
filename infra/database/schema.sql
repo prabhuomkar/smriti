@@ -51,7 +51,9 @@ CREATE TABLE "places" (
   "country" varchar,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
-  "is_hidden" boolean
+  "is_hidden" boolean,
+  "created_at" timestamp,
+  "updated_at" timestamp
 );
 
 CREATE TABLE "place_mediaitems" (
@@ -65,7 +67,9 @@ CREATE TABLE "things" (
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
-  "is_hidden" boolean
+  "is_hidden" boolean,
+  "created_at" timestamp,
+  "updated_at" timestamp
 );
 
 CREATE TABLE "thing_mediaitems" (
@@ -79,7 +83,9 @@ CREATE TABLE "people" (
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
-  "is_hidden" boolean
+  "is_hidden" boolean,
+  "created_at" timestamp,
+  "updated_at" timestamp
 );
 
 CREATE TABLE "people_mediaitems" (

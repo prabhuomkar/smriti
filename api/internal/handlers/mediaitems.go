@@ -2,13 +2,13 @@ package handlers
 
 import (
 	"api/internal/models"
-	"database/sql"
+	"fmt"
 	"log"
 	"net/http"
-	"time"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
+	"gorm.io/gorm"
 )
 
 // GetMediaItemPlaces ...
@@ -20,13 +20,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	places := []models.Place{}
-	err = h.DB.Select(&places, "SELECT * FROM places "+
-		"INNER JOIN place_mediaitems ON places.id = place_mediaitems.place_id "+
-		"WHERE place_mediaitems.mediaitem_id=$1", uid)
-	if err != nil {
-		log.Printf("error getting mediaitem places: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	fmt.Println(uid)
 	return ctx.JSON(http.StatusOK, places)
 }
 
@@ -39,13 +33,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	things := []models.Thing{}
-	err = h.DB.Select(&things, "SELECT * FROM things "+
-		"INNER JOIN thing_mediaitems ON things.id = thing_mediaitems.thing_id "+
-		"WHERE thing_mediaitems.mediaitem_id=$1", uid)
-	if err != nil {
-		log.Printf("error getting mediaitem things: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	fmt.Println(uid)
 	return ctx.JSON(http.StatusOK, things)
 }
 
@@ -58,13 +46,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	people := []models.People{}
-	err = h.DB.Select(&people, "SELECT * FROM people "+
-		"INNER JOIN people_mediaitems ON people.id = people_mediaitems.people_id "+
-		"WHERE people_mediaitems.mediaitem_id=$1", uid)
-	if err != nil {
-		log.Printf("error getting mediaitem people: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
+	fmt.Println(uid)
 	return ctx.JSON(http.StatusOK, people)
 }
 
@@ -77,13 +59,13 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	mediaItem := models.MediaItem{}
-	err = h.DB.Get(&mediaItem, "SELECT * FROM mediaitems WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error getting mediaitem: %+v", err)
-		if err == sql.ErrNoRows {
+	result := h.DB.Where("id = ?", uid).First(&mediaItem)
+	if result.Error != nil {
+		log.Printf("error getting mediaitem: %+v", result.Error)
+		if result.Error == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "mediaitem not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItem)
 }
@@ -101,10 +83,10 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 // GetMediaItems ...
 func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	mediaItems := []models.MediaItem{}
-	err := h.DB.Select(&mediaItems, "SELECT * FROM mediaitems WHERE (is_hidden=false OR is_deleted=false)")
-	if err != nil {
-		log.Printf("error getting mediaitems: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("is_hidden=false OR is_deleted=false").Find(&mediaItems)
+	if result.Error != nil {
+		log.Printf("error getting mediaitems: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
@@ -118,17 +100,22 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	mediaItem := models.MediaItem{}
-	err = h.DB.Get(&mediaItem, "SELECT * FROM mediaitems WHERE id=$1", uid)
-	if err != nil {
-		log.Printf("error getting mediaitem: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	result := h.DB.Where("id = ?", uid).First(&mediaItem)
+	if result.Error != nil {
+		log.Printf("error getting mediaitem: %+v", result.Error)
+		if result.Error == gorm.ErrRecordNotFound {
+			return echo.NewHTTPError(http.StatusNotFound, "mediaitem not found")
+		}
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItem)
 }
 
 func (h *Handler) mockCreateMediaItem(uid uuid.UUID) error {
-	_, err := h.DB.Exec(h.DB.Rebind("INSERT into mediaitems VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"),
-		uid, "IMG_284.jpg", "A sample image from wedding", "image/jpeg", "", "", "", false, false, false, models.Ready, models.Photo, 720, 480, time.Now(), "", "", "", "", "", "", nil, "", time.Now(), time.Now())
-
-	return err
+	mediaItem := new(models.MediaItem)
+	mediaItem.ID = uid
+	mediaItem.Status = models.Ready
+	mediaItem.MediaItemType = models.Photo
+	result := h.DB.Create(&mediaItem)
+	return result.Error
 }

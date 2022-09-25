@@ -9,9 +9,11 @@ import (
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/jmoiron/sqlx"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"gorm.io/driver/postgres"
+	"gorm.io/gorm"
+	"gorm.io/gorm/logger"
 )
 
 type Test struct {
@@ -36,14 +38,22 @@ func executeTests(t *testing.T, tests []Test) {
 			mockDB, mock, err := sqlmock.New()
 			assert.NoError(t, err)
 			defer mockDB.Close()
-			mockDBx := sqlx.NewDb(mockDB, "sqlmock")
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Silent),
+			})
+			assert.NoError(t, err)
 			if test.MockDB != nil {
 				test.MockDB(mock)
 			}
 			// handler
 			handler := &Handler{
 				Config: &config.Config{},
-				DB:     mockDBx,
+				DB:     mockGDB,
 			}
 			server.GET(test.Route, test.Handler(handler))
 			server.ServeHTTP(rec, req)

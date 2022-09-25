@@ -8,27 +8,19 @@ import (
 
 // Album ...
 type Album struct {
-	ID                         string    `json:"id" db:"id"`
-	Name                       string    `json:"name" db:"name"`
-	Description                string    `json:"description" db:"description"`
-	IsShared                   bool      `json:"-" db:"is_shared"`
-	IsHidden                   bool      `json:"-" db:"is_hidden"`
-	MediaItemsCount            int       `json:"mediaitemsCount" db:"mediaitems_count"`
-	CoverMediaItemID           string    `json:"coverMediaItemId" db:"cover_mediaitem_id"`
-	CoverMediaItemThumbnailUrl string    `json:"coverMediaItemThumbnailUrl" db:"cover_mediaitem_thumbnail_url"`
-	CreatedAt                  time.Time `json:"createdAt" db:"created_at"`
-	UpdatedAt                  time.Time `json:"updatedAt" db:"updated_at"`
+	ID                         uuid.UUID `json:"id" gorm:"primaryKey"`
+	Name                       string    `json:"name"`
+	Description                string    `json:"description"`
+	IsShared                   bool      `json:"shared" gorm:"column:is_shared"`
+	IsHidden                   bool      `json:"hidden" gorm:"column:is_hidden"`
+	MediaItemsCount            int       `json:"mediaItemsCount" gorm:"column:mediaitems_count"`
+	CoverMediaItemID           uuid.UUID `json:"coverMediaItemId" gorm:"column:cover_mediaitem_id"`
+	CoverMediaItemThumbnailUrl string    `json:"coverMediaItemThumbnailUrl" gorm:"column:cover_mediaitem_thumbnail_url"`
+	CreatedAt                  time.Time `json:"createdAt"`
+	UpdatedAt                  time.Time `json:"updatedAt"`
 }
 
-func (a *Album) NewID() {
-	a.ID = uuid.NewV4().String()
-}
-
-func (a *Album) Create() {
-	a.CreatedAt = time.Now()
-	a.UpdatedAt = a.CreatedAt
-}
-
-func (a *Album) Update() {
-	a.UpdatedAt = time.Now()
+// TableName ...
+func (Album) TableName() string {
+	return "albums"
 }
