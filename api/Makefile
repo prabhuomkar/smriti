@@ -8,8 +8,8 @@ test:
 	@go test ./...
 
 cover: 
-	@go test -v -coverprofile cover.out ./...
-	@go tool cover -func cover.out | grep total
+	@go test -race -coverprofile=coverage.txt -covermode=atomic ./...
+	@go tool cover -func coverage.txt | grep total
 
 cover-html: cover
-	@go tool cover -html cover.out -o cover.html
+	@go tool cover -html coverage.txt -o coverage.html

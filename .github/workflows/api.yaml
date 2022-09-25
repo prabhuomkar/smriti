@@ -29,3 +29,8 @@ jobs:
           working-directory: api
       - run: make build
       - run: make test
+      - run: make cover
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: api

@@ -1,6 +1,8 @@
 # pensieve 
 Smarter Home for all your Photos and Videos
 
+![Workflow](https://img.shields.io/github/workflow/status/prabhuomkar/pensieve/Integration%20Check) 
+
 ## About
 
 
