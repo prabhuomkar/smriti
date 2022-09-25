@@ -28,7 +28,6 @@ jobs:
           version: latest
           working-directory: api
       - run: make build
-      - run: make test
       - run: make cover
       - uses: codecov/codecov-action@v3
         with:
