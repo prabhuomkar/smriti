@@ -6,6 +6,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const ThingTable = "things"
+
 // Thing ...
 type Thing struct {
 	ID                         uuid.UUID    `json:"id" gorm:"primaryKey"`
@@ -20,5 +22,5 @@ type Thing struct {
 
 // TableName ...
 func (Thing) TableName() string {
-	return "things"
+	return ThingTable
 }

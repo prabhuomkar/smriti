@@ -6,6 +6,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const PeopleTable = "people"
+
 // People ...
 type People struct {
 	ID                         uuid.UUID    `json:"id" gorm:"primaryKey"`
@@ -20,5 +22,5 @@ type People struct {
 
 // TableName ...
 func (People) TableName() string {
-	return "people"
+	return PeopleTable
 }

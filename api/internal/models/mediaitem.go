@@ -6,6 +6,8 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
+const MediaItemsTable = "mediaitems"
+
 type (
 	// MediaItemStatus ...
 	MediaItemStatus string
@@ -59,5 +61,5 @@ const (
 
 // TableName ...
 func (MediaItem) TableName() string {
-	return "mediaitems"
+	return MediaItemsTable
 }
