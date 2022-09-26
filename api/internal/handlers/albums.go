@@ -5,7 +5,6 @@ import (
 	"log"
 	"net/http"
 	"reflect"
-	"time"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
@@ -155,8 +154,6 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 		return err
 	}
 	album.ID = uuid.NewV4()
-	album.CreatedAt = time.Now()
-	album.UpdatedAt = time.Now()
 	result := h.DB.Create(&album)
 	if result.Error != nil {
 		log.Printf("error creating album: %+v", result.Error)

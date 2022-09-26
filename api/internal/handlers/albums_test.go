@@ -112,6 +112,19 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			`{"message":"invalid album mediaitems"}`,
 		},
 		{
+			"add album mediaitems with bad mediaitem",
+			http.MethodPost,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["bad-mediaitem-id"]}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
 			"add album mediaitems with success",
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
@@ -184,6 +197,19 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid album mediaitems"}`,
+		},
+		{
+			"remove album mediaitems with bad mediaitem",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["bad-mediaitem-id"]}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
 		},
 		{
 			"remove album mediaitems with success",
