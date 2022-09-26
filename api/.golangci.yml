@@ -1,0 +1,18 @@
+run:
+  tests: false
+linters:
+  enable-all: true
+  disable:
+    - testpackage
+    - paralleltest
+    - nlreturn
+    - nosprintfhostport
+    - ifshort
+    - wsl
+    - wrapcheck
+    - exhaustivestruct
+    - exhaustruct
+    - godox
+    - lll
+    - gci
+    - nolintlint

@@ -12,12 +12,12 @@ import (
 )
 
 var (
-	sampleTime, _  = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
-	mediaitem_cols = []string{"id", "filename", "description", "mime_type", "source_url", "preview_url",
+	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
+	mediaitemCols = []string{"id", "filename", "description", "mime_type", "source_url", "preview_url",
 		"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "width",
 		"height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 		"iso_equivalent", "exposure_time", "location", "fps", "created_at", "updated_at"}
-	mediaitem_response_body = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -25,7 +25,7 @@ var (
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	mediaitems_response_body = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	mediaitemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -65,7 +65,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(place_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(placeCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPlaces
@@ -87,7 +87,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 				return handler.GetMediaItemPlaces
 			},
 			http.StatusOK,
-			places_response_body,
+			placesResponseBody,
 		},
 		{
 			"get mediaitem places with error",
@@ -132,7 +132,7 @@ func TestGetMediaItemThings(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(thing_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(thingCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemThings
@@ -154,7 +154,7 @@ func TestGetMediaItemThings(t *testing.T) {
 				return handler.GetMediaItemThings
 			},
 			http.StatusOK,
-			things_response_body,
+			thingsResponseBody,
 		},
 		{
 			"get mediaitem things with error",
@@ -199,7 +199,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(people_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(peopleCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPeople
@@ -221,7 +221,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 				return handler.GetMediaItemPeople
 			},
 			http.StatusOK,
-			people_response_body,
+			peopleResponseBody,
 		},
 		{
 			"get mediaitem people with error",
@@ -266,7 +266,7 @@ func TestGetMediaItem(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItem
@@ -288,7 +288,7 @@ func TestGetMediaItem(t *testing.T) {
 				return handler.GetMediaItem
 			},
 			http.StatusOK,
-			mediaitem_response_body,
+			mediaitemResponseBody,
 		},
 		{
 			"get mediaitem with error",
@@ -328,7 +328,7 @@ func TestGetMediaItems(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItems
@@ -350,7 +350,7 @@ func TestGetMediaItems(t *testing.T) {
 				return handler.GetMediaItems
 			},
 			http.StatusOK,
-			mediaitems_response_body,
+			mediaitemsResponseBody,
 		},
 		{
 			"get mediaitems with error",
@@ -377,7 +377,7 @@ func TestUploadMediaItems(t *testing.T) {
 }
 
 func getMockedMediaItemRows() *sqlmock.Rows {
-	return sqlmock.NewRows(mediaitem_cols).
+	return sqlmock.NewRows(mediaitemCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",

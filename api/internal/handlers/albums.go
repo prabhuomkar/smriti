@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"errors"
 	"log"
 	"net/http"
 	"reflect"
@@ -94,7 +95,7 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 	result := h.DB.Where("id = ?", uid).First(&album)
 	if result.Error != nil {
 		log.Printf("error getting album: %+v", result.Error)
-		if result.Error == gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -207,8 +208,8 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 		album.Name = *albumRequest.Name
 	}
 	if albumRequest.CoverMediaItemID != nil {
-		coverMediaItemId := uuid.FromStringOrNil(*albumRequest.CoverMediaItemID)
-		album.CoverMediaItemID = &coverMediaItemId
+		coverMediaItemID := uuid.FromStringOrNil(*albumRequest.CoverMediaItemID)
+		album.CoverMediaItemID = &coverMediaItemID
 	}
 	if reflect.DeepEqual(models.Album{}, album) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")

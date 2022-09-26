@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"errors"
 	"log"
 	"net/http"
 
@@ -33,7 +34,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 	result := h.DB.Where("id = ?", uid).First(&place)
 	if result.Error != nil {
 		log.Printf("error getting place: %+v", result.Error)
-		if result.Error == gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "place not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -83,7 +84,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 	result := h.DB.Where("id = ?", uid).First(&thing)
 	if result.Error != nil {
 		log.Printf("error getting thing: %+v", result.Error)
-		if result.Error == gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -133,7 +134,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 	result := h.DB.Where("id = ?", uid).First(&person)
 	if result.Error != nil {
 		log.Printf("error getting person: %+v", result.Error)
-		if result.Error == gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "person not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())

@@ -14,7 +14,7 @@ func main() {
 		panic(err)
 	}
 
-	db, err := database.Init(cfg.Database.Host, cfg.Database.Port, cfg.Database.Username,
+	pgDB, err := database.Init(cfg.Database.Host, cfg.Database.Port, cfg.Database.Username,
 		cfg.Database.Password, cfg.Database.Name)
 	if err != nil {
 		panic(err)
@@ -24,13 +24,13 @@ func main() {
 
 	service := &service.Service{
 		Config: cfg,
-		DB:     db,
+		DB:     pgDB,
 	}
 	server.InitGRPCServer(cfg, service)
 
 	handler := &handlers.Handler{
 		Config: cfg,
-		DB:     db,
+		DB:     pgDB,
 	}
 	server.InitHTTPServer(cfg, handler)
 	// todo(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections

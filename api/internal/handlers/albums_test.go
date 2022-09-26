@@ -12,7 +12,7 @@ import (
 )
 
 var (
-	album_cols = []string{"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
+	albumCols = []string{"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
 		"cover_mediaitem_thumbnail_url", "mediaitems_count", "created_at", "updated_at"}
 )
 
@@ -39,7 +39,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -61,7 +61,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				return handler.GetAlbumMediaItems
 			},
 			http.StatusOK,
-			mediaitems_response_body,
+			mediaitemsResponseBody,
 		},
 		{
 			"get album mediaitems with error",
@@ -276,7 +276,7 @@ func TestGetAlbum(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(album_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(albumCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -464,7 +464,7 @@ func TestGetAlbums(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(album_cols))
+				expectedMock.WillReturnRows(sqlmock.NewRows(albumCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
@@ -576,7 +576,7 @@ func TestCreateAlbum(t *testing.T) {
 }
 
 func getMockedAlbumRows() *sqlmock.Rows {
-	return sqlmock.NewRows(album_cols).
+	return sqlmock.NewRows(albumCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", "true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"cover_mediaitem_thumbnail_url", "12", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "description", "false", "true", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",

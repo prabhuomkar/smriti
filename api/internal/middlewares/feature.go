@@ -6,10 +6,11 @@ import (
 	"github.com/labstack/echo"
 )
 
+// nolint:cyclop
 // FeatureCheck ...
 func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
-		return func(c echo.Context) error {
+		return func(ctx echo.Context) error {
 			// todo(omkar): do this in a better way
 			if (feature == "favourites" && cfg.Feature.Favourites) ||
 				(feature == "hidden" && cfg.Feature.Hidden) ||
@@ -20,7 +21,7 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "things" && cfg.Feature.ExploreThings) ||
 				(feature == "people" && cfg.Feature.ExplorePeople) ||
 				(feature == "sharing" && cfg.Feature.Sharing) {
-				return next(c)
+				return next(ctx)
 			}
 
 			return echo.ErrForbidden

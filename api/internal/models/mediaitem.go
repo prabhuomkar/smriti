@@ -21,9 +21,9 @@ type (
 		Filename        string          `json:"filename"`
 		Description     string          `json:"description"`
 		MimeType        string          `json:"mimeType"`
-		SourceUrl       string          `json:"sourceUrl"`
-		PreviewUrl      string          `json:"previewUrl"`
-		ThumbnailUrl    string          `json:"thumbnailUrl"`
+		SourceURL       string          `json:"sourceUrl"`
+		PreviewURL      string          `json:"previewUrl"`
+		ThumbnailURL    string          `json:"thumbnailUrl"`
 		IsFavourite     bool            `json:"favourite"`
 		IsHidden        bool            `json:"hidden"`
 		IsDeleted       bool            `json:"deleted"`

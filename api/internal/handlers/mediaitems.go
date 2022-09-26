@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"errors"
 	"log"
 	"net/http"
 
@@ -79,7 +80,7 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 	result := h.DB.Where("id = ?", uid).First(&mediaItem)
 	if result.Error != nil {
 		log.Printf("error getting mediaitem: %+v", result.Error)
-		if result.Error == gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "mediaitem not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -120,7 +121,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	result := h.DB.Where("id = ?", uid).First(&mediaItem)
 	if result.Error != nil {
 		log.Printf("error getting mediaitem: %+v", result.Error)
-		if result.Error == gorm.ErrRecordNotFound {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "mediaitem not found")
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())

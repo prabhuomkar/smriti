@@ -27,6 +27,7 @@ type Test struct {
 }
 
 func executeTests(t *testing.T, tests []Test) {
+	t.Helper()
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			// server

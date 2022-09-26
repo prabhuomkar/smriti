@@ -14,7 +14,7 @@ type People struct {
 	Name                       string       `json:"name"`
 	IsHidden                   bool         `json:"hidden"`
 	CoverMediaItemID           uuid.UUID    `json:"coverMediaItemId" gorm:"column:cover_mediaitem_id"`
-	CoverMediaItemThumbnailUrl string       `json:"coverMediaItemThumbnailUrl" gorm:"column:cover_mediaitem_thumbnail_url"`
+	CoverMediaItemThumbnailURL string       `json:"coverMediaItemThumbnailUrl" gorm:"column:cover_mediaitem_thumbnail_url"`
 	CreatedAt                  time.Time    `json:"createdAt"`
 	UpdatedAt                  time.Time    `json:"updatedAt"`
 	MediaItems                 []*MediaItem `json:"-" gorm:"many2many:people_mediaitems;References:ID;joinReferences:MediaitemID"`
