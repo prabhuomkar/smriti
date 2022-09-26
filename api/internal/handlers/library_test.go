@@ -14,12 +14,13 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 	tests := []Test{
 		{
 			"get favourite mediaitems with empty table",
+			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
@@ -29,12 +30,13 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 		},
 		{
 			"get favourite mediaitems with 2 rows",
+			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnRows(getMockedMediaItemRows())
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
@@ -44,12 +46,13 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 		},
 		{
 			"get favourite mediaitems with error",
+			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnError(errors.New("some db error"))
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
@@ -65,12 +68,13 @@ func TestGetHiddenMediaItems(t *testing.T) {
 	tests := []Test{
 		{
 			"get hidden mediaitems with empty table",
+			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
@@ -80,12 +84,13 @@ func TestGetHiddenMediaItems(t *testing.T) {
 		},
 		{
 			"get hidden mediaitems with 2 rows",
+			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnRows(getMockedMediaItemRows())
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
@@ -95,12 +100,13 @@ func TestGetHiddenMediaItems(t *testing.T) {
 		},
 		{
 			"get hidden mediaitems with error",
+			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnError(errors.New("some db error"))
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
@@ -116,12 +122,13 @@ func TestGetDeletedMediaItems(t *testing.T) {
 	tests := []Test{
 		{
 			"get deleted mediaitems with empty table",
+			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
@@ -131,12 +138,13 @@ func TestGetDeletedMediaItems(t *testing.T) {
 		},
 		{
 			"get deleted mediaitems with 2 rows",
+			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnRows(getMockedMediaItemRows())
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
@@ -146,12 +154,13 @@ func TestGetDeletedMediaItems(t *testing.T) {
 		},
 		{
 			"get deleted mediaitems with error",
+			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
-			nil,
+			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedQuery := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
-				expectedQuery.WillReturnError(errors.New("some db error"))
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`))
+				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems

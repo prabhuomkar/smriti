@@ -11,9 +11,10 @@ func TestGetFeatures(t *testing.T) {
 	tests := []Test{
 		{
 			"get features",
+			http.MethodGet,
 			"/v1/features",
 			"/v1/features",
-			nil,
+			"",
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFeatures

@@ -13,6 +13,15 @@ import (
 )
 
 type (
+	// AlbumRequest ...
+	AlbumRequest struct {
+		Name             *string `json:"name"`
+		Description      *string `json:"description"`
+		IsShared         *bool   `json:"shared"`
+		IsHidden         *bool   `json:"hidden"`
+		CoverMediaItemID *string `json:"coverMediaItemId"`
+	}
+
 	// AlbumMediaItemRequest ...
 	AlbumMediaItemRequest struct {
 		MediaItems []string `json:"mediaItems" required:"true"`
@@ -167,11 +176,26 @@ func getAlbumMediaItems(ctx echo.Context) ([]uuid.UUID, error) {
 }
 
 func getAlbum(ctx echo.Context) (*models.Album, error) {
-	album := new(models.Album)
-	err := ctx.Bind(album)
+	albumRequest := new(AlbumRequest)
+	err := ctx.Bind(albumRequest)
 	if err != nil {
 		log.Printf("error getting album: %+v", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
-	return album, nil
+	album := models.Album{
+		Description: albumRequest.Description,
+		IsShared:    albumRequest.IsShared,
+		IsHidden:    albumRequest.IsHidden,
+	}
+	if albumRequest.Name != nil {
+		album.Name = *albumRequest.Name
+	}
+	if albumRequest.CoverMediaItemID != nil {
+		coverMediaItemId := uuid.FromStringOrNil(*albumRequest.CoverMediaItemID)
+		album.CoverMediaItemID = &coverMediaItemId
+	}
+	if (models.Album{} == album) {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
+	}
+	return &album, nil
 }

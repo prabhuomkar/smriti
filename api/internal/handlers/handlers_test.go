@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"api/config"
-	"io"
-	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -18,9 +16,10 @@ import (
 
 type Test struct {
 	Name            string
+	Method          string
 	Route           string
 	Path            string
-	Body            io.Reader
+	Body            string
 	MockDB          func(mock sqlmock.Sqlmock)
 	Handler         func(handler *Handler) func(ctx echo.Context) error
 	ExpectedResCode int
@@ -32,7 +31,10 @@ func executeTests(t *testing.T, tests []Test) {
 		t.Run(test.Name, func(t *testing.T) {
 			// server
 			server := echo.New()
-			req := httptest.NewRequest(http.MethodGet, test.Path, test.Body)
+			req := httptest.NewRequest(test.Method, test.Path, strings.NewReader(test.Body))
+			if len(test.Body) > 0 {
+				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
+			}
 			rec := httptest.NewRecorder()
 			// database
 			mockDB, mock, err := sqlmock.New()
@@ -55,11 +57,11 @@ func executeTests(t *testing.T, tests []Test) {
 				Config: &config.Config{},
 				DB:     mockGDB,
 			}
-			server.GET(test.Route, test.Handler(handler))
+			server.Match([]string{test.Method}, test.Route, test.Handler(handler))
 			server.ServeHTTP(rec, req)
 			// assert
 			assert.Equal(t, test.ExpectedResCode, rec.Code)
-			assert.Equal(t, test.ExpectedResBody, strings.TrimSpace(rec.Body.String()))
+			assert.Contains(t, strings.TrimSpace(rec.Body.String()), test.ExpectedResBody)
 		})
 	}
 }
