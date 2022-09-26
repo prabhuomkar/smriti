@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"api/internal/models"
-	"fmt"
 	"log"
 	"net/http"
+	"reflect"
 	"time"
 
 	"github.com/labstack/echo"
@@ -34,8 +34,15 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(uid)
-	return ctx.JSON(http.StatusOK, nil)
+	album := new(models.Album)
+	album.ID = uid
+	mediaItems := []models.MediaItem{}
+	err = h.DB.Model(&album).Association("MediaItems").Find(&mediaItems)
+	if err != nil {
+		log.Printf("error getting album mediaitems: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
 // AddAlbumMediaItems ...
@@ -48,8 +55,14 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(uid, mediaItems)
-	return ctx.JSON(http.StatusOK, nil)
+	album := new(models.Album)
+	album.ID = uid
+	err = h.DB.Omit("MediaItems.*").Model(&album).Association("MediaItems").Append(mediaItems)
+	if err != nil {
+		log.Printf("error adding album mediaitems: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusNoContent, nil)
 }
 
 // RemoveAlbumMediaItems ...
@@ -62,8 +75,14 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	fmt.Println(uid, mediaItems)
-	return ctx.JSON(http.StatusOK, nil)
+	album := new(models.Album)
+	album.ID = uid
+	err = h.DB.Omit("MediaItems.*").Model(&album).Association("MediaItems").Delete(mediaItems)
+	if err != nil {
+		log.Printf("error removing album mediaitems: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusNoContent, nil)
 }
 
 // GetAlbum ...
@@ -156,23 +175,23 @@ func getAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	return uid, err
 }
 
-func getAlbumMediaItems(ctx echo.Context) ([]uuid.UUID, error) {
+func getAlbumMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 	albumMediaItemRequest := new(AlbumMediaItemRequest)
 	err := ctx.Bind(albumMediaItemRequest)
 	if err != nil || len(albumMediaItemRequest.MediaItems) == 0 {
 		log.Printf("error getting album mediaitems: %+v", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album mediaitems")
 	}
-	uids := make([]uuid.UUID, len(albumMediaItemRequest.MediaItems))
+	mediaItems := make([]*models.MediaItem, len(albumMediaItemRequest.MediaItems))
 	for idx, mediaItem := range albumMediaItemRequest.MediaItems {
 		uid, err := uuid.FromString(mediaItem)
 		if err != nil {
 			log.Printf("error getting album mediaitem id: %+v", err)
 			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 		}
-		uids[idx] = uid
+		mediaItems[idx] = &models.MediaItem{ID: uid}
 	}
-	return uids, nil
+	return mediaItems, nil
 }
 
 func getAlbum(ctx echo.Context) (*models.Album, error) {
@@ -194,7 +213,7 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 		coverMediaItemId := uuid.FromStringOrNil(*albumRequest.CoverMediaItemID)
 		album.CoverMediaItemID = &coverMediaItemId
 	}
-	if (models.Album{} == album) {
+	if reflect.DeepEqual(models.Album{}, album) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
 	return &album, nil

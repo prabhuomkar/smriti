@@ -17,7 +17,6 @@ var (
 )
 
 func TestGetAlbumMediaItems(t *testing.T) {
-	t.Skip("incomplete")
 	tests := []Test{
 		{
 			"get album mediaitems bad request",
@@ -39,7 +38,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM album_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
 				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -55,7 +54,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM album_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
 				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -71,7 +70,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM album_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
 				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {

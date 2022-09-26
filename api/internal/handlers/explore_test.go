@@ -176,7 +176,6 @@ func TestGetPlace(t *testing.T) {
 	executeTests(t, tests)
 }
 func TestGetPlaceMediaItems(t *testing.T) {
-	t.Skip("incomplete")
 	tests := []Test{
 		{
 			"get place mediaitems bad request",
@@ -198,7 +197,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM place_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
 				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -214,7 +213,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM place_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
 				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -230,7 +229,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM place_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
 				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -362,7 +361,6 @@ func TestGetThing(t *testing.T) {
 	executeTests(t, tests)
 }
 func TestGetThingMediaItems(t *testing.T) {
-	t.Skip("incomplete")
 	tests := []Test{
 		{
 			"get thing mediaitems bad request",
@@ -384,7 +382,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM thing_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
 				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -400,7 +398,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM thing_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
 				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -416,7 +414,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM thing_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
 				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -548,7 +546,6 @@ func TestGetPerson(t *testing.T) {
 	executeTests(t, tests)
 }
 func TestGetPeopleMediaItems(t *testing.T) {
-	t.Skip("incomplete")
 	tests := []Test{
 		{
 			"get people mediaitems bad request",
@@ -570,7 +567,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM people_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
 				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitem_cols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -586,7 +583,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM people_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
 				expectedMock.WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -602,7 +599,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(`SELECT * FROM people_mediaitems`)
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
 				expectedMock.WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {

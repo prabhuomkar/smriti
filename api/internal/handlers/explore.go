@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"api/internal/models"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -33,7 +32,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 	place := models.Place{}
 	result := h.DB.Where("id = ?", uid).First(&place)
 	if result.Error != nil {
-		log.Printf("error getting thing: %+v", result.Error)
+		log.Printf("error getting place: %+v", result.Error)
 		if result.Error == gorm.ErrRecordNotFound {
 			return echo.NewHTTPError(http.StatusNotFound, "place not found")
 		}
@@ -50,8 +49,14 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 		log.Printf("error getting place id: %+v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
+	place := new(models.Place)
+	place.ID = uid
 	mediaItems := []models.MediaItem{}
-	fmt.Println(uid)
+	err = h.DB.Model(&place).Association("MediaItems").Find(&mediaItems)
+	if err != nil {
+		log.Printf("error getting place mediaitems: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -94,8 +99,14 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 		log.Printf("error getting thing id: %+v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
+	thing := new(models.Thing)
+	thing.ID = uid
 	mediaItems := []models.MediaItem{}
-	fmt.Println(uid)
+	err = h.DB.Model(&thing).Association("MediaItems").Find(&mediaItems)
+	if err != nil {
+		log.Printf("error getting thing mediaitems: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -138,7 +149,13 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 		log.Printf("error getting person id: %+v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
 	}
+	person := new(models.People)
+	person.ID = uid
 	mediaItems := []models.MediaItem{}
-	fmt.Println(uid)
+	err = h.DB.Model(&person).Association("MediaItems").Find(&mediaItems)
+	if err != nil {
+		log.Printf("error getting people mediaitems: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }

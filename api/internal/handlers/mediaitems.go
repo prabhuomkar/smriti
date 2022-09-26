@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"api/internal/models"
-	"fmt"
 	"log"
 	"net/http"
 
@@ -19,8 +18,14 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 		log.Printf("error getting mediaitem id: %+v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
+	mediaItem := new(models.MediaItem)
+	mediaItem.ID = uid
 	places := []models.Place{}
-	fmt.Println(uid)
+	err = h.DB.Model(&mediaItem).Association("Places").Find(&places)
+	if err != nil {
+		log.Printf("error getting mediaitem places: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, places)
 }
 
@@ -32,8 +37,14 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 		log.Printf("error getting mediaitem id: %+v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
+	mediaItem := new(models.MediaItem)
+	mediaItem.ID = uid
 	things := []models.Thing{}
-	fmt.Println(uid)
+	err = h.DB.Model(&mediaItem).Association("Things").Find(&things)
+	if err != nil {
+		log.Printf("error getting mediaitem things: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, things)
 }
 
@@ -45,8 +56,14 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 		log.Printf("error getting mediaitem id: %+v", err)
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
+	mediaItem := new(models.MediaItem)
+	mediaItem.ID = uid
 	people := []models.People{}
-	fmt.Println(uid)
+	err = h.DB.Model(&mediaItem).Association("People").Find(&people)
+	if err != nil {
+		log.Printf("error getting mediaitem people: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusOK, people)
 }
 
