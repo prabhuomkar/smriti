@@ -19,27 +19,27 @@ type (
 	MediaItem struct {
 		ID              uuid.UUID       `json:"id" gorm:"primaryKey"`
 		Filename        string          `json:"filename"`
-		Description     string          `json:"description"`
+		Description     *string         `json:"description"`
 		MimeType        string          `json:"mimeType"`
 		SourceURL       string          `json:"sourceUrl"`
 		PreviewURL      string          `json:"previewUrl"`
 		ThumbnailURL    string          `json:"thumbnailUrl"`
-		IsFavourite     bool            `json:"favourite"`
-		IsHidden        bool            `json:"hidden"`
-		IsDeleted       bool            `json:"deleted"`
+		IsFavourite     *bool           `json:"favourite" gorm:"column:is_favourite;default:false"`
+		IsHidden        *bool           `json:"hidden" gorm:"column:is_hidden;default:false"`
+		IsDeleted       *bool           `json:"deleted" gorm:"column:is_deleted;default:false"`
 		Status          MediaItemStatus `json:"status"`
 		MediaItemType   MediaItemType   `json:"mediaItemType" gorm:"column:mediaitem_type"`
 		Width           int             `json:"width"`
 		Height          int             `json:"height"`
 		CreationTime    time.Time       `json:"creationTime"`
-		CameraMake      string          `json:"cameraMake,omitempty"`
-		CameraModel     string          `json:"cameraModel,omitempty"`
-		FocalLength     string          `json:"focalLength,omitempty"`
-		ApertureFnumber string          `json:"apertureFnumber,omitempty" gorm:"column:aperture_fnumber"`
-		IsoEquivalent   string          `json:"isoEquivalent,omitempty"`
-		ExposureTime    string          `json:"exposureTime,omitempty"`
-		Location        []byte          `json:"location,omitempty"`
-		FPS             string          `json:"fps,omitempty"`
+		CameraMake      *string         `json:"cameraMake,omitempty"`
+		CameraModel     *string         `json:"cameraModel,omitempty"`
+		FocalLength     *string         `json:"focalLength,omitempty"`
+		ApertureFnumber *string         `json:"apertureFnumber,omitempty" gorm:"column:aperture_fnumber"`
+		IsoEquivalent   *string         `json:"isoEquivalent,omitempty"`
+		ExposureTime    *string         `json:"exposureTime,omitempty"`
+		Location        *[]byte         `json:"location,omitempty"`
+		FPS             *string         `json:"fps,omitempty"`
 		CreatedAt       time.Time       `json:"createdAt"`
 		UpdatedAt       time.Time       `json:"updatedAt"`
 		Albums          []*Album        `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`

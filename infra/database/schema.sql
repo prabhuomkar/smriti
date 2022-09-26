@@ -18,9 +18,9 @@ CREATE TABLE "mediaitems" (
   "source_url" varchar,
   "preview_url" varchar,
   "thumbnail_url" varchar,
-  "is_favourite" boolean,
-  "is_hidden" boolean,
-  "is_deleted" boolean,
+  "is_favourite" boolean DEFAULT FALSE NOT NULL,
+  "is_hidden" boolean DEFAULT FALSE NOT NULL,
+  "is_deleted" boolean DEFAULT FALSE NOT NULL,
   "status" mediaitem_status,
   "mediaitem_type" mediaitem_type,
   "width" int,
@@ -51,7 +51,7 @@ CREATE TABLE "places" (
   "country" varchar,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
-  "is_hidden" boolean  DEFAULT FALSE NOT NULL,
+  "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
 );
@@ -67,7 +67,7 @@ CREATE TABLE "things" (
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
-  "is_hidden" boolean  DEFAULT FALSE NOT NULL,
+  "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
 );
@@ -83,7 +83,7 @@ CREATE TABLE "people" (
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
-  "is_hidden" boolean  DEFAULT FALSE NOT NULL,
+  "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
 );
@@ -98,11 +98,11 @@ CREATE TABLE "albums" (
   "id" uuid PRIMARY KEY NOT NULL,
   "name" varchar NOT NULL,
   "description" varchar,
-  "is_shared" boolean  DEFAULT FALSE NOT NULL,
+  "is_shared" boolean DEFAULT FALSE NOT NULL,
   "cover_mediaitem_id" uuid,
   "cover_mediaitem_thumbnail_url" varchar,
   "mediaitems_count" int,
-  "is_hidden" boolean  DEFAULT FALSE NOT NULL,
+  "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
 );

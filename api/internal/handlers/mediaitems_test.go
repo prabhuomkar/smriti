@@ -45,7 +45,7 @@ var (
 func TestGetMediaItemPlaces(t *testing.T) {
 	tests := []Test{
 		{
-			"get mediaitem mediaitem bad request",
+			"get mediaitem places bad request",
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/bad-uuid/places",
@@ -112,7 +112,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 func TestGetMediaItemThings(t *testing.T) {
 	tests := []Test{
 		{
-			"get mediaitem mediaitem bad request",
+			"get mediaitem things bad request",
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/bad-uuid/things",
@@ -179,7 +179,7 @@ func TestGetMediaItemThings(t *testing.T) {
 func TestGetMediaItemPeople(t *testing.T) {
 	tests := []Test{
 		{
-			"get mediaitem mediaitem bad request",
+			"get mediaitem people bad request",
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/bad-uuid/people",
@@ -235,6 +235,73 @@ func TestGetMediaItemPeople(t *testing.T) {
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPeople
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
+}
+
+func TestGetMediaItemAlbums(t *testing.T) {
+	tests := []Test{
+		{
+			"get mediaitem albums bad request",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/bad-uuid/albums",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"get mediaitem albums with empty table",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
+				expectedMock.WillReturnRows(sqlmock.NewRows(albumCols))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
+			},
+			http.StatusOK,
+			"[]",
+		},
+		{
+			"get mediaitem albums with 2 rows",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
+				expectedMock.WillReturnRows(getMockedAlbumRows())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
+			},
+			http.StatusOK,
+			albumsResponseBody,
+		},
+		{
+			"get mediaitem albums with error",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
+				expectedMock.WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
 			},
 			http.StatusInternalServerError,
 			`{"message":"some db error"}`,
@@ -311,11 +378,134 @@ func TestGetMediaItem(t *testing.T) {
 }
 
 func TestUpdateMediaItem(t *testing.T) {
-
+	tests := []Test{
+		{
+			"update mediaitem bad request",
+			http.MethodPut,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/bad-uuid",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateMediaItem
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"update mediaitem with bad payload",
+			http.MethodPut,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"bad":"request"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateMediaItem
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem"}`,
+		},
+		{
+			"update mediaitem with success",
+			http.MethodPut,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"description":"description","favourite":true,"hidden":true}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "description", true, true,
+						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateMediaItem
+			},
+			http.StatusNoContent,
+			"",
+		},
+		{
+			"update mediaitem with error",
+			http.MethodPut,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"description":"description","favourite":true,"hidden":true}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "description", true, true,
+						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateMediaItem
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestDeleteMediaItem(t *testing.T) {
-
+	tests := []Test{
+		{
+			"delete mediaitem bad request",
+			http.MethodDelete,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/bad-uuid",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.DeleteMediaItem
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"delete mediaitem with success",
+			http.MethodDelete,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", true,
+						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.DeleteMediaItem
+			},
+			http.StatusNoContent,
+			"",
+		},
+		{
+			"delete mediaitem with error",
+			http.MethodDelete,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", true,
+						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.DeleteMediaItem
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestGetMediaItems(t *testing.T) {

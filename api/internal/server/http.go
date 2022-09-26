@@ -30,6 +30,7 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces, middlewares.FeatureCheck(cfg, "places"))
 	mediaItems.GET("/:id/things", handler.GetMediaItemThings, middlewares.FeatureCheck(cfg, "things"))
 	mediaItems.GET("/:id/people", handler.GetMediaItemPeople, middlewares.FeatureCheck(cfg, "people"))
+	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums, middlewares.FeatureCheck(cfg, "albums"))
 	mediaItems.GET("/:id", handler.GetMediaItem)
 	mediaItems.PUT("/:id", handler.UpdateMediaItem)
 	mediaItems.DELETE("/:id", handler.DeleteMediaItem)

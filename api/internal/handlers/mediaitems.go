@@ -5,10 +5,20 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+)
+
+type (
+	// MediaItemRequest ...
+	MediaItemRequest struct {
+		Description *string `json:"description"`
+		IsFavourite *bool   `json:"favourite"`
+		IsHidden    *bool   `json:"hidden"`
+	}
 )
 
 // GetMediaItemPlaces ...
@@ -68,6 +78,25 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, people)
 }
 
+// GetMediaItemAlbums ...
+func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
+	id := ctx.Param("id")
+	uid, err := uuid.FromString(id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
+	}
+	mediaItem := new(models.MediaItem)
+	mediaItem.ID = uid
+	albums := []models.Album{}
+	err = h.DB.Model(&mediaItem).Association("Albums").Find(&albums)
+	if err != nil {
+		log.Printf("error getting mediaitem albums: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	return ctx.JSON(http.StatusOK, albums)
+}
+
 // GetMediaItem ...
 func (h *Handler) GetMediaItem(ctx echo.Context) error {
 	id := ctx.Param("id")
@@ -90,12 +119,37 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 
 // UpdateMediaItem ...
 func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
-	return nil
+	uid, err := getMediaItemID(ctx)
+	if err != nil {
+		return err
+	}
+	mediaItem, err := getMediaItem(ctx)
+	if err != nil {
+		return err
+	}
+	mediaItem.ID = uid
+	result := h.DB.Model(&mediaItem).Updates(mediaItem)
+	if result.Error != nil || result.RowsAffected != 1 {
+		log.Printf("error updating mediaItem: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	}
+	return ctx.JSON(http.StatusNoContent, nil)
 }
 
 // DeleteMediaItem ...
 func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
-	return nil
+	uid, err := getMediaItemID(ctx)
+	if err != nil {
+		return err
+	}
+	deleted := true
+	mediaItem := models.MediaItem{ID: uid, IsDeleted: &deleted}
+	result := h.DB.Model(&mediaItem).Updates(mediaItem)
+	if result.Error != nil || result.RowsAffected != 1 {
+		log.Printf("error updating mediaItem: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	}
+	return ctx.JSON(http.StatusNoContent, nil)
 }
 
 // GetMediaItems ...
@@ -136,4 +190,32 @@ func (h *Handler) mockCreateMediaItem(uid uuid.UUID) error {
 	mediaItem.MediaItemType = models.Photo
 	result := h.DB.Create(&mediaItem)
 	return result.Error
+}
+
+func getMediaItemID(ctx echo.Context) (uuid.UUID, error) {
+	id := ctx.Param("id")
+	uid, err := uuid.FromString(id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
+	}
+	return uid, err
+}
+
+func getMediaItem(ctx echo.Context) (*models.MediaItem, error) {
+	mediaItemRequest := new(MediaItemRequest)
+	err := ctx.Bind(mediaItemRequest)
+	if err != nil {
+		log.Printf("error getting mediaitem: %+v", err)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem")
+	}
+	mediaItem := models.MediaItem{
+		Description: mediaItemRequest.Description,
+		IsFavourite: mediaItemRequest.IsFavourite,
+		IsHidden:    mediaItemRequest.IsHidden,
+	}
+	if reflect.DeepEqual(models.MediaItem{}, mediaItem) {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem")
+	}
+	return &mediaItem, nil
 }

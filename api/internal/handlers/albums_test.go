@@ -14,6 +14,18 @@ import (
 var (
 	albumCols = []string{"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
 		"cover_mediaitem_thumbnail_url", "mediaitems_count", "created_at", "updated_at"}
+	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description","shared":true,` +
+		`"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
+	albumsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description","shared":true,` +
+		`"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		`"description":"description","shared":false,"hidden":true,"mediaItemsCount":24,` +
+		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
 func TestGetAlbumMediaItems(t *testing.T) {
@@ -298,10 +310,7 @@ func TestGetAlbum(t *testing.T) {
 				return handler.GetAlbum
 			},
 			http.StatusOK,
-			`{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description","shared":true,` +
-				`"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-				`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url",` +
-				`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`,
+			albumResponseBody,
 		},
 		{
 			"get album with error",
@@ -417,7 +426,7 @@ func TestDeleteAlbum(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			"",
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "albums"`)).
@@ -436,7 +445,7 @@ func TestDeleteAlbum(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			"",
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "albums"`)).
@@ -486,14 +495,7 @@ func TestGetAlbums(t *testing.T) {
 				return handler.GetAlbums
 			},
 			http.StatusOK,
-			`[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description","shared":true,` +
-				`"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-				`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-				`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
-				`"description":"description","shared":false,"hidden":true,"mediaItemsCount":24,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-				`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-				`"updatedAt":"2022-09-22T11:22:33+05:30"}]`,
+			albumsResponseBody,
 		},
 		{
 			"get albums with error",
