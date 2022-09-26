@@ -84,11 +84,147 @@ func TestGetAlbumMediaItems(t *testing.T) {
 }
 
 func TestAddAlbumMediaItems(t *testing.T) {
-
+	tests := []Test{
+		{
+			"add album mediaitems bad request",
+			http.MethodPost,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/bad-uuid/mediaItems",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album id"}`,
+		},
+		{
+			"add album mediaitems with bad payload",
+			http.MethodPost,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"bad":"request"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album mediaitems"}`,
+		},
+		{
+			"add album mediaitems with success",
+			http.MethodPost,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddAlbumMediaItems
+			},
+			http.StatusNoContent,
+			"",
+		},
+		{
+			"add album mediaitems with error",
+			http.MethodPost,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestRemoveAlbumMediaItems(t *testing.T) {
-
+	tests := []Test{
+		{
+			"remove album mediaitems bad request",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/bad-uuid/mediaItems",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album id"}`,
+		},
+		{
+			"remove album mediaitems with bad payload",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"bad":"request"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album mediaitems"}`,
+		},
+		{
+			"remove album mediaitems with success",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusNoContent,
+			"",
+		},
+		{
+			"remove album mediaitems with error",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
 }
 
 func TestGetAlbum(t *testing.T) {
