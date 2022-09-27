@@ -13,8 +13,14 @@ import (
 
 // GetPlaces ...
 func (h *Handler) GetPlaces(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	places := []models.Place{}
-	result := h.DB.Model(&models.Place{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&places)
+	result := h.DB.Model(&models.Place{}).
+		Where("is_hidden=false").
+		Preload("CoverMediaItem").
+		Find(&places).
+		Offset(offset).
+		Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting places: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -63,8 +69,14 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 
 // GetThings ...
 func (h *Handler) GetThings(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	things := []models.Thing{}
-	result := h.DB.Model(&models.Thing{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&things)
+	result := h.DB.Model(&models.Thing{}).
+		Where("is_hidden=false").
+		Preload("CoverMediaItem").
+		Find(&things).
+		Offset(offset).
+		Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting things: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -113,8 +125,14 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 
 // GetPeople ...
 func (h *Handler) GetPeople(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	people := []models.People{}
-	result := h.DB.Model(&models.People{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&people)
+	result := h.DB.Model(&models.People{}).
+		Where("is_hidden=false").
+		Preload("CoverMediaItem").
+		Find(&people).
+		Offset(offset).
+		Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting people: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())

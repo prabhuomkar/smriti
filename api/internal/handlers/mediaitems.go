@@ -134,8 +134,12 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 
 // GetMediaItems ...
 func (h *Handler) GetMediaItems(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	mediaItems := []models.MediaItem{}
-	result := h.DB.Where("is_hidden=false OR is_deleted=false").Find(&mediaItems)
+	result := h.DB.Where("is_hidden=false OR is_deleted=false").
+		Find(&mediaItems).
+		Offset(offset).
+		Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting mediaitems: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())

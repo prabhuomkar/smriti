@@ -144,8 +144,14 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 
 // GetAlbums ...
 func (h *Handler) GetAlbums(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	albums := []models.Album{}
-	result := h.DB.Model(&models.Album{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&albums)
+	result := h.DB.Model(&models.Album{}).
+		Where("is_hidden=false").
+		Preload("CoverMediaItem").
+		Find(&albums).
+		Offset(offset).
+		Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting albums: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
