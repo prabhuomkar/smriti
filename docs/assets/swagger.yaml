@@ -871,6 +871,8 @@ components:
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
+        coverMediaItem:
+          $ref: '#/components/schemas/MediaItem'
     Place:
       type: object
       properties:
@@ -897,6 +899,16 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        coverMediaItem:
+          $ref: '#/components/schemas/MediaItem'
     Thing:
       type: object
       properties:
@@ -911,6 +923,16 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        coverMediaItem:
+          $ref: '#/components/schemas/MediaItem'
     People:
       type: object
       properties:
@@ -925,3 +947,13 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        coverMediaItem:
+          $ref: '#/components/schemas/MediaItem'
