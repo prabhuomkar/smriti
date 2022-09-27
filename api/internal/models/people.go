@@ -12,7 +12,7 @@ const PeopleTable = "people"
 type People struct {
 	ID               uuid.UUID    `json:"id" gorm:"primaryKey"`
 	Name             string       `json:"name"`
-	IsHidden         bool         `json:"hidden"`
+	IsHidden         *bool        `json:"hidden"`
 	CoverMediaItemID uuid.UUID    `json:"coverMediaItemId" gorm:"column:cover_mediaitem_id"`
 	CreatedAt        time.Time    `json:"createdAt"`
 	UpdatedAt        time.Time    `json:"updatedAt"`

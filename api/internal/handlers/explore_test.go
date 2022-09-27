@@ -114,6 +114,7 @@ func TestGetPlaces(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetPlace(t *testing.T) {
 	tests := []Test{
 		{
@@ -182,6 +183,7 @@ func TestGetPlace(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetPlaceMediaItems(t *testing.T) {
 	tests := []Test{
 		{
@@ -248,6 +250,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetThings(t *testing.T) {
 	tests := []Test{
 		{
@@ -303,6 +306,7 @@ func TestGetThings(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetThing(t *testing.T) {
 	tests := []Test{
 		{
@@ -371,6 +375,7 @@ func TestGetThing(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetThingMediaItems(t *testing.T) {
 	tests := []Test{
 		{
@@ -437,6 +442,105 @@ func TestGetThingMediaItems(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
+func TestUpdatePeople(t *testing.T) {
+	tests := []Test{
+		{
+			"update people bad request",
+			http.MethodPut,
+			"/v1/people/:id",
+			"/v1/people/bad-uuid",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdatePeople
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid people id"}`,
+		},
+		{
+			"update people with no payload",
+			http.MethodPut,
+			"/v1/people/:id",
+			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdatePeople
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid people"}`,
+		},
+		{
+			"update people with bad payload",
+			http.MethodPut,
+			"/v1/people/:id",
+			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"bad":"request"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdatePeople
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid people"}`,
+		},
+		{
+			"update people with bad cover mediaitem id",
+			http.MethodPut,
+			"/v1/people/:id",
+			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"name":"name","coverMediaItemId":"bad-mediaitem-id"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdatePeople
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid people cover mediaitem id"}`,
+		},
+		{
+			"update people with success",
+			http.MethodPut,
+			"/v1/people/:id",
+			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", true,
+						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdatePeople
+			},
+			http.StatusNoContent,
+			"",
+		},
+		{
+			"update people with error",
+			http.MethodPut,
+			"/v1/people/:id",
+			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", true,
+						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdatePeople
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
+}
+
 func TestGetPeople(t *testing.T) {
 	tests := []Test{
 		{
@@ -492,6 +596,7 @@ func TestGetPeople(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetPerson(t *testing.T) {
 	tests := []Test{
 		{
@@ -560,6 +665,7 @@ func TestGetPerson(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
 func TestGetPeopleMediaItems(t *testing.T) {
 	tests := []Test{
 		{

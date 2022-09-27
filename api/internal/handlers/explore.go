@@ -5,10 +5,20 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"reflect"
 
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
+)
+
+type (
+	// PeopleRequest ...
+	PeopleRequest struct {
+		Name             *string `json:"name"`
+		IsHidden         *bool   `json:"hidden"`
+		CoverMediaItemID *string `json:"coverMediaItemId"`
+	}
 )
 
 // GetPlaces ...
@@ -125,6 +135,27 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
+// UpdatePeople ...
+func (h *Handler) UpdatePeople(ctx echo.Context) error {
+	id := ctx.Param("id")
+	uid, err := uuid.FromString(id)
+	if err != nil {
+		log.Printf("error getting people id: %+v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
+	}
+	people, err := getPeople(ctx)
+	if err != nil {
+		return err
+	}
+	people.ID = uid
+	result := h.DB.Model(&people).Updates(people)
+	if result.Error != nil || result.RowsAffected != 1 {
+		log.Printf("error updating people: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	}
+	return ctx.JSON(http.StatusNoContent, nil)
+}
+
 // GetPeople ...
 func (h *Handler) GetPeople(ctx echo.Context) error {
 	offset, limit := getOffsetAndLimit(ctx)
@@ -180,4 +211,30 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
+}
+
+func getPeople(ctx echo.Context) (*models.People, error) {
+	peopleRequest := new(PeopleRequest)
+	err := ctx.Bind(peopleRequest)
+	if err != nil {
+		log.Printf("error getting people: %+v", err)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people")
+	}
+	people := models.People{
+		IsHidden: peopleRequest.IsHidden,
+	}
+	if peopleRequest.Name != nil {
+		people.Name = *peopleRequest.Name
+	}
+	if peopleRequest.CoverMediaItemID != nil {
+		coverMediaItemID, err := uuid.FromString(*peopleRequest.CoverMediaItemID)
+		if err != nil {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people cover mediaitem id")
+		}
+		people.CoverMediaItemID = coverMediaItemID
+	}
+	if reflect.DeepEqual(models.People{}, people) {
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people")
+	}
+	return &people, nil
 }

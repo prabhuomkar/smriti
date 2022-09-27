@@ -306,38 +306,12 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
-  /v1/explore/places/{placeId}:
-    put:
-      tags:
-        - Explore
-      parameters:
-        - name: placeId
-          in: path
-          description: ID of place
-          required: true
-          schema:
-            type: string
-            format: uuid
-      summary: Update a place entity
-      description: Update a place entity
-      operationId: updatePlace
-      responses:
-        '204':
-          description: No Content
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
-          description: Not Found
-        '500':
-          description: Internal Server Error
-  /v1/explore/places/{placeId}/mediaItems:
+  /v1/explore/places/{id}/mediaItems:
     get:
       tags:
         - Explore
       parameters:
-        - name: placeId
+        - name: id
           in: path
           description: ID of place
           required: true
@@ -372,38 +346,12 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
-  /v1/explore/things/{thingId}:
-    put:
-      tags:
-        - Explore
-      parameters:
-        - name: thingId
-          in: path
-          description: ID of thing
-          required: true
-          schema:
-            type: string
-            format: uuid
-      summary: Update a things entity
-      description: Update a things entity
-      operationId: updateThing
-      responses:
-        '204':
-          description: No Content
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
-          description: Not Found
-        '500':
-          description: Internal Server Error
-  /v1/explore/things/{thingId}/mediaItems:
+  /v1/explore/things/{id}/mediaItems:
     get:
       tags:
         - Explore
       parameters:
-        - name: thingId
+        - name: id
           in: path
           description: ID of thing
           required: true
@@ -438,12 +386,12 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
-  /v1/explore/people/{peopleId}:
+  /v1/explore/people/{id}:
     put:
       tags:
         - Explore
       parameters:
-        - name: peopleId
+        - name: id
           in: path
           description: ID of people
           required: true
@@ -464,12 +412,12 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
-  /v1/explore/people/{peopleId}/mediaItems:
+  /v1/explore/people/{id}/mediaItems:
     get:
       tags:
         - Explore
       parameters:
-        - name: peopleId
+        - name: id
           in: path
           description: ID of people
           required: true
