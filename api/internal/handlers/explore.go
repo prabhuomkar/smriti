@@ -50,6 +50,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 
 // GetPlaceMediaItems ...
 func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -59,7 +60,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	place := new(models.Place)
 	place.ID = uid
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&place).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&place).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
 		log.Printf("error getting place mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -106,6 +107,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 
 // GetThingMediaItems ...
 func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -115,7 +117,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	thing := new(models.Thing)
 	thing.ID = uid
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&thing).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&thing).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
 		log.Printf("error getting thing mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -162,6 +164,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 
 // GetPeopleMediaItems ...
 func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -171,7 +174,7 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 	person := new(models.People)
 	person.ID = uid
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&person).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&person).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
 		log.Printf("error getting people mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

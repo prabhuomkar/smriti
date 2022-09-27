@@ -30,6 +30,7 @@ type (
 
 // GetAlbumMediaItems ...
 func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
+	offset, limit := getOffsetAndLimit(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
 		return err
@@ -37,7 +38,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	album := new(models.Album)
 	album.ID = uid
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&album).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&album).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
 		log.Printf("error getting album mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
