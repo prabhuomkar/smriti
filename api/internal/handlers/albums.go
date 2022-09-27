@@ -92,7 +92,7 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 		return err
 	}
 	album := models.Album{}
-	result := h.DB.Where("id = ?", uid).First(&album)
+	result := h.DB.Model(&models.Album{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&album)
 	if result.Error != nil {
 		log.Printf("error getting album: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -129,6 +129,11 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 		return err
 	}
 	album := models.Album{ID: uid}
+	err = h.DB.Model(&album).Association("MediaItems").Clear()
+	if err != nil {
+		log.Printf("error deleting album: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	result := h.DB.Delete(&album)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error deleting album: %+v", result.Error)
@@ -140,7 +145,7 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 // GetAlbums ...
 func (h *Handler) GetAlbums(ctx echo.Context) error {
 	albums := []models.Album{}
-	result := h.DB.Where("is_hidden=false").Find(&albums)
+	result := h.DB.Model(&models.Album{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&albums)
 	if result.Error != nil {
 		log.Printf("error getting albums: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -208,7 +213,10 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 		album.Name = *albumRequest.Name
 	}
 	if albumRequest.CoverMediaItemID != nil {
-		coverMediaItemID := uuid.FromStringOrNil(*albumRequest.CoverMediaItemID)
+		coverMediaItemID, err := uuid.FromString(*albumRequest.CoverMediaItemID)
+		if err != nil {
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album cover mediaitem id")
+		}
 		album.CoverMediaItemID = &coverMediaItemID
 	}
 	if reflect.DeepEqual(models.Album{}, album) {

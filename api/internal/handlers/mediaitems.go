@@ -32,11 +32,6 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
 	places := []models.Place{}
-	err = h.DB.Model(&mediaItem).Association("Places").Find(&places)
-	if err != nil {
-		log.Printf("error getting mediaitem places: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
 	return ctx.JSON(http.StatusOK, places)
 }
 
@@ -51,11 +46,6 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
 	things := []models.Thing{}
-	err = h.DB.Model(&mediaItem).Association("Things").Find(&things)
-	if err != nil {
-		log.Printf("error getting mediaitem things: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
 	return ctx.JSON(http.StatusOK, things)
 }
 
@@ -70,11 +60,6 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
 	people := []models.People{}
-	err = h.DB.Model(&mediaItem).Association("People").Find(&people)
-	if err != nil {
-		log.Printf("error getting mediaitem people: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
 	return ctx.JSON(http.StatusOK, people)
 }
 
@@ -89,11 +74,6 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
 	albums := []models.Album{}
-	err = h.DB.Model(&mediaItem).Association("Albums").Find(&albums)
-	if err != nil {
-		log.Printf("error getting mediaitem albums: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
 	return ctx.JSON(http.StatusOK, albums)
 }
 

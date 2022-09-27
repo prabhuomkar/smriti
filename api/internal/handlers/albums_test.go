@@ -13,19 +13,39 @@ import (
 
 var (
 	albumCols = []string{"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
-		"cover_mediaitem_thumbnail_url", "mediaitems_count", "created_at", "updated_at"}
-	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description","shared":true,` +
-		`"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url",` +
-		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
-	albumsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description","shared":true,` +
-		`"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		"mediaitems_count", "created_at", "updated_at"}
+	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description",` +
+		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
+		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
+		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
+		`"location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"}}`
+	albumsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description",` +
+		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
+		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
+		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
+		`"location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"}},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
 		`"description":"description","shared":false,"hidden":true,"mediaItemsCount":24,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}]`
+		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30","coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"filename":"filename","description":"description","mimeType":"mime_type","sourceUrl":"source_url",` +
+		`"previewUrl":"preview_url","thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,` +
+		`"status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
+		`"creationTime":"2022-09-22T11:22:33+05:30","cameraMake":"camera_make","cameraModel":"camera_model",` +
+		`"focalLength":"focal_length","apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent",` +
+		`"exposureTime":"exposure_time","location":"bG9jYXRpb24=","fps":"fps",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}}]`
 )
 
 func TestGetAlbumMediaItems(t *testing.T) {
@@ -287,8 +307,8 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(albumCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+					WillReturnRows(sqlmock.NewRows(albumCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -303,8 +323,10 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnRows(getMockedAlbumRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+					WillReturnRows(getMockedAlbumRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -319,8 +341,8 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -429,6 +451,11 @@ func TestDeleteAlbum(t *testing.T) {
 			"",
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "albums"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -447,6 +474,11 @@ func TestDeleteAlbum(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "albums"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
@@ -472,8 +504,8 @@ func TestGetAlbums(t *testing.T) {
 			"/v1/albums",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(albumCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+					WillReturnRows(sqlmock.NewRows(albumCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
@@ -488,8 +520,10 @@ func TestGetAlbums(t *testing.T) {
 			"/v1/albums",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnRows(getMockedAlbumRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+					WillReturnRows(getMockedAlbumRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
@@ -504,8 +538,8 @@ func TestGetAlbums(t *testing.T) {
 			"/v1/albums",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
@@ -542,7 +576,7 @@ func TestCreateAlbum(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "albums"`)).
 					WithArgs(sqlmock.AnyArg(), "name", "description", false, false, 0,
-						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", nil, sqlmock.AnyArg(), sqlmock.AnyArg()).
+						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -563,7 +597,7 @@ func TestCreateAlbum(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "albums"`)).
 					WithArgs(sqlmock.AnyArg(), "name", "description", false, false, 0,
-						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", nil, sqlmock.AnyArg(), sqlmock.AnyArg()).
+						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
@@ -577,12 +611,18 @@ func TestCreateAlbum(t *testing.T) {
 	executeTests(t, tests)
 }
 
+func getMockedAlbumRow() *sqlmock.Rows {
+	return sqlmock.NewRows(albumCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", "true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"12", sampleTime, sampleTime)
+}
+
 func getMockedAlbumRows() *sqlmock.Rows {
 	return sqlmock.NewRows(albumCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", "true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"cover_mediaitem_thumbnail_url", "12", sampleTime, sampleTime).
+			"12", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "description", "false", "true", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"cover_mediaitem_thumbnail_url", "24", sampleTime, sampleTime)
+			"24", sampleTime, sampleTime)
 }
 
 type AnyID struct{}

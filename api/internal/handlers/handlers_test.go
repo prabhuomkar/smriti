@@ -47,7 +47,7 @@ func executeTests(t *testing.T, tests []Test) {
 				Conn:                 mockDB,
 				PreferSimpleProtocol: true,
 			}), &gorm.Config{
-				Logger: logger.Default.LogMode(logger.Silent),
+				Logger: logger.Default.LogMode(logger.Info),
 			})
 			assert.NoError(t, err)
 			if test.MockDB != nil {

@@ -50,7 +50,6 @@ CREATE TABLE "places" (
   "state" varchar,
   "country" varchar,
   "cover_mediaitem_id" uuid,
-  "cover_mediaitem_thumbnail_url" varchar,
   "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -66,7 +65,6 @@ CREATE TABLE "things" (
   "id" uuid PRIMARY KEY NOT NULL,
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
-  "cover_mediaitem_thumbnail_url" varchar,
   "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -82,7 +80,6 @@ CREATE TABLE "people" (
   "id" uuid PRIMARY KEY NOT NULL,
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
-  "cover_mediaitem_thumbnail_url" varchar,
   "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -100,8 +97,7 @@ CREATE TABLE "albums" (
   "description" varchar,
   "is_shared" boolean DEFAULT FALSE NOT NULL,
   "cover_mediaitem_id" uuid,
-  "cover_mediaitem_thumbnail_url" varchar,
-  "mediaitems_count" int,
+  "mediaitems_count" int DEFAULT 0 NOT NULL,
   "is_hidden" boolean DEFAULT FALSE NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
@@ -112,6 +108,14 @@ CREATE TABLE "album_mediaitems" (
   "mediaitem_id" uuid NOT NULL,
   PRIMARY KEY ("album_id", "mediaitem_id")
 );
+
+ALTER TABLE "albums" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
+
+ALTER TABLE "places" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
+
+ALTER TABLE "things" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
+
+ALTER TABLE "people" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
 
 ALTER TABLE "place_mediaitems" ADD FOREIGN KEY ("place_id") REFERENCES "places" ("id");
 

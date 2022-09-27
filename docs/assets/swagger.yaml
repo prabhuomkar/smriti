@@ -216,6 +216,32 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
+  /v1/mediaItems/{id}/albums:
+    get:
+      tags:
+        - MediaItems
+      parameters:
+        - name: id
+          in: path
+          description: ID of mediaItem
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get albums from an existing mediaItem
+      description: Get albums from an existing mediaItem
+      operationId: getMediaItemAlbums
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /v1/favourites:
     get:
       tags:
@@ -837,9 +863,6 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
-        coverMediaItemThumbnailUrl:
-          type: string
-          example: https://cdn.pensieve/thumbnail
         createdAt:
           type: string
           format: date-time
@@ -874,9 +897,6 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
-        coverMediaItemThumbnailUrl:
-          type: string
-          example: https://cdn.pensieve/thumbnail
     Thing:
       type: object
       properties:
@@ -891,9 +911,6 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
-        coverMediaItemThumbnailUrl:
-          type: string
-          example: https://cdn.pensieve/thumbnail
     People:
       type: object
       properties:
@@ -908,6 +925,3 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
-        coverMediaItemThumbnailUrl:
-          type: string
-          example: https://cdn.pensieve/thumbnail

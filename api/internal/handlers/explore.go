@@ -14,7 +14,7 @@ import (
 // GetPlaces ...
 func (h *Handler) GetPlaces(ctx echo.Context) error {
 	places := []models.Place{}
-	result := h.DB.Where("is_hidden=false").Find(&places)
+	result := h.DB.Model(&models.Place{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&places)
 	if result.Error != nil {
 		log.Printf("error getting places: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -31,7 +31,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	place := models.Place{}
-	result := h.DB.Where("id = ?", uid).First(&place)
+	result := h.DB.Model(&models.Place{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&place)
 	if result.Error != nil {
 		log.Printf("error getting place: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -64,7 +64,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 // GetThings ...
 func (h *Handler) GetThings(ctx echo.Context) error {
 	things := []models.Thing{}
-	result := h.DB.Where("is_hidden=false").Find(&things)
+	result := h.DB.Model(&models.Thing{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&things)
 	if result.Error != nil {
 		log.Printf("error getting things: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -81,7 +81,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	thing := models.Thing{}
-	result := h.DB.Where("id = ?", uid).First(&thing)
+	result := h.DB.Model(&models.Thing{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&thing)
 	if result.Error != nil {
 		log.Printf("error getting thing: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -114,7 +114,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 // GetPeople ...
 func (h *Handler) GetPeople(ctx echo.Context) error {
 	people := []models.People{}
-	result := h.DB.Where("is_hidden=false").Find(&people)
+	result := h.DB.Model(&models.People{}).Where("is_hidden=false").Preload("CoverMediaItem").Find(&people)
 	if result.Error != nil {
 		log.Printf("error getting people: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -131,7 +131,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid person id")
 	}
 	person := models.People{}
-	result := h.DB.Where("id = ?", uid).First(&person)
+	result := h.DB.Model(&models.People{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&person)
 	if result.Error != nil {
 		log.Printf("error getting person: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

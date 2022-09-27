@@ -12,48 +12,51 @@ import (
 
 var (
 	placeCols = []string{"id", "name", "postcode", "suburb", "road", "town", "city", "county", "district", "state",
-		"country", "cover_mediaitem_id", "cover_mediaitem_thumbnail_url", "is_hidden", "created_at", "updated_at"}
-	thingCols = []string{"id", "name", "cover_mediaitem_id", "cover_mediaitem_thumbnail_url",
-		"is_hidden", "created_at", "updated_at"}
-	peopleCols = []string{"id", "name", "cover_mediaitem_id", "cover_mediaitem_thumbnail_url",
-		"is_hidden", "created_at", "updated_at"}
+		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	thingCols                  = []string{"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	peopleCols                 = []string{"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	coverMediaItemResponseBody = `"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
+		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
+		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
+		`"location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
 	placeResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
 		`"suburb":"suburb","road":"road","town":"town","city":"city","county":"county","district":"district",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		coverMediaItemResponseBody + `}`
 	placesResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
 		`"suburb":"suburb","road":"road","town":"town","city":"city","county":"county","district":"district",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
 		`"postcode":"postcode","suburb":"suburb","road":"road","town":"town","city":"city","county":"county",` +
 		`"district":"district","state":"state","country":"country","hidden":false,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}]`
-	thingResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","hidden":true,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	thingsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","hidden":true,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
-		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}]`
-	personResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","hidden":true,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	peopleResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","hidden":true,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
-		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"coverMediaItemThumbnailUrl":"cover_mediaitem_thumbnail_url","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}]`
+		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
+	thingResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		coverMediaItemResponseBody + `}`
+	thingsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
+	personResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		coverMediaItemResponseBody + `}`
+	peopleResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
+		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
 )
 
 func TestGetPlaces(t *testing.T) {
@@ -65,8 +68,8 @@ func TestGetPlaces(t *testing.T) {
 			"/v1/explore/places",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(placeCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(sqlmock.NewRows(placeCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaces
@@ -81,8 +84,10 @@ func TestGetPlaces(t *testing.T) {
 			"/v1/explore/places",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`))
-				expectedMock.WillReturnRows(getMockedPlaceRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaces
@@ -97,8 +102,8 @@ func TestGetPlaces(t *testing.T) {
 			"/v1/explore/places",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaces
@@ -131,8 +136,8 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(placeCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(sqlmock.NewRows(placeCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
@@ -147,8 +152,10 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`))
-				expectedMock.WillReturnRows(getMockedPlaceRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
@@ -163,8 +170,8 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
@@ -197,8 +204,8 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
@@ -213,8 +220,8 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
-				expectedMock.WillReturnRows(getMockedMediaItemRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
@@ -229,8 +236,8 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
@@ -250,8 +257,8 @@ func TestGetThings(t *testing.T) {
 			"/v1/explore/things",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(thingCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnRows(sqlmock.NewRows(thingCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThings
@@ -266,8 +273,10 @@ func TestGetThings(t *testing.T) {
 			"/v1/explore/things",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`))
-				expectedMock.WillReturnRows(getMockedThingRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnRows(getMockedThingRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThings
@@ -282,8 +291,8 @@ func TestGetThings(t *testing.T) {
 			"/v1/explore/things",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThings
@@ -316,8 +325,8 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(thingCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnRows(sqlmock.NewRows(thingCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
@@ -332,8 +341,10 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`))
-				expectedMock.WillReturnRows(getMockedThingRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnRows(getMockedThingRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
@@ -348,8 +359,8 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
@@ -382,8 +393,8 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
@@ -398,8 +409,8 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
-				expectedMock.WillReturnRows(getMockedMediaItemRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
@@ -414,8 +425,8 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
@@ -435,8 +446,8 @@ func TestGetPeople(t *testing.T) {
 			"/v1/explore/people",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(peopleCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(sqlmock.NewRows(peopleCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeople
@@ -451,8 +462,10 @@ func TestGetPeople(t *testing.T) {
 			"/v1/explore/people",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`))
-				expectedMock.WillReturnRows(getMockedPeopleRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(getMockedPeopleRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeople
@@ -467,8 +480,8 @@ func TestGetPeople(t *testing.T) {
 			"/v1/explore/people",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeople
@@ -501,8 +514,8 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(peopleCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(sqlmock.NewRows(peopleCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
@@ -517,8 +530,10 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`))
-				expectedMock.WillReturnRows(getMockedPeopleRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(getMockedPeopleRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
@@ -533,8 +548,8 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
@@ -567,8 +582,8 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
@@ -583,8 +598,8 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
-				expectedMock.WillReturnRows(getMockedMediaItemRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
@@ -599,8 +614,8 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
@@ -612,28 +627,44 @@ func TestGetPeopleMediaItems(t *testing.T) {
 	executeTests(t, tests)
 }
 
+func getMockedPlaceRow() *sqlmock.Rows {
+	return sqlmock.NewRows(placeCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "suburb", "road", "town", "city", "county",
+			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
+}
+
 func getMockedPlaceRows() *sqlmock.Rows {
 	return sqlmock.NewRows(placeCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "suburb", "road", "town", "city", "county",
-			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "cover_mediaitem_thumbnail_url",
-			"true", sampleTime, sampleTime).
+			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "postcode", "suburb", "road", "town", "city", "county",
-			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "cover_mediaitem_thumbnail_url",
-			"false", sampleTime, sampleTime)
+			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
+}
+
+func getMockedThingRow() *sqlmock.Rows {
+	return sqlmock.NewRows(thingCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"true", sampleTime, sampleTime)
 }
 
 func getMockedThingRows() *sqlmock.Rows {
 	return sqlmock.NewRows(thingCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"cover_mediaitem_thumbnail_url", "true", sampleTime, sampleTime).
+			"true", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"cover_mediaitem_thumbnail_url", "false", sampleTime, sampleTime)
+			"false", sampleTime, sampleTime)
+}
+
+func getMockedPeopleRow() *sqlmock.Rows {
+	return sqlmock.NewRows(peopleCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"true", sampleTime, sampleTime)
 }
 
 func getMockedPeopleRows() *sqlmock.Rows {
 	return sqlmock.NewRows(peopleCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"cover_mediaitem_thumbnail_url", "true", sampleTime, sampleTime).
+			"true", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"cover_mediaitem_thumbnail_url", "false", sampleTime, sampleTime)
+			"false", sampleTime, sampleTime)
 }
