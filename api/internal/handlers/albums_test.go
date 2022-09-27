@@ -370,6 +370,19 @@ func TestUpdateAlbum(t *testing.T) {
 			`{"message":"invalid album id"}`,
 		},
 		{
+			"update album with no payload",
+			http.MethodPut,
+			"/v1/albums/:id",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateAlbum
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album"}`,
+		},
+		{
 			"update album with bad payload",
 			http.MethodPut,
 			"/v1/albums/:id",
@@ -381,6 +394,19 @@ func TestUpdateAlbum(t *testing.T) {
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid album"}`,
+		},
+		{
+			"update album with bad cover mediaitem id",
+			http.MethodPut,
+			"/v1/albums/:id",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateAlbum
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album cover mediaitem id"}`,
 		},
 		{
 			"update album with success",
@@ -466,6 +492,25 @@ func TestDeleteAlbum(t *testing.T) {
 			},
 			http.StatusNoContent,
 			"",
+		},
+		{
+			"delete album with error while clearing linked mediaitems",
+			http.MethodDelete,
+			"/v1/albums/:id",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.DeleteAlbum
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
 		},
 		{
 			"delete album with error",
@@ -565,6 +610,32 @@ func TestCreateAlbum(t *testing.T) {
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid album"}`,
+		},
+		{
+			"create album with no payload",
+			http.MethodPost,
+			"/v1/albums",
+			"/v1/albums",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateAlbum
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album"}`,
+		},
+		{
+			"create album with bad cover mediaitem id",
+			http.MethodPost,
+			"/v1/albums",
+			"/v1/albums",
+			`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateAlbum
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid album cover mediaitem id"}`,
 		},
 		{
 			"create album with success",
