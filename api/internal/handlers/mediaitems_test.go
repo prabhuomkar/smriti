@@ -73,6 +73,40 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.StatusOK,
 			"[]",
 		},
+		{
+			"get mediaitem places with success",
+			http.MethodGet,
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
+					WillReturnRows(getMockedPlaceRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusOK,
+			placesResponseBody,
+		},
+		{
+			"get mediaitem places with error",
+			http.MethodGet,
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
 	}
 	executeTests(t, tests)
 }
@@ -107,6 +141,40 @@ func TestGetMediaItemThings(t *testing.T) {
 			},
 			http.StatusOK,
 			"[]",
+		},
+		{
+			"get mediaitem things with success",
+			http.MethodGet,
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
+					WillReturnRows(getMockedThingRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusOK,
+			thingsResponseBody,
+		},
+		{
+			"get mediaitem things with error",
+			http.MethodGet,
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
 		},
 	}
 	executeTests(t, tests)
@@ -143,6 +211,40 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.StatusOK,
 			"[]",
 		},
+		{
+			"get mediaitem people with success",
+			http.MethodGet,
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
+					WillReturnRows(getMockedPeopleRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusOK,
+			peopleResponseBody,
+		},
+		{
+			"get mediaitem people with error",
+			http.MethodGet,
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
 	}
 	executeTests(t, tests)
 }
@@ -177,6 +279,40 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			},
 			http.StatusOK,
 			"[]",
+		},
+		{
+			"get mediaitem albums with success",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+					WillReturnRows(getMockedAlbumRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
+			},
+			http.StatusOK,
+			albumsResponseBody,
+		},
+		{
+			"get mediaitem albums with error",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
 		},
 	}
 	executeTests(t, tests)
