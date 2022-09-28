@@ -453,7 +453,7 @@ func TestUpdatePeople(t *testing.T) {
 			"",
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdatePeople
+				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid people id"}`,
@@ -466,7 +466,7 @@ func TestUpdatePeople(t *testing.T) {
 			"",
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdatePeople
+				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid people"}`,
@@ -479,7 +479,7 @@ func TestUpdatePeople(t *testing.T) {
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdatePeople
+				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid people"}`,
@@ -492,7 +492,7 @@ func TestUpdatePeople(t *testing.T) {
 			`{"name":"name","coverMediaItemId":"bad-mediaitem-id"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdatePeople
+				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid people cover mediaitem id"}`,
@@ -512,7 +512,7 @@ func TestUpdatePeople(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdatePeople
+				return handler.UpdatePerson
 			},
 			http.StatusNoContent,
 			"",
@@ -532,7 +532,7 @@ func TestUpdatePeople(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdatePeople
+				return handler.UpdatePerson
 			},
 			http.StatusInternalServerError,
 			`{"message":"some db error"}`,

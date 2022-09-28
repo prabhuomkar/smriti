@@ -135,8 +135,8 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
-// UpdatePeople ...
-func (h *Handler) UpdatePeople(ctx echo.Context) error {
+// UpdatePerson ...
+func (h *Handler) UpdatePerson(ctx echo.Context) error {
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {

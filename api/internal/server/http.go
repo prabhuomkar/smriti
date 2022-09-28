@@ -51,6 +51,7 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	explore.GET("/things", handler.GetThings, middlewares.FeatureCheck(cfg, "things"))
 	explore.GET("/people/:id/mediaItems", handler.GetPeopleMediaItems, middlewares.FeatureCheck(cfg, "people"))
 	explore.GET("/people/:id", handler.GetPerson, middlewares.FeatureCheck(cfg, "people"))
+	explore.PUT("/people/:id", handler.UpdatePerson, middlewares.FeatureCheck(cfg, "people"))
 	explore.GET("/people", handler.GetPeople, middlewares.FeatureCheck(cfg, "people"))
 	// albums
 	albums := version1.Group("/albums")

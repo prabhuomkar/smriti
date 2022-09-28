@@ -25,10 +25,6 @@ paths:
       responses:
         '200':
           description: Success
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
         '500':
           description: Internal Server Error
   /v1/mediaItems:
