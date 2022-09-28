@@ -13,3 +13,6 @@ cover:
 
 cover-html: cover
 	@go tool cover -html coverage.txt -o coverage.html
+
+lint:
+	@golangci-lint run ./...
