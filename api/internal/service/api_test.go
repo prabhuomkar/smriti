@@ -59,6 +59,18 @@ var (
 		City:     &city,
 		Postcode: &postcode,
 	}
+	mediaItemPlaceCountryRequest = api.MediaItemPlaceRequest{
+		Id:      "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Country: &country,
+	}
+	mediaItemPlaceStateRequest = api.MediaItemPlaceRequest{
+		Id:    "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		State: &state,
+	}
+	mediaItemPlaceTownRequest = api.MediaItemPlaceRequest{
+		Id:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Town: &town,
+	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
 	placeCols     = []string{"id", "name", "postcode", "town", "city", "state",
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
@@ -163,7 +175,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
-			"save mediaitem place with success",
+			"save mediaitem place with city success",
 			&mediaItemPlaceRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -176,6 +188,60 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+		},
+		{
+			"save mediaitem place with country success",
+			&mediaItemPlaceCountryRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem place with state success",
+			&mediaItemPlaceStateRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem place with town success",
+			&mediaItemPlaceTownRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem place with place find or create error",
+			&mediaItemPlaceRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			status.Error(codes.Internal, "error getting or creating place: some db error"),
 		},
 		{
 			"save mediaitem place with error",

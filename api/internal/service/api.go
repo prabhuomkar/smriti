@@ -88,7 +88,8 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 	}).FirstOrCreate(&place, place)
 	if result.Error != nil {
 		log.Printf("error getting or creating place: %+v", result.Error)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "error getting or creating place")
+		return &emptypb.Empty{}, status.Errorf(codes.Internal,
+			"error getting or creating place: %s", result.Error.Error())
 	}
 	mediaItem := models.MediaItem{ID: uid}
 	err = s.DB.Omit("MediaItems.*").Model(&place).Association("MediaItems").Append(&mediaItem)
