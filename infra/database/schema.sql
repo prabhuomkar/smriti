@@ -32,7 +32,8 @@ CREATE TABLE "mediaitems" (
   "aperture_fnumber" varchar,
   "iso_equivalent" varchar,
   "exposure_time" varchar,
-  "location" point,
+  "latitude" double,
+  "longitude" double,
   "fps" varchar,
   "created_at" timestamp,
   "updated_at" timestamp

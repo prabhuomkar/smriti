@@ -21,7 +21,7 @@ var (
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"location":"bG9jYXRpb24=","fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
 	placeResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
 		`"suburb":"suburb","road":"road","town":"town","city":"city","county":"county","district":"district",` +

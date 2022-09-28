@@ -38,7 +38,8 @@ type (
 		ApertureFnumber *string         `json:"apertureFnumber,omitempty" gorm:"column:aperture_fnumber"`
 		IsoEquivalent   *string         `json:"isoEquivalent,omitempty"`
 		ExposureTime    *string         `json:"exposureTime,omitempty"`
-		Location        *[]byte         `json:"location,omitempty"`
+		Latitude        *float64        `json:"latitude,omitempty"`
+		Longitude       *float64        `json:"longitude,omitempty"`
 		FPS             *string         `json:"fps,omitempty"`
 		CreatedAt       time.Time       `json:"createdAt"`
 		UpdatedAt       time.Time       `json:"updatedAt"`
