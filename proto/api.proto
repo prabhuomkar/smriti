@@ -29,15 +29,11 @@ message MediaItemResultRequest {
 
 message MediaItemPlaceRequest {
     string id = 1;
-    string postcode = 2;
-    string country = 3;
-    string state = 4;
-    string district = 5;
-    string county = 6;
-    string city = 7;
-    string town = 8;
-    string suburb = 9;
-    string road = 10;
+    optional string postcode = 2;
+    optional string country = 3;
+    optional string state = 4;
+    optional string city = 5;
+    optional string town = 6;
 }
 
 service APIService {

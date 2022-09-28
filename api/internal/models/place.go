@@ -12,15 +12,11 @@ const PlaceTable = "places"
 type Place struct {
 	ID               uuid.UUID    `json:"id" gorm:"primaryKey"`
 	Name             string       `json:"name"`
-	Postcode         string       `json:"postcode"`
-	Suburb           string       `json:"suburb"`
-	Road             string       `json:"road"`
-	Town             string       `json:"town"`
-	City             string       `json:"city"`
-	County           string       `json:"county"`
-	District         string       `json:"district"`
-	State            string       `json:"state"`
-	Country          string       `json:"country"`
+	Postcode         *string      `json:"postcode"`
+	Town             *string      `json:"town"`
+	City             *string      `json:"city"`
+	State            *string      `json:"state"`
+	Country          *string      `json:"country"`
 	IsHidden         bool         `json:"hidden"`
 	CoverMediaItemID uuid.UUID    `json:"coverMediaItemId" gorm:"column:cover_mediaitem_id"`
 	CreatedAt        time.Time    `json:"createdAt"`

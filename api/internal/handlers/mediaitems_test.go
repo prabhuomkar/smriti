@@ -9,6 +9,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo"
+	"gorm.io/gorm"
 )
 
 var (
@@ -72,6 +73,22 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			},
 			http.StatusOK,
 			"[]",
+		},
+		{
+			"get mediaitem places with not found",
+			http.MethodGet,
+			"/v1/mediaItems/:id/places",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
+					WillReturnError(gorm.ErrRecordNotFound)
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPlaces
+			},
+			http.StatusNotFound,
+			`{"message":"mediaitem places not found"}`,
 		},
 		{
 			"get mediaitem places with success",
@@ -143,6 +160,22 @@ func TestGetMediaItemThings(t *testing.T) {
 			"[]",
 		},
 		{
+			"get mediaitem things with not found",
+			http.MethodGet,
+			"/v1/mediaItems/:id/things",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
+					WillReturnError(gorm.ErrRecordNotFound)
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemThings
+			},
+			http.StatusNotFound,
+			`{"message":"mediaitem things not found"}`,
+		},
+		{
 			"get mediaitem things with success",
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
@@ -212,6 +245,22 @@ func TestGetMediaItemPeople(t *testing.T) {
 			"[]",
 		},
 		{
+			"get mediaitem people with not found",
+			http.MethodGet,
+			"/v1/mediaItems/:id/people",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
+					WillReturnError(gorm.ErrRecordNotFound)
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemPeople
+			},
+			http.StatusNotFound,
+			`{"message":"mediaitem people not found"}`,
+		},
+		{
 			"get mediaitem people with success",
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
@@ -279,6 +328,22 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			},
 			http.StatusOK,
 			"[]",
+		},
+		{
+			"get mediaitem albums with not found",
+			http.MethodGet,
+			"/v1/mediaItems/:id/albums",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			"",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+					WillReturnError(gorm.ErrRecordNotFound)
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItemAlbums
+			},
+			http.StatusNotFound,
+			`{"message":"mediaitem albums not found"}`,
 		},
 		{
 			"get mediaitem albums with success",
@@ -399,6 +464,19 @@ func TestUpdateMediaItem(t *testing.T) {
 			},
 			http.StatusBadRequest,
 			`{"message":"invalid mediaitem id"}`,
+		},
+		{
+			"update mediaitem with no payload",
+			http.MethodPut,
+			"/v1/mediaItems/:id",
+			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"",
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateMediaItem
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid mediaitem"}`,
 		},
 		{
 			"update mediaitem with bad payload",

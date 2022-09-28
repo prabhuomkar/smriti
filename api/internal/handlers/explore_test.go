@@ -11,7 +11,7 @@ import (
 )
 
 var (
-	placeCols = []string{"id", "name", "postcode", "suburb", "road", "town", "city", "county", "district", "state",
+	placeCols = []string{"id", "name", "postcode", "town", "city", "state",
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 	thingCols                  = []string{"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 	peopleCols                 = []string{"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
@@ -24,17 +24,17 @@ var (
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
 	placeResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
-		`"suburb":"suburb","road":"road","town":"town","city":"city","county":"county","district":"district",` +
+		`"town":"town","city":"city",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
 		coverMediaItemResponseBody + `}`
 	placesResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
-		`"suburb":"suburb","road":"road","town":"town","city":"city","county":"county","district":"district",` +
+		`"town":"town","city":"city",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
 		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
-		`"postcode":"postcode","suburb":"suburb","road":"road","town":"town","city":"city","county":"county",` +
-		`"district":"district","state":"state","country":"country","hidden":false,` +
+		`"postcode":"postcode","town":"town","city":"city",` +
+		`"state":"state","country":"country","hidden":false,` +
 		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
 	thingResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
@@ -735,16 +735,16 @@ func TestGetPeopleMediaItems(t *testing.T) {
 
 func getMockedPlaceRow() *sqlmock.Rows {
 	return sqlmock.NewRows(placeCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "suburb", "road", "town", "city", "county",
-			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "town", "city",
+			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
 func getMockedPlaceRows() *sqlmock.Rows {
 	return sqlmock.NewRows(placeCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "suburb", "road", "town", "city", "county",
-			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "postcode", "suburb", "road", "town", "city", "county",
-			"district", "state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "town", "city",
+			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "postcode", "town", "city",
+			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
 }
 
 func getMockedThingRow() *sqlmock.Rows {

@@ -9,6 +9,7 @@ import (
 	"net"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
@@ -45,6 +46,22 @@ var (
 		Height:       &height,
 		CreationTime: &creationtime,
 	}
+	country               = "country"
+	state                 = "state"
+	town                  = "town"
+	city                  = "city"
+	postcode              = "postcode"
+	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
+		Id:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Country:  &country,
+		State:    &state,
+		Town:     &town,
+		City:     &city,
+		Postcode: &postcode,
+	}
+	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
+	placeCols     = []string{"id", "name", "postcode", "town", "city", "state",
+		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 )
 
 func TestSaveMediaItemResult(t *testing.T) {
@@ -132,6 +149,85 @@ func TestSaveMediaItemResult(t *testing.T) {
 	}
 }
 
+func TestSaveMediaItemPlace(t *testing.T) {
+	tests := []struct {
+		Name        string
+		Request     *api.MediaItemPlaceRequest
+		MockDB      func(mock sqlmock.Sqlmock)
+		ExpectedErr error
+	}{
+		{
+			"save mediaitem place with invalid mediaitem id",
+			&api.MediaItemPlaceRequest{Id: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
+		},
+		{
+			"save mediaitem place with success",
+			&mediaItemPlaceRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem place with error",
+			&mediaItemPlaceRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem place: some db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer mockDB.Close()
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Error),
+			})
+			assert.NoError(t, err)
+			if test.MockDB != nil {
+				test.MockDB(mock)
+			}
+			// service
+			service := &Service{
+				Config: &config.Config{},
+				DB:     mockGDB,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIServiceClient(conn)
+			_, err = client.SaveMediaItemPlace(ctx, test.Request)
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+		})
+	}
+}
+
 func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 	server := grpc.NewServer()
@@ -144,4 +240,10 @@ func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 	return func(context.Context, string) (net.Conn, error) {
 		return listener.Dial()
 	}
+}
+
+func getMockedPlaceRow() *sqlmock.Rows {
+	return sqlmock.NewRows(placeCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "town", "city",
+			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }

@@ -41,13 +41,10 @@ CREATE TABLE "mediaitems" (
 
 CREATE TABLE "places" (
   "id" uuid PRIMARY KEY NOT NULL,
-  "postcode" varchar UNIQUE,
-  "suburb" varchar,
-  "road" varchar,
+  "name" varchar UNIQUE,
+  "postcode" varchar,
   "town" varchar,
   "city" varchar,
-  "county" varchar,
-  "district" varchar,
   "state" varchar,
   "country" varchar,
   "cover_mediaitem_id" uuid,
