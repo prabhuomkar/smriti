@@ -16,7 +16,7 @@
 - Service written in Golang
     - REST API: [echo](https://echo.labstack.com/)
     - RPC: [gRPC + protobuf](https://grpc.io/)
-    - Postgres: [sqlx](https://github.com/jmoiron/sqlx)
+    - Postgres: [gorm](https://gorm.io/)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
 - Will exchange protobuf with Worker: [api.proto](../proto/api.proto)
@@ -25,9 +25,9 @@
 - [Postgres DB Schema](../infra/database/schema.sql)
 - Total number of tables: 12
 - **Entities**:
-    - MediaItem: `mediaitems`, `mediaitem_metadata`
+    - MediaItem: `mediaitems`
     - Album: `albums`, `album_mediaitems`
-    - Explore: `places`, `things`, `people`, `place_mediaitems`, `things_mediaitems`, `people_mediaitems`
+    - Explore: `places`, `things`, `people`, `place_mediaitems`, `thing_mediaitems`, `people_mediaitems`
 
 #### Worker
 - Service written in Python
@@ -59,6 +59,10 @@
 | Photo | .TIFF | ❓ |
 | Photo | .WEBP | ❓ |
 | Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ❓ |
+
+**Post MVP Scope**
+| Type | Extension | Support |
+| ---- | --------- | ------- |
 | Video | 3GP | ❓ |
 | Video | 3G2 | ❓ |
 | Video | ASF | ❓ |
