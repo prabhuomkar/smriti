@@ -17,12 +17,14 @@ services:
       PENSIEVE_DATABASE_PASSWORD: pensieve
       PENSIEVE_DATABASE_NAME: pensieve
       PENSIEVE_WORKER_HOST: worker
+      PENSIEVE_WORKER_PORT: 15002
   worker:
     build: worker
     restart: always
     container_name: worker
     environment:
       PENSIEVE_API_HOST: api
+      PENSIEVE_API_PORT: 15001
   # infra services
   database:
     image: postgres:14
