@@ -153,7 +153,7 @@ func TestSaveMediaItemResult(t *testing.T) {
 				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
-			client := api.NewAPIServiceClient(conn)
+			client := api.NewAPIClient(conn)
 			_, err = client.SaveMediaItemResult(ctx, test.Request)
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
@@ -286,7 +286,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
-			client := api.NewAPIServiceClient(conn)
+			client := api.NewAPIClient(conn)
 			_, err = client.SaveMediaItemPlace(ctx, test.Request)
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
@@ -297,7 +297,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 	server := grpc.NewServer()
-	api.RegisterAPIServiceServer(server, service)
+	api.RegisterAPIServer(server, service)
 	go func() {
 		if err := server.Serve(listener); err != nil {
 			log.Fatal(err)

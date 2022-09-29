@@ -18,7 +18,7 @@ import (
 
 // Service ...
 type Service struct {
-	api.UnimplementedAPIServiceServer
+	api.UnimplementedAPIServer
 	Config *config.Config
 	DB     *gorm.DB
 }

@@ -7,7 +7,6 @@ services:
     container_name: api
     ports:
       - '5001:5001'
-      - '15001:15001'
     depends_on:
       - database
       - worker
@@ -17,14 +16,13 @@ services:
       PENSIEVE_DATABASE_USERNAME: pensieve
       PENSIEVE_DATABASE_PASSWORD: pensieve
       PENSIEVE_DATABASE_NAME: pensieve
+      PENSIEVE_WORKER_HOST: worker
   worker:
     build: worker
     restart: always
     container_name: worker
-    ports:  
-      - '15002:15002'
     environment:
-      LOG_LEVEL: INFO
+      PENSIEVE_API_HOST: api
   # infra services
   database:
     image: postgres:14

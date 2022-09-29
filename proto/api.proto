@@ -36,7 +36,7 @@ message MediaItemPlaceRequest {
     optional string town = 6;
 }
 
-service APIService {
+service API {
     rpc SaveMediaItemResult(MediaItemResultRequest) returns (google.protobuf.Empty);
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty);
 }

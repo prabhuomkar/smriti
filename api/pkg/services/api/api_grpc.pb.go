@@ -19,122 +19,122 @@ import (
 // Requires gRPC-Go v1.32.0 or later.
 const _ = grpc.SupportPackageIsVersion7
 
-// APIServiceClient is the client API for APIService service.
+// APIClient is the client API for API service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
-type APIServiceClient interface {
+type APIClient interface {
 	SaveMediaItemResult(ctx context.Context, in *MediaItemResultRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
-type aPIServiceClient struct {
+type aPIClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAPIServiceClient(cc grpc.ClientConnInterface) APIServiceClient {
-	return &aPIServiceClient{cc}
+func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
+	return &aPIClient{cc}
 }
 
-func (c *aPIServiceClient) SaveMediaItemResult(ctx context.Context, in *MediaItemResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *aPIClient) SaveMediaItemResult(ctx context.Context, in *MediaItemResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/APIService/SaveMediaItemResult", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/services.api.API/SaveMediaItemResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *aPIServiceClient) SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *aPIClient) SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/APIService/SaveMediaItemPlace", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/services.api.API/SaveMediaItemPlace", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-// APIServiceServer is the server API for APIService service.
-// All implementations must embed UnimplementedAPIServiceServer
+// APIServer is the server API for API service.
+// All implementations must embed UnimplementedAPIServer
 // for forward compatibility
-type APIServiceServer interface {
+type APIServer interface {
 	SaveMediaItemResult(context.Context, *MediaItemResultRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
-	mustEmbedUnimplementedAPIServiceServer()
+	mustEmbedUnimplementedAPIServer()
 }
 
-// UnimplementedAPIServiceServer must be embedded to have forward compatible implementations.
-type UnimplementedAPIServiceServer struct {
+// UnimplementedAPIServer must be embedded to have forward compatible implementations.
+type UnimplementedAPIServer struct {
 }
 
-func (UnimplementedAPIServiceServer) SaveMediaItemResult(context.Context, *MediaItemResultRequest) (*empty.Empty, error) {
+func (UnimplementedAPIServer) SaveMediaItemResult(context.Context, *MediaItemResultRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemResult not implemented")
 }
-func (UnimplementedAPIServiceServer) SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error) {
+func (UnimplementedAPIServer) SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemPlace not implemented")
 }
-func (UnimplementedAPIServiceServer) mustEmbedUnimplementedAPIServiceServer() {}
+func (UnimplementedAPIServer) mustEmbedUnimplementedAPIServer() {}
 
-// UnsafeAPIServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to APIServiceServer will
+// UnsafeAPIServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to APIServer will
 // result in compilation errors.
-type UnsafeAPIServiceServer interface {
-	mustEmbedUnimplementedAPIServiceServer()
+type UnsafeAPIServer interface {
+	mustEmbedUnimplementedAPIServer()
 }
 
-func RegisterAPIServiceServer(s grpc.ServiceRegistrar, srv APIServiceServer) {
-	s.RegisterService(&APIService_ServiceDesc, srv)
+func RegisterAPIServer(s grpc.ServiceRegistrar, srv APIServer) {
+	s.RegisterService(&API_ServiceDesc, srv)
 }
 
-func _APIService_SaveMediaItemResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _API_SaveMediaItemResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MediaItemResultRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIServiceServer).SaveMediaItemResult(ctx, in)
+		return srv.(APIServer).SaveMediaItemResult(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/APIService/SaveMediaItemResult",
+		FullMethod: "/services.api.API/SaveMediaItemResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServiceServer).SaveMediaItemResult(ctx, req.(*MediaItemResultRequest))
+		return srv.(APIServer).SaveMediaItemResult(ctx, req.(*MediaItemResultRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _APIService_SaveMediaItemPlace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _API_SaveMediaItemPlace_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MediaItemPlaceRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIServiceServer).SaveMediaItemPlace(ctx, in)
+		return srv.(APIServer).SaveMediaItemPlace(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/APIService/SaveMediaItemPlace",
+		FullMethod: "/services.api.API/SaveMediaItemPlace",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServiceServer).SaveMediaItemPlace(ctx, req.(*MediaItemPlaceRequest))
+		return srv.(APIServer).SaveMediaItemPlace(ctx, req.(*MediaItemPlaceRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-// APIService_ServiceDesc is the grpc.ServiceDesc for APIService service.
+// API_ServiceDesc is the grpc.ServiceDesc for API service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var APIService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "APIService",
-	HandlerType: (*APIServiceServer)(nil),
+var API_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "services.api.API",
+	HandlerType: (*APIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "SaveMediaItemResult",
-			Handler:    _APIService_SaveMediaItemResult_Handler,
+			Handler:    _API_SaveMediaItemResult_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemPlace",
-			Handler:    _APIService_SaveMediaItemPlace_Handler,
+			Handler:    _API_SaveMediaItemPlace_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

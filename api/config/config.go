@@ -30,6 +30,12 @@ type (
 		Name     string `envconfig:"PENSIEVE_DATABASE_NAME" default:"pensieve"`
 	}
 
+	// Worker ...
+	Worker struct {
+		Host string `envconfig:"PENSIEVE_WORKER_HOST" default:"127.0.0.1"`
+		Port int    `envconfig:"PENSIEVE_WORKER_PORT" default:"15002"`
+	}
+
 	// Feature ...
 	Feature struct {
 		Favourites    bool `envconfig:"PENSIEVE_FEATURE_FAVOURITES" default:"true"`
@@ -49,6 +55,7 @@ type (
 		API
 		GRPC
 		Database
+		Worker
 		Feature
 	}
 )

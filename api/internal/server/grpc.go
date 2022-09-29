@@ -19,7 +19,7 @@ func InitGRPCServer(cfg *config.Config, service *service.Service) {
 	}
 
 	server := grpc.NewServer()
-	api.RegisterAPIServiceServer(server, service)
+	api.RegisterAPIServer(server, service)
 
 	go func() {
 		log.Printf("starting grpc server on: %d", cfg.GRPC.Port)

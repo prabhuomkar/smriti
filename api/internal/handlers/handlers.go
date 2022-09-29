@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/config"
+	"api/pkg/services/worker"
 	"strconv"
 
 	"github.com/labstack/echo"
@@ -12,8 +13,8 @@ import (
 type Handler struct {
 	Config *config.Config
 	DB     *gorm.DB
+	Worker *worker.WorkerClient
 	// cache
-	// grpc client
 }
 
 const (

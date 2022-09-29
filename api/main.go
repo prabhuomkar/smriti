@@ -6,6 +6,11 @@ import (
 	"api/internal/server"
 	"api/internal/service"
 	"api/pkg/database"
+	"api/pkg/services/worker"
+	"fmt"
+
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -20,7 +25,12 @@ func main() {
 		panic(err)
 	}
 
-	// todo(omkar): initialize GRPC client connection
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock()}
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
+	if err != nil {
+		panic(err)
+	}
+	workerClient := worker.NewWorkerClient(conn)
 
 	service := &service.Service{
 		Config: cfg,
@@ -31,6 +41,7 @@ func main() {
 	handler := &handlers.Handler{
 		Config: cfg,
 		DB:     pgDB,
+		Worker: &workerClient,
 	}
 	server.InitHTTPServer(cfg, handler)
 	// todo(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections

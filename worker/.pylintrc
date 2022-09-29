@@ -1,0 +1,3 @@
+[MASTER]
+ignore-patterns=.*_pb2.py,.*_grpc.py
+disable=too-few-public-methods,invalid-name
