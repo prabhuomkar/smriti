@@ -31,6 +31,7 @@ jobs:
           make lint
   deploy:
     if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+    needs: ci
     name: Fly Deploy
     runs-on: ubuntu-latest
     defaults:
