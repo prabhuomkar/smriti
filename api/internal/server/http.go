@@ -38,8 +38,14 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	mediaItems.POST("", handler.UploadMediaItems)
 	// library
 	version1.GET("/favourites", handler.GetFavouriteMediaItems, middlewares.FeatureCheck(cfg, "favourites"))
+	version1.POST("/favourites", handler.AddFavouriteMediaItems, middlewares.FeatureCheck(cfg, "favourites"))
+	version1.DELETE("/favourites", handler.RemoveFavouriteMediaItems, middlewares.FeatureCheck(cfg, "favourites"))
 	version1.GET("/hidden", handler.GetHiddenMediaItems, middlewares.FeatureCheck(cfg, "hidden"))
+	version1.POST("/hidden", handler.AddHiddenMediaItems, middlewares.FeatureCheck(cfg, "hidden"))
+	version1.DELETE("/hidden", handler.RemoveHiddenMediaItems, middlewares.FeatureCheck(cfg, "hidden"))
 	version1.GET("/trash", handler.GetDeletedMediaItems, middlewares.FeatureCheck(cfg, "trash"))
+	version1.POST("/trash", handler.AddDeletedMediaItems, middlewares.FeatureCheck(cfg, "trash"))
+	version1.DELETE("/trash", handler.RemoveDeletedMediaItems, middlewares.FeatureCheck(cfg, "trash"))
 	// explore
 	explore := version1.Group("/explore")
 	explore.Use(middlewares.FeatureCheck(cfg, "explore"))

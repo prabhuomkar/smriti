@@ -141,7 +141,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				return handler.AddAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album mediaitems"}`,
+			`{"message":"invalid mediaitems"}`,
 		},
 		{
 			"add album mediaitems with bad mediaitem",
@@ -261,7 +261,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album mediaitems"}`,
+			`{"message":"invalid mediaitems"}`,
 		},
 		{
 			"remove album mediaitems with bad mediaitem",

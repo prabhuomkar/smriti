@@ -22,8 +22,8 @@ type (
 		CoverMediaItemID *string `json:"coverMediaItemId"`
 	}
 
-	// AlbumMediaItemRequest ...
-	AlbumMediaItemRequest struct {
+	// MediaItemsRequest ...
+	MediaItemsRequest struct {
 		MediaItems []string `json:"mediaItems" required:"true"`
 	}
 )
@@ -52,7 +52,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	mediaItems, err := getAlbumMediaItems(ctx)
+	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
 	}
@@ -80,7 +80,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	mediaItems, err := getAlbumMediaItems(ctx)
+	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
 	}
@@ -207,15 +207,15 @@ func getAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	return uid, err
 }
 
-func getAlbumMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
-	albumMediaItemRequest := new(AlbumMediaItemRequest)
-	err := ctx.Bind(albumMediaItemRequest)
-	if err != nil || len(albumMediaItemRequest.MediaItems) == 0 {
+func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
+	mediaItemsRequest := new(MediaItemsRequest)
+	err := ctx.Bind(mediaItemsRequest)
+	if err != nil || len(mediaItemsRequest.MediaItems) == 0 {
 		log.Printf("error getting album mediaitems: %+v", err)
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album mediaitems")
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitems")
 	}
-	mediaItems := make([]*models.MediaItem, len(albumMediaItemRequest.MediaItems))
-	for idx, mediaItem := range albumMediaItemRequest.MediaItems {
+	mediaItems := make([]*models.MediaItem, len(mediaItemsRequest.MediaItems))
+	for idx, mediaItem := range mediaItemsRequest.MediaItems {
 		uid, err := uuid.FromString(mediaItem)
 		if err != nil {
 			log.Printf("error getting album mediaitem id: %+v", err)

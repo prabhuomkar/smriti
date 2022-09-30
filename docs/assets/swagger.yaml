@@ -254,6 +254,36 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
+    post:
+      tags:
+        - Library
+      summary: Add favourite mediaItems
+      description: Add favourite mediaItems
+      operationId: addFavouriteMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Library
+      summary: Remove favourite mediaItems
+      description: Remove favourite mediaItems
+      operationId: removeFavouriteMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
   /v1/hidden:
     get:
       tags:
@@ -270,6 +300,36 @@ paths:
           description: Unauthenticated
         '500':
           description: Internal Server Error
+    post:
+      tags:
+        - Library
+      summary: Add hidden mediaItems
+      description: Add hidden mediaItems
+      operationId: addHiddenMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Library
+      summary: Remove hidden mediaItems
+      description: Remove hidden mediaItems
+      operationId: removeHiddenMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
   /v1/trash:
     get:
       tags:
@@ -280,6 +340,36 @@ paths:
       responses:
         '200':
           description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - Library
+      summary: Add deleted mediaItems
+      description: Add deleted mediaItems
+      operationId: addDeletedMediaItems
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - Library
+      summary: Remove deleted mediaItems
+      description: Remove deleted mediaItems
+      operationId: removeDeletedMediaItems
+      responses:
+        '204':
+          description: No Content
         '400':
           description: Bad Request
         '401':
