@@ -12,7 +12,7 @@ import (
 func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 	offset, limit := getOffsetAndLimit(ctx)
 	favourites := []models.MediaItem{}
-	result := h.DB.Where("is_favourite=true").Find(&favourites).Offset(offset).Limit(limit)
+	result := h.DB.Where("is_favourite=true AND is_deleted=false").Find(&favourites).Offset(offset).Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting favourite mediaitems: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -24,7 +24,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 	offset, limit := getOffsetAndLimit(ctx)
 	hidden := []models.MediaItem{}
-	result := h.DB.Where("is_hidden=true").Find(&hidden).Offset(offset).Limit(limit)
+	result := h.DB.Where("is_hidden=true AND is_deleted=false").Find(&hidden).Offset(offset).Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting hidden mediaitems: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
