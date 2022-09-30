@@ -1,0 +1,47 @@
+# fly.toml file generated for pensieve-api on 2022-09-30T22:34:01+05:30
+
+app = "pensieve-api"
+
+[env]
+  PENSIEVE_WORKER_HOST = "pensieve-worker.fly.dev"
+  PENSIEVE_DATABASE_HOST = "lucky.db.elephantsql.com"
+  PENSIEVE_DATABASE_USERNAME = "ztrpncqo"
+  PENSIEVE_DATABASE_PASSWORD = "RMBXZI0DqbtOIOLfVMZFk_M6qFfrljOz"
+  PENSIEVE_DATABASE_NAME = "ztrpncqo"
+
+[[services]]
+  internal_port = 5001
+  protocol = "tcp"
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    force_https = true
+    handlers = ["http"]
+    port = 80
+
+  [[services.ports]]
+    handlers = ["tls", "http"]
+    port = 443
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"
+
+[[services]]
+  internal_port = 15001
+  protocol = "tcp"
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    handlers = []
+    port = 15001
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"

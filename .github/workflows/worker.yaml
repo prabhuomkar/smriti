@@ -10,6 +10,8 @@ on:
       - master
     paths:
       - worker/**
+  release:
+    types: [published]
 jobs:
   ci:
     name: Integration Check
@@ -27,3 +29,18 @@ jobs:
       - run: |
           pip install pylint
           make lint
+  deploy:
+    if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+    name: Fly Deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./worker
+    steps:
+      - uses: actions/checkout@v2
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          args: latest
+      - run: flyctl deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

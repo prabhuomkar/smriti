@@ -10,6 +10,8 @@ on:
       - master
     paths:
       - api/**
+  release:
+    types: [published]
 jobs:
   ci:
     name: Integration Check
@@ -33,3 +35,18 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: api
+  deploy:
+    if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+    name: Fly Deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./api
+    steps:
+      - uses: actions/checkout@v2
+      - uses: superfly/flyctl-actions/setup-flyctl@master
+        with:
+          args: latest
+      - run: flyctl deploy
+        env:
+          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

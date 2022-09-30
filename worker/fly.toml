@@ -1,0 +1,19 @@
+# fly.toml file generated for pensieve-worker on 2022-09-30T22:30:52+05:30
+
+app = "pensieve-worker"
+
+[[services]]
+  internal_port = 15002
+  protocol = "tcp"
+  [services.concurrency]
+    hard_limit = 25
+    soft_limit = 20
+    type = "connections"
+
+  [[services.ports]]
+    handlers = []
+    port = 15002
+
+  [[services.tcp_checks]]
+    interval = "15s"
+    timeout = "2s"

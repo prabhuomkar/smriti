@@ -10,13 +10,13 @@ type (
 
 	// API ...
 	API struct {
-		Host string `envconfig:"PENSIEVE_API_HOST" default:"127.0.0.1"`
+		Host string `envconfig:"PENSIEVE_API_HOST"`
 		Port int    `envconfig:"PENSIEVE_API_PORT" default:"5001"`
 	}
 
 	// GRPC ...
 	GRPC struct {
-		Host string `envconfig:"PENSIEVE_GRPC_HOST" default:"127.0.0.1"`
+		Host string `envconfig:"PENSIEVE_GRPC_HOST"`
 		Port int    `envconfig:"PENSIEVE_GRPC_PORT" default:"15001"`
 	}
 
