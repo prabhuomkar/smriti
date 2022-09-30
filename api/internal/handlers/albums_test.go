@@ -70,8 +70,8 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
-				expectedMock.WillReturnRows(sqlmock.NewRows(mediaitemCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -86,8 +86,8 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
-				expectedMock.WillReturnRows(getMockedMediaItemRows())
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRows())
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -102,8 +102,8 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			"",
 			func(mock sqlmock.Sqlmock) {
-				expectedMock := mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`))
-				expectedMock.WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -170,6 +170,12 @@ func TestAddAlbumMediaItems(t *testing.T) {
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "mediaitems" JOIN "album_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow("1"))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
@@ -189,6 +195,33 @@ func TestAddAlbumMediaItems(t *testing.T) {
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "album_mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+		{
+			"add album mediaitems with error updating album",
+			http.MethodPost,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "mediaitems" JOIN "album_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow("1"))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
@@ -255,6 +288,14 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "mediaitems" JOIN "album_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow("1"))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 			},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
@@ -272,6 +313,54 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+		{
+			"remove album mediaitems with error getting cover mediaitem",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+		{
+			"remove album mediaitems with error updating album",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "mediaitems" JOIN "album_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow("1"))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},

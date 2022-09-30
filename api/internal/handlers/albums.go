@@ -63,6 +63,14 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 		log.Printf("error adding album mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+	mediaItemCount := int(h.DB.Model(&album).Association("MediaItems").Count())
+	album.MediaItemsCount = &mediaItemCount
+	album.CoverMediaItemID = &mediaItems[len(mediaItems)-1].ID
+	result := h.DB.Model(&album).Omit("MediaItems").Updates(album)
+	if result.Error != nil {
+		log.Printf("error updating album: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	}
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -82,6 +90,20 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		log.Printf("error removing album mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	newCoverMediaItem := models.MediaItem{}
+	err = h.DB.Model(&album).Association("MediaItems").Find(&newCoverMediaItem)
+	if err != nil {
+		log.Printf("error getting new album cover mediaitem: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	mediaItemCount := int(h.DB.Model(&album).Association("MediaItems").Count())
+	album.MediaItemsCount = &mediaItemCount
+	album.CoverMediaItemID = &newCoverMediaItem.ID
+	result := h.DB.Model(&album).Omit("MediaItems").Updates(album)
+	if result.Error != nil {
+		log.Printf("error updating album: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
 }

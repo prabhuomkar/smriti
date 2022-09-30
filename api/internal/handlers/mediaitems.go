@@ -35,9 +35,6 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("Places").Find(&places)
 	if err != nil {
 		log.Printf("error getting mediaitem places: %+v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "mediaitem places not found")
-		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, places)
@@ -57,9 +54,6 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("Things").Find(&things)
 	if err != nil {
 		log.Printf("error getting mediaitem things: %+v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "mediaitem things not found")
-		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, things)
@@ -79,9 +73,6 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("People").Find(&people)
 	if err != nil {
 		log.Printf("error getting mediaitem people: %+v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "mediaitem people not found")
-		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, people)
@@ -101,9 +92,6 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("Albums").Find(&albums)
 	if err != nil {
 		log.Printf("error getting mediaitem albums: %+v", err)
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return echo.NewHTTPError(http.StatusNotFound, "mediaitem albums not found")
-		}
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, albums)
