@@ -1,4 +1,4 @@
-# Notes
+# Developer Notes
 
 - [ ] ML models should be agnostic and configurable
 - [x] Each action should be configurable from the environment config e.g. Face grouping, Place Identification, File Size Limits

@@ -1,28 +1,29 @@
-# Design Document
+# Software Design Document
 
 ## Requirements
 - [EPICs](https://github.com/users/prabhuomkar/projects/5/views/7)
 
 
 ## Architecture
-![Architecture Diagram](assets/architecture.jpeg)
+TODO(omkar): Add architecture diagram
 
 ## High Level Design
 
 ### Components
 
 #### API
-- [Swagger Open API Spec](assets/swagger.yaml)
+- TODO(omkar): Add Swagger Open API Spec
 - Service written in Golang
     - REST API: [echo](https://echo.labstack.com/)
     - RPC: [gRPC + protobuf](https://grpc.io/)
     - Postgres: [gorm](https://gorm.io/)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
-- Will exchange protobuf with Worker: [api.proto](../proto/api.proto)
+- Will exchange protobuf with Worker: TODO(omkar): add _api.proto_
 
 #### Database
-- [Postgres DB Schema](../infra/database/schema.sql)
+TODO(omkar): Add entity relationship diagram
+TODO(omkar): Add database schema sql
 - Total number of tables: 12
 - **Entities**:
     - MediaItem: `mediaitems`
@@ -37,7 +38,7 @@
     - LibRaw: [rawpy](https://pypi.org/project/rawpy/)
     - CDN: TBD, depends on file storage systems
 - Will process images and videos
-- Will exchange protobuf with API: [worker.proto](../proto/worker.proto)
+- Will exchange protobuf with API: TODO(omkar): add _worker.proto_
 
 ### Image & Video Processing
 
@@ -60,7 +61,8 @@
 | Photo | .WEBP | ❓ |
 | Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ❓ |
 
-**Post MVP Scope**
+**Post Stable Release, Scope for Video**:
+
 | Type | Extension | Support |
 | ---- | --------- | ------- |
 | Video | 3GP | ❓ |
