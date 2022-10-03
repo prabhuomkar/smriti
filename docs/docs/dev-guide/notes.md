@@ -10,3 +10,4 @@
 - [ ] Release Workflow in GitHub Actions, to deploy Docker images to Docker Hub Registry
 - [ ] Infra Cases: graceful shutdown of api & worker, database reconnects & grpc retry/reconnect
 - [ ] i18n support for languages incrementally: English, Chinese, Japanese, German, French, etc.
+- [ ] Try to achieve best ratings incrementally as on: https://github.com/meichthys/foss_photo_libraries
