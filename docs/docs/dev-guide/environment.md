@@ -1,5 +1,5 @@
 # Environment
-The following guide will help you setting up the development environment to work on Pensieve.
+The following guide will help you in setting up the development environment to work on Pensieve.
 
 ## Prerequisites
 Make sure, before you start any development, following things are installed and available on your system of choice: 
