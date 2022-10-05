@@ -24,10 +24,15 @@ const sidebars = {
         'dev-guide/design-document',
         'dev-guide/folder-structure',
         'dev-guide/environment',
-        'dev-guide/development',
-        'dev-guide/testing',
+        {
+          type: 'category',
+          label: 'Contributing',
+          items: [
+            'dev-guide/development',
+            'dev-guide/testing'
+          ]
+        },
         'dev-guide/roadmap',
-        'dev-guide/notes',
       ],
     },
   ],
