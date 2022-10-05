@@ -18,4 +18,4 @@ lint:
 	@golangci-lint run ./...
 
 proto:
-	@protoc --proto_path=../proto ../proto/*.proto --go_out=pkg/services --go-grpc_out=pkg/services --experimental_allow_proto3_optional
+	@protoc --proto_path=../protos ../protos/*.proto --go_out=pkg/services --go-grpc_out=pkg/services --experimental_allow_proto3_optional
