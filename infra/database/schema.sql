@@ -107,6 +107,15 @@ CREATE TABLE "album_mediaitems" (
   PRIMARY KEY ("album_id", "mediaitem_id")
 );
 
+CREATE TABLE "users" (
+  "id" uuid PRIMARY KEY NOT NULL,
+  "name" varchar NOT NULL,
+  "username" varchar NOT NULL,
+  "password" varchar NOT NULL,
+  "created_at" timestamp,
+  "updated_at" timestamp
+);
+
 ALTER TABLE "albums" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
 
 ALTER TABLE "places" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");

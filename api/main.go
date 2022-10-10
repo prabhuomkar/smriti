@@ -5,6 +5,7 @@ import (
 	"api/internal/handlers"
 	"api/internal/server"
 	"api/internal/service"
+	"api/pkg/cache"
 	"api/pkg/database"
 	"api/pkg/services/worker"
 	"fmt"
@@ -38,10 +39,16 @@ func main() {
 	}
 	server.InitGRPCServer(cfg, service)
 
+	cache, err := cache.Init()
+	if err != nil {
+		panic(err)
+	}
+
 	handler := &handlers.Handler{
 		Config: cfg,
 		DB:     pgDB,
 		Worker: &workerClient,
+		Cache:  cache,
 	}
 	server.InitHTTPServer(cfg, handler)
 	// todo(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections

@@ -16,6 +16,7 @@ require (
 )
 
 require (
+	github.com/bluele/gcache v0.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect

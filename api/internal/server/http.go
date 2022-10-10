@@ -75,6 +75,14 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	auth.POST("/login", handler.Login)
 	auth.POST("/refresh", handler.Refresh)
 	auth.POST("/logout", handler.Logout)
+	// user management
+	users := version1.Group("/users")
+	users.Use(middlewares.FeatureCheck(cfg, "users"))
+	users.GET("/:id", handler.GetAlbum)
+	users.PUT("/:id", handler.UpdateAlbum)
+	users.DELETE("/:id", handler.DeleteAlbum)
+	users.GET("", handler.GetAlbums)
+	users.POST("", handler.CreateAlbum)
 
 	log.Printf("starting http api server on: %d", cfg.API.Port)
 	err := server.ListenAndServe()

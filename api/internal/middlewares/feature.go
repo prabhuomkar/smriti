@@ -6,7 +6,7 @@ import (
 	"github.com/labstack/echo"
 )
 
-// nolint:cyclop
+// nolint:cyclop,gocognit
 // FeatureCheck ...
 func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -20,7 +20,8 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "places" && cfg.Feature.ExplorePlaces) ||
 				(feature == "things" && cfg.Feature.ExploreThings) ||
 				(feature == "people" && cfg.Feature.ExplorePeople) ||
-				(feature == "sharing" && cfg.Feature.Sharing) {
+				(feature == "sharing" && cfg.Feature.Sharing) ||
+				(feature == "users" && cfg.Feature.Sharing) {
 				return next(ctx)
 			}
 

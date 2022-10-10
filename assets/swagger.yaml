@@ -15,7 +15,9 @@ tags:
   - name: Albums
     description: Collection of your Photos & Videos
   - name: Authentication
-    description: Authenticationa for your application
+    description: Authentication for your application
+  - name: User Management
+    description: User Management for your application
 paths:
   /v1/features:
     get:
@@ -48,7 +50,7 @@ paths:
         - MediaItems
       summary: Upload a new mediaItem
       description: Upload a new mediaItem
-      operationId: postMediaItem
+      operationId: uploadMediaItem
       responses:
         '201':
           description: Created
@@ -568,7 +570,7 @@ paths:
         - Albums
       summary: Create a new album
       description: Create a new album
-      operationId: postAlbum
+      operationId: createAlbum
       responses:
         '201':
           description: Created
@@ -776,6 +778,113 @@ paths:
       responses:
         '200':
           description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/users:
+    get:
+      tags:
+        - User Management
+      summary: Get all existing users
+      description: Get all existing users
+      operationId: getUsers
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - User Management
+      summary: Create a new user
+      description: Create a new user
+      operationId: createUser
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+  /v1/users/{id}:
+    get:
+      tags:
+        - User Management
+      parameters:
+        - name: id
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get an existing user
+      description: Get an existing user
+      operationId: getUser
+      responses:
+        '200':
+          description: Success
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - User Management
+      parameters:
+        - name: id
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update an existing user
+      description: Update an existing user
+      operationId: updateUser
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    delete:
+      tags:
+        - User Management
+      parameters:
+        - name: id
+          in: path
+          description: ID of user
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Delete an existing user
+      description: Delete an existing user
+      operationId: deleteUser
+      responses:
+        '204':
+          description: No Content
         '400':
           description: Bad Request
         '401':

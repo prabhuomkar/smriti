@@ -5,6 +5,7 @@ import (
 	"api/pkg/services/worker"
 	"strconv"
 
+	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 	"gorm.io/gorm"
 )
@@ -14,7 +15,7 @@ type Handler struct {
 	Config *config.Config
 	DB     *gorm.DB
 	Worker *worker.WorkerClient
-	// cache
+	Cache  gcache.Cache
 }
 
 const (

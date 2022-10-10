@@ -42,6 +42,7 @@ type (
 		Hidden        bool `envconfig:"PENSIEVE_FEATURE_HIDDEN" default:"true"`
 		Trash         bool `envconfig:"PENSIEVE_FEATURE_TRASH" default:"true"`
 		Albums        bool `envconfig:"PENSIEVE_FEATURE_ALBUMS" default:"true"`
+		Users         bool `envconfig:"PENSIEVE_FEATURE_USERS" default:"true"`
 		Explore       bool `envconfig:"PENSIEVE_FEATURE_EXPLORE" default:"false"`
 		ExplorePlaces bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_PLACES" default:"false"`
 		ExploreThings bool `envconfig:"PENSIEVE_FEATURE_EXPLORE_THINGS" default:"false"`
