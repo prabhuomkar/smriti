@@ -36,6 +36,15 @@ type (
 		Port int    `envconfig:"PENSIEVE_WORKER_PORT" default:"15002"`
 	}
 
+	// Auth ...
+	Auth struct {
+		Issuer     string `envconfig:"PENSIEVE_AUTH_ISSUER" default:"pensieve"`
+		Audience   string `envconfig:"PENSIEVE_AUTH_AUDIENCE" default:"pensieve"`
+		AccessTTL  int    `envconfig:"PENSIEVE_AUTH_ACCESS_TTL" default:"3600"`
+		RefreshTTL int    `envconfig:"PENSIEVE_AUTH_REFRESH_TTL" default:"86400"`
+		Secret     string `envconfig:"PENSIEVE_AUTH_SECRET" default:"pensieve"`
+	}
+
 	// Feature ...
 	Feature struct {
 		Favourites    bool `envconfig:"PENSIEVE_FEATURE_FAVOURITES" default:"true"`
@@ -57,6 +66,7 @@ type (
 		GRPC
 		Database
 		Worker
+		Auth
 		Feature
 	}
 )

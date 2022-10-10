@@ -42,7 +42,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 		}
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
-	accessToken, refreshToken, err := auth.GetTokens(h.Cache, user)
+	accessToken, refreshToken, err := auth.GetTokens(h.Config, h.Cache, user)
 	if err != nil {
 		log.Printf("error getting tokens: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error getting tokens")
@@ -57,7 +57,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 // Refresh ...
 func (h *Handler) Refresh(ctx echo.Context) error {
 	refreshToken := ctx.Request().Header.Get("Authorization")
-	accessToken, refreshToken, err := auth.RefreshTokens(h.Cache, refreshToken)
+	accessToken, refreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
 	if err != nil {
 		log.Printf("error refreshing tokens: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error refreshing tokens")
@@ -72,7 +72,7 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 // Logout ...
 func (h *Handler) Logout(ctx echo.Context) error {
 	accessToken := ctx.Request().Header.Get("Authorization")
-	err := auth.RemoveTokens(h.Cache, accessToken)
+	err := auth.RemoveTokens(h.Config, h.Cache, accessToken)
 	if err != nil {
 		log.Printf("error removing tokens: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error removing tokens")
