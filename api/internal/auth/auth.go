@@ -21,7 +21,7 @@ type (
 
 // GetTokens ...
 func GetTokens(cfg *config.Config, cache gcache.Cache, user models.User) (string, string, error) {
-	accessToken, refreshToken := getAccessAndRefreshTokens(cfg, user.ID.String(), user.Username)
+	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user.ID.String(), user.Username)
 
 	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
 	if setRefreshErr != nil {
@@ -51,7 +51,7 @@ func RefreshTokens(cfg *config.Config, cache gcache.Cache, refreshToken string) 
 		return "", "", err
 	}
 
-	newAccessToken, newRefreshToken := getAccessAndRefreshTokens(cfg, claims.ID, claims.Username)
+	newAccessToken, newRefreshToken := GetAccessAndRefreshTokens(cfg, claims.ID, claims.Username)
 
 	setRefreshErr := cache.SetWithExpire(newRefreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
 	if setRefreshErr != nil {
@@ -81,7 +81,7 @@ func RemoveTokens(cfg *config.Config, cache gcache.Cache, accessToken string) er
 	return nil
 }
 
-func getAccessAndRefreshTokens(cfg *config.Config, userID, username string) (string, string) {
+func GetAccessAndRefreshTokens(cfg *config.Config, userID, username string) (string, string) {
 	return getSignedToken(cfg, userID, username, "access"), getSignedToken(cfg, userID, username, "refresh")
 }
 

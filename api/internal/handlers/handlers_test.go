@@ -2,11 +2,13 @@ package handlers
 
 import (
 	"api/config"
+	"fmt"
 	"net/http/httptest"
 	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
@@ -19,6 +21,7 @@ type Test struct {
 	Method          string
 	Route           string
 	Path            string
+	Header          string
 	Body            string
 	MockDB          func(mock sqlmock.Sqlmock)
 	Handler         func(handler *Handler) func(ctx echo.Context) error
@@ -33,6 +36,7 @@ func executeTests(t *testing.T, tests []Test) {
 			// server
 			server := echo.New()
 			req := httptest.NewRequest(test.Method, test.Path, strings.NewReader(test.Body))
+			req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", test.Header))
 			if len(test.Body) > 0 {
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			}
@@ -53,10 +57,13 @@ func executeTests(t *testing.T, tests []Test) {
 			if test.MockDB != nil {
 				test.MockDB(mock)
 			}
+			mockCache := gcache.New(1024).LRU().Build()
+			mockCache.Set(test.Header, true)
 			// handler
 			handler := &Handler{
-				Config: &config.Config{},
+				Config: &config.Config{Auth: config.Auth{RefreshTTL: 60}},
 				DB:     mockGDB,
+				Cache:  mockCache,
 			}
 			server.Match([]string{test.Method}, test.Route, test.Handler(handler))
 			server.ServeHTTP(rec, req)

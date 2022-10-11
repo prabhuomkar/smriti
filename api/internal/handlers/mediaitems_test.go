@@ -49,7 +49,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/bad-uuid/places",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPlaces
@@ -62,7 +63,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(placeCols))
@@ -78,7 +80,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnRows(getMockedPlaceRows())
@@ -96,7 +99,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -118,7 +122,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/bad-uuid/things",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemThings
@@ -131,7 +136,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(thingCols))
@@ -147,7 +153,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnRows(getMockedThingRows())
@@ -165,7 +172,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -187,7 +195,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/bad-uuid/people",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPeople
@@ -200,7 +209,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(peopleCols))
@@ -216,7 +226,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnRows(getMockedPeopleRows())
@@ -234,7 +245,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -256,7 +268,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/bad-uuid/albums",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemAlbums
@@ -269,7 +282,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(albumCols))
@@ -285,7 +299,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnRows(getMockedAlbumRows())
@@ -303,7 +318,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -325,7 +341,8 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItem
@@ -338,7 +355,8 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -354,7 +372,8 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -370,7 +389,8 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -392,7 +412,8 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateMediaItem
@@ -405,7 +426,8 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateMediaItem
@@ -418,6 +440,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -431,6 +454,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			``,
 			`{"description":"description","favourite":true,"hidden":true}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -451,6 +475,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			``,
 			`{"description":"description","favourite":true,"hidden":true}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -477,7 +502,8 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
-			"",
+			``,
+			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteMediaItem
@@ -490,7 +516,8 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -510,7 +537,8 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -536,7 +564,8 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -552,7 +581,8 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -568,7 +598,8 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))

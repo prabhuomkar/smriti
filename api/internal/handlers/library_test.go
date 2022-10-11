@@ -17,7 +17,8 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -33,7 +34,8 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -49,7 +51,8 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -71,6 +74,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -84,6 +88,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"mediaItems":["bad-mediaitem-id"]}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -97,6 +102,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -115,6 +121,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -139,6 +146,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -152,6 +160,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"mediaItems":["bad-mediaitem-id"]}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -165,6 +174,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -183,6 +193,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -207,7 +218,8 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -223,7 +235,8 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -239,7 +252,8 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -261,6 +275,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -274,6 +289,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"mediaItems":["bad-mediaitem-id"]}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -287,6 +303,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -305,6 +322,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -329,6 +347,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -342,6 +361,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"mediaItems":["bad-mediaitem-id"]}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -355,6 +375,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -373,6 +394,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -397,7 +419,8 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -413,7 +436,8 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -429,7 +453,8 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
-			"",
+			``,
+			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -451,6 +476,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -464,6 +490,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"mediaItems":["bad-mediaitem-id"]}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -477,6 +504,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -495,6 +523,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -519,6 +548,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -532,6 +562,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"mediaItems":["bad-mediaitem-id"]}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -545,6 +576,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -563,6 +595,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			``,
 			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()

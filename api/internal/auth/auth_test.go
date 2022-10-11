@@ -73,7 +73,7 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := getAccessAndRefreshTokens(cfg, "userID", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, "userID", "username")
 				_ = cache.Set(oldRToken, true)
 				return oldRToken
 			},
@@ -103,7 +103,7 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"error caching refresh token",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := getAccessAndRefreshTokens(cfg, "userID", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, "userID", "username")
 				_ = cache.Set(oldRToken, false)
 				return oldRToken
 			},
@@ -120,7 +120,7 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"error caching access token",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := getAccessAndRefreshTokens(cfg, "userID", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, "userID", "username")
 				_ = cache.Set(oldRToken, true)
 				return oldRToken
 			},
@@ -170,7 +170,7 @@ func TestRemoveTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				oldAToken, _ := getAccessAndRefreshTokens(cfg, "userID", "username")
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "userID", "username")
 				_ = cache.Set(oldAToken, true)
 				return oldAToken
 			},

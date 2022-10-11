@@ -6,6 +6,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"strings"
 
 	"github.com/labstack/echo"
 	"gorm.io/gorm"
@@ -14,8 +15,8 @@ import (
 type (
 	// LoginRequest ...
 	LoginRequest struct {
-		Username string `json:"username"`
-		Password string `json:"password"`
+		Username *string `json:"username"`
+		Password *string `json:"password"`
 	}
 
 	// AuthResponse ...
@@ -33,7 +34,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 	}
 	user := models.User{}
 	result := h.DB.Model(&models.User{}).
-		Where("username = ? AND password = ?", loginRequest.Username, loginRequest.Password).
+		Where("username = ? AND password = ?", &loginRequest.Username, &loginRequest.Password).
 		First(&user)
 	if result.Error != nil {
 		log.Printf("error getting user: %+v", result.Error)
@@ -57,14 +58,16 @@ func (h *Handler) Login(ctx echo.Context) error {
 // Refresh ...
 func (h *Handler) Refresh(ctx echo.Context) error {
 	refreshToken := ctx.Request().Header.Get("Authorization")
-	accessToken, refreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
+	refreshToken = strings.ReplaceAll(refreshToken, "Bearer ", "")
+	log.Println(refreshToken)
+	newAccessToken, newRefreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
 	if err != nil {
 		log.Printf("error refreshing tokens: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error refreshing tokens")
 	}
 	authResponse := AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
+		AccessToken:  newAccessToken,
+		RefreshToken: newRefreshToken,
 	}
 	return ctx.JSON(http.StatusOK, authResponse)
 }
@@ -72,11 +75,8 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 // Logout ...
 func (h *Handler) Logout(ctx echo.Context) error {
 	accessToken := ctx.Request().Header.Get("Authorization")
-	err := auth.RemoveTokens(h.Config, h.Cache, accessToken)
-	if err != nil {
-		log.Printf("error removing tokens: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, "error removing tokens")
-	}
+	accessToken = strings.ReplaceAll(accessToken, "Bearer ", "")
+	_ = auth.RemoveTokens(h.Config, h.Cache, accessToken)
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -84,6 +84,10 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 	loginRequest := new(LoginRequest)
 	err := ctx.Bind(loginRequest)
 	if err != nil {
+		log.Printf("error getting username and password: %+v", err)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
+	}
+	if loginRequest.Username == nil || loginRequest.Password == nil {
 		log.Printf("error getting username and password: %+v", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
