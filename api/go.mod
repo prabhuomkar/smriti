@@ -4,6 +4,8 @@ go 1.18
 
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
+	github.com/bluele/gcache v0.0.2
+	github.com/golang-jwt/jwt/v4 v4.4.2
 	github.com/golang/protobuf v1.5.2
 	github.com/kelseyhightower/envconfig v1.4.0
 	github.com/labstack/echo v3.3.10+incompatible
@@ -16,9 +18,7 @@ require (
 )
 
 require (
-	github.com/bluele/gcache v0.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
-	github.com/golang-jwt/jwt/v4 v4.4.2 // indirect
 	github.com/google/go-cmp v0.5.7 // indirect
 	github.com/jackc/chunkreader/v2 v2.0.1 // indirect
 	github.com/jackc/pgconn v1.13.0 // indirect

@@ -51,5 +51,5 @@ func main() {
 		Cache:  cache,
 	}
 	server.InitHTTPServer(cfg, handler)
-	// todo(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections
+	// work(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections
 }

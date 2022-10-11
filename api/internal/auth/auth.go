@@ -21,16 +21,20 @@ type (
 
 // GetTokens ...
 func GetTokens(cfg *config.Config, cache gcache.Cache, user models.User) (string, string, error) {
-	accessToken, refreshToken, err := getAccessAndRefreshTokens(cfg, user.ID.String(), user.Username)
-	if err != nil {
-		log.Printf("error getting tokens: %+v", err)
-		return "", "", err
+	accessToken, refreshToken := getAccessAndRefreshTokens(cfg, user.ID.String(), user.Username)
+
+	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
+	if setRefreshErr != nil {
+		log.Printf("error caching refresh token: %+v", setRefreshErr)
+		return "", "", setRefreshErr
+	}
+	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.Auth.AccessTTL)*time.Second)
+	if setAccessErr != nil {
+		log.Printf("error caching refresh token: %+v", setAccessErr)
+		return "", "", setAccessErr
 	}
 
-	_ = cache.Set(refreshToken, true)
-	_ = cache.Set(accessToken, refreshToken)
-
-	return accessToken, refreshToken, err
+	return accessToken, refreshToken, nil
 }
 
 // RefreshTokens ...
@@ -47,16 +51,20 @@ func RefreshTokens(cfg *config.Config, cache gcache.Cache, refreshToken string) 
 		return "", "", err
 	}
 
-	newAccessToken, newRefreshToken, err := getAccessAndRefreshTokens(cfg, claims.ID, claims.Username)
-	if err != nil {
-		log.Printf("error getting tokens: %+v", err)
-		return "", "", err
+	newAccessToken, newRefreshToken := getAccessAndRefreshTokens(cfg, claims.ID, claims.Username)
+
+	setRefreshErr := cache.SetWithExpire(newRefreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
+	if setRefreshErr != nil {
+		log.Printf("error caching refresh token: %+v", setRefreshErr)
+		return "", "", setRefreshErr
+	}
+	setAccessErr := cache.SetWithExpire(newAccessToken, refreshToken, time.Duration(cfg.Auth.AccessTTL)*time.Second)
+	if setAccessErr != nil {
+		log.Printf("error caching refresh token: %+v", setAccessErr)
+		return "", "", setAccessErr
 	}
 
-	_ = cache.Set(newRefreshToken, true)
-	_ = cache.Set(newAccessToken, newRefreshToken)
-
-	return newAccessToken, newRefreshToken, err
+	return newAccessToken, newRefreshToken, nil
 }
 
 // RemoveTokens ...
@@ -73,20 +81,8 @@ func RemoveTokens(cfg *config.Config, cache gcache.Cache, accessToken string) er
 	return nil
 }
 
-func getAccessAndRefreshTokens(cfg *config.Config, userID, username string) (string, string, error) {
-	accessToken, err := getSignedToken(cfg, userID, username, "access")
-	if err != nil {
-		log.Printf("error generating access token: %+v", err)
-		return "", "", err
-	}
-
-	refreshToken, err := getSignedToken(cfg, userID, username, "refresh")
-	if err != nil {
-		log.Printf("error generating refresh token: %+v", err)
-		return "", "", err
-	}
-
-	return accessToken, refreshToken, nil
+func getAccessAndRefreshTokens(cfg *config.Config, userID, username string) (string, string) {
+	return getSignedToken(cfg, userID, username, "access"), getSignedToken(cfg, userID, username, "refresh")
 }
 
 func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) {
@@ -107,7 +103,7 @@ func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) 
 	return claims, nil
 }
 
-func getSignedToken(cfg *config.Config, userID, username, subject string) (string, error) {
+func getSignedToken(cfg *config.Config, userID, username, subject string) string {
 	ttl := cfg.Auth.AccessTTL
 	if subject == "refresh" {
 		ttl = cfg.Auth.RefreshTTL
@@ -126,5 +122,6 @@ func getSignedToken(cfg *config.Config, userID, username, subject string) (strin
 			ID:        userID,
 		},
 	})
-	return token.SignedString([]byte(cfg.Auth.Secret))
+	signedToken, _ := token.SignedString([]byte(cfg.Auth.Secret))
+	return signedToken
 }

@@ -22,7 +22,7 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 		Handler: srvHandler,
 	}
 	// routes
-	// todo(omkar): do this in a better way
+	// work(omkar): do this in a better way
 	version1 := srvHandler.Group("/v1")
 	version1.GET("/features", handler.GetFeatures)
 	// mediaitems

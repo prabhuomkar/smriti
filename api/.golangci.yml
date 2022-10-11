@@ -3,7 +3,6 @@ run:
 linters:
   enable-all: true
   disable:
-    - testpackage
     - nlreturn
     - nosprintfhostport
     - ifshort
@@ -11,7 +10,5 @@ linters:
     - wrapcheck
     - exhaustivestruct
     - exhaustruct
-    - godox
-    - lll
     - gci
     - nolintlint

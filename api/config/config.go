@@ -38,6 +38,7 @@ type (
 
 	// Auth ...
 	Auth struct {
+		Enabled    bool   `envconfig:"PENSIEVE_AUTH_ENABLED" default:"false"`
 		Issuer     string `envconfig:"PENSIEVE_AUTH_ISSUER" default:"pensieve"`
 		Audience   string `envconfig:"PENSIEVE_AUTH_AUDIENCE" default:"pensieve"`
 		AccessTTL  int    `envconfig:"PENSIEVE_AUTH_ACCESS_TTL" default:"3600"`

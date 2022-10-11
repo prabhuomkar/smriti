@@ -11,7 +11,7 @@ import (
 func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
-			// todo(omkar): do this in a better way
+			// work(omkar): do this in a better way
 			if (feature == "favourites" && cfg.Feature.Favourites) ||
 				(feature == "hidden" && cfg.Feature.Hidden) ||
 				(feature == "trash" && cfg.Feature.Trash) ||
