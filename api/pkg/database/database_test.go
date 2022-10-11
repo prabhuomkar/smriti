@@ -13,3 +13,9 @@ func TestGetLogLevel(t *testing.T) {
 	assert.Equal(t, logger.Info, getLogLevel("INFO"))
 	assert.Equal(t, logger.Silent, getLogLevel(""))
 }
+
+func TestInit(t *testing.T) {
+	db, err := Init("WARNING", "host", 1000, "username", "password", "name")
+	assert.Nil(t, db)
+	assert.NotNil(t, err)
+}
