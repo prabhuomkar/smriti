@@ -59,7 +59,6 @@ func (h *Handler) Login(ctx echo.Context) error {
 func (h *Handler) Refresh(ctx echo.Context) error {
 	refreshToken := ctx.Request().Header.Get("Authorization")
 	refreshToken = strings.ReplaceAll(refreshToken, "Bearer ", "")
-	log.Println(refreshToken)
 	newAccessToken, newRefreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
 	if err != nil {
 		log.Printf("error refreshing tokens: %+v", err)
