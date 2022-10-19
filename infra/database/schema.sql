@@ -41,7 +41,7 @@ CREATE TABLE "mediaitems" (
 
 CREATE TABLE "places" (
   "id" uuid PRIMARY KEY NOT NULL,
-  "name" varchar UNIQUE,
+  "name" varchar,
   "postcode" varchar,
   "town" varchar,
   "city" varchar,

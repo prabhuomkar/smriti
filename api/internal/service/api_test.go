@@ -59,14 +59,6 @@ var (
 		City:     &city,
 		Postcode: &postcode,
 	}
-	mediaItemPlaceCountryRequest = api.MediaItemPlaceRequest{
-		Id:      "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Country: &country,
-	}
-	mediaItemPlaceStateRequest = api.MediaItemPlaceRequest{
-		Id:    "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		State: &state,
-	}
 	mediaItemPlaceTownRequest = api.MediaItemPlaceRequest{
 		Id:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Town: &town,
@@ -177,36 +169,6 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		{
 			"save mediaitem place with city success",
 			&mediaItemPlaceRequest,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
-					WillReturnRows(getMockedPlaceRow())
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-		},
-		{
-			"save mediaitem place with country success",
-			&mediaItemPlaceCountryRequest,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
-					WillReturnRows(getMockedPlaceRow())
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-		},
-		{
-			"save mediaitem place with state success",
-			&mediaItemPlaceStateRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())

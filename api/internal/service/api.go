@@ -83,8 +83,7 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 	place.Name = getNameForPlace(place)
 	place.CoverMediaItemID = uid
 	result := s.DB.Where(models.Place{
-		Name: place.Name, Postcode: place.Postcode, City: place.City,
-		Town: place.Town, State: place.State, Country: place.Country,
+		Name: place.Name, Postcode: place.Postcode,
 	}).FirstOrCreate(&place, place)
 	if result.Error != nil {
 		log.Printf("error getting or creating place: %+v", result.Error)
@@ -104,11 +103,5 @@ func getNameForPlace(place models.Place) string {
 	if place.City != nil {
 		return *place.City
 	}
-	if place.Town != nil {
-		return *place.Town
-	}
-	if place.State != nil {
-		return *place.State
-	}
-	return *place.Country
+	return *place.Town
 }
