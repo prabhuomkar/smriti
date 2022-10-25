@@ -21,7 +21,7 @@
 | Docker Installation | ✅ |
 | Albums | ✅ |
 | Photo Map | ✅ |
-| Multiple User Support | 🚧 |
+| Multiple User Support | ✅ |
 | EXIF Data | 🚧 |
 | Photo Discovery | 🚧 |
 | Object/Face Recognition | 🚧 |

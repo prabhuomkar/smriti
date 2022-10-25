@@ -12,12 +12,14 @@ import (
 )
 
 var (
-	albumCols = []string{"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
+	albumCols = []string{"id", "user_id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
 		"mediaitems_count", "created_at", "updated_at"}
-	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description",` +
+	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"name":"name","description":"description",` +
 		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -25,20 +27,24 @@ var (
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}}`
-	albumsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","description":"description",` +
+	albumsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"name":"name","description":"description",` +
 		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"}},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"}},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"description":"description","shared":false,"hidden":true,"mediaItemsCount":24,` +
 		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30","coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"filename":"filename","description":"description","mimeType":"mime_type","sourceUrl":"source_url",` +
 		`"previewUrl":"preview_url","thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,` +
 		`"status":"status","mediaItemType":"mediaitem_type","width":720,"height":480,` +
@@ -773,7 +779,7 @@ func TestCreateAlbum(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "albums"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "description", false, false, 0,
+					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), "name", "description", false, false, 0,
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -795,7 +801,7 @@ func TestCreateAlbum(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "albums"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "description", false, false, 0,
+					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), "name", "description", false, false, 0,
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
@@ -812,16 +818,16 @@ func TestCreateAlbum(t *testing.T) {
 
 func getMockedAlbumRow() *sqlmock.Rows {
 	return sqlmock.NewRows(albumCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", "true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"12", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description",
+			"true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "12", sampleTime, sampleTime)
 }
 
 func getMockedAlbumRows() *sqlmock.Rows {
 	return sqlmock.NewRows(albumCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", "true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"12", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "description", "false", "true", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"24", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description",
+			"true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "12", sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description",
+			"false", "true", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "24", sampleTime, sampleTime)
 }
 
 type AnyID struct{}

@@ -17,7 +17,7 @@ func JWTCheck(cfg *config.Config, cache gcache.Cache) echo.MiddlewareFunc {
 			accessToken = strings.ReplaceAll(accessToken, "Bearer ", "")
 			claims, err := auth.VerifyToken(cfg, cache, accessToken)
 			if err == nil && claims != nil {
-				ctx.Set("id", claims.ID)
+				ctx.Set("userID", claims.ID)
 				ctx.Set("username", claims.Username)
 				return next(ctx)
 			}

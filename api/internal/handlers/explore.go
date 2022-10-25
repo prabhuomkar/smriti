@@ -23,10 +23,11 @@ type (
 
 // GetPlaces ...
 func (h *Handler) GetPlaces(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	places := []models.Place{}
 	result := h.DB.Model(&models.Place{}).
-		Where("is_hidden=false").
+		Where("user_id=? AND is_hidden=false", userID).
 		Preload("CoverMediaItem").
 		Find(&places).
 		Offset(offset).
@@ -40,6 +41,7 @@ func (h *Handler) GetPlaces(ctx echo.Context) error {
 
 // GetPlace ...
 func (h *Handler) GetPlace(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -47,7 +49,10 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	place := models.Place{}
-	result := h.DB.Model(&models.Place{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&place)
+	result := h.DB.Model(&models.Place{}).
+		Where("id=? AND user_id=?", uid, userID).
+		Preload("CoverMediaItem").
+		First(&place)
 	if result.Error != nil {
 		log.Printf("error getting place: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -60,6 +65,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 
 // GetPlaceMediaItems ...
 func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
@@ -69,6 +75,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	}
 	place := new(models.Place)
 	place.ID = uid
+	place.UserID = userID
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Model(&place).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
@@ -80,10 +87,11 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 
 // GetThings ...
 func (h *Handler) GetThings(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	things := []models.Thing{}
 	result := h.DB.Model(&models.Thing{}).
-		Where("is_hidden=false").
+		Where("user_id=? AND is_hidden=false", userID).
 		Preload("CoverMediaItem").
 		Find(&things).
 		Offset(offset).
@@ -97,6 +105,7 @@ func (h *Handler) GetThings(ctx echo.Context) error {
 
 // GetThing ...
 func (h *Handler) GetThing(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -104,7 +113,10 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	thing := models.Thing{}
-	result := h.DB.Model(&models.Thing{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&thing)
+	result := h.DB.Model(&models.Thing{}).
+		Where("id=? AND user_id=?", uid, userID).
+		Preload("CoverMediaItem").
+		First(&thing)
 	if result.Error != nil {
 		log.Printf("error getting thing: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -117,6 +129,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 
 // GetThingMediaItems ...
 func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
@@ -126,6 +139,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	}
 	thing := new(models.Thing)
 	thing.ID = uid
+	thing.UserID = userID
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Model(&thing).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
@@ -137,6 +151,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 
 // UpdatePerson ...
 func (h *Handler) UpdatePerson(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -148,6 +163,7 @@ func (h *Handler) UpdatePerson(ctx echo.Context) error {
 		return err
 	}
 	people.ID = uid
+	people.UserID = userID
 	result := h.DB.Model(&people).Updates(people)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating people: %+v", result.Error)
@@ -158,10 +174,11 @@ func (h *Handler) UpdatePerson(ctx echo.Context) error {
 
 // GetPeople ...
 func (h *Handler) GetPeople(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	people := []models.People{}
 	result := h.DB.Model(&models.People{}).
-		Where("is_hidden=false").
+		Where("user_id=? AND is_hidden=false", userID).
 		Preload("CoverMediaItem").
 		Find(&people).
 		Offset(offset).
@@ -175,6 +192,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 
 // GetPerson ...
 func (h *Handler) GetPerson(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -182,7 +200,10 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid person id")
 	}
 	person := models.People{}
-	result := h.DB.Model(&models.People{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&person)
+	result := h.DB.Model(&models.People{}).
+		Where("id=? AND user_id=?", uid, userID).
+		Preload("CoverMediaItem").
+		First(&person)
 	if result.Error != nil {
 		log.Printf("error getting person: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -195,6 +216,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 
 // GetPeopleMediaItems ...
 func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
@@ -204,6 +226,7 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 	}
 	person := new(models.People)
 	person.ID = uid
+	person.UserID = userID
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Model(&person).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {

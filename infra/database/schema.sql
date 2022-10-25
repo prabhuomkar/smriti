@@ -12,6 +12,7 @@ CREATE TYPE "mediaitem_type" AS ENUM (
 
 CREATE TABLE "mediaitems" (
   "id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid NOT NULL,
   "filename" varchar,
   "description" varchar,
   "mime_type" varchar,
@@ -41,6 +42,7 @@ CREATE TABLE "mediaitems" (
 
 CREATE TABLE "places" (
   "id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid NOT NULL,
   "name" varchar,
   "postcode" varchar,
   "town" varchar,
@@ -61,6 +63,7 @@ CREATE TABLE "place_mediaitems" (
 
 CREATE TABLE "things" (
   "id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid NOT NULL,
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
   "is_hidden" boolean DEFAULT FALSE NOT NULL,
@@ -76,6 +79,7 @@ CREATE TABLE "thing_mediaitems" (
 
 CREATE TABLE "people" (
   "id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid NOT NULL,
   "name" varchar UNIQUE,
   "cover_mediaitem_id" uuid,
   "is_hidden" boolean DEFAULT FALSE NOT NULL,
@@ -91,6 +95,7 @@ CREATE TABLE "people_mediaitems" (
 
 CREATE TABLE "albums" (
   "id" uuid PRIMARY KEY NOT NULL,
+  "user_id" uuid NOT NULL,
   "name" varchar NOT NULL,
   "description" varchar,
   "is_shared" boolean DEFAULT FALSE NOT NULL,
@@ -116,11 +121,21 @@ CREATE TABLE "users" (
   "updated_at" timestamp
 );
 
+ALTER TABLE "mediaitems" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
+ALTER TABLE "albums" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
 ALTER TABLE "albums" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
+
+ALTER TABLE "places" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "places" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
 
+ALTER TABLE "things" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
+
 ALTER TABLE "things" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
+
+ALTER TABLE "people" ADD FOREIGN KEY ("user_id") REFERENCES "users" ("id");
 
 ALTER TABLE "people" ADD FOREIGN KEY ("cover_mediaitem_id") REFERENCES "mediaitems" ("id");
 

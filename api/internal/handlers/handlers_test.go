@@ -41,6 +41,9 @@ func executeTests(t *testing.T, tests []Test) {
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			}
 			rec := httptest.NewRecorder()
+			// context
+			ctx := server.NewContext(req, rec)
+			ctx.Set("userID", "4d05b5f6-17c2-475e-87fe-3fc8b9567179")
 			// database
 			mockDB, mock, err := sqlmock.New()
 			assert.NoError(t, err)

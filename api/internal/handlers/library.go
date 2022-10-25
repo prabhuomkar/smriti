@@ -11,9 +11,11 @@ import (
 
 // GetFavouriteMediaItems ...
 func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	favourites := []models.MediaItem{}
-	result := h.DB.Where("is_favourite=true AND is_deleted=false").Find(&favourites).Offset(offset).Limit(limit)
+	result := h.DB.Where("user_id=? AND is_favourite=true AND is_deleted=false", userID).
+		Find(&favourites).Offset(offset).Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting favourite mediaitems: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -23,6 +25,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 
 // AddFavouriteMediaItems ...
 func (h *Handler) AddFavouriteMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
@@ -31,7 +34,7 @@ func (h *Handler) AddFavouriteMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	result := h.DB.Model(&models.MediaItem{}).Where("id IN ?", mediaItemIDs).
+	result := h.DB.Model(&models.MediaItem{}).Where("user_id=? AND id IN ?", userID, mediaItemIDs).
 		Updates(map[string]interface{}{"is_favourite": true})
 	if result.Error != nil {
 		log.Printf("error adding favourite mediaitems: %+v", result.Error)
@@ -42,6 +45,7 @@ func (h *Handler) AddFavouriteMediaItems(ctx echo.Context) error {
 
 // RemoveFavouriteMediaItems ...
 func (h *Handler) RemoveFavouriteMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
@@ -50,7 +54,7 @@ func (h *Handler) RemoveFavouriteMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	result := h.DB.Model(&models.MediaItem{}).Where("id IN ?", mediaItemIDs).
+	result := h.DB.Model(&models.MediaItem{}).Where("user_id=? AND id IN ?", userID, mediaItemIDs).
 		Updates(map[string]interface{}{"is_favourite": false})
 	if result.Error != nil {
 		log.Printf("error removing favourite mediaitems: %+v", result.Error)
@@ -61,9 +65,11 @@ func (h *Handler) RemoveFavouriteMediaItems(ctx echo.Context) error {
 
 // GetHiddenMediaItems ...
 func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	hidden := []models.MediaItem{}
-	result := h.DB.Where("is_hidden=true AND is_deleted=false").Find(&hidden).Offset(offset).Limit(limit)
+	result := h.DB.Where("user_id=? AND is_hidden=true AND is_deleted=false", userID).
+		Find(&hidden).Offset(offset).Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting hidden mediaitems: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -73,6 +79,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 
 // AddHiddenMediaItems ...
 func (h *Handler) AddHiddenMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
@@ -81,7 +88,7 @@ func (h *Handler) AddHiddenMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	result := h.DB.Model(&models.MediaItem{}).Where("id IN ?", mediaItemIDs).
+	result := h.DB.Model(&models.MediaItem{}).Where("user_id=? AND id IN ?", userID, mediaItemIDs).
 		Updates(map[string]interface{}{"is_hidden": true})
 	if result.Error != nil {
 		log.Printf("error adding hidden mediaitems: %+v", result.Error)
@@ -92,6 +99,7 @@ func (h *Handler) AddHiddenMediaItems(ctx echo.Context) error {
 
 // RemoveHiddenMediaItems ...
 func (h *Handler) RemoveHiddenMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
@@ -100,7 +108,7 @@ func (h *Handler) RemoveHiddenMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	result := h.DB.Model(&models.MediaItem{}).Where("id IN ?", mediaItemIDs).
+	result := h.DB.Model(&models.MediaItem{}).Where("user_id=? AND id IN ?", userID, mediaItemIDs).
 		Updates(map[string]interface{}{"is_hidden": false})
 	if result.Error != nil {
 		log.Printf("error removing hidden mediaitems: %+v", result.Error)
@@ -111,9 +119,10 @@ func (h *Handler) RemoveHiddenMediaItems(ctx echo.Context) error {
 
 // GetDeletedMediaItems ...
 func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	deleted := []models.MediaItem{}
-	result := h.DB.Where("is_deleted=true").Find(&deleted).Offset(offset).Limit(limit)
+	result := h.DB.Where("user_id=? AND is_deleted=true", userID).Find(&deleted).Offset(offset).Limit(limit)
 	if result.Error != nil {
 		log.Printf("error getting deleted mediaitems: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -123,6 +132,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 
 // AddDeletedMediaItems ...
 func (h *Handler) AddDeletedMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
@@ -131,7 +141,7 @@ func (h *Handler) AddDeletedMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	result := h.DB.Model(&models.MediaItem{}).Where("id IN ?", mediaItemIDs).
+	result := h.DB.Model(&models.MediaItem{}).Where("user_id=? AND id IN ?", userID, mediaItemIDs).
 		Updates(map[string]interface{}{"is_deleted": true})
 	if result.Error != nil {
 		log.Printf("error adding deleted mediaitems: %+v", result.Error)
@@ -142,6 +152,7 @@ func (h *Handler) AddDeletedMediaItems(ctx echo.Context) error {
 
 // RemoveDeletedMediaItems ...
 func (h *Handler) RemoveDeletedMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	mediaItems, err := getMediaItems(ctx)
 	if err != nil {
 		return err
@@ -150,7 +161,7 @@ func (h *Handler) RemoveDeletedMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	result := h.DB.Model(&models.MediaItem{}).Where("id IN ?", mediaItemIDs).
+	result := h.DB.Model(&models.MediaItem{}).Where("user_id=? AND id IN ?", userID, mediaItemIDs).
 		Updates(map[string]interface{}{"is_deleted": false})
 	if result.Error != nil {
 		log.Printf("error removing deleted mediaitems: %+v", result.Error)

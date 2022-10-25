@@ -28,7 +28,7 @@ func (h *Handler) GetUser(ctx echo.Context) error {
 		return err
 	}
 	user := models.User{}
-	result := h.DB.Model(&models.User{}).Where("id = ?", uid).First(&user)
+	result := h.DB.Model(&models.User{}).Where("id=?", uid).First(&user)
 	if result.Error != nil {
 		log.Printf("error getting user: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {

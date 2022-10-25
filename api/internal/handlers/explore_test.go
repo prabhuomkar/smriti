@@ -11,11 +11,12 @@ import (
 )
 
 var (
-	placeCols = []string{"id", "name", "postcode", "town", "city", "state",
+	placeCols = []string{"id", "user_id", "name", "postcode", "town", "city", "state",
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
-	thingCols                  = []string{"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
-	peopleCols                 = []string{"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
-	coverMediaItemResponseBody = `"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	thingCols                  = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	peopleCols                 = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	coverMediaItemResponseBody = `"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -23,38 +24,47 @@ var (
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	placeResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
+	placeResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"name":"name","postcode":"postcode",` +
 		`"town":"town","city":"city",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
 		coverMediaItemResponseBody + `}`
-	placesResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name","postcode":"postcode",` +
+	placesResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"name":"name","postcode":"postcode",` +
 		`"town":"town","city":"city",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"postcode":"postcode","town":"town","city":"city",` +
 		`"state":"state","country":"country","hidden":false,` +
 		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
-	thingResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+	thingResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"name":"name",` +
 		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
 		coverMediaItemResponseBody + `}`
-	thingsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+	thingsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"name":"name",` +
 		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
-	personResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+	personResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
 		coverMediaItemResponseBody + `}`
-	peopleResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+	peopleResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
+		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
 )
@@ -774,42 +784,45 @@ func TestGetPeopleMediaItems(t *testing.T) {
 
 func getMockedPlaceRow() *sqlmock.Rows {
 	return sqlmock.NewRows(placeCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "town", "city",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "postcode", "town", "city",
 			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
 func getMockedPlaceRows() *sqlmock.Rows {
 	return sqlmock.NewRows(placeCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "town", "city",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "postcode", "town", "city",
 			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "postcode", "town", "city",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "postcode", "town", "city",
 			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
 }
 
 func getMockedThingRow() *sqlmock.Rows {
 	return sqlmock.NewRows(thingCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"true", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
 func getMockedThingRows() *sqlmock.Rows {
 	return sqlmock.NewRows(thingCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"true", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"false", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
 }
 
 func getMockedPeopleRow() *sqlmock.Rows {
 	return sqlmock.NewRows(peopleCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"true", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
 func getMockedPeopleRows() *sqlmock.Rows {
 	return sqlmock.NewRows(peopleCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"true", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"false", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
 }

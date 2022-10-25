@@ -11,6 +11,7 @@ const PlaceTable = "places"
 // Place ...
 type Place struct {
 	ID               uuid.UUID    `json:"id" gorm:"primaryKey"`
+	UserID           uuid.UUID    `json:"userId" gorm:"column:user_id"`
 	Name             string       `json:"name"`
 	Postcode         *string      `json:"postcode"`
 	Town             *string      `json:"town"`

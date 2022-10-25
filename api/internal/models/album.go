@@ -11,6 +11,7 @@ const AlbumsTable = "albums"
 // Album ...
 type Album struct {
 	ID               uuid.UUID    `json:"id" gorm:"primaryKey"`
+	UserID           uuid.UUID    `json:"userId" gorm:"column:user_id"`
 	Name             string       `json:"name"`
 	Description      *string      `json:"description"`
 	IsShared         *bool        `json:"shared,omitempty" gorm:"column:is_shared;default:false"`

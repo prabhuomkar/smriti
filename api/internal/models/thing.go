@@ -11,6 +11,7 @@ const ThingTable = "things"
 // Thing ...
 type Thing struct {
 	ID               uuid.UUID    `json:"id" gorm:"primaryKey"`
+	UserID           uuid.UUID    `json:"userId" gorm:"column:user_id"`
 	Name             string       `json:"name"`
 	IsHidden         bool         `json:"hidden"`
 	CoverMediaItemID uuid.UUID    `json:"coverMediaItemId" gorm:"column:cover_mediaitem_id"`

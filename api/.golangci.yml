@@ -12,3 +12,4 @@ linters:
     - exhaustruct
     - gci
     - nolintlint
+    - dupl

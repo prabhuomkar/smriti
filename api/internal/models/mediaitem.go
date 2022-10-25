@@ -18,6 +18,7 @@ type (
 	// MediaItem ...
 	MediaItem struct {
 		ID              uuid.UUID       `json:"id" gorm:"primaryKey"`
+		UserID          uuid.UUID       `json:"userId" gorm:"column:user_id"`
 		Filename        string          `json:"filename"`
 		Description     *string         `json:"description"`
 		MimeType        string          `json:"mimeType"`

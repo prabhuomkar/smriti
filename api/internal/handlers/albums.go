@@ -30,6 +30,7 @@ type (
 
 // GetAlbumMediaItems ...
 func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
@@ -37,6 +38,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	}
 	album := new(models.Album)
 	album.ID = uid
+	album.UserID = userID
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Model(&album).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
 	if err != nil {
@@ -48,6 +50,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 
 // AddAlbumMediaItems ...
 func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
 		return err
@@ -58,6 +61,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	}
 	album := new(models.Album)
 	album.ID = uid
+	album.UserID = userID
 	err = h.DB.Omit("MediaItems.*").Model(&album).Association("MediaItems").Append(mediaItems)
 	if err != nil {
 		log.Printf("error adding album mediaitems: %+v", err)
@@ -76,6 +80,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 
 // RemoveAlbumMediaItems ...
 func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
 		return err
@@ -86,6 +91,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	}
 	album := new(models.Album)
 	album.ID = uid
+	album.UserID = userID
 	err = h.DB.Omit("MediaItems.*").Model(&album).Association("MediaItems").Delete(mediaItems)
 	if err != nil {
 		log.Printf("error removing album mediaitems: %+v", err)
@@ -110,12 +116,16 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 
 // GetAlbum ...
 func (h *Handler) GetAlbum(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
 		return err
 	}
 	album := models.Album{}
-	result := h.DB.Model(&models.Album{}).Where("id = ?", uid).Preload("CoverMediaItem").First(&album)
+	result := h.DB.Model(&models.Album{}).
+		Where("id=? AND user_id=?", uid, userID).
+		Preload("CoverMediaItem").
+		First(&album)
 	if result.Error != nil {
 		log.Printf("error getting album: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -128,6 +138,7 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 
 // UpdateAlbum ...
 func (h *Handler) UpdateAlbum(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
 		return err
@@ -137,6 +148,7 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 		return err
 	}
 	album.ID = uid
+	album.UserID = userID
 	result := h.DB.Model(&album).Updates(album)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating album: %+v", result.Error)
@@ -147,11 +159,12 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 
 // DeleteAlbum ...
 func (h *Handler) DeleteAlbum(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
 		return err
 	}
-	album := models.Album{ID: uid}
+	album := models.Album{ID: uid, UserID: userID}
 	err = h.DB.Model(&album).Association("MediaItems").Clear()
 	if err != nil {
 		log.Printf("error deleting album: %+v", err)
@@ -167,10 +180,11 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 
 // GetAlbums ...
 func (h *Handler) GetAlbums(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	albums := []models.Album{}
 	result := h.DB.Model(&models.Album{}).
-		Where("is_hidden=false").
+		Where("is_hidden=false AND user_id=?", userID).
 		Preload("CoverMediaItem").
 		Find(&albums).
 		Offset(offset).
@@ -184,11 +198,13 @@ func (h *Handler) GetAlbums(ctx echo.Context) error {
 
 // CreateAlbum ...
 func (h *Handler) CreateAlbum(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	album, err := getAlbum(ctx)
 	if err != nil {
 		return err
 	}
 	album.ID = uuid.NewV4()
+	album.UserID = userID
 	result := h.DB.Create(&album)
 	if result.Error != nil {
 		log.Printf("error creating album: %+v", result.Error)

@@ -7,6 +7,7 @@ import (
 
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
+	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
 
@@ -39,4 +40,9 @@ func getOffsetAndLimit(ctx echo.Context) (int, int) {
 		limit = defaultLimit
 	}
 	return int((page - 1) * limit), int(limit)
+}
+
+func getRequestingUserID(ctx echo.Context) uuid.UUID {
+	userID, _ := ctx.Get("userID").(string)
+	return uuid.FromStringOrNil(userID)
 }

@@ -13,11 +13,12 @@ import (
 
 var (
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
-	mediaitemCols = []string{"id", "filename", "description", "mime_type", "source_url", "preview_url",
+	mediaitemCols = []string{"id", "user_id", "filename", "description", "mime_type", "source_url", "preview_url",
 		"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "width",
 		"height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at"}
-	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -25,14 +26,16 @@ var (
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	mediaitemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	mediaitemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","filename":"filename",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","favourite":false,"hidden":true,"deleted":true,"status":"status",` +
 		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -620,7 +623,8 @@ func TestUploadMediaItems(t *testing.T) {
 
 func getMockedMediaItemRow() *sqlmock.Rows {
 	return sqlmock.NewRows(mediaitemCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", "description", "mime_type", "source_url", "preview_url",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
@@ -628,11 +632,13 @@ func getMockedMediaItemRow() *sqlmock.Rows {
 
 func getMockedMediaItemRows() *sqlmock.Rows {
 	return sqlmock.NewRows(mediaitemCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", "description", "mime_type", "source_url", "preview_url",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "filename", "description", "mime_type", "source_url", "preview_url",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "false", "true", "true", "status", "mediaitem_type", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)

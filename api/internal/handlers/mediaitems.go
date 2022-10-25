@@ -23,6 +23,7 @@ type (
 
 // GetMediaItemPlaces ...
 func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -31,6 +32,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	}
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
+	mediaItem.UserID = userID
 	places := []models.Place{}
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("Places").Find(&places)
 	if err != nil {
@@ -42,6 +44,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 
 // GetMediaItemThings ...
 func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -50,6 +53,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	}
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
+	mediaItem.UserID = userID
 	things := []models.Thing{}
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("Things").Find(&things)
 	if err != nil {
@@ -61,6 +65,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 
 // GetMediaItemPeople ...
 func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -69,6 +74,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	}
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
+	mediaItem.UserID = userID
 	people := []models.People{}
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("People").Find(&people)
 	if err != nil {
@@ -80,6 +86,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 
 // GetMediaItemAlbums ...
 func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -88,6 +95,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 	}
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uid
+	mediaItem.UserID = userID
 	albums := []models.Album{}
 	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("Albums").Find(&albums)
 	if err != nil {
@@ -99,6 +107,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 
 // GetMediaItem ...
 func (h *Handler) GetMediaItem(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
@@ -106,7 +115,7 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	mediaItem := models.MediaItem{}
-	result := h.DB.Where("id = ?", uid).First(&mediaItem)
+	result := h.DB.Where("id=? AND user_id=?", uid, userID).First(&mediaItem)
 	if result.Error != nil {
 		log.Printf("error getting mediaitem: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
@@ -119,6 +128,7 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 
 // UpdateMediaItem ...
 func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getMediaItemID(ctx)
 	if err != nil {
 		return err
@@ -128,6 +138,7 @@ func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
 		return err
 	}
 	mediaItem.ID = uid
+	mediaItem.UserID = userID
 	result := h.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating mediaItem: %+v", result.Error)
@@ -138,12 +149,13 @@ func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
 
 // DeleteMediaItem ...
 func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	uid, err := getMediaItemID(ctx)
 	if err != nil {
 		return err
 	}
 	deleted := true
-	mediaItem := models.MediaItem{ID: uid, IsDeleted: &deleted}
+	mediaItem := models.MediaItem{ID: uid, UserID: userID, IsDeleted: &deleted}
 	result := h.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating mediaItem: %+v", result.Error)
@@ -154,9 +166,10 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 
 // GetMediaItems ...
 func (h *Handler) GetMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	mediaItems := []models.MediaItem{}
-	result := h.DB.Where("is_hidden=false OR is_deleted=false").
+	result := h.DB.Where("user_id=? AND is_hidden=false OR is_deleted=false", userID).
 		Find(&mediaItems).
 		Offset(offset).
 		Limit(limit)
@@ -176,7 +189,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	mediaItem := models.MediaItem{}
-	result := h.DB.Where("id = ?", uid).First(&mediaItem)
+	result := h.DB.Where("id=?", uid).First(&mediaItem)
 	if result.Error != nil {
 		log.Printf("error getting mediaitem: %+v", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
