@@ -24,7 +24,6 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "users" && cfg.Feature.Sharing) {
 				return next(ctx)
 			}
-
 			return echo.ErrForbidden
 		}
 	}

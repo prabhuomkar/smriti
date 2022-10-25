@@ -9,16 +9,17 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 )
 
 // nolint:funlen
 // InitHTTPServer ...
-func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
+func InitHTTPServer(handler *handlers.Handler) {
 	srvHandler := echo.New()
 	// nolint:gosec
 	server := http.Server{
-		Addr:    fmt.Sprintf("%s:%d", cfg.API.Host, cfg.API.Port),
+		Addr:    fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port),
 		Handler: srvHandler,
 	}
 	// routes
@@ -27,41 +28,60 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	version1.GET("/features", handler.GetFeatures)
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
-	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces, middlewares.FeatureCheck(cfg, "places"))
-	mediaItems.GET("/:id/things", handler.GetMediaItemThings, middlewares.FeatureCheck(cfg, "things"))
-	mediaItems.GET("/:id/people", handler.GetMediaItemPeople, middlewares.FeatureCheck(cfg, "people"))
-	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums, middlewares.FeatureCheck(cfg, "albums"))
+	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "places")...)
+	mediaItems.GET("/:id/things", handler.GetMediaItemThings,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "things")...)
+	mediaItems.GET("/:id/people", handler.GetMediaItemPeople,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "people")...)
+	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "albums")...)
 	mediaItems.GET("/:id", handler.GetMediaItem)
 	mediaItems.PUT("/:id", handler.UpdateMediaItem)
 	mediaItems.DELETE("/:id", handler.DeleteMediaItem)
 	mediaItems.GET("", handler.GetMediaItems)
 	mediaItems.POST("", handler.UploadMediaItems)
 	// library
-	version1.GET("/favourites", handler.GetFavouriteMediaItems, middlewares.FeatureCheck(cfg, "favourites"))
-	version1.POST("/favourites", handler.AddFavouriteMediaItems, middlewares.FeatureCheck(cfg, "favourites"))
-	version1.DELETE("/favourites", handler.RemoveFavouriteMediaItems, middlewares.FeatureCheck(cfg, "favourites"))
-	version1.GET("/hidden", handler.GetHiddenMediaItems, middlewares.FeatureCheck(cfg, "hidden"))
-	version1.POST("/hidden", handler.AddHiddenMediaItems, middlewares.FeatureCheck(cfg, "hidden"))
-	version1.DELETE("/hidden", handler.RemoveHiddenMediaItems, middlewares.FeatureCheck(cfg, "hidden"))
-	version1.GET("/trash", handler.GetDeletedMediaItems, middlewares.FeatureCheck(cfg, "trash"))
-	version1.POST("/trash", handler.AddDeletedMediaItems, middlewares.FeatureCheck(cfg, "trash"))
-	version1.DELETE("/trash", handler.RemoveDeletedMediaItems, middlewares.FeatureCheck(cfg, "trash"))
+	version1.GET("/favourites", handler.GetFavouriteMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
+	version1.POST("/favourites", handler.AddFavouriteMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
+	version1.DELETE("/favourites", handler.RemoveFavouriteMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
+	version1.GET("/hidden", handler.GetHiddenMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
+	version1.POST("/hidden", handler.AddHiddenMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
+	version1.DELETE("/hidden", handler.RemoveHiddenMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
+	version1.GET("/trash", handler.GetDeletedMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
+	version1.POST("/trash", handler.AddDeletedMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
+	version1.DELETE("/trash", handler.RemoveDeletedMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
 	// explore
 	explore := version1.Group("/explore")
-	explore.Use(middlewares.FeatureCheck(cfg, "explore"))
-	explore.GET("/places/:id/mediaItems", handler.GetPlaceMediaItems, middlewares.FeatureCheck(cfg, "places"))
-	explore.GET("/places/:id", handler.GetPlace, middlewares.FeatureCheck(cfg, "places"))
-	explore.GET("/places", handler.GetPlaces, middlewares.FeatureCheck(cfg, "places"))
-	explore.GET("/things/:id/mediaItems", handler.GetThingMediaItems, middlewares.FeatureCheck(cfg, "things"))
-	explore.GET("/things/:id", handler.GetThing, middlewares.FeatureCheck(cfg, "things"))
-	explore.GET("/things", handler.GetThings, middlewares.FeatureCheck(cfg, "things"))
-	explore.GET("/people/:id/mediaItems", handler.GetPeopleMediaItems, middlewares.FeatureCheck(cfg, "people"))
-	explore.GET("/people/:id", handler.GetPerson, middlewares.FeatureCheck(cfg, "people"))
-	explore.PUT("/people/:id", handler.UpdatePerson, middlewares.FeatureCheck(cfg, "people"))
-	explore.GET("/people", handler.GetPeople, middlewares.FeatureCheck(cfg, "people"))
+	explore.Use(middlewares.FeatureCheck(handler.Config, "explore"))
+	places := explore.Group("/places")
+	places.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "places")...)
+	places.GET("/:id/mediaItems", handler.GetPlaceMediaItems)
+	places.GET("/:id", handler.GetPlace)
+	places.GET("", handler.GetPlaces)
+	things := explore.Group("/things")
+	things.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "things")...)
+	things.GET("/:id/mediaItems", handler.GetThingMediaItems)
+	things.GET("/:id", handler.GetThing)
+	things.GET("", handler.GetThings)
+	people := explore.Group("/people")
+	people.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "people")...)
+	explore.GET("/:id/mediaItems", handler.GetPeopleMediaItems)
+	explore.GET("/:id", handler.GetPerson)
+	explore.PUT("/:id", handler.UpdatePerson)
+	explore.GET("", handler.GetPeople)
 	// albums
 	albums := version1.Group("/albums")
-	albums.Use(middlewares.FeatureCheck(cfg, "albums"))
+	albums.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "albums")...)
 	albums.GET("/:id/mediaItems", handler.GetAlbumMediaItems)
 	albums.POST("/:id/mediaItems", handler.AddAlbumMediaItems)
 	albums.DELETE("/:id/mediaItems", handler.RemoveAlbumMediaItems)
@@ -77,16 +97,24 @@ func InitHTTPServer(cfg *config.Config, handler *handlers.Handler) {
 	auth.POST("/logout", handler.Logout)
 	// user management
 	users := version1.Group("/users")
-	users.Use(middlewares.FeatureCheck(cfg, "users"))
-	users.GET("/:id", handler.GetAlbum)
-	users.PUT("/:id", handler.UpdateAlbum)
-	users.DELETE("/:id", handler.DeleteAlbum)
-	users.GET("", handler.GetAlbums)
-	users.POST("", handler.CreateAlbum)
+	users.Use(middlewares.FeatureCheck(handler.Config, "users"), middlewares.BasicAuthCheck(handler.Config))
+	users.GET("/:id", handler.GetUsers)
+	users.PUT("/:id", handler.UpdateUser)
+	users.DELETE("/:id", handler.DeleteUser)
+	users.GET("", handler.GetUser)
+	users.POST("", handler.CreateUser)
 
-	log.Printf("starting http api server on: %d", cfg.API.Port)
+	log.Printf("starting http api server on: %d", handler.Config.API.Port)
 	err := server.ListenAndServe()
 	if !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
 	}
+}
+
+func getMiddlewareFuncs(cfg *config.Config, cache gcache.Cache, feature string) []echo.MiddlewareFunc {
+	middlewareFuncs := []echo.MiddlewareFunc{
+		middlewares.FeatureCheck(cfg, feature),
+		middlewares.JWTCheck(cfg, cache),
+	}
+	return middlewareFuncs
 }

@@ -16,11 +16,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func TestFeatureForbidden(t *testing.T) {
-	server := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/v1/route", nil)
-	rec := httptest.NewRecorder()
-
+func TestFeatureCheckForbidden(t *testing.T) {
 	// handler
 	cfg := &config.Config{Feature: config.Feature{
 		Albums:        false,
@@ -48,6 +44,10 @@ func TestFeatureForbidden(t *testing.T) {
 		"people":     handler.GetPeople,
 	}
 	for feature, handler := range featureHandlerMap {
+		// test
+		server := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/v1/route", nil)
+		rec := httptest.NewRecorder()
 		checkFeature := FeatureCheck(cfg, feature)
 		server.GET("/v1/route", checkFeature(handler.(func(ctx echo.Context) error)))
 		server.ServeHTTP(rec, req)
@@ -55,11 +55,7 @@ func TestFeatureForbidden(t *testing.T) {
 	}
 }
 
-func TestFeatureOK(t *testing.T) {
-	server := echo.New()
-	req := httptest.NewRequest(http.MethodGet, "/v1/route", nil)
-	rec := httptest.NewRecorder()
-
+func TestFeatureCheckOK(t *testing.T) {
 	// handler
 	cfg := &config.Config{Feature: config.Feature{
 		Albums: true,
@@ -95,6 +91,10 @@ func TestFeatureOK(t *testing.T) {
 		"albums": handler.GetAlbums,
 	}
 	for feature, handler := range featureHandlerMap {
+		// test
+		server := echo.New()
+		req := httptest.NewRequest(http.MethodGet, "/v1/route", nil)
+		rec := httptest.NewRecorder()
 		checkFeature := FeatureCheck(cfg, feature)
 		server.GET("/v1/route", checkFeature(handler.(func(ctx echo.Context) error)))
 		server.ServeHTTP(rec, req)

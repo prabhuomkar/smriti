@@ -207,3 +207,64 @@ func TestRemoveTokens(t *testing.T) {
 		})
 	}
 }
+
+func TestVerifyToken(t *testing.T) {
+	tests := []struct {
+		Name            string
+		Token           func(*config.Config, gcache.Cache) string
+		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
+		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
+		WantErr         bool
+	}{
+		{
+			"success",
+			func(cfg *config.Config, cache gcache.Cache) string {
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "userID", "username")
+				_ = cache.Set(oldAToken, true)
+				return oldAToken
+			},
+			nil,
+			nil,
+			false,
+		},
+		{
+			"error getting access token",
+			func(cfg *config.Config, cache gcache.Cache) string {
+				return "badToken"
+			},
+			nil,
+			nil,
+			true,
+		},
+		{
+			"error parsing claims from token",
+			func(cfg *config.Config, cache gcache.Cache) string {
+				_ = cache.Set("badToken", true)
+				return "badToken"
+			},
+			nil,
+			nil,
+			true,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			cfg := &config.Config{Auth: config.Auth{
+				AccessTTL: 60,
+			}}
+			cache := gcache.New(1024).LRU().
+				SerializeFunc(test.SerializeFunc).
+				DeserializeFunc(test.DeserializeFunc).
+				Build()
+			oldAToken := test.Token(cfg, cache)
+			claims, err := VerifyToken(cfg, cache, oldAToken)
+			if test.WantErr {
+				assert.Nil(t, claims)
+				assert.NotNil(t, err)
+			} else {
+				assert.NotNil(t, claims)
+				assert.Nil(t, err)
+			}
+		})
+	}
+}

@@ -60,6 +60,12 @@ type (
 		Sharing       bool `envconfig:"PENSIEVE_FEATURE_SHARING" default:"false"`
 	}
 
+	// Admin ...
+	Admin struct {
+		Username string `envconfig:"PENSIEVE_ADMIN_USERNAME" default:"pensieve"`
+		Password string `envconfig:"PENSIEVE_ADMIN_PASSWORD" default:"pensieveT3st!"`
+	}
+
 	// Config ...
 	Config struct {
 		Log
@@ -69,6 +75,7 @@ type (
 		Worker
 		Auth
 		Feature
+		Admin
 	}
 )
 

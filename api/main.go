@@ -50,6 +50,6 @@ func main() {
 		Worker: &workerClient,
 		Cache:  cache,
 	}
-	server.InitHTTPServer(cfg, handler)
+	server.InitHTTPServer(handler)
 	// work(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections
 }

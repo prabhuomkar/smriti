@@ -81,6 +81,23 @@ func RemoveTokens(cfg *config.Config, cache gcache.Cache, accessToken string) er
 	return nil
 }
 
+// VerifyToken ...
+func VerifyToken(cfg *config.Config, cache gcache.Cache, accessToken string) (*TokenClaims, error) {
+	_, err := cache.Get(accessToken)
+	if err != nil {
+		log.Printf("error getting access token from cache: %+v", err)
+		return nil, err
+	}
+
+	claims, err := getClaimsFromToken(cfg, accessToken)
+	if err != nil {
+		log.Printf("error getting claims from token: %+v", err)
+		return nil, err
+	}
+
+	return claims, nil
+}
+
 func GetAccessAndRefreshTokens(cfg *config.Config, userID, username string) (string, string) {
 	return getSignedToken(cfg, userID, username, "access"), getSignedToken(cfg, userID, username, "refresh")
 }
