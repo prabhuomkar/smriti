@@ -20,16 +20,16 @@
 | Freeness | ✅ |
 | Docker Installation | ✅ |
 | Albums | ✅ |
-| Photo Map | 🚧 |
+| Photo Map | ✅ |
 | Multiple User Support | 🚧 |
-| Timeline | 🚧 |
-| Photo Discovery | 🚧 |
-| Photo Search | 🚧 |
-| Object/Face Recognition | 🚧 |
 | EXIF Data | 🚧 |
+| Photo Discovery | 🚧 |
+| Object/Face Recognition | 🚧 |
+| Photo Search | 🚧 |
 | LivePhotos Support | 🚧 |
 | Video Support | ❌ |
 | Automatic Mobile Upload | 🚧 |
+| Timeline | 🚧 |
 | Web App | 🚧 |
 | Android App | 🚧 |
 | iOS App | 🚧 |
