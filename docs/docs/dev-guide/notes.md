@@ -11,3 +11,28 @@
 - [ ] Infra Cases: graceful shutdown of api & worker, database reconnects & grpc retry/reconnect
 - [ ] i18n support for languages incrementally: English, Chinese, Japanese, German, French, etc.
 - [ ] Try to achieve best ratings incrementally as on: https://github.com/meichthys/foss_photo_libraries
+
+## Features
+
+| Feature | Support |
+| - | - |
+| Demo | ✅ |
+| Freeness | ✅ |
+| Docker Installation | ✅ |
+| Albums | ✅ |
+| Photo Map | 🚧 |
+| Multiple User Support | 🚧 |
+| Timeline | 🚧 |
+| Photo Discovery | 🚧 |
+| Photo Search | 🚧 |
+| Object/Face Recognition | 🚧 |
+| EXIF Data | 🚧 |
+| LivePhotos Support | 🚧 |
+| Video Support | ❌ |
+| Automatic Mobile Upload | 🚧 |
+| Web App | 🚧 |
+| Android App | 🚧 |
+| iOS App | 🚧 |
+| Desktop App | 🚧 |
+| Photo Sharing | 🚧 |
+| Basic Editing | 🚧 |
