@@ -29,9 +29,25 @@ jobs:
       - run: |
           pip install pylint
           make lint
-  deploy:
+  publish:
     if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
     needs: ci
+    name: Publish Docker Image
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./worker
+    steps:
+      - uses: actions/checkout@v2
+      - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USER }}
+          DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
+      - run: docker build . --file Dockerfile --tag prabhuomkar/pensieve-worker:${GITHUB_REF:11}
+      - run: docker push prabhuomkar/pensieve-worker
+  deploy:
+    if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
+    needs: publish
     name: Fly Deploy
     runs-on: ubuntu-latest
     defaults:
