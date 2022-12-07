@@ -1,6 +1,6 @@
 {
   "name": "pensieve",
-  "version": "2022.09.30",
+  "version": "2022.10.31",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
