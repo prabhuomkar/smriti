@@ -1,4 +1,4 @@
-# Environment
+# Environment Setup
 The following guide will help you in setting up the development environment to work on Pensieve.
 
 ## Prerequisites
@@ -29,4 +29,11 @@ make setup-api
 - Run the following command to finish your Worker setup
 ```
 make setup-worker
+```
+
+### Docs
+- Install [Node 18.10](https://nodejs.org/en/download/) or above
+- Run the following command to finish your Docs setup
+```
+make setup-docs
 ```

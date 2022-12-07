@@ -95,9 +95,7 @@ interface {
     delete() // delete the file
 }
 ```
-- Out of the box incremental support for:
-    - [SeaweedFS](https://github.com/seaweedfs/seaweedfs) 
-    - [MinIO](https://min.io/)
+- Out of the box incremental support for storage:
     - [Amazon S3](https://aws.amazon.com/s3/)
 - Best practices for security and other similar aspects for connecting to storage will be decided later
 

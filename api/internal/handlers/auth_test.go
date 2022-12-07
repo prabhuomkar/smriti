@@ -19,8 +19,8 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			map[string]string{},
 			`{"bad":"request"}`,
-			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
@@ -33,7 +33,7 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -47,7 +47,7 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			``,
+			map[string]string{},
 			`{"username":"username"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -61,7 +61,7 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			``,
+			map[string]string{},
 			`{"username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -78,7 +78,7 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			``,
+			map[string]string{},
 			`{"username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -95,7 +95,7 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			``,
+			map[string]string{},
 			`{"username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -119,7 +119,9 @@ func TestRefresh(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/refresh",
 			"/v1/auth/refresh",
-			rtoken,
+			map[string]string{
+				echo.HeaderAuthorization: rtoken,
+			},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -133,7 +135,7 @@ func TestRefresh(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/refresh",
 			"/v1/auth/refresh",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -154,7 +156,9 @@ func TestLogout(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/logout",
 			"/v1/auth/logout",
-			atoken,
+			map[string]string{
+				echo.HeaderAuthorization: atoken,
+			},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {

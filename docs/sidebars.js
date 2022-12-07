@@ -14,25 +14,36 @@
 /** @type {import('@docusaurus/plugin-content-docs').SidebarsConfig} */
 const sidebars = {
   devGuideSidebar: [
-    'about',
-    'features',
     {
-      type: 'category',
-      label: 'Developer Guide',
+      type: "category",
+      label: "User Guide",
       items: [
-        'dev-guide/getting-started',
-        'dev-guide/design-document',
-        'dev-guide/folder-structure',
-        'dev-guide/environment',
+        "user-guide/introduction",
+        "user-guide/installation",
         {
-          type: 'category',
-          label: 'Contributing',
+          type: "category",
+          label: "Features",
           items: [
-            'dev-guide/development',
-            'dev-guide/testing'
-          ]
+            "user-guide/features/photos",
+            "user-guide/features/albums",
+            "user-guide/features/users",
+            "user-guide/features/metadata",
+            "user-guide/features/places",
+            "user-guide/features/people",
+            "user-guide/features/explore",
+          ],
         },
-        'dev-guide/roadmap',
+      ],
+    },
+    {
+      type: "category",
+      label: "Developer Guide",
+      items: [
+        "dev-guide/introduction",
+        "dev-guide/environment",
+        "dev-guide/folder-structure",
+        "dev-guide/contribution",
+        "dev-guide/roadmap",
       ],
     },
   ],

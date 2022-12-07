@@ -37,6 +37,6 @@ message MediaItemPlaceRequest {
 }
 
 service API {
-    rpc SaveMediaItemResult(MediaItemResultRequest) returns (google.protobuf.Empty);
-    rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty);
+    rpc SaveMediaItemResult(MediaItemResultRequest) returns (google.protobuf.Empty) {}
+    rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
 }

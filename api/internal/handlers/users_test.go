@@ -30,7 +30,7 @@ func TestGetUser(t *testing.T) {
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -44,7 +44,7 @@ func TestGetUser(t *testing.T) {
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -61,7 +61,7 @@ func TestGetUser(t *testing.T) {
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -78,7 +78,7 @@ func TestGetUser(t *testing.T) {
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -101,7 +101,7 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -115,7 +115,7 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -129,7 +129,7 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -143,7 +143,7 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"name":"name","username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -164,7 +164,7 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"name":"name","username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -191,7 +191,7 @@ func TestDeleteUser(t *testing.T) {
 			http.MethodDelete,
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -205,7 +205,7 @@ func TestDeleteUser(t *testing.T) {
 			http.MethodDelete,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -225,7 +225,7 @@ func TestDeleteUser(t *testing.T) {
 			http.MethodDelete,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -251,7 +251,7 @@ func TestGetUsers(t *testing.T) {
 			http.MethodGet,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -268,7 +268,7 @@ func TestGetUsers(t *testing.T) {
 			http.MethodGet,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -285,7 +285,7 @@ func TestGetUsers(t *testing.T) {
 			http.MethodGet,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
@@ -308,7 +308,7 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -322,7 +322,7 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -336,7 +336,7 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			`{"name":"name","username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -356,7 +356,7 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			``,
+			map[string]string{},
 			`{"name":"name","username":"username","password":"password"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()

@@ -37,7 +37,7 @@ func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
 
 func (c *aPIClient) SaveMediaItemResult(ctx context.Context, in *MediaItemResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/services.api.API/SaveMediaItemResult", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -46,7 +46,7 @@ func (c *aPIClient) SaveMediaItemResult(ctx context.Context, in *MediaItemResult
 
 func (c *aPIClient) SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/services.api.API/SaveMediaItemPlace", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemPlace", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -95,7 +95,7 @@ func _API_SaveMediaItemResult_Handler(srv interface{}, ctx context.Context, dec 
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.api.API/SaveMediaItemResult",
+		FullMethod: "/API/SaveMediaItemResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).SaveMediaItemResult(ctx, req.(*MediaItemResultRequest))
@@ -113,7 +113,7 @@ func _API_SaveMediaItemPlace_Handler(srv interface{}, ctx context.Context, dec f
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/services.api.API/SaveMediaItemPlace",
+		FullMethod: "/API/SaveMediaItemPlace",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).SaveMediaItemPlace(ctx, req.(*MediaItemPlaceRequest))
@@ -125,7 +125,7 @@ func _API_SaveMediaItemPlace_Handler(srv interface{}, ctx context.Context, dec f
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var API_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "services.api.API",
+	ServiceName: "API",
 	HandlerType: (*APIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

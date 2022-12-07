@@ -40,7 +40,8 @@ func InitHTTPServer(handler *handlers.Handler) {
 	mediaItems.PUT("/:id", handler.UpdateMediaItem)
 	mediaItems.DELETE("/:id", handler.DeleteMediaItem)
 	mediaItems.GET("", handler.GetMediaItems)
-	mediaItems.POST("", handler.UploadMediaItems)
+	mediaItems.POST("", handler.UploadMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache)...)
 	// library
 	version1.GET("/favourites", handler.GetFavouriteMediaItems,
 		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
@@ -98,10 +99,10 @@ func InitHTTPServer(handler *handlers.Handler) {
 	// user management
 	users := version1.Group("/users")
 	users.Use(middlewares.FeatureCheck(handler.Config, "users"), middlewares.BasicAuthCheck(handler.Config))
-	users.GET("/:id", handler.GetUsers)
+	users.GET("/:id", handler.GetUser)
 	users.PUT("/:id", handler.UpdateUser)
 	users.DELETE("/:id", handler.DeleteUser)
-	users.GET("", handler.GetUser)
+	users.GET("", handler.GetUsers)
 	users.POST("", handler.CreateUser)
 
 	log.Printf("starting http api server on: %d", handler.Config.API.Port)
@@ -111,10 +112,12 @@ func InitHTTPServer(handler *handlers.Handler) {
 	}
 }
 
-func getMiddlewareFuncs(cfg *config.Config, cache gcache.Cache, feature string) []echo.MiddlewareFunc {
+func getMiddlewareFuncs(cfg *config.Config, cache gcache.Cache, features ...string) []echo.MiddlewareFunc {
 	middlewareFuncs := []echo.MiddlewareFunc{
-		middlewares.FeatureCheck(cfg, feature),
 		middlewares.JWTCheck(cfg, cache),
+	}
+	for _, feature := range features {
+		middlewareFuncs = append(middlewareFuncs, middlewares.FeatureCheck(cfg, feature))
 	}
 	return middlewareFuncs
 }

@@ -22,9 +22,13 @@ services:
     build: worker
     restart: always
     container_name: worker
+    ports:
+      - '15002:15002'
     environment:
       PENSIEVE_API_HOST: api
       PENSIEVE_API_PORT: 15001
+    volumes:
+      - ./storage:/storage:rw
   # infra services
   database:
     image: postgres:14

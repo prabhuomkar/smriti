@@ -21,7 +21,7 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "things" && cfg.Feature.ExploreThings) ||
 				(feature == "people" && cfg.Feature.ExplorePeople) ||
 				(feature == "sharing" && cfg.Feature.Sharing) ||
-				(feature == "users" && cfg.Feature.Sharing) {
+				(feature == "users" && cfg.Feature.Users) {
 				return next(ctx)
 			}
 			return echo.ErrForbidden
