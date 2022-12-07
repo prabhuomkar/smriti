@@ -14,3 +14,7 @@ setup-worker:
 		make lint; \
 		echo "[setup-worker]: Running unit tests..."; \
 		make test
+setup-docs:
+	@cd docs; \
+		echo "[setup-docs]: Installing dependencies"; \
+		npm install;

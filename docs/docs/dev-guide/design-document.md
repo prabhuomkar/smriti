@@ -24,11 +24,12 @@ TODO(omkar): Add architecture diagram
 #### Database
 TODO(omkar): Add entity relationship diagram
 TODO(omkar): Add database schema sql
-- Total number of tables: 12
+- Total number of tables: 10
 - **Entities**:
     - MediaItem: `mediaitems`
     - Album: `albums`, `album_mediaitems`
     - Explore: `places`, `things`, `people`, `place_mediaitems`, `thing_mediaitems`, `people_mediaitems`
+    - User Management: `users`
 
 #### Worker
 - Service written in Python
@@ -88,12 +89,17 @@ TODO(omkar): Add database schema sql
 - Support for several file storage systems behind a common interface:
 ```
 interface {
-    init() // initialize client connection
+    connect() // initialize connection
+    reconnect() // re-establish connection
     upload() // upload the file in chunks
     delete() // delete the file
 }
 ```
-- Out of the box incremental support for MinIO, Amazon S3, Google Storage
+- Out of the box incremental support for:
+    - [SeaweedFS](https://github.com/seaweedfs/seaweedfs) 
+    - [MinIO](https://min.io/)
+    - [Amazon S3](https://aws.amazon.com/s3/)
+- Best practices for security and other similar aspects for connecting to storage will be decided later
 
 ### Machine Learning Inference
 TODO(omkar): Add more information
