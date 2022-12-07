@@ -15,7 +15,7 @@ cover-html: cover
 	@go tool cover -html coverage.txt -o coverage.html
 
 lint:
-	@golangci-lint run ./...
+	@LOG_LEVEL=error golangci-lint run ./...
 
 proto:
 	@protoc --proto_path=../protos ../protos/*.proto --go_out=pkg/services --go-grpc_out=pkg/services --experimental_allow_proto3_optional

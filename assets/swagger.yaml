@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Pensieve API
   description: Smarter Home for all your Photos and Videos
-  version: 0.1.0
+  version: 2022.12.31
 servers:
   - url: https://localhost:5000/api/
 tags:
@@ -39,6 +39,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -78,6 +82,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItem'
         '400':
           description: Bad Request
         '401':
@@ -154,6 +162,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Places'
         '400':
           description: Bad Request
         '401':
@@ -180,6 +192,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Things'
         '400':
           description: Bad Request
         '401':
@@ -206,6 +222,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/People'
         '400':
           description: Bad Request
         '401':
@@ -232,6 +252,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Albums'
         '400':
           description: Bad Request
         '401':
@@ -250,6 +274,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -296,6 +324,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -342,6 +374,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -388,6 +424,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Places'
         '400':
           description: Bad Request
         '401':
@@ -412,6 +452,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -428,6 +472,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Things'
         '400':
           description: Bad Request
         '401':
@@ -452,6 +500,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -468,6 +520,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/People'
         '400':
           description: Bad Request
         '401':
@@ -518,6 +574,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -541,6 +601,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -559,6 +623,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Albums'
         '400':
           description: Bad Request
         '401':
@@ -598,6 +666,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
         '400':
           description: Bad Request
         '401':
@@ -674,6 +746,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -796,6 +872,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Users'
         '400':
           description: Bad Request
         '401':
@@ -835,6 +915,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
         '400':
           description: Bad Request
         '401':
@@ -1076,7 +1160,7 @@ components:
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
           $ref: '#/components/schemas/MediaItem'
-    People:
+    Person:
       type: object
       properties:
         id:
@@ -1100,3 +1184,52 @@ components:
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
           $ref: '#/components/schemas/MediaItem'
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        name:
+          type: string
+          example: John Doe
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          example: somesecrethash
+        createdAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+    MediaItems:
+      type: array
+      items:
+        $ref: '#/components/schemas/MediaItem'
+    Places:
+      type: array
+      items:
+        $ref: '#/components/schemas/Place'
+    Things:
+      type: array
+      items:
+        $ref: '#/components/schemas/Thing'
+    People:
+      type: array
+      items:
+        $ref: '#/components/schemas/Person'
+    Albums:
+      type: array
+      items:
+        $ref: '#/components/schemas/Album'
+    Users:
+      type: array
+      items:
+        $ref: '#/components/schemas/Users'
+    
