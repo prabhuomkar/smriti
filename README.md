@@ -7,12 +7,10 @@ Smarter Home for all your Photos and Videos
 [![Twitter](https://img.shields.io/twitter/follow/pensieve_dev?style=social)](https://twitter.com/pensievedev)
 
 ## About
+TBD
 
-
-## Development & Contributing
-- [Design Document](docs/DESIGN.md)
-- [Contributing Guide](docs/CONTRIBUTING.md)
-- [Roadmap](docs/ROADMAP.md)
+## Documentation
+Visit [Documentation](https://pensieve.omkar.xyz) website.
 
 ## License
 This project is licensed under [Apache License 2.0](LICENSE)
