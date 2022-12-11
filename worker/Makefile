@@ -4,6 +4,13 @@ run:
 test: 
 	@python3 -m pytest
 
+cover: 
+	@coverage run --source src -m pytest
+	@coverage report --omit=*_pb2*.py*
+
+cover-html: cover
+	@coverage html --omit=*_pb2*.py*
+
 lint:
 	@pylint src/*.py src/components/...
 
