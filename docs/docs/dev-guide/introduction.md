@@ -5,8 +5,7 @@ This is Pensieve's Developer Guide which will help you understand more about how
 TODO(omkar): Add timeline of the development
 
 ## Table of Contents
-- [Software Design Document](design-document.md)
-- [Folder Structure](folder-structure.md)
 - [Environment Setup](environment.md)
+- [Folder Structure](folder-structure.md)
 - [Contribution Guide](contribution.md)
 - [Roadmap](roadmap.md)

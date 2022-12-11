@@ -1,2 +1,2 @@
 # Contributing Guide
-TODO(omkar): Redirect to Docs
+Checkout [Contributing Guide](https://pensieve.omkar.xyz/docs/dev-guide/contribution).

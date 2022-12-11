@@ -1,6 +1,8 @@
 # Folder Structure
 
-- `/`: `Makefile` with helpful commands for overall project
+- `/`: 
+  - `Makefile`: Helpful commands for interacting with project
+  - `docker-compose.yaml`: Containerized services for local integration tests
 - `api`: contains the source code for the API server
 - `assets`: contains various assets such as diagrams, images, YAML files associated with this project which will are WIP
 - `docs`: contains the overall documentation of the project
