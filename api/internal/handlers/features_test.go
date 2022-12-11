@@ -15,7 +15,7 @@ func TestGetFeatures(t *testing.T) {
 			"/v1/features",
 			"/v1/features",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFeatures

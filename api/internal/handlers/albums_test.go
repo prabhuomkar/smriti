@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -62,7 +63,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/bad-uuid/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -76,7 +77,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -93,7 +94,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -110,7 +111,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -133,7 +134,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/bad-uuid/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
@@ -146,8 +147,10 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
@@ -160,8 +163,10 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
@@ -174,8 +179,10 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
@@ -202,8 +209,10 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
@@ -224,8 +233,10 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
@@ -259,7 +270,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/bad-uuid/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
@@ -272,8 +283,10 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
@@ -286,8 +299,10 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
@@ -300,8 +315,10 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -328,8 +345,10 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -348,8 +367,10 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -370,8 +391,10 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -405,7 +428,7 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -419,7 +442,7 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnRows(sqlmock.NewRows(albumCols))
@@ -436,7 +459,7 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnRows(getMockedAlbumRow())
@@ -455,7 +478,7 @@ func TestGetAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnError(errors.New("some db error"))
@@ -478,7 +501,7 @@ func TestUpdateAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
@@ -492,7 +515,7 @@ func TestUpdateAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
@@ -505,8 +528,10 @@ func TestUpdateAlbum(t *testing.T) {
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
@@ -519,8 +544,10 @@ func TestUpdateAlbum(t *testing.T) {
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
@@ -533,9 +560,11 @@ func TestUpdateAlbum(t *testing.T) {
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","description":"description","shared":true,"hidden":true,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","description":"description","shared":true,"hidden":true,` +
+				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
@@ -555,9 +584,11 @@ func TestUpdateAlbum(t *testing.T) {
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","description":"description","shared":true,"hidden":true,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","description":"description","shared":true,"hidden":true,` +
+				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
@@ -584,7 +615,7 @@ func TestDeleteAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
@@ -598,7 +629,7 @@ func TestDeleteAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -623,7 +654,7 @@ func TestDeleteAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -643,7 +674,7 @@ func TestDeleteAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
@@ -674,7 +705,7 @@ func TestGetAlbums(t *testing.T) {
 			"/v1/albums",
 			"/v1/albums",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnRows(sqlmock.NewRows(albumCols))
@@ -691,7 +722,7 @@ func TestGetAlbums(t *testing.T) {
 			"/v1/albums",
 			"/v1/albums",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnRows(getMockedAlbumRows())
@@ -710,7 +741,7 @@ func TestGetAlbums(t *testing.T) {
 			"/v1/albums",
 			"/v1/albums",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnError(errors.New("some db error"))
@@ -732,8 +763,10 @@ func TestCreateAlbum(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
@@ -747,7 +780,7 @@ func TestCreateAlbum(t *testing.T) {
 			"/v1/albums",
 			"/v1/albums",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
@@ -760,8 +793,10 @@ func TestCreateAlbum(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
-			map[string]string{},
-			`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
@@ -774,8 +809,10 @@ func TestCreateAlbum(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
-			map[string]string{},
-			`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "albums"`)).
@@ -796,8 +833,10 @@ func TestCreateAlbum(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
-			map[string]string{},
-			`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "albums"`)).

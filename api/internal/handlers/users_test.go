@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -31,7 +32,7 @@ func TestGetUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
@@ -45,7 +46,7 @@ func TestGetUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
@@ -62,7 +63,7 @@ func TestGetUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(getMockedUserRow())
@@ -79,7 +80,7 @@ func TestGetUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
@@ -102,7 +103,7 @@ func TestUpdateUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
@@ -116,7 +117,7 @@ func TestUpdateUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
@@ -129,8 +130,10 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
@@ -143,8 +146,10 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
@@ -164,8 +169,10 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
@@ -192,7 +199,7 @@ func TestDeleteUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
@@ -206,7 +213,7 @@ func TestDeleteUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users"`)).
@@ -226,7 +233,7 @@ func TestDeleteUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users"`)).
@@ -252,7 +259,7 @@ func TestGetUsers(t *testing.T) {
 			"/v1/users",
 			"/v1/users",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
@@ -269,7 +276,7 @@ func TestGetUsers(t *testing.T) {
 			"/v1/users",
 			"/v1/users",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(getMockedUserRows())
@@ -286,7 +293,7 @@ func TestGetUsers(t *testing.T) {
 			"/v1/users",
 			"/v1/users",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
@@ -308,8 +315,10 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
@@ -323,7 +332,7 @@ func TestCreateUser(t *testing.T) {
 			"/v1/users",
 			"/v1/users",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
@@ -336,8 +345,10 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			map[string]string{},
-			`{"name":"name","username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
@@ -356,8 +367,10 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
-			map[string]string{},
-			`{"name":"name","username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).

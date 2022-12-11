@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -18,7 +19,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			"/v1/favourites",
 			"/v1/favourites",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -35,7 +36,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			"/v1/favourites",
 			"/v1/favourites",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -52,7 +53,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			"/v1/favourites",
 			"/v1/favourites",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -74,8 +75,10 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
@@ -88,8 +91,10 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
@@ -102,8 +107,10 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -121,8 +128,10 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -146,8 +155,10 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
@@ -160,8 +171,10 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
@@ -174,8 +187,10 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -193,8 +208,10 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -219,7 +236,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			"/v1/hidden",
 			"/v1/hidden",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -236,7 +253,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			"/v1/hidden",
 			"/v1/hidden",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -253,7 +270,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			"/v1/hidden",
 			"/v1/hidden",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -275,8 +292,10 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
@@ -289,8 +308,10 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
@@ -303,8 +324,10 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -322,8 +345,10 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -347,8 +372,10 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
@@ -361,8 +388,10 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
@@ -375,8 +404,10 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -394,8 +425,10 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -420,7 +453,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			"/v1/trash",
 			"/v1/trash",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -437,7 +470,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			"/v1/trash",
 			"/v1/trash",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -454,7 +487,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			"/v1/trash",
 			"/v1/trash",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -476,8 +509,10 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
@@ -490,8 +525,10 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
@@ -504,8 +541,10 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -523,8 +562,10 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -548,8 +589,10 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
@@ -562,8 +605,10 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"mediaItems":["bad-mediaitem-id"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
@@ -576,8 +621,10 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
@@ -595,8 +642,10 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
-			map[string]string{},
-			`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).

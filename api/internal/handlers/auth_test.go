@@ -6,6 +6,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -19,8 +20,10 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
@@ -34,7 +37,7 @@ func TestLogin(t *testing.T) {
 			"/v1/auth/login",
 			"/v1/auth/login",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
@@ -47,8 +50,10 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			map[string]string{},
-			`{"username":"username"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"username":"username"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
@@ -61,8 +66,10 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			map[string]string{},
-			`{"username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(getMockedUserRow())
@@ -78,8 +85,10 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			map[string]string{},
-			`{"username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
@@ -95,8 +104,10 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
-			map[string]string{},
-			`{"username":"username","password":"password"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"username":"username","password":"password"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
@@ -122,7 +133,7 @@ func TestRefresh(t *testing.T) {
 			map[string]string{
 				echo.HeaderAuthorization: rtoken,
 			},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Refresh
@@ -136,7 +147,7 @@ func TestRefresh(t *testing.T) {
 			"/v1/auth/refresh",
 			"/v1/auth/refresh",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Refresh
@@ -159,7 +170,7 @@ func TestLogout(t *testing.T) {
 			map[string]string{
 				echo.HeaderAuthorization: atoken,
 			},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Logout

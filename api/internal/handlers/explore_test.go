@@ -4,6 +4,7 @@ import (
 	"errors"
 	"net/http"
 	"regexp"
+	"strings"
 	"testing"
 
 	"github.com/DATA-DOG/go-sqlmock"
@@ -77,7 +78,7 @@ func TestGetPlaces(t *testing.T) {
 			"/v1/explore/places",
 			"/v1/explore/places",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(sqlmock.NewRows(placeCols))
@@ -94,7 +95,7 @@ func TestGetPlaces(t *testing.T) {
 			"/v1/explore/places",
 			"/v1/explore/places",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRows())
@@ -113,7 +114,7 @@ func TestGetPlaces(t *testing.T) {
 			"/v1/explore/places",
 			"/v1/explore/places",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnError(errors.New("some db error"))
@@ -136,7 +137,7 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/:id",
 			"/v1/explore/places/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
@@ -150,7 +151,7 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(sqlmock.NewRows(placeCols))
@@ -167,7 +168,7 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
@@ -186,7 +187,7 @@ func TestGetPlace(t *testing.T) {
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnError(errors.New("some db error"))
@@ -209,7 +210,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/:id/mediaItems",
 			"/v1/places/bad-uuid/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
@@ -223,7 +224,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -240,7 +241,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -257,7 +258,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -280,7 +281,7 @@ func TestGetThings(t *testing.T) {
 			"/v1/explore/things",
 			"/v1/explore/things",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(sqlmock.NewRows(thingCols))
@@ -297,7 +298,7 @@ func TestGetThings(t *testing.T) {
 			"/v1/explore/things",
 			"/v1/explore/things",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(getMockedThingRows())
@@ -316,7 +317,7 @@ func TestGetThings(t *testing.T) {
 			"/v1/explore/things",
 			"/v1/explore/things",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnError(errors.New("some db error"))
@@ -339,7 +340,7 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/:id",
 			"/v1/explore/things/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
@@ -353,7 +354,7 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(sqlmock.NewRows(thingCols))
@@ -370,7 +371,7 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(getMockedThingRow())
@@ -389,7 +390,7 @@ func TestGetThing(t *testing.T) {
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnError(errors.New("some db error"))
@@ -412,7 +413,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/:id/mediaItems",
 			"/v1/things/bad-uuid/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
@@ -426,7 +427,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -443,7 +444,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -460,7 +461,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -483,7 +484,7 @@ func TestUpdatePeople(t *testing.T) {
 			"/v1/people/:id",
 			"/v1/people/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
@@ -497,7 +498,7 @@ func TestUpdatePeople(t *testing.T) {
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
@@ -510,8 +511,10 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"bad":"request"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
@@ -524,8 +527,10 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","coverMediaItemId":"bad-mediaitem-id"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","coverMediaItemId":"bad-mediaitem-id"}`),
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
@@ -538,8 +543,10 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
@@ -559,8 +566,10 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			map[string]string{},
-			`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
@@ -587,7 +596,7 @@ func TestGetPeople(t *testing.T) {
 			"/v1/explore/people",
 			"/v1/explore/people",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(sqlmock.NewRows(peopleCols))
@@ -604,7 +613,7 @@ func TestGetPeople(t *testing.T) {
 			"/v1/explore/people",
 			"/v1/explore/people",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(getMockedPeopleRows())
@@ -623,7 +632,7 @@ func TestGetPeople(t *testing.T) {
 			"/v1/explore/people",
 			"/v1/explore/people",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnError(errors.New("some db error"))
@@ -646,7 +655,7 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/:id",
 			"/v1/explore/people/bad-uuid",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
@@ -660,7 +669,7 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(sqlmock.NewRows(peopleCols))
@@ -677,7 +686,7 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(getMockedPeopleRow())
@@ -696,7 +705,7 @@ func TestGetPerson(t *testing.T) {
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnError(errors.New("some db error"))
@@ -719,7 +728,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/:id/mediaItems",
 			"/v1/people/bad-uuid/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
@@ -733,7 +742,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
@@ -750,7 +759,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRows())
@@ -767,7 +776,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
 			map[string]string{},
-			``,
+			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
