@@ -4,7 +4,7 @@ import "google/protobuf/empty.proto";
 
 option go_package = "api/";
 
-message MediaItemResultRequest {
+message MediaItemMetadataRequest {
     string id = 1;
     string status = 2;
     optional string filename = 3;
@@ -37,6 +37,6 @@ message MediaItemPlaceRequest {
 }
 
 service API {
-    rpc SaveMediaItemResult(MediaItemResultRequest) returns (google.protobuf.Empty) {}
+    rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
 }

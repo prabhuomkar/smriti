@@ -23,7 +23,7 @@ type Service struct {
 	DB     *gorm.DB
 }
 
-func (s *Service) SaveMediaItemResult(ctx context.Context, req *api.MediaItemResultRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)

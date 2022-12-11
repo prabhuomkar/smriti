@@ -12,6 +12,10 @@ class AmazonS3:
         """Upload file chunks"""
         raise NotImplementedError
 
+    def get(self, id: str, type: str = 'originals') -> str:
+        """Get file"""
+        raise NotImplementedError
+
     def delete(self, id: str) -> None:
         """Delete file"""
         raise NotImplementedError

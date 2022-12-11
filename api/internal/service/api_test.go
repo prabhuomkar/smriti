@@ -34,7 +34,7 @@ var (
 	creationtime                = "2022-09-22 11:22:33 +0530"
 	width                 int32 = 1080
 	height                int32 = 720
-	mediaItemReultRequest       = api.MediaItemResultRequest{
+	mediaItemReultRequest       = api.MediaItemMetadataRequest{
 		Id:           "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Filename:     &filename,
 		MimeType:     &mimetype,
@@ -68,22 +68,22 @@ var (
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 )
 
-func TestSaveMediaItemResult(t *testing.T) {
+func TestSaveMediaItemMetadata(t *testing.T) {
 	tests := []struct {
 		Name        string
-		Request     *api.MediaItemResultRequest
+		Request     *api.MediaItemMetadataRequest
 		MockDB      func(mock sqlmock.Sqlmock)
 		ExpectedErr error
 	}{
 		{
 			"save mediaitem result with invalid mediaitem id",
-			&api.MediaItemResultRequest{Id: "bad-mediaitem-id"},
+			&api.MediaItemMetadataRequest{Id: "bad-mediaitem-id"},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem result with incorrect creation time",
-			&api.MediaItemResultRequest{Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime},
+			&api.MediaItemMetadataRequest{Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
 		},
@@ -146,7 +146,7 @@ func TestSaveMediaItemResult(t *testing.T) {
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
-			_, err = client.SaveMediaItemResult(ctx, test.Request)
+			_, err = client.SaveMediaItemMetadata(ctx, test.Request)
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
 		})

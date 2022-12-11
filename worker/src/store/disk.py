@@ -18,6 +18,10 @@ class Disk:
             file_bytes.write(content)
         return id
 
+    def get(self, id: str, type: str = 'originals') -> str:
+        """Get file"""
+        return f'{self.root}/{type}/{id}'
+
     def delete(self, id: str) -> None:
         """Delete file"""
         os.remove(f'{self.root}/originals/{id}')

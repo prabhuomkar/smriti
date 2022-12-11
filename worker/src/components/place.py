@@ -5,8 +5,9 @@ import requests
 API_URL = 'https://nominatim.openstreetmap.org/reverse.php?zoom=18&format=jsonv2&lat={lat}&lon={lon}'
 API_TIMEOUT = 60
 
-def process(lat: float, lon: float) -> dict:
-    """Process will do reverse geocoding and return place details for given lat,lon"""
+
+def process_place(lat: float, lon: float) -> dict:
+    """Process place details from latitude and longitude"""
     url = API_URL.format(lat=lat, lon=lon)
     res = requests.get(url=url, timeout=API_TIMEOUT)
     res.raise_for_status()

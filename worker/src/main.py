@@ -6,6 +6,7 @@ import os
 import grpc
 
 from store import init_storage
+from components import init_components
 from worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
 from worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
@@ -15,6 +16,7 @@ class WorkerService(WorkerServicer):
 
     def __init__(self) -> None:
         self.file_storage = init_storage(os.getenv('PENSIEVE_STORAGE', 'disk'))
+        self.pipeline = init_components()
 
     def MediaItemProcess(self, request_iterator, context):
         """MediaItem Process"""
