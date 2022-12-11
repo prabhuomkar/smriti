@@ -47,7 +47,7 @@ func main() {
 	handler := &handlers.Handler{
 		Config: cfg,
 		DB:     pgDB,
-		Worker: &workerClient,
+		Worker: workerClient,
 		Cache:  cache,
 	}
 	server.InitHTTPServer(handler)

@@ -1,8 +1,13 @@
-# Testing
+# Contribution Guide
 
-## Unit Testing
+## Development
+TODO(omkar): Add development practices specific to API/Worker for features/bugs/quality
 
-### API
+## Testing
+
+### Unit Testing
+
+#### API
 - Run unit tests
 ```
 make test
@@ -16,7 +21,7 @@ TODO(omkar): TBD
 - Updating existing unit tests  
 TODO(omkar): TBD
 
-### Worker
+#### Worker
 - Run unit tests
 ```
 make test
@@ -30,9 +35,9 @@ TODO(omkar): TBD
 - Updating existing unit tests  
 TODO(omkar): TBD
 
-## Integration Testing
+### Integration Testing
 
-### Setup
+#### Setup
 - Run following command to setup the test suite:
 ```
 make setup

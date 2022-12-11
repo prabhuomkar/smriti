@@ -1,16 +1,18 @@
 syntax = "proto3";
 
-import "google/protobuf/empty.proto";
-
 option go_package = "worker/";
 
 message MediaItemProcessRequest {
     string id = 1;
     int64 offset = 2;
-    string command = 3; // start, upload, finish
+    string command = 3; // start, continue, finish
     bytes content = 4;
 }
 
+message MediaItemProcessResponse {
+    bool ok = 1;
+}
+
 service Worker {
-    rpc MediaItemProcess(stream MediaItemProcessRequest) returns (google.protobuf.Empty);
+    rpc MediaItemProcess(stream MediaItemProcessRequest) returns (MediaItemProcessResponse) {}
 }

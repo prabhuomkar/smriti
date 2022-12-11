@@ -52,7 +52,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/bad-uuid/places",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -66,7 +66,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
@@ -83,7 +83,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
@@ -102,7 +102,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
@@ -125,7 +125,7 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/bad-uuid/things",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -139,7 +139,7 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
@@ -156,7 +156,7 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
@@ -175,7 +175,7 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
@@ -198,7 +198,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/bad-uuid/people",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -212,7 +212,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
@@ -229,7 +229,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
@@ -248,7 +248,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
@@ -271,7 +271,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/bad-uuid/albums",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -285,7 +285,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
@@ -302,7 +302,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
@@ -321,7 +321,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
@@ -344,7 +344,7 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -358,7 +358,7 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
@@ -375,7 +375,7 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
@@ -392,7 +392,7 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
@@ -415,7 +415,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -429,7 +429,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -443,7 +443,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -457,7 +457,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"description":"description","favourite":true,"hidden":true}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -478,7 +478,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"description":"description","favourite":true,"hidden":true}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -505,7 +505,7 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -519,7 +519,7 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -540,7 +540,7 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -567,7 +567,7 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
@@ -584,7 +584,7 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
@@ -601,7 +601,7 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
@@ -618,7 +618,83 @@ func TestGetMediaItems(t *testing.T) {
 }
 
 func TestUploadMediaItems(t *testing.T) {
-
+	tests := []Test{
+		{
+			"upload mediaitems with invalid command",
+			http.MethodPost,
+			"/v1/mediaItems",
+			"/v1/mediaItems",
+			map[string]string{
+				HeaderUploadType: "resumable",
+			},
+			``,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UploadMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid command for resumable upload"}`,
+		},
+		{
+			"upload mediaitems with invalid offset",
+			http.MethodPost,
+			"/v1/mediaItems",
+			"/v1/mediaItems",
+			map[string]string{
+				HeaderUploadType:    "resumable",
+				HeaderUploadCommand: "finish",
+			},
+			``,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UploadMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid chunk offset for resumable upload"}`,
+		},
+		{
+			"upload mediaitems with invalid session",
+			http.MethodPost,
+			"/v1/mediaItems",
+			"/v1/mediaItems",
+			map[string]string{
+				HeaderUploadType:        "resumable",
+				HeaderUploadCommand:     "finish",
+				HeaderUploadChunkOffset: "1024",
+			},
+			``,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UploadMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid chunk session for resumable upload"}`,
+		},
+		{
+			"upload mediaitems with error uploading",
+			http.MethodPost,
+			"/v1/mediaItems",
+			"/v1/mediaItems",
+			map[string]string{},
+			``,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UploadMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"request Content-Type isn't multipart/form-data"}`,
+		},
+	}
+	// TODO(omkar)
+	// error reading mediaitem
+	// error copying mediaitem
+	// start:
+	// 	mock db
+	// 	error db
+	// 	mock grpc worker client
+	// finish:
+	// mock grpc worker client
+	executeTests(t, tests)
 }
 
 func getMockedMediaItemRow() *sqlmock.Rows {

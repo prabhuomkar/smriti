@@ -14,7 +14,7 @@ func TestGetFeatures(t *testing.T) {
 			http.MethodGet,
 			"/v1/features",
 			"/v1/features",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {

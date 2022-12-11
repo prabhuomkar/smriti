@@ -8,7 +8,6 @@ package worker
 
 import (
 	context "context"
-	empty "github.com/golang/protobuf/ptypes/empty"
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -35,7 +34,7 @@ func NewWorkerClient(cc grpc.ClientConnInterface) WorkerClient {
 }
 
 func (c *workerClient) MediaItemProcess(ctx context.Context, opts ...grpc.CallOption) (Worker_MediaItemProcessClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Worker_ServiceDesc.Streams[0], "/services.worker.Worker/MediaItemProcess", opts...)
+	stream, err := c.cc.NewStream(ctx, &Worker_ServiceDesc.Streams[0], "/Worker/MediaItemProcess", opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -45,7 +44,7 @@ func (c *workerClient) MediaItemProcess(ctx context.Context, opts ...grpc.CallOp
 
 type Worker_MediaItemProcessClient interface {
 	Send(*MediaItemProcessRequest) error
-	CloseAndRecv() (*empty.Empty, error)
+	CloseAndRecv() (*MediaItemProcessResponse, error)
 	grpc.ClientStream
 }
 
@@ -57,11 +56,11 @@ func (x *workerMediaItemProcessClient) Send(m *MediaItemProcessRequest) error {
 	return x.ClientStream.SendMsg(m)
 }
 
-func (x *workerMediaItemProcessClient) CloseAndRecv() (*empty.Empty, error) {
+func (x *workerMediaItemProcessClient) CloseAndRecv() (*MediaItemProcessResponse, error) {
 	if err := x.ClientStream.CloseSend(); err != nil {
 		return nil, err
 	}
-	m := new(empty.Empty)
+	m := new(MediaItemProcessResponse)
 	if err := x.ClientStream.RecvMsg(m); err != nil {
 		return nil, err
 	}
@@ -101,7 +100,7 @@ func _Worker_MediaItemProcess_Handler(srv interface{}, stream grpc.ServerStream)
 }
 
 type Worker_MediaItemProcessServer interface {
-	SendAndClose(*empty.Empty) error
+	SendAndClose(*MediaItemProcessResponse) error
 	Recv() (*MediaItemProcessRequest, error)
 	grpc.ServerStream
 }
@@ -110,7 +109,7 @@ type workerMediaItemProcessServer struct {
 	grpc.ServerStream
 }
 
-func (x *workerMediaItemProcessServer) SendAndClose(m *empty.Empty) error {
+func (x *workerMediaItemProcessServer) SendAndClose(m *MediaItemProcessResponse) error {
 	return x.ServerStream.SendMsg(m)
 }
 
@@ -126,7 +125,7 @@ func (x *workerMediaItemProcessServer) Recv() (*MediaItemProcessRequest, error) 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var Worker_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "services.worker.Worker",
+	ServiceName: "Worker",
 	HandlerType: (*WorkerServer)(nil),
 	Methods:     []grpc.MethodDesc{},
 	Streams: []grpc.StreamDesc{

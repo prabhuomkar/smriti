@@ -21,7 +21,7 @@ type Test struct {
 	Method          string
 	Route           string
 	Path            string
-	Header          string
+	Header          map[string]string
 	Body            string
 	MockDB          func(mock sqlmock.Sqlmock)
 	Handler         func(handler *Handler) func(ctx echo.Context) error
@@ -36,7 +36,13 @@ func executeTests(t *testing.T, tests []Test) {
 			// server
 			server := echo.New()
 			req := httptest.NewRequest(test.Method, test.Path, strings.NewReader(test.Body))
-			req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", test.Header))
+			for key, val := range test.Header {
+				if key == echo.HeaderAuthorization {
+					req.Header.Set(key, fmt.Sprintf("Bearer %s", val))
+				} else {
+					req.Header.Set(key, val)
+				}
+			}
 			if len(test.Body) > 0 {
 				req.Header.Set(echo.HeaderContentType, echo.MIMEApplicationJSON)
 			}
@@ -61,7 +67,11 @@ func executeTests(t *testing.T, tests []Test) {
 				test.MockDB(mock)
 			}
 			mockCache := gcache.New(1024).LRU().Build()
-			mockCache.Set(test.Header, true)
+			for key, val := range test.Header {
+				if key == echo.HeaderAuthorization {
+					mockCache.Set(val, true)
+				}
+			}
 			// handler
 			handler := &Handler{
 				Config: &config.Config{Auth: config.Auth{RefreshTTL: 60}},

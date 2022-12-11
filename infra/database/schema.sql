@@ -6,6 +6,7 @@ CREATE TYPE "mediaitem_status" AS ENUM (
 );
 
 CREATE TYPE "mediaitem_type" AS ENUM (
+  'unknown',
   'photo',
   'video'
 );

@@ -2,7 +2,6 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
 import worker_pb2 as worker__pb2
 
 
@@ -18,7 +17,7 @@ class WorkerStub(object):
         self.MediaItemProcess = channel.stream_unary(
                 '/Worker/MediaItemProcess',
                 request_serializer=worker__pb2.MediaItemProcessRequest.SerializeToString,
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                response_deserializer=worker__pb2.MediaItemProcessResponse.FromString,
                 )
 
 
@@ -37,7 +36,7 @@ def add_WorkerServicer_to_server(servicer, server):
             'MediaItemProcess': grpc.stream_unary_rpc_method_handler(
                     servicer.MediaItemProcess,
                     request_deserializer=worker__pb2.MediaItemProcessRequest.FromString,
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                    response_serializer=worker__pb2.MediaItemProcessResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,6 +61,6 @@ class Worker(object):
             metadata=None):
         return grpc.experimental.stream_unary(request_iterator, target, '/Worker/MediaItemProcess',
             worker__pb2.MediaItemProcessRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            worker__pb2.MediaItemProcessResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

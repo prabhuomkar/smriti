@@ -15,7 +15,7 @@ import (
 type Handler struct {
 	Config *config.Config
 	DB     *gorm.DB
-	Worker *worker.WorkerClient
+	Worker worker.WorkerClient
 	Cache  gcache.Cache
 }
 

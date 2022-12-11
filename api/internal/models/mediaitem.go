@@ -57,8 +57,9 @@ const (
 	Ready       MediaItemStatus = "READY"
 	Failed      MediaItemStatus = "FAILED"
 
-	Photo MediaItemType = "photo"
-	Video MediaItemType = "video"
+	Unknown MediaItemType = "unknown"
+	Photo   MediaItemType = "photo"
+	Video   MediaItemType = "video"
 )
 
 // TableName ...

@@ -76,7 +76,7 @@ func TestGetPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places",
 			"/v1/explore/places",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -93,7 +93,7 @@ func TestGetPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places",
 			"/v1/explore/places",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -112,7 +112,7 @@ func TestGetPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places",
 			"/v1/explore/places",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -135,7 +135,7 @@ func TestGetPlace(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -149,7 +149,7 @@ func TestGetPlace(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -166,7 +166,7 @@ func TestGetPlace(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -185,7 +185,7 @@ func TestGetPlace(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -208,7 +208,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/bad-uuid/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -222,7 +222,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
@@ -239,7 +239,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
@@ -256,7 +256,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
@@ -279,7 +279,7 @@ func TestGetThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things",
 			"/v1/explore/things",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
@@ -296,7 +296,7 @@ func TestGetThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things",
 			"/v1/explore/things",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
@@ -315,7 +315,7 @@ func TestGetThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things",
 			"/v1/explore/things",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
@@ -338,7 +338,7 @@ func TestGetThing(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -352,7 +352,7 @@ func TestGetThing(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
@@ -369,7 +369,7 @@ func TestGetThing(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
@@ -388,7 +388,7 @@ func TestGetThing(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
@@ -411,7 +411,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/bad-uuid/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -425,7 +425,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
@@ -442,7 +442,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
@@ -459,7 +459,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
@@ -482,7 +482,7 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -496,7 +496,7 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -510,7 +510,7 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"bad":"request"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -524,7 +524,7 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"name":"name","coverMediaItemId":"bad-mediaitem-id"}`,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -538,7 +538,7 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -559,7 +559,7 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			`{"name":"name","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
@@ -586,7 +586,7 @@ func TestGetPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people",
 			"/v1/explore/people",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
@@ -603,7 +603,7 @@ func TestGetPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people",
 			"/v1/explore/people",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
@@ -622,7 +622,7 @@ func TestGetPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people",
 			"/v1/explore/people",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
@@ -645,7 +645,7 @@ func TestGetPerson(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/bad-uuid",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -659,7 +659,7 @@ func TestGetPerson(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
@@ -676,7 +676,7 @@ func TestGetPerson(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
@@ -695,7 +695,7 @@ func TestGetPerson(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
@@ -718,7 +718,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/bad-uuid/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -732,7 +732,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
@@ -749,7 +749,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
@@ -766,7 +766,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			``,
+			map[string]string{},
 			``,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
