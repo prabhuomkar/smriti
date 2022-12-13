@@ -31,7 +31,7 @@ func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemM
 	}
 	creationTime := time.Now()
 	if req.CreationTime != nil {
-		creationTime, err = time.Parse("2006-01-02 15:04:05 -0700", *req.CreationTime)
+		creationTime, err = time.Parse("2006-01-02 15:04:05", *req.CreationTime)
 		if err != nil {
 			log.Printf("error getting mediaitem creation time: %+v", err)
 			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time")

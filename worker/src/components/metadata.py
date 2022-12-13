@@ -1,6 +1,7 @@
 """Metadata Component"""
 import io
 import logging
+import datetime
 
 import exiftool
 import rawpy
@@ -20,11 +21,14 @@ def process_metadata(storage, id: str) -> dict:  # pylint: disable=redefined-bui
 
     # extract metadata
     result = {}
+    result['id'] = id
+    result['status'] = 'UNSPECIFIED'
+    result['sourceUrl'] = file_path
     try:
         with exiftool.ExifToolHelper() as et:
             metadata = et.get_metadata(file_path)[0]
             logging.debug(f'metadata for mediaitem {id}: {metadata}')
-            result['mimeType'] = metadata['File:MIMEType']
+            result['mimeType'] = metadata['File:MIMEType'] if 'File:MIMEType' in metadata else None
             result['type'] = 'image' if 'image' in metadata['File:MIMEType'] else \
                 'video' if 'video' in metadata['File:MIMEType'] else None
             result['width'] = metadata['File:ImageWidth'] if 'File:ImageWidth' in metadata else \
@@ -45,37 +49,47 @@ def process_metadata(storage, id: str) -> dict:  # pylint: disable=redefined-bui
                 metadata['QuickTime:TrackModifyDate'] if 'QuickTime:TrackModifyDate' in metadata else \
                 metadata['QuickTime:MediaCreateDate'] if 'QuickTime:MediaCreateDate' in metadata else \
                 metadata['QuickTime:CreationDate'] if 'QuickTime:CreationDate' in metadata else None
+            result['creationTime'] = datetime.datetime.strptime(result['creationTime'], '%Y:%m:%d %H:%M:%S').replace(
+                tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
             result['cameraMake'] = metadata['EXIF:Make'] if 'EXIF:Make' in metadata else \
                 metadata['QuickTime:Make'] if 'QuickTime:Make' in metadata else None
             result['cameraModel'] = metadata['EXIF:Model'] if 'EXIF:Model' in metadata else \
                 metadata['QuickTime:Model'] if 'QuickTime:Model' in metadata else None
-            result['focalLength'] = metadata['EXIF:FocalLength'] if 'EXIF:FocalLength' in metadata else None
-            result['apertureFNumber'] = metadata['EXIF:FNumber'] if 'EXIF:FNumber' in metadata else None
-            result['isoEquivalent'] = metadata['EXIF:ISO'] if 'EXIF:ISO' in metadata else None
-            result['exposureTime'] = metadata['EXIF:ExposureTime'] if 'EXIF:ExposureTime' in metadata else None
-            result['fps'] = metadata['QuickTime:VideoFrameRate'] if 'QuickTime:VideoFrameRate' in metadata else None
-            result['latitude'] = metadata['EXIF:GPSLatitude'] if 'EXIF:GPSLatitude' in metadata else \
-                metadata['Composite:GPSLatitude'] if 'Composite:GPSLatitude' in metadata else None
-            result['longitude'] = metadata['EXIF:GPSLongitude'] if 'EXIF:GPSLongitude' in metadata else \
-                metadata['Composite:GPSLongitude'] if 'Composite:GPSLongitude' in metadata else None
+            result['focalLength'] = str(
+                metadata['EXIF:FocalLength']) if 'EXIF:FocalLength' in metadata else None
+            result['apertureFNumber'] = str(
+                metadata['EXIF:FNumber']) if 'EXIF:FNumber' in metadata else None
+            result['isoEquivalent'] = str(
+                metadata['EXIF:ISO']) if 'EXIF:ISO' in metadata else None
+            result['exposureTime'] = str(
+                metadata['EXIF:ExposureTime']) if 'EXIF:ExposureTime' in metadata else None
+            result['fps'] = str(
+                metadata['QuickTime:VideoFrameRate']) if 'QuickTime:VideoFrameRate' in metadata else None
+            result['latitude'] = float(metadata['EXIF:GPSLatitude']) if 'EXIF:GPSLatitude' in metadata else \
+                float(metadata['Composite:GPSLatitude']
+                      ) if 'Composite:GPSLatitude' in metadata else None
+            result['longitude'] = float(metadata['EXIF:GPSLongitude']) if 'EXIF:GPSLongitude' in metadata else \
+                float(metadata['Composite:GPSLongitude']
+                      ) if 'Composite:GPSLongitude' in metadata else None
     except Exception as e:
         logging.error(
             f'error extracting exif metadata for mediaitem {id}: {str(e)}')
 
-    # generate preview and thumbnail
+    # generate and upload preview and thumbnail
     try:
         preview_bytes, thumbnail_bytes = generate_preview_and_thumbnail(
             file_path, result['mimeType'])
+        preview_url = storage.upload(id, 0, preview_bytes, 'previews')
+        thumbnail_url = storage.upload(id, 0, thumbnail_bytes, 'thumbnails')
+        result['previewUrl'] = preview_url
+        result['thumbnailUrl'] = thumbnail_url
     except Exception as e:
         logging.error(
-            f'error generating preview and thumbnail for mediaitem {id}: {str(e)}')
+            f'error generating and uploading preview and thumbnail for mediaitem {id}: {str(e)}')
+        result['status'] = 'FAILED'
+        return result
 
-    # upload preview url and thumbnail url
-    preview_url = storage.upload(id, 0, preview_bytes, 'previews')
-    thumbnail_url = storage.upload(id, 0, thumbnail_bytes, 'thumbnails')
-    result['previewUrl'] = preview_url
-    result['thumbnailUrl'] = thumbnail_url
-
+    result['status'] = 'READY'
     return result
 
 
