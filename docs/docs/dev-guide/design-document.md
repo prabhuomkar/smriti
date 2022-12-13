@@ -52,14 +52,14 @@ TODO(omkar): Add database schema sql
 #### Supported File Formats
 | Type | Extension | Support |
 | ---- | --------- | ------- |
-| Photo | .BMP | ❓ |
-| Photo | .GIF | ❓ |
+| Photo | .BMP | ✅ |
+| Photo | .GIF | ✅ |
 | Photo | .HEIC | ❓ |
 | Photo | .ICO | ❓ |
-| Photo | .JPG | ❓ |
-| Photo | .PNG | ❓ |
-| Photo | .TIFF | ❓ |
-| Photo | .WEBP | ❓ |
+| Photo | .JPG | ✅ |
+| Photo | .PNG | ✅ |
+| Photo | .TIFF | ✅ |
+| Photo | .WEBP | ✅ |
 | Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ❓ |
 
 **Post Stable Release, Scope for Video**:
