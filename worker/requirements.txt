@@ -5,3 +5,4 @@ rawpy
 PyExifTool
 requests
 Pillow
+Wand
