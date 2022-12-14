@@ -24,6 +24,7 @@ type Service struct {
 }
 
 func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
+	log.Printf("%+v", req)
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
@@ -40,7 +41,6 @@ func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemM
 	mediaItem := models.MediaItem{
 		ID:              uid,
 		Status:          models.MediaItemStatus(req.Status),
-		Filename:        *req.Filename,
 		MimeType:        *req.MimeType,
 		SourceURL:       *req.SourceUrl,
 		PreviewURL:      *req.PreviewUrl,

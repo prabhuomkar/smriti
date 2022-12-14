@@ -8,6 +8,9 @@ import rawpy
 from PIL import Image as PILImage
 from wand.image import Image as WandImage
 
+from api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
+
+
 PREVIEWABLE_PHOTO_MIME_TYPES = [
     'image/bmp', 'image/gif', 'image/vnd.microsoft.icon', 'image/x-icon', 'image/ico',
     'image/icon', 'text/ico', 'application/ico', 'image/jpeg', 'image/apng',
@@ -15,13 +18,13 @@ PREVIEWABLE_PHOTO_MIME_TYPES = [
 ]
 
 
-def process_metadata(storage, id: str) -> dict:  # pylint: disable=redefined-builtin
+async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:  # pylint: disable=redefined-builtin
     """Process required metadata and generate thumbnail from EXIF data"""
-    file_path = storage.get(id)
+    file_path = storage.get(mediaitem_id)
 
     # extract metadata
     result = {}
-    result['id'] = id
+    result['id'] = mediaitem_id
     result['status'] = 'UNSPECIFIED'
     result['sourceUrl'] = file_path
     try:
@@ -29,7 +32,7 @@ def process_metadata(storage, id: str) -> dict:  # pylint: disable=redefined-bui
             metadata = et.get_metadata(file_path)[0]
             logging.debug(f'metadata for mediaitem {id}: {metadata}')
             result['mimeType'] = metadata['File:MIMEType'] if 'File:MIMEType' in metadata else None
-            result['type'] = 'image' if 'image' in metadata['File:MIMEType'] else \
+            result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
                 'video' if 'video' in metadata['File:MIMEType'] else None
             result['width'] = metadata['File:ImageWidth'] if 'File:ImageWidth' in metadata else \
                 metadata['EXIF:ExifImageWidth'] if 'EXIF:ExifImageWidth' in metadata else \
@@ -73,24 +76,46 @@ def process_metadata(storage, id: str) -> dict:  # pylint: disable=redefined-bui
                       ) if 'Composite:GPSLongitude' in metadata else None
     except Exception as e:
         logging.error(
-            f'error extracting exif metadata for mediaitem {id}: {str(e)}')
+            f'error extracting exif metadata for mediaitem {mediaitem_id}: {str(e)}')
 
     # generate and upload preview and thumbnail
     try:
         preview_bytes, thumbnail_bytes = generate_preview_and_thumbnail(
             file_path, result['mimeType'])
-        preview_url = storage.upload(id, 0, preview_bytes, 'previews')
-        thumbnail_url = storage.upload(id, 0, thumbnail_bytes, 'thumbnails')
+        preview_url = storage.upload(
+            mediaitem_id, 0, preview_bytes, 'previews')
+        thumbnail_url = storage.upload(
+            mediaitem_id, 0, thumbnail_bytes, 'thumbnails')
         result['previewUrl'] = preview_url
         result['thumbnailUrl'] = thumbnail_url
     except Exception as e:
         logging.error(
-            f'error generating and uploading preview and thumbnail for mediaitem {id}: {str(e)}')
+            f'error generating and uploading preview and thumbnail for mediaitem {mediaitem_id}: {str(e)}')
         result['status'] = 'FAILED'
         return result
 
     result['status'] = 'READY'
-    return result
+    _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
+        id=result['id'],
+        status=result['status'],
+        mimeType=result['mimeType'] if 'mimeType' in result else None,
+        sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
+        previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
+        thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
+        type=result['type'] if 'type' in result else None,
+        width=result['width'] if 'width' in result else None,
+        height=result['height'] if 'height' in result else None,
+        creationTime=result['creationTime'] if 'creationTime' in result else None,
+        cameraMake=result['cameraMake'] if 'cameraMake' in result else None,
+        cameraModel=result['cameraModel'] if 'cameraModel' in result else None,
+        focalLength=result['focalLength'] if 'focalLength' in result else None,
+        apertureFNumber=result['apertureFNumber'] if 'apertureFNumber' in result else None,
+        isoEquivalent=result['isoEquivalent'] if 'isoEquivalent' in result else None,
+        exposureTime=result['exposureTime'] if 'exposureTime' in result else None,
+        fps=result['fps'] if 'fps' in result else None,
+        latitude=result['latitude'] if 'latitude' in result else None,
+        longitude=result['longitude'] if 'longitude' in result else None,
+    ))
 
 
 def generate_thumbnail(preview_bytes: bytes):

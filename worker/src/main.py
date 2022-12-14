@@ -2,14 +2,14 @@
 import asyncio
 import logging
 import os
+from typing import AsyncIterable, Iterable
 
 import grpc
 
 from store import init_storage
 from components import process_metadata
-from api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
 from api_pb2_grpc import APIStub
-from worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
+from worker_pb2 import MediaItemProcessRequest, MediaItemProcessResponse  # pylint: disable=no-name-in-module
 from worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
@@ -20,11 +20,12 @@ class WorkerService(WorkerServicer):
         self.file_storage = file_storage
         self.api_stub = api_stub
 
-    def MediaItemProcess(self, request_iterator, context):
+    async def MediaItemProcess(self, request_iterator: AsyncIterable[
+            MediaItemProcessRequest], unused_context) -> MediaItemProcessResponse:
         """MediaItem Process"""
         mediaitem_id = None
         mediaitem_command = None
-        for mediaitem in request_iterator:
+        async for mediaitem in request_iterator:
             try:
                 self.file_storage.upload(id=mediaitem.id,
                                          offset=mediaitem.offset,
@@ -37,30 +38,9 @@ class WorkerService(WorkerServicer):
                 mediaitem_id = None
                 return MediaItemProcessResponse(ok=False)
         if mediaitem_id is not None and 'finish' in mediaitem_command:
-            result = process_metadata(
-                storage=self.file_storage, id=mediaitem_id)
-            logging.debug(result)
-            _ = self.api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
-                id=result['id'],
-                status=result['status'],
-                mimeType=result['mimeType'] if 'mimeType' in result else None,
-                sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
-                previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
-                thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
-                type=result['type'] if 'type' in result else None,
-                width=result['width'] if 'width' in result else None,
-                height=result['height'] if 'height' in result else None,
-                creationTime=result['creationTime'] if 'creationTime' in result else None,
-                cameraMake=result['cameraMake'] if 'cameraMake' in result else None,
-                cameraModel=result['cameraModel'] if 'cameraModel' in result else None,
-                focalLength=result['focalLength'] if 'focalLength' in result else None,
-                apertureFNumber=result['apertureFNumber'] if 'apertureFNumber' in result else None,
-                isoEquivalent=result['isoEquivalent'] if 'isoEquivalent' in result else None,
-                exposureTime=result['exposureTime'] if 'exposureTime' in result else None,
-                fps=result['fps'] if 'fps' in result else None,
-                latitude=result['latitude'] if 'latitude' in result else None,
-                longitude=result['longitude'] if 'longitude' in result else None,
-            ))
+            loop = asyncio.get_event_loop()
+            loop.create_task(process_metadata(
+                self.file_storage, self.api_stub, mediaitem_id))
         return MediaItemProcessResponse(ok=True)
 
 
