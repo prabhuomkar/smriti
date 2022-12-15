@@ -24,19 +24,17 @@ import (
 )
 
 var (
-	filename                    = "filename"
 	mimetype                    = "mimetype"
 	sourceurl                   = "sourceurl"
 	previewurl                  = "previewurl"
 	thumbnailurl                = "thumbnailurl"
 	mediaitemtype               = "photo"
 	badcreationtime             = "bad-creation-time"
-	creationtime                = "2022-09-22 11:22:33 +0530"
+	creationtime                = "2022-09-22 11:22:33"
 	width                 int32 = 1080
 	height                int32 = 720
 	mediaItemReultRequest       = api.MediaItemMetadataRequest{
 		Id:           "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Filename:     &filename,
 		MimeType:     &mimetype,
 		SourceUrl:    &sourceurl,
 		PreviewUrl:   &previewurl,
@@ -93,7 +91,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", "mimetype", "sourceurl", "previewurl",
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "mimetype", "sourceurl", "previewurl",
 						"thumbnailurl", "photo", 1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(),
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -107,7 +105,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", "mimetype", "sourceurl", "previewurl",
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "mimetype", "sourceurl", "previewurl",
 						"thumbnailurl", "photo", 1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(),
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
