@@ -1,4 +1,4 @@
 """Components"""
-from .utils import init_components
-from .metadata import process_metadata
-from .place import process_place
+from src.components.utils import init_components
+from src.components.metadata import process_metadata
+from src.components.place import process_place

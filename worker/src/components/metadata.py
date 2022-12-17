@@ -8,7 +8,7 @@ import rawpy
 from PIL import Image as PILImage
 from wand.image import Image as WandImage
 
-from api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
+from src.protos.api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
 
 
 PREVIEWABLE_PHOTO_MIME_TYPES = [
@@ -18,7 +18,7 @@ PREVIEWABLE_PHOTO_MIME_TYPES = [
 ]
 
 
-async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:  # pylint: disable=redefined-builtin
+async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
     """Process required metadata and generate thumbnail from EXIF data"""
     file_path = storage.get(mediaitem_id)
 

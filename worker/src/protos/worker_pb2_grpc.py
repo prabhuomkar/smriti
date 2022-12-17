@@ -2,7 +2,7 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import worker_pb2 as worker__pb2
+from src.protos import worker_pb2 as src_dot_protos_dot_worker__pb2
 
 
 class WorkerStub(object):
@@ -16,8 +16,8 @@ class WorkerStub(object):
         """
         self.MediaItemProcess = channel.stream_unary(
                 '/Worker/MediaItemProcess',
-                request_serializer=worker__pb2.MediaItemProcessRequest.SerializeToString,
-                response_deserializer=worker__pb2.MediaItemProcessResponse.FromString,
+                request_serializer=src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.SerializeToString,
+                response_deserializer=src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.FromString,
                 )
 
 
@@ -35,8 +35,8 @@ def add_WorkerServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'MediaItemProcess': grpc.stream_unary_rpc_method_handler(
                     servicer.MediaItemProcess,
-                    request_deserializer=worker__pb2.MediaItemProcessRequest.FromString,
-                    response_serializer=worker__pb2.MediaItemProcessResponse.SerializeToString,
+                    request_deserializer=src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.FromString,
+                    response_serializer=src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -60,7 +60,7 @@ class Worker(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.stream_unary(request_iterator, target, '/Worker/MediaItemProcess',
-            worker__pb2.MediaItemProcessRequest.SerializeToString,
-            worker__pb2.MediaItemProcessResponse.FromString,
+            src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.SerializeToString,
+            src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

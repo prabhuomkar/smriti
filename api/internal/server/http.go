@@ -106,8 +106,7 @@ func InitHTTPServer(handler *handlers.Handler) {
 	users.POST("", handler.CreateUser)
 
 	log.Printf("starting http api server on: %d", handler.Config.API.Port)
-	err := server.ListenAndServe()
-	if !errors.Is(err, http.ErrServerClosed) {
+	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 		panic(err)
 	}
 }

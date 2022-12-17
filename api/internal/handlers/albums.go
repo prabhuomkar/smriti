@@ -205,8 +205,7 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	}
 	album.ID = uuid.NewV4()
 	album.UserID = userID
-	result := h.DB.Create(&album)
-	if result.Error != nil {
+	if result := h.DB.Create(&album); result.Error != nil {
 		log.Printf("error creating album: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}

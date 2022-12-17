@@ -73,7 +73,7 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, "userID", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
 				_ = cache.Set(oldRToken, true)
 				return oldRToken
 			},
@@ -101,36 +101,13 @@ func TestRefreshTokens(t *testing.T) {
 			true,
 		},
 		{
-			"error caching refresh token",
+			"error converting user id from claims",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, "userID", "username")
-				_ = cache.Set(oldRToken, false)
-				return oldRToken
-			},
-			func(a interface{}, b interface{}) (interface{}, error) {
-				val, ok := b.(bool)
-				if ok && val == true {
-					return nil, errors.New("some cache error")
-				}
-				return b, nil
-			},
-			nil,
-			true,
-		},
-		{
-			"error caching access token",
-			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, "userID", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, "invalid-user-id", "username")
 				_ = cache.Set(oldRToken, true)
 				return oldRToken
 			},
-			func(a interface{}, b interface{}) (interface{}, error) {
-				val, ok := b.(bool)
-				if ok && val == true {
-					return b, nil
-				}
-				return nil, errors.New("some cache error")
-			},
+			nil,
 			nil,
 			true,
 		},
@@ -170,7 +147,7 @@ func TestRemoveTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "userID", "username")
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
 				_ = cache.Set(oldAToken, true)
 				return oldAToken
 			},
@@ -219,7 +196,7 @@ func TestVerifyToken(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "userID", "username")
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
 				_ = cache.Set(oldAToken, true)
 				return oldAToken
 			},

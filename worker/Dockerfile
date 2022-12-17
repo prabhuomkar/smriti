@@ -5,6 +5,6 @@ RUN apt update && \
     apt clean && rm -rf /var/lib/apt/lists/*
 ADD requirements.txt /requirements.txt
 RUN pip3 install --no-cache-dir -r requirements.txt
-COPY src /
+COPY src /src
 EXPOSE 15002
-CMD ["python3", "main.py"]
+CMD ["python3", "-m", "src.main"]

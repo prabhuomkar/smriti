@@ -25,6 +25,7 @@ type Test struct {
 	Header          map[string]string
 	Body            io.Reader
 	MockDB          func(mock sqlmock.Sqlmock)
+	mockCache       []func(interface{}, interface{}) (interface{}, error)
 	Handler         func(handler *Handler) func(ctx echo.Context) error
 	ExpectedResCode int
 	ExpectedResBody string
@@ -65,6 +66,13 @@ func executeTests(t *testing.T, tests []Test) {
 				test.MockDB(mock)
 			}
 			mockCache := gcache.New(1024).LRU().Build()
+			if test.mockCache != nil {
+				mockCache = gcache.New(1024).
+					LRU().
+					SerializeFunc(test.mockCache[0]).
+					DeserializeFunc(test.mockCache[1]).
+					Build()
+			}
 			for key, val := range test.Header {
 				if key == echo.HeaderAuthorization {
 					mockCache.Set(val, true)

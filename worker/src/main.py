@@ -2,15 +2,15 @@
 import asyncio
 import logging
 import os
-from typing import AsyncIterable, Iterable
+from typing import AsyncIterable
 
 import grpc
 
-from store import init_storage
-from components import process_metadata
-from api_pb2_grpc import APIStub
-from worker_pb2 import MediaItemProcessRequest, MediaItemProcessResponse  # pylint: disable=no-name-in-module
-from worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
+from src.store import init_storage
+from src.components import process_metadata
+from src.protos.api_pb2_grpc import APIStub
+from src.protos.worker_pb2 import MediaItemProcessRequest, MediaItemProcessResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
 class WorkerService(WorkerServicer):
@@ -20,6 +20,7 @@ class WorkerService(WorkerServicer):
         self.file_storage = file_storage
         self.api_stub = api_stub
 
+    # pylint: disable=invalid-overridden-method
     async def MediaItemProcess(self, request_iterator: AsyncIterable[
             MediaItemProcessRequest], unused_context) -> MediaItemProcessResponse:
         """MediaItem Process"""

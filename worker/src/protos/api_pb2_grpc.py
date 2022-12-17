@@ -2,8 +2,8 @@
 """Client and server classes corresponding to protobuf-defined services."""
 import grpc
 
-import api_pb2 as api__pb2
 from google.protobuf import empty_pb2 as google_dot_protobuf_dot_empty__pb2
+from src.protos import api_pb2 as src_dot_protos_dot_api__pb2
 
 
 class APIStub(object):
@@ -17,12 +17,12 @@ class APIStub(object):
         """
         self.SaveMediaItemMetadata = channel.unary_unary(
                 '/API/SaveMediaItemMetadata',
-                request_serializer=api__pb2.MediaItemMetadataRequest.SerializeToString,
+                request_serializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
         self.SaveMediaItemPlace = channel.unary_unary(
                 '/API/SaveMediaItemPlace',
-                request_serializer=api__pb2.MediaItemPlaceRequest.SerializeToString,
+                request_serializer=src_dot_protos_dot_api__pb2.MediaItemPlaceRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
 
@@ -47,12 +47,12 @@ def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
             'SaveMediaItemMetadata': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMediaItemMetadata,
-                    request_deserializer=api__pb2.MediaItemMetadataRequest.FromString,
+                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'SaveMediaItemPlace': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMediaItemPlace,
-                    request_deserializer=api__pb2.MediaItemPlaceRequest.FromString,
+                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemPlaceRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
@@ -77,7 +77,7 @@ class API(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemMetadata',
-            api__pb2.MediaItemMetadataRequest.SerializeToString,
+            src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
@@ -94,7 +94,7 @@ class API(object):
             timeout=None,
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemPlace',
-            api__pb2.MediaItemPlaceRequest.SerializeToString,
+            src_dot_protos_dot_api__pb2.MediaItemPlaceRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

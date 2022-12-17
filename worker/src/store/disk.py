@@ -14,18 +14,18 @@ class Disk:
         if not os.path.exists(f'{self.root}/thumbnails'):
             os.mkdir(f'{self.root}/thumbnails')
 
-    def upload(self, id: str, offset: int, content: bytes, type: str = 'originals') -> str:
+    def upload(self, mediaitem_id: str, _: int, content: bytes, mediaitem_type: str = 'originals') -> str:
         """Upload file chunks"""
-        with open(f'{self.root}/{type}/{id}', 'ab') as file_bytes:
+        with open(f'{self.root}/{mediaitem_type}/{mediaitem_id}', 'ab') as file_bytes:
             file_bytes.write(content)
-        return id
+        return f'{self.root}/{mediaitem_type}/{mediaitem_id}'
 
-    def get(self, id: str, type: str = 'originals') -> str:
+    def get(self, mediaitem_id: str, mediaitem_type: str = 'originals') -> str:
         """Get file"""
-        return f'{self.root}/{type}/{id}'
+        return f'{self.root}/{mediaitem_type}/{mediaitem_id}'
 
-    def delete(self, id: str) -> None:
+    def delete(self, mediaitem_id: str) -> None:
         """Delete file"""
-        os.remove(f'{self.root}/originals/{id}')
-        os.remove(f'{self.root}/previews/{id}')
-        os.remove(f'{self.root}/thumbnails/{id}')
+        os.remove(f'{self.root}/originals/{mediaitem_id}')
+        os.remove(f'{self.root}/previews/{mediaitem_id}')
+        os.remove(f'{self.root}/thumbnails/{mediaitem_id}')

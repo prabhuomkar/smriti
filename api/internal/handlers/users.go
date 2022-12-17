@@ -95,8 +95,7 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 		return err
 	}
 	user.ID = uuid.NewV4()
-	result := h.DB.Create(&user)
-	if result.Error != nil {
+	if result := h.DB.Create(&user); result.Error != nil {
 		log.Printf("error creating user: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -115,8 +114,7 @@ func getUserID(ctx echo.Context) (uuid.UUID, error) {
 
 func getUser(ctx echo.Context) (*models.User, error) {
 	UserRequest := new(UserRequest)
-	err := ctx.Bind(UserRequest)
-	if err != nil {
+	if err := ctx.Bind(UserRequest); err != nil {
 		log.Printf("error getting user: %+v", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user")
 	}

@@ -8,14 +8,14 @@ class AmazonS3:
         self.access_key = access_key
         self.secret_key = secret_key
 
-    def upload(self, id: str, offset: int, content: bytes) -> str:
+    def upload(self, mediaitem_id: str, offset: int, content: bytes, mediaitem_type: str = 'originals') -> str:
         """Upload file chunks"""
         raise NotImplementedError
 
-    def get(self, id: str, type: str = 'originals') -> str:
+    def get(self, mediaitem_id: str, mediaitem_type: str = 'originals') -> str:
         """Get file"""
         raise NotImplementedError
 
-    def delete(self, id: str) -> None:
+    def delete(self, mediaitem_id: str) -> None:
         """Delete file"""
         raise NotImplementedError
