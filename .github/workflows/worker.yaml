@@ -29,6 +29,13 @@ jobs:
       - run: |
           pip install pylint
           make lint
+      - run: |
+          pip install pytest pytest-cov requests-mock
+          make cover
+      - uses: codecov/codecov-action@v3
+        with:
+          token: ${{ secrets.CODECOV_TOKEN }}
+          flags: worker
   publish:
     if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
     needs: ci
