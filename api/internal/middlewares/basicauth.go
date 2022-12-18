@@ -14,7 +14,7 @@ func BasicAuthCheck(cfg *config.Config) echo.MiddlewareFunc {
 			if ok && username == cfg.Admin.Username && password == cfg.Admin.Password {
 				return next(ctx)
 			}
-			return echo.ErrForbidden
+			return echo.ErrUnauthorized
 		}
 	}
 }

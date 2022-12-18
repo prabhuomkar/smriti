@@ -19,7 +19,7 @@ import (
 	"gorm.io/gorm/logger"
 )
 
-func TestJWTCheckForbiddenWithNoToken(t *testing.T) {
+func TestJWTCheckUnauthorizedWithNoToken(t *testing.T) {
 	// handler
 	cfg := &config.Config{Feature: config.Feature{
 		Albums: true,
@@ -38,10 +38,10 @@ func TestJWTCheckForbiddenWithNoToken(t *testing.T) {
 	rec := httptest.NewRecorder()
 	server.GET("/v1/route", checkJWT(handler.GetAlbums))
 	server.ServeHTTP(rec, req)
-	assert.Equal(t, http.StatusForbidden, rec.Code)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 
-func TestJWTCheckForbiddenWithBadToken(t *testing.T) {
+func TestJWTCheckUnauthorizedWithBadToken(t *testing.T) {
 	// handler
 	cfg := &config.Config{Feature: config.Feature{
 		Albums: true,
@@ -61,7 +61,7 @@ func TestJWTCheckForbiddenWithBadToken(t *testing.T) {
 	rec := httptest.NewRecorder()
 	server.GET("/v1/route", checkJWT(handler.GetAlbums))
 	server.ServeHTTP(rec, req)
-	assert.Equal(t, http.StatusForbidden, rec.Code)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 
 func TestJWTCheckOK(t *testing.T) {

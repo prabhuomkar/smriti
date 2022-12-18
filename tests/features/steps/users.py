@@ -21,15 +21,23 @@ def step_impl(context):
     assert len(users) == 1
     context.user_id = users[0]['id']
 
-@when('get all users')
-def step_impl(context):
-    res = requests.get(API_URL+'/v1/users', auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+@when('get all users "{condition}" auth')
+def step_impl(context, condition):
+    auth = None
+    if condition == 'with':
+        auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
+    res = requests.get(API_URL+'/v1/users', auth=auth)
+    context.response = res
     context.users = res.json()
 
-@when('get user')
-def step_impl(context):
+@when('get user "{condition}" auth')
+def step_impl(context, condition):
+    auth = None
+    if condition == 'with':
+        auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
     user_id = context.user_id
-    res = requests.get(API_URL+'/v1/users/'+user_id, auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+    res = requests.get(API_URL+'/v1/users/'+user_id, auth=auth)
+    context.response = res
     context.user = res.json()
 
 @then('user is present in list')
@@ -59,35 +67,50 @@ def step_impl(context):
     assert 'password' not in context.user
     assert context.user['message'] == 'user not found'
 
-@when('create user is requested')
-def step_impl(context):
-    res = requests.post(API_URL+'/v1/users', json=created_user, auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+@when('create user "{condition}" auth')
+def step_impl(context, condition):
+    auth = None
+    if condition == 'with':
+        auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
+    res = requests.post(API_URL+'/v1/users', json=created_user, auth=auth)
+    print(res)
     context.response = res
-    context.user_id = res.json()['id']
-    context.match_user = created_user
 
-@when('update user is requested')
-def step_impl(context):
+@when('update user "{condition}" auth')
+def step_impl(context, condition):
+    auth = None
+    if condition == 'with':
+        auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
     user_id = context.user_id
-    res = requests.put(API_URL+'/v1/users/'+user_id, json=updated_user, auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+    res = requests.put(API_URL+'/v1/users/'+user_id, json=updated_user, auth=auth)
     context.response = res
-    context.match_user = updated_user
 
-@when('delete user is requested')
-def step_impl(context):
+@when('delete user "{condition}" auth')
+def step_impl(context, condition):
+    auth = None
+    if condition == 'with':
+        auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
     user_id = context.user_id
-    res = requests.delete(API_URL+'/v1/users/'+user_id, auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+    res = requests.delete(API_URL+'/v1/users/'+user_id, auth=auth)
     context.response = res
-    context.match_user = updated_user
 
 @then('user is created')
 def step_impl(context):
     assert context.response.status_code == 201
+    context.user_id = context.response.json()['id']
+    context.match_user = created_user
 
 @then('user is updated')
 def step_impl(context):
     assert context.response.status_code == 204
+    context.match_user = updated_user
 
 @then('user is deleted')
 def step_impl(context):
     assert context.response.status_code == 204
+    context.match_user = updated_user
+
+@then('auth error is found')
+def step_impl(context):
+    assert context.response.status_code == 401
+    assert context.response.json()['message'] == 'Unauthorized'
