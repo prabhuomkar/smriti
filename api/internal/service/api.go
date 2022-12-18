@@ -23,7 +23,7 @@ type Service struct {
 	DB     *gorm.DB
 }
 
-func (s *Service) SaveMediaItemResult(ctx context.Context, req *api.MediaItemResultRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
@@ -31,7 +31,7 @@ func (s *Service) SaveMediaItemResult(ctx context.Context, req *api.MediaItemRes
 	}
 	creationTime := time.Now()
 	if req.CreationTime != nil {
-		creationTime, err = time.Parse("2006-01-02 15:04:05 -0700", *req.CreationTime)
+		creationTime, err = time.Parse("2006-01-02 15:04:05", *req.CreationTime)
 		if err != nil {
 			log.Printf("error getting mediaitem creation time: %+v", err)
 			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time")
@@ -40,7 +40,6 @@ func (s *Service) SaveMediaItemResult(ctx context.Context, req *api.MediaItemRes
 	mediaItem := models.MediaItem{
 		ID:              uid,
 		Status:          models.MediaItemStatus(req.Status),
-		Filename:        *req.Filename,
 		MimeType:        *req.MimeType,
 		SourceURL:       *req.SourceUrl,
 		PreviewURL:      *req.PreviewUrl,

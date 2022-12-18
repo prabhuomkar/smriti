@@ -1,18 +1,21 @@
 run:
-	@python3 src/main.py
+	@python3 -m src.main
 
 test: 
 	@python3 -m pytest
 
 cover: 
 	@coverage run --source src -m pytest
-	@coverage report --omit=*_pb2*.py*
+	@coverage report --omit=src/protos/*,*__.py
 
 cover-html: cover
-	@coverage html --omit=*_pb2*.py*
+	@coverage html --omit=src/protos/*,*__.py
 
 lint:
-	@pylint src/*.py src/components/...
+	@pylint *
 
 proto:
-	@python3 -m grpc_tools.protoc -I../protos --python_out=./src --pyi_out=./src --grpc_python_out=./src ../protos/*.proto
+	@mkdir -p ../src/protos
+	@cp -r ../protos/* ../src/protos/
+	@python3 -m grpc_tools.protoc -I../ --python_out=./ --pyi_out=./ --grpc_python_out=./ ../src/protos/*.proto
+	@rm -rf ../src

@@ -19,7 +19,7 @@ import (
 
 var sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
 
-func TestBasicAuthCheckForbiddenWithNoAuth(t *testing.T) {
+func TestBasicAuthCheckUnauthorizedWithNoAuth(t *testing.T) {
 	// handler
 	cfg := &config.Config{Admin: config.Admin{
 		Username: "test",
@@ -37,10 +37,10 @@ func TestBasicAuthCheckForbiddenWithNoAuth(t *testing.T) {
 	rec := httptest.NewRecorder()
 	server.GET("/v1/route", checkBasicAuth(handler.GetUsers))
 	server.ServeHTTP(rec, req)
-	assert.Equal(t, http.StatusForbidden, rec.Code)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 
-func TestBasicAuthCheckForbiddenWithBadAuth(t *testing.T) {
+func TestBasicAuthCheckUnauthorizedWithBadAuth(t *testing.T) {
 	// handler
 	cfg := &config.Config{Admin: config.Admin{
 		Username: "test",
@@ -59,7 +59,7 @@ func TestBasicAuthCheckForbiddenWithBadAuth(t *testing.T) {
 	rec := httptest.NewRecorder()
 	server.GET("/v1/route", checkBasicAuth(handler.GetUsers))
 	server.ServeHTTP(rec, req)
-	assert.Equal(t, http.StatusForbidden, rec.Code)
+	assert.Equal(t, http.StatusUnauthorized, rec.Code)
 }
 
 func TestBasicAuthCheckOK(t *testing.T) {

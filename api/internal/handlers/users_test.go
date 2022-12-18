@@ -34,6 +34,7 @@ func TestGetUser(t *testing.T) {
 			map[string]string{},
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			},
@@ -51,6 +52,7 @@ func TestGetUser(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			},
@@ -68,6 +70,7 @@ func TestGetUser(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(getMockedUserRow())
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			},
@@ -85,6 +88,7 @@ func TestGetUser(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			},
@@ -105,6 +109,7 @@ func TestUpdateUser(t *testing.T) {
 			map[string]string{},
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			},
@@ -117,6 +122,7 @@ func TestUpdateUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -134,6 +140,7 @@ func TestUpdateUser(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"bad":"request"}`),
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
@@ -158,6 +165,7 @@ func TestUpdateUser(t *testing.T) {
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			},
@@ -181,6 +189,7 @@ func TestUpdateUser(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			},
@@ -199,6 +208,7 @@ func TestDeleteUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -221,6 +231,7 @@ func TestDeleteUser(t *testing.T) {
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
 			},
@@ -241,6 +252,7 @@ func TestDeleteUser(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
 			},
@@ -264,6 +276,7 @@ func TestGetUsers(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			},
@@ -281,6 +294,7 @@ func TestGetUsers(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(getMockedUserRows())
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			},
@@ -298,6 +312,7 @@ func TestGetUsers(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			},
@@ -320,6 +335,7 @@ func TestCreateUser(t *testing.T) {
 			},
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			},
@@ -332,6 +348,7 @@ func TestCreateUser(t *testing.T) {
 			"/v1/users",
 			"/v1/users",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -356,6 +373,7 @@ func TestCreateUser(t *testing.T) {
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			},
@@ -378,6 +396,7 @@ func TestCreateUser(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			},

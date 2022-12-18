@@ -23,7 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type APIClient interface {
-	SaveMediaItemResult(ctx context.Context, in *MediaItemResultRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -35,9 +35,9 @@ func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
 	return &aPIClient{cc}
 }
 
-func (c *aPIClient) SaveMediaItemResult(ctx context.Context, in *MediaItemResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *aPIClient) SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/API/SaveMediaItemResult", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemMetadata", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -57,7 +57,7 @@ func (c *aPIClient) SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRe
 // All implementations must embed UnimplementedAPIServer
 // for forward compatibility
 type APIServer interface {
-	SaveMediaItemResult(context.Context, *MediaItemResultRequest) (*empty.Empty, error)
+	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAPIServer()
 }
@@ -66,8 +66,8 @@ type APIServer interface {
 type UnimplementedAPIServer struct {
 }
 
-func (UnimplementedAPIServer) SaveMediaItemResult(context.Context, *MediaItemResultRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemResult not implemented")
+func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMetadata not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemPlace not implemented")
@@ -85,20 +85,20 @@ func RegisterAPIServer(s grpc.ServiceRegistrar, srv APIServer) {
 	s.RegisterService(&API_ServiceDesc, srv)
 }
 
-func _API_SaveMediaItemResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MediaItemResultRequest)
+func _API_SaveMediaItemMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemMetadataRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIServer).SaveMediaItemResult(ctx, in)
+		return srv.(APIServer).SaveMediaItemMetadata(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/API/SaveMediaItemResult",
+		FullMethod: "/API/SaveMediaItemMetadata",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServer).SaveMediaItemResult(ctx, req.(*MediaItemResultRequest))
+		return srv.(APIServer).SaveMediaItemMetadata(ctx, req.(*MediaItemMetadataRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -129,8 +129,8 @@ var API_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*APIServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "SaveMediaItemResult",
-			Handler:    _API_SaveMediaItemResult_Handler,
+			MethodName: "SaveMediaItemMetadata",
+			Handler:    _API_SaveMediaItemMetadata_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemPlace",

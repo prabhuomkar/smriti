@@ -4,7 +4,7 @@ info:
   description: Smarter Home for all your Photos and Videos
   version: 2022.12.31
 servers:
-  - url: https://localhost:5000/api/
+  - url: https://localhost:5001
 tags:
   - name: MediaItems
     description: Everything related to your Photos & Videos
@@ -852,8 +852,8 @@ paths:
       description: User Logout
       operationId: authLogout
       responses:
-        '200':
-          description: Success
+        '204':
+          description: No Content
         '400':
           description: Bad Request
         '401':
@@ -1231,5 +1231,4 @@ components:
     Users:
       type: array
       items:
-        $ref: '#/components/schemas/Users'
-    
+        $ref: '#/components/schemas/User'

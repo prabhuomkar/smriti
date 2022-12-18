@@ -21,7 +21,7 @@ func JWTCheck(cfg *config.Config, cache gcache.Cache) echo.MiddlewareFunc {
 				ctx.Set("username", claims.Username)
 				return next(ctx)
 			}
-			return echo.ErrForbidden
+			return echo.ErrUnauthorized
 		}
 	}
 }

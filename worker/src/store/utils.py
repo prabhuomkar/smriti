@@ -1,12 +1,11 @@
 """Storage Utils"""
 import os
 
-from store.disk import Disk
-from store.amazons3 import AmazonS3
+from src.store.disk import Disk
 
 
-def init_storage(name: str) -> AmazonS3 | Disk:
+def init_storage(name: str) -> None | Disk:
     """Initialize storage by name"""
     if name == 'amazons3':
-        return AmazonS3()
-    return Disk(root=os.getenv('PENSIEVE_WORKER_STORAGE_ROOT', '/storage'))
+        return None
+    return Disk(root=os.getenv('PENSIEVE_STORAGE_ROOT', '../storage'))

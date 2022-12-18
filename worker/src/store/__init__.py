@@ -1,2 +1,2 @@
 """Storage"""
-from .utils import init_storage
+from src.store.utils import init_storage

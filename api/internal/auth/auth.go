@@ -8,6 +8,7 @@ import (
 
 	"github.com/bluele/gcache"
 	"github.com/golang-jwt/jwt/v4"
+	uuid "github.com/satori/go.uuid"
 )
 
 type (
@@ -39,8 +40,7 @@ func GetTokens(cfg *config.Config, cache gcache.Cache, user models.User) (string
 
 // RefreshTokens ...
 func RefreshTokens(cfg *config.Config, cache gcache.Cache, refreshToken string) (string, string, error) {
-	_, err := cache.Get(refreshToken)
-	if err != nil {
+	if _, err := cache.Get(refreshToken); err != nil {
 		log.Printf("error getting refresh token from cache: %+v", err)
 		return "", "", err
 	}
@@ -51,20 +51,13 @@ func RefreshTokens(cfg *config.Config, cache gcache.Cache, refreshToken string) 
 		return "", "", err
 	}
 
-	newAccessToken, newRefreshToken := GetAccessAndRefreshTokens(cfg, claims.ID, claims.Username)
-
-	setRefreshErr := cache.SetWithExpire(newRefreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
-	if setRefreshErr != nil {
-		log.Printf("error caching refresh token: %+v", setRefreshErr)
-		return "", "", setRefreshErr
-	}
-	setAccessErr := cache.SetWithExpire(newAccessToken, refreshToken, time.Duration(cfg.Auth.AccessTTL)*time.Second)
-	if setAccessErr != nil {
-		log.Printf("error caching refresh token: %+v", setAccessErr)
-		return "", "", setAccessErr
+	userID, err := uuid.FromString(claims.ID)
+	if err != nil {
+		log.Printf("error converting user id from claims: %+v", err)
+		return "", "", err
 	}
 
-	return newAccessToken, newRefreshToken, nil
+	return GetTokens(cfg, cache, models.User{ID: userID, Username: claims.Username})
 }
 
 // RemoveTokens ...
@@ -83,8 +76,7 @@ func RemoveTokens(cfg *config.Config, cache gcache.Cache, accessToken string) er
 
 // VerifyToken ...
 func VerifyToken(cfg *config.Config, cache gcache.Cache, accessToken string) (*TokenClaims, error) {
-	_, err := cache.Get(accessToken)
-	if err != nil {
+	if _, err := cache.Get(accessToken); err != nil {
 		log.Printf("error getting access token from cache: %+v", err)
 		return nil, err
 	}

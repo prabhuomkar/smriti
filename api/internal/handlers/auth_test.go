@@ -25,6 +25,7 @@ func TestLogin(t *testing.T) {
 			},
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -37,6 +38,7 @@ func TestLogin(t *testing.T) {
 			"/v1/auth/login",
 			"/v1/auth/login",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -54,6 +56,7 @@ func TestLogin(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"username":"username"}`),
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
@@ -74,6 +77,7 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(getMockedUserRow())
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -93,6 +97,7 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -112,18 +117,48 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
 			http.StatusInternalServerError,
 			`{"message":"some db error"}`,
 		},
+		{
+			"login with error getting tokens",
+			http.MethodPost,
+			"/v1/auth/login",
+			"/v1/auth/login",
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"username":"username","password":"password"}`),
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
+					WillReturnRows(getMockedUserRow())
+			},
+			[]func(interface{}, interface{}) (interface{}, error){
+				func(a interface{}, b interface{}) (interface{}, error) {
+					val, ok := b.(bool)
+					if ok && val == true {
+						return b, nil
+					}
+					return nil, errors.New("some cache error")
+				},
+				nil,
+			},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Login
+			},
+			http.StatusInternalServerError,
+			`{"message":"error getting tokens"}`,
+		},
 	}
 	executeTests(t, tests)
 }
 
 func TestRefresh(t *testing.T) {
-	_, rtoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}}, "id", "username")
+	_, rtoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}}, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
 	tests := []Test{
 		{
 			"refresh with success",
@@ -133,6 +168,7 @@ func TestRefresh(t *testing.T) {
 			map[string]string{
 				echo.HeaderAuthorization: rtoken,
 			},
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -149,6 +185,7 @@ func TestRefresh(t *testing.T) {
 			map[string]string{},
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Refresh
 			},
@@ -160,7 +197,7 @@ func TestRefresh(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	_, atoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}}, "id", "username")
+	_, atoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}}, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
 	tests := []Test{
 		{
 			"logout with success",
@@ -170,6 +207,7 @@ func TestLogout(t *testing.T) {
 			map[string]string{
 				echo.HeaderAuthorization: atoken,
 			},
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {

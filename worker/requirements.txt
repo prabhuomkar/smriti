@@ -4,3 +4,5 @@ grpcio-tools
 rawpy
 PyExifTool
 requests
+Pillow
+Wand
