@@ -28,8 +28,7 @@ class WorkerService(WorkerServicer):
         mediaitem_command = None
         async for mediaitem in request_iterator:
             try:
-                self.file_storage.upload(id=mediaitem.id,
-                                         offset=mediaitem.offset,
+                self.file_storage.upload(mediaitem_id=mediaitem.id,
                                          content=mediaitem.content)
                 mediaitem_id = mediaitem.id
                 mediaitem_command = mediaitem.command
@@ -51,7 +50,7 @@ async def serve() -> None:
     file_storage = init_storage(os.getenv('PENSIEVE_STORAGE', 'disk'))
 
     # initialize grpc client
-    api_host = os.getenv('PENSIEVE_API_HOST', 'localhost')
+    api_host = os.getenv('PENSIEVE_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('PENSIEVE_API_PORT', '15001'))
     api_channel = grpc.insecure_channel(f'{api_host}:{api_port}')
     api_stub = APIStub(api_channel)

@@ -14,7 +14,7 @@ class Disk:
         if not os.path.exists(f'{self.root}/thumbnails'):
             os.mkdir(f'{self.root}/thumbnails')
 
-    def upload(self, mediaitem_id: str, _: int, content: bytes, mediaitem_type: str = 'originals') -> str:
+    def upload(self, mediaitem_id: str, content: bytes, mediaitem_type: str = 'originals') -> str:
         """Upload file chunks"""
         with open(f'{self.root}/{mediaitem_type}/{mediaitem_id}', 'ab') as file_bytes:
             file_bytes.write(content)

@@ -12,8 +12,8 @@ func TestGetFeatures(t *testing.T) {
 		{
 			"get features",
 			http.MethodGet,
-			"/v1/features",
-			"/v1/features",
+			"/features",
+			"/features",
 			map[string]string{},
 			nil,
 			nil,

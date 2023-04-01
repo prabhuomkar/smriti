@@ -1,5 +1,5 @@
 build: 
-	@go build -o api .
+	@go build -o api --ldflags="-X 'api/internal/models.DefaultVersion=$(VERSION)' -X 'api/internal/models.DefaultGitSHA=$(shell git rev-parse HEAD)'"
 
 run: build
 	@./api

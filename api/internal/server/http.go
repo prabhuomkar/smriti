@@ -24,8 +24,9 @@ func InitHTTPServer(handler *handlers.Handler) {
 	}
 	// routes
 	// work(omkar): do this in a better way
+	srvHandler.GET("/version", handler.GetVersion)
+	srvHandler.GET("/features", handler.GetFeatures)
 	version1 := srvHandler.Group("/v1")
-	version1.GET("/features", handler.GetFeatures)
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
 	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces,
@@ -36,10 +37,14 @@ func InitHTTPServer(handler *handlers.Handler) {
 		getMiddlewareFuncs(handler.Config, handler.Cache, "people")...)
 	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums,
 		getMiddlewareFuncs(handler.Config, handler.Cache, "albums")...)
-	mediaItems.GET("/:id", handler.GetMediaItem)
-	mediaItems.PUT("/:id", handler.UpdateMediaItem)
-	mediaItems.DELETE("/:id", handler.DeleteMediaItem)
-	mediaItems.GET("", handler.GetMediaItems)
+	mediaItems.GET("/:id", handler.GetMediaItem,
+		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+	mediaItems.PUT("/:id", handler.UpdateMediaItem,
+		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+	mediaItems.DELETE("/:id", handler.DeleteMediaItem,
+		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+	mediaItems.GET("", handler.GetMediaItems,
+		getMiddlewareFuncs(handler.Config, handler.Cache)...)
 	mediaItems.POST("", handler.UploadMediaItems,
 		getMiddlewareFuncs(handler.Config, handler.Cache)...)
 	// library

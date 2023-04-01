@@ -30,7 +30,8 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
     try:
         with exiftool.ExifToolHelper() as et:
             metadata = et.get_metadata(file_path)[0]
-            logging.debug(f'metadata for mediaitem {id}: {metadata}')
+            logging.debug(f'metadata for mediaitem {mediaitem_id}: {metadata}')
+            # work(omkar): do this is in cleaner way
             result['mimeType'] = metadata['File:MIMEType'] if 'File:MIMEType' in metadata else None
             result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
                 'video' if 'video' in metadata['File:MIMEType'] else None
@@ -51,8 +52,12 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
                 metadata['QuickTime:CreateDate'] if 'QuickTime:CreateDate' in metadata else \
                 metadata['QuickTime:TrackModifyDate'] if 'QuickTime:TrackModifyDate' in metadata else \
                 metadata['QuickTime:MediaCreateDate'] if 'QuickTime:MediaCreateDate' in metadata else \
-                metadata['QuickTime:CreationDate'] if 'QuickTime:CreationDate' in metadata else None
-            result['creationTime'] = datetime.datetime.strptime(result['creationTime'], '%Y:%m:%d %H:%M:%S').replace(
+                metadata['QuickTime:CreationDate'] if 'QuickTime:CreationDate' in metadata else \
+                metadata['File:FileModifyDate'] if 'File:FileModifyDate' in metadata else \
+                metadata['File:FileAccessDate'] if 'File:FileAccessDate' in metadata else \
+                metadata['File:FileInodeChangeDate'] if 'File:FileInodeChangeDate' in metadata else None
+            # work(omkar): handle timezone when "its time" :P
+            result['creationTime'] = datetime.datetime.strptime(result['creationTime'].split("+")[0], '%Y:%m:%d %H:%M:%S').replace(
                 tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
             result['cameraMake'] = metadata['EXIF:Make'] if 'EXIF:Make' in metadata else \
                 metadata['QuickTime:Make'] if 'QuickTime:Make' in metadata else None
@@ -74,25 +79,37 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
             result['longitude'] = float(metadata['EXIF:GPSLongitude']) if 'EXIF:GPSLongitude' in metadata else \
                 float(metadata['Composite:GPSLongitude']
                       ) if 'Composite:GPSLongitude' in metadata else None
+            logging.debug(f'extracted metadata for mediaitem {mediaitem_id}: {result}')
     except Exception as e:
         logging.error(
             f'error extracting exif metadata for mediaitem {mediaitem_id}: {str(e)}')
+        result['status'] = 'FAILED'
+        _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
+            id=result['id'],
+            status=result['status']
+        ))
+        return None
 
     # generate and upload preview and thumbnail
     try:
         preview_bytes, thumbnail_bytes = generate_preview_and_thumbnail(
             file_path, result['mimeType'])
         preview_url = storage.upload(
-            mediaitem_id, 0, preview_bytes, 'previews')
+            mediaitem_id, preview_bytes, 'previews')
         thumbnail_url = storage.upload(
-            mediaitem_id, 0, thumbnail_bytes, 'thumbnails')
+            mediaitem_id, thumbnail_bytes, 'thumbnails')
         result['previewUrl'] = preview_url
         result['thumbnailUrl'] = thumbnail_url
+        logging.debug(f'extracted preview and thumbnail for mediaitem {mediaitem_id}: {result}')
     except Exception as e:
         logging.error(
             f'error generating and uploading preview and thumbnail for mediaitem {mediaitem_id}: {str(e)}')
         result['status'] = 'FAILED'
-        return result
+        _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
+            id=result['id'],
+            status=result['status']
+        ))
+        return None
 
     result['status'] = 'READY'
     _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
@@ -116,6 +133,7 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
         latitude=result['latitude'] if 'latitude' in result else None,
         longitude=result['longitude'] if 'longitude' in result else None,
     ))
+    logging.info(f'processed metadata for mediaitem {mediaitem_id}')
 
 
 def generate_thumbnail(preview_bytes: bytes):

@@ -19,6 +19,7 @@ services:
       PENSIEVE_DATABASE_NAME: pensieve
       PENSIEVE_WORKER_HOST: worker
       PENSIEVE_WORKER_PORT: 15002
+      PENSIEVE_LOG_LEVEL: DEBUG
   worker:
     build: worker
     restart: always
@@ -28,11 +29,12 @@ services:
     environment:
       PENSIEVE_API_HOST: api
       PENSIEVE_API_PORT: 15001
+      PENSIEVE_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
   # infra services
   database:
-    image: postgres:14
+    image: postgres:15
     restart: always
     container_name: database
     environment:

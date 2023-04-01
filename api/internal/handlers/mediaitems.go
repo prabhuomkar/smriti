@@ -231,6 +231,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	defer openedFile.Close()
 
 	if strings.Contains(command, "start") {
+		// work(omkar): better way to get file name
 		mediaItem := createNewMediaItem(userID, file.Filename)
 		result := h.DB.Create(&mediaItem)
 		if result.Error != nil {
@@ -294,6 +295,7 @@ func sendFileToWorker(workerClient worker.WorkerClient, fileID, command string, 
 	}
 
 	if !res.Ok {
+		log.Println("error due to bad response from worker")
 		return echo.NewHTTPError(http.StatusInternalServerError, "error uploading mediaitem")
 	}
 
