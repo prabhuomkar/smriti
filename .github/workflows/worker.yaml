@@ -20,8 +20,8 @@ jobs:
       run:
         working-directory: ./worker
     steps:
-      - uses: actions/checkout@v2
-      - uses: actions/setup-python@v2
+      - uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
         with:
           python-version: '3.x'
       - run: python -c "import sys; print(sys.version)"
@@ -45,7 +45,7 @@ jobs:
       run:
         working-directory: ./worker
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
@@ -61,7 +61,7 @@ jobs:
       run:
         working-directory: ./worker
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v3
       - uses: superfly/flyctl-actions/setup-flyctl@master
         with:
           args: latest
