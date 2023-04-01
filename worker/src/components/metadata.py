@@ -57,8 +57,9 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
                 metadata['File:FileAccessDate'] if 'File:FileAccessDate' in metadata else \
                 metadata['File:FileInodeChangeDate'] if 'File:FileInodeChangeDate' in metadata else None
             # work(omkar): handle timezone when "its time" :P
-            result['creationTime'] = datetime.datetime.strptime(result['creationTime'].split("+")[0], '%Y:%m:%d %H:%M:%S').replace(
-                tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S')
+            creationTime = result['creationTime'].split("+")[0] if result['creationTime'] else None
+            result['creationTime'] = datetime.datetime.strptime(creationTime, '%Y:%m:%d %H:%M:%S').replace(
+                tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creationTime else None
             result['cameraMake'] = metadata['EXIF:Make'] if 'EXIF:Make' in metadata else \
                 metadata['QuickTime:Make'] if 'QuickTime:Make' in metadata else None
             result['cameraModel'] = metadata['EXIF:Model'] if 'EXIF:Model' in metadata else \
@@ -140,11 +141,11 @@ def generate_thumbnail(preview_bytes: bytes):
     """Generate thumbnail image"""
     with WandImage(blob=preview_bytes) as img:
         if img.size[0] > img.size[1]:
-            wpercent = (512/float(img.size[0]))
+            wpercent = 512/float(img.size[0])
             hsize = int((float(img.size[1])*float(wpercent)))
             img.resize(512, hsize)
         else:
-            hpercent = (512/float(img.size[1]))
+            hpercent = 512/float(img.size[1])
             wsize = int((float(img.size[0])*float(hpercent)))
             img.resize(wsize, 512)
         with img.convert('jpeg') as converted:

@@ -1,5 +1,6 @@
 package models
 
+// nolint:gochecknoglobals
 var (
 	DefaultVersion = "dev"
 	DefaultGitSHA  = "-"
@@ -9,7 +10,7 @@ type (
 	// Version ...
 	Version struct {
 		Version string `json:"version"`
-		GitSHA  string `json:"gitSHA"`
+		GitSHA  string `json:"gitSha"`
 	}
 )
 

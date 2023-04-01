@@ -175,7 +175,7 @@ func TestRemoveTokens(t *testing.T) {
 				DeserializeFunc(test.DeserializeFunc).
 				Build()
 			oldAToken := test.Token(cfg, cache)
-			err := RemoveTokens(cfg, cache, oldAToken)
+			err := RemoveTokens(cache, oldAToken)
 			if test.WantErr {
 				assert.NotNil(t, err)
 			} else {

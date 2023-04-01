@@ -75,7 +75,7 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 func (h *Handler) Logout(ctx echo.Context) error {
 	accessToken := ctx.Request().Header.Get("Authorization")
 	accessToken = strings.ReplaceAll(accessToken, "Bearer ", "")
-	_ = auth.RemoveTokens(h.Config, h.Cache, accessToken)
+	_ = auth.RemoveTokens(h.Cache, accessToken)
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 

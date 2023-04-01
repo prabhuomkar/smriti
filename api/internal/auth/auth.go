@@ -61,7 +61,7 @@ func RefreshTokens(cfg *config.Config, cache gcache.Cache, refreshToken string) 
 }
 
 // RemoveTokens ...
-func RemoveTokens(cfg *config.Config, cache gcache.Cache, accessToken string) error {
+func RemoveTokens(cache gcache.Cache, accessToken string) error {
 	refreshToken, err := cache.Get(accessToken)
 	if err != nil {
 		log.Printf("error getting access token from cache: %+v", err)

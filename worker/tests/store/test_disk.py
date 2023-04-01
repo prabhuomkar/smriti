@@ -14,6 +14,6 @@ def test_disk_success(mock_mkdir, mock_open, mock_remove):
     f = mock_remove.return_value
     f.method.return_value = None
     disk = Disk(root='.')
-    assert disk.upload('mediaitem_id', 0, None, 'previews') == './previews/mediaitem_id'
+    assert disk.upload('mediaitem_id', None, 'previews') == './previews/mediaitem_id'
     assert disk.get('mediaitem_id', 'thumbnails') == './thumbnails/mediaitem_id'
     assert disk.delete('') == None
