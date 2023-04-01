@@ -16,8 +16,8 @@ git clone git@github.com:prabhuomkar/pensieve.git
 ## Setup
 
 ### API
-- Install [Golang 1.18](https://go.dev/dl/) or above
-- Install [golangci-lint 1.49.0](https://golangci-lint.run/) or above
+- Install [Golang 1.20](https://go.dev/dl/) or above
+- Install [golangci-lint 1.52.0](https://golangci-lint.run/) or above
 - Run the following command to finish your API setup
 ```
 make setup-api

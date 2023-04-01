@@ -22,7 +22,7 @@
 | Albums | ✅ |
 | Photo Map | ✅ |
 | Multiple User Support | ✅ |
-| EXIF Data | 🚧 |
+| EXIF Data | ✅  |
 | Photo Discovery | 🚧 |
 | Object/Face Recognition | 🚧 |
 | Photo Search | 🚧 |
