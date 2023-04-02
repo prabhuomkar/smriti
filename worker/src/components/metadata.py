@@ -8,17 +8,19 @@ import rawpy
 from PIL import Image as PILImage
 from wand.image import Image as WandImage
 
+from src.components.utils import grpc_save_mediaitem_metadata, getval_from_dict
+from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
 
 
 PREVIEWABLE_PHOTO_MIME_TYPES = [
-    'image/bmp', 'image/gif', 'image/vnd.microsoft.icon', 'image/x-icon', 'image/ico',
-    'image/icon', 'text/ico', 'application/ico', 'image/jpeg', 'image/apng',
-    'image/png', 'image/tiff', 'image/svg+xml', 'image/webp', 'image/avif',
+    'image/avif', 'image/bmp', 'image/gif', 'image/vnd.microsoft.icon', 'image/x-icon',
+    'image/icon', 'image/jpeg', 'image/x-citrix-jpeg', 'image/pjpeg',
+    'image/apng', 'image/x-png', 'image/x-citrix-png', 'image/png', 'image/tiff',
+    'image/svg+xml', 'image/webp', 'image/heic', 'image/heif',
 ]
 
-
-async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
+async def process_metadata(storage, api_stub: APIStub, mediaitem_id: str) -> None:
     """Process required metadata and generate thumbnail from EXIF data"""
     file_path = storage.get(mediaitem_id)
 
@@ -32,63 +34,45 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
             metadata = et.get_metadata(file_path)[0]
             logging.debug(f'metadata for mediaitem {mediaitem_id}: {metadata}')
             # work(omkar): do this is in cleaner way
-            result['mimeType'] = metadata['File:MIMEType'] if 'File:MIMEType' in metadata else None
+            result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
             result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
                 'video' if 'video' in metadata['File:MIMEType'] else None
-            result['width'] = metadata['File:ImageWidth'] if 'File:ImageWidth' in metadata else \
-                metadata['EXIF:ExifImageWidth'] if 'EXIF:ExifImageWidth' in metadata else \
-                metadata['QuickTime:ImageWidth'] if 'QuickTime:ImageWidth' in metadata else \
-                metadata['QuickTime:SourceImageWidth'] if 'QuickTime:SourceImageWidth' in metadata else None
-            result['height'] = metadata['File:ImageHeight'] if 'File:ImageHeight' in metadata else \
-                metadata['EXIF:ExifImageHeight'] if 'EXIF:ExifImageHeight' in metadata else \
-                metadata['QuickTime:ImageHeight'] if 'QuickTime:ImageHeight' in metadata else \
-                metadata['QuickTime:SourceImageHeight'] if 'QuickTime:SourceImageHeight' in metadata else None
-            result['creationTime'] = metadata['EXIF:DateTimeOriginal'] if 'EXIF:DateTimeOriginal' in metadata else \
-                metadata['EXIF:CreateDate'] if 'EXIF:CreateDate' in metadata else \
-                metadata['XMP:CreateDate'] if 'XMP:CreateDate' in metadata else \
-                metadata['XMP:DateCreated'] if 'XMP:DateCreated' in metadata else \
-                metadata['Composite:SubSecCreateDate'] if 'Composite:SubSecCreateDate' in metadata else \
-                metadata['Composite:SubSecDateTimeOriginal'] if 'Composite:SubSecDateTimeOriginal' in metadata else \
-                metadata['QuickTime:CreateDate'] if 'QuickTime:CreateDate' in metadata else \
-                metadata['QuickTime:TrackModifyDate'] if 'QuickTime:TrackModifyDate' in metadata else \
-                metadata['QuickTime:MediaCreateDate'] if 'QuickTime:MediaCreateDate' in metadata else \
-                metadata['QuickTime:CreationDate'] if 'QuickTime:CreationDate' in metadata else \
-                metadata['File:FileModifyDate'] if 'File:FileModifyDate' in metadata else \
-                metadata['File:FileAccessDate'] if 'File:FileAccessDate' in metadata else \
-                metadata['File:FileInodeChangeDate'] if 'File:FileInodeChangeDate' in metadata else None
+            result['width'] = getval_from_dict(metadata, ['File:ImageWidth', 'EXIF:ExifImageWidth', \
+                                        'QuickTime:ImageWidth', 'QuickTime:SourceImageWidth'], return_type='int')
+            result['height'] = getval_from_dict(metadata, ['File:ImageHeight', 'EXIF:ExifImageHeight', \
+                                        'QuickTime:ImageHeight', 'QuickTime:SourceImageHeight'], return_type='int')
+            result['creationTime'] = getval_from_dict(metadata, ['EXIF:DateTimeOriginal', 'EXIF:CreateDate', \
+                                        'XMP:CreateDate', 'XMP:DateCreated', 'Composite:SubSecCreateDate', \
+                                        'Composite:SubSecDateTimeOriginal', 'QuickTime:CreateDate', \
+                                        'QuickTime:TrackModifyDate', 'QuickTime:MediaCreateDate', \
+                                        'QuickTime:CreationDate', 'File:FileModifyDate', \
+                                        'File:FileAccessDate', 'File:FileInodeChangeDate'])
             # work(omkar): handle timezone when "its time" :P
             creationTime = result['creationTime'].split("+")[0] if result['creationTime'] else None
             result['creationTime'] = datetime.datetime.strptime(creationTime, '%Y:%m:%d %H:%M:%S').replace(
                 tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creationTime else None
-            result['cameraMake'] = metadata['EXIF:Make'] if 'EXIF:Make' in metadata else \
-                metadata['QuickTime:Make'] if 'QuickTime:Make' in metadata else None
-            result['cameraModel'] = metadata['EXIF:Model'] if 'EXIF:Model' in metadata else \
-                metadata['QuickTime:Model'] if 'QuickTime:Model' in metadata else None
-            result['focalLength'] = str(
-                metadata['EXIF:FocalLength']) if 'EXIF:FocalLength' in metadata else None
-            result['apertureFNumber'] = str(
-                metadata['EXIF:FNumber']) if 'EXIF:FNumber' in metadata else None
-            result['isoEquivalent'] = str(
-                metadata['EXIF:ISO']) if 'EXIF:ISO' in metadata else None
-            result['exposureTime'] = str(
-                metadata['EXIF:ExposureTime']) if 'EXIF:ExposureTime' in metadata else None
-            result['fps'] = str(
-                metadata['QuickTime:VideoFrameRate']) if 'QuickTime:VideoFrameRate' in metadata else None
-            result['latitude'] = float(metadata['EXIF:GPSLatitude']) if 'EXIF:GPSLatitude' in metadata else \
-                float(metadata['Composite:GPSLatitude']
-                      ) if 'Composite:GPSLatitude' in metadata else None
-            result['longitude'] = float(metadata['EXIF:GPSLongitude']) if 'EXIF:GPSLongitude' in metadata else \
-                float(metadata['Composite:GPSLongitude']
-                      ) if 'Composite:GPSLongitude' in metadata else None
+            result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
+            result['cameraModel'] = getval_from_dict(metadata, ['EXIF:Model', 'QuickTime:Model'])
+            result['focalLength'] = getval_from_dict(metadata, ['EXIF:FocalLength'])
+            result['apertureFNumber'] = getval_from_dict(metadata, ['EXIF:FNumber'])
+            result['isoEquivalent'] = getval_from_dict(metadata, ['EXIF:ISO'])
+            result['exposureTime'] = getval_from_dict(metadata, ['EXIF:ExposureTime'])
+            result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'])
+            result['latitude'] = getval_from_dict(metadata, ['EXIF:GPSLatitude', \
+                                                             'Composite:GPSLatitude'], return_type='float')
+            result['longitude'] = getval_from_dict(metadata, ['EXIF:GPSLongitude', \
+                                                              'Composite:GPSLongitude'], return_type='float')
             logging.debug(f'extracted metadata for mediaitem {mediaitem_id}: {result}')
     except Exception as e:
         logging.error(
             f'error extracting exif metadata for mediaitem {mediaitem_id}: {str(e)}')
         result['status'] = 'FAILED'
-        _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
+        mediaItemMetadataRequest = MediaItemMetadataRequest(
             id=result['id'],
-            status=result['status']
-        ))
+            status=result['status'],
+            sourceUrl=result['sourceUrl'],
+        )
+        grpc_save_mediaitem_metadata(api_stub, mediaItemMetadataRequest)
         return None
 
     # generate and upload preview and thumbnail
@@ -106,14 +90,30 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
         logging.error(
             f'error generating and uploading preview and thumbnail for mediaitem {mediaitem_id}: {str(e)}')
         result['status'] = 'FAILED'
-        _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
+        mediaItemMetadataRequest = MediaItemMetadataRequest(
             id=result['id'],
-            status=result['status']
-        ))
+            status=result['status'],
+            mimeType=result['mimeType'] if 'mimeType' in result else None,
+            sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
+            type=result['type'] if 'type' in result else None,
+            width=result['width'] if 'width' in result else None,
+            height=result['height'] if 'height' in result else None,
+            creationTime=result['creationTime'] if 'creationTime' in result else None,
+            cameraMake=result['cameraMake'] if 'cameraMake' in result else None,
+            cameraModel=result['cameraModel'] if 'cameraModel' in result else None,
+            focalLength=result['focalLength'] if 'focalLength' in result else None,
+            apertureFNumber=result['apertureFNumber'] if 'apertureFNumber' in result else None,
+            isoEquivalent=result['isoEquivalent'] if 'isoEquivalent' in result else None,
+            exposureTime=result['exposureTime'] if 'exposureTime' in result else None,
+            fps=result['fps'] if 'fps' in result else None,
+            latitude=result['latitude'] if 'latitude' in result else None,
+            longitude=result['longitude'] if 'longitude' in result else None,
+        )
+        grpc_save_mediaitem_metadata(api_stub, mediaItemMetadataRequest)
         return None
 
     result['status'] = 'READY'
-    _ = api_stub.SaveMediaItemMetadata(MediaItemMetadataRequest(
+    mediaItemMetadataRequest = MediaItemMetadataRequest(
         id=result['id'],
         status=result['status'],
         mimeType=result['mimeType'] if 'mimeType' in result else None,
@@ -133,12 +133,14 @@ async def process_metadata(storage, api_stub, mediaitem_id: str) -> None:
         fps=result['fps'] if 'fps' in result else None,
         latitude=result['latitude'] if 'latitude' in result else None,
         longitude=result['longitude'] if 'longitude' in result else None,
-    ))
+    )
+    grpc_save_mediaitem_metadata(api_stub, mediaItemMetadataRequest)
     logging.info(f'processed metadata for mediaitem {mediaitem_id}')
 
 
 def generate_thumbnail(preview_bytes: bytes):
     """Generate thumbnail image"""
+    # work(omkar): thumbnail size should be configurable through UI
     with WandImage(blob=preview_bytes) as img:
         if img.size[0] > img.size[1]:
             wpercent = 512/float(img.size[0])

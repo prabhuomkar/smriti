@@ -53,6 +53,12 @@ async def serve() -> None:
     api_host = os.getenv('PENSIEVE_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('PENSIEVE_API_PORT', '15001'))
     api_channel = grpc.insecure_channel(f'{api_host}:{api_port}')
+    future = grpc.channel_ready_future(api_channel)
+    try:
+        future.result(timeout=int(os.getenv('PENSIEVE_API_TIMEOUT', '10')))
+        logging.info("grpc channel for api is ready")
+    except grpc.FutureTimeoutError:
+        logging.error("error as timed out waiting for grpc channel for api")
     api_stub = APIStub(api_channel)
 
     # initialize grpc server

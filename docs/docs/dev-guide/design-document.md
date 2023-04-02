@@ -54,13 +54,13 @@ TODO(omkar): Add database schema sql
 | ---- | --------- | ------- |
 | Photo | .BMP | ✅ |
 | Photo | .GIF | ✅ |
-| Photo | .HEIC | ❓ |
+| Photo | .HEIC | ✅ |
 | Photo | .ICO | ❓ |
 | Photo | .JPG | ✅ |
 | Photo | .PNG | ✅ |
 | Photo | .TIFF | ✅ |
 | Photo | .WEBP | ✅ |
-| Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ❓ |
+| Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ✅ |
 
 **Post Stable Release, Scope for Video**:
 
@@ -91,8 +91,9 @@ TODO(omkar): Add database schema sql
 interface {
     connect() // initialize connection
     reconnect() // re-establish connection
-    upload() // upload the file in chunks
+    upload() // upload the file (in chunks if required)
     delete() // delete the file
+    get() // get the file
 }
 ```
 - Out of the box incremental support for storage:

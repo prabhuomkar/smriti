@@ -23,6 +23,7 @@ type Service struct {
 	DB     *gorm.DB
 }
 
+// nolint: cyclop
 func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
@@ -40,13 +41,6 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 	mediaItem := models.MediaItem{
 		ID:              uid,
 		Status:          models.MediaItemStatus(req.Status),
-		MimeType:        *req.MimeType,
-		SourceURL:       *req.SourceUrl,
-		PreviewURL:      *req.PreviewUrl,
-		ThumbnailURL:    *req.ThumbnailUrl,
-		MediaItemType:   models.MediaItemType(*req.Type),
-		Width:           int(*req.Width),
-		Height:          int(*req.Height),
 		CreationTime:    creationTime,
 		CameraMake:      req.CameraMake,
 		CameraModel:     req.CameraModel,
@@ -58,11 +52,33 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		Latitude:        req.Latitude,
 		Longitude:       req.Longitude,
 	}
+	if req.MimeType != nil {
+		mediaItem.MimeType = *req.MimeType
+	}
+	if req.SourceUrl != nil {
+		mediaItem.SourceURL = *req.SourceUrl
+	}
+	if req.PreviewUrl != nil {
+		mediaItem.PreviewURL = *req.PreviewUrl
+	}
+	if req.ThumbnailUrl != nil {
+		mediaItem.ThumbnailURL = *req.ThumbnailUrl
+	}
+	if req.Type != nil {
+		mediaItem.MediaItemType = models.MediaItemType(*req.Type)
+	}
+	if req.Width != nil {
+		mediaItem.Width = int(*req.Width)
+	}
+	if req.Height != nil {
+		mediaItem.Height = int(*req.Height)
+	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating mediaitem result: %+v", result.Error)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
 	}
+	log.Printf("saved metadata for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 
@@ -95,6 +111,7 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		log.Printf("error saving mediaitem place: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
 	}
+	log.Printf("saved place for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 
