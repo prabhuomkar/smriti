@@ -6,15 +6,15 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 /** @type {import('@docusaurus/types').Config} */
 const config = {
-  title: "Pensieve",
+  title: "Carousel",
   tagline: "Smarter Home for all your Photos and Videos",
-  url: "https://pensieve-docs.vercel.app",
+  url: "https://carousel-docs.vercel.app",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
   organizationName: "prabhuomkar",
-  projectName: "pensieve",
+  projectName: "carousel",
   i18n: {
     defaultLocale: "en",
     locales: ["en"],
@@ -37,9 +37,9 @@ const config = {
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
     ({
       navbar: {
-        title: "Pensieve",
+        title: "Carousel",
         logo: {
-          alt: "Pensieve Logo",
+          alt: "Carousel Logo",
           src: "img/logo.svg",
         },
         items: [
@@ -50,7 +50,7 @@ const config = {
             label: "Documentation",
           },
           {
-            href: "https://github.com/prabhuomkar/pensieve",
+            href: "https://github.com/prabhuomkar/carousel",
             label: "GitHub",
             position: "right",
           },
@@ -58,7 +58,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `Copyright © ${new Date().getFullYear()} Pensieve. Built with ❤️ in India.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Carousel. Built with ❤️ in India.`,
       },
       prism: {
         theme: lightCodeTheme,

@@ -20,10 +20,10 @@ import (
 )
 
 const (
-	HeaderUploadType         = "X-Pensieve-Upload-Type"    // for resumable
-	HeaderUploadCommand      = "X-Pensieve-Upload-Command" // start, continue, finish
-	HeaderUploadChunkOffset  = "X-Pensieve-Upload-Chunk-Offset"
-	HeaderUploadChunkSession = "X-Pensieve-Upload-Chunk-Session"
+	HeaderUploadType         = "X-Carousel-Upload-Type"    // for resumable
+	HeaderUploadCommand      = "X-Carousel-Upload-Command" // start, continue, finish
+	HeaderUploadChunkOffset  = "X-Carousel-Upload-Chunk-Offset"
+	HeaderUploadChunkSession = "X-Carousel-Upload-Chunk-Session"
 
 	streamChunkByteSize = 1024
 )

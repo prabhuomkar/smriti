@@ -1,6 +1,6 @@
-# fly.toml file generated for pensieve-worker on 2022-09-30T22:30:52+05:30
+# fly.toml file generated for carousel-worker on 2022-09-30T22:30:52+05:30
 
-app = "pensieve-worker"
+app = "carousel-worker"
 
 [[services]]
   internal_port = 15002

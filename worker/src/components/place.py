@@ -1,6 +1,7 @@
 """Place Component"""
 import requests
 
+from src.components.utils import getval_from_dict
 
 API_URL = 'https://nominatim.openstreetmap.org/reverse.php?zoom=18&format=jsonv2&lat={lat}&lon={lon}'
 API_TIMEOUT = 60
@@ -14,9 +15,9 @@ def process_place(lat: float, lon: float) -> dict:
     body = res.json()
     address = body['address'] if 'address' in body else {}
     return dict({
-        'postcode': address['postcode'] if 'postcode' in address else None,
-        'country': address['country'] if 'country' in address else None,
-        'state': address['state'] if 'state' in address else None,
-        'city': address['city'] if 'city' in address else None,
-        'town': address['town'] if 'town' in address else None,
+        'postcode': getval_from_dict(address, ['postcode']),
+        'country': getval_from_dict(address, ['country']),
+        'state': getval_from_dict(address, ['state']),
+        'city': getval_from_dict(address, ['city']),
+        'town':  getval_from_dict(address, ['town']),
     })

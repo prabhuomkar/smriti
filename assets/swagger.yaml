@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Pensieve API
+  title: Carousel API
   description: Smarter Home for all your Photos and Videos
   version: 2023.04.30
 servers:
@@ -21,8 +21,8 @@ tags:
 paths:
   /version:
     get:
-      summary: Get version of Pensieve
-      description: Get version of Pensieve
+      summary: Get version of Carousel
+      description: Get version of Carousel
       operationId: getVersion
       responses:
         '200':
@@ -1067,10 +1067,10 @@ components:
           example: image/jpeg
         sourceUrl:
           type: string
-          example: https://cdn.pensieve/source
+          example: https://cdn.Carousel/source
         thumbnailUrl:
           type: string
-          example: https://cdn.pensieve/thumbnail
+          example: https://cdn.Carousel/thumbnail
         createdAt:
           type: string
           format: date-time

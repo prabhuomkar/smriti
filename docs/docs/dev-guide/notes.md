@@ -5,7 +5,7 @@
 - [x] API-first techniques and then build Web UI & Mobile Apps
 - [x] Demos can include: deployment on Fly, Heroku, other SaaS, hosting on Raspberry Pis and dockerized deployment on Cloud
 - [x] Logging to make sure consistency across several components
-- [x] Give a comparison of supported file formats between Google Photos and Pensieve
+- [x] Give a comparison of supported file formats between Google Photos and Carousel
 - [ ] Send email on failures to owner or some metric of daily upload success/failed
 - [x] Release Workflow in GitHub Actions, to deploy Docker images to Docker Hub Registry
 - [ ] Infra Cases: graceful shutdown of api & worker, database reconnects & grpc retry/reconnect

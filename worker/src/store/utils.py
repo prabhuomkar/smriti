@@ -8,4 +8,4 @@ def init_storage(name: str) -> None | Disk:
     """Initialize storage by name"""
     if name == 'amazons3':
         return None
-    return Disk(root=os.getenv('PENSIEVE_STORAGE_ROOT', '../storage'))
+    return Disk(root=os.getenv('CAROUSEL_STORAGE_ROOT', '../storage'))

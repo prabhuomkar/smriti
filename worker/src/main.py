@@ -47,15 +47,15 @@ class WorkerService(WorkerServicer):
 async def serve() -> None:
     """Main serve function"""
     # initialize storage
-    file_storage = init_storage(os.getenv('PENSIEVE_STORAGE', 'disk'))
+    file_storage = init_storage(os.getenv('CAROUSEL_STORAGE', 'disk'))
 
     # initialize grpc client
-    api_host = os.getenv('PENSIEVE_API_HOST', '127.0.0.1')
-    api_port = int(os.getenv('PENSIEVE_API_PORT', '15001'))
+    api_host = os.getenv('CAROUSEL_API_HOST', '127.0.0.1')
+    api_port = int(os.getenv('CAROUSEL_API_PORT', '15001'))
     api_channel = grpc.insecure_channel(f'{api_host}:{api_port}')
     future = grpc.channel_ready_future(api_channel)
     try:
-        future.result(timeout=int(os.getenv('PENSIEVE_API_TIMEOUT', '10')))
+        future.result(timeout=int(os.getenv('CAROUSEL_API_TIMEOUT', '10')))
         logging.info("grpc channel for api is ready")
     except grpc.FutureTimeoutError:
         logging.error("error as timed out waiting for grpc channel for api")
@@ -64,7 +64,7 @@ async def serve() -> None:
     # initialize grpc server
     server = grpc.aio.server()
     add_WorkerServicer_to_server(WorkerService(file_storage, api_stub), server)
-    port = int(os.getenv('PENSIEVE_WORKER_PORT', '15002'))
+    port = int(os.getenv('CAROUSEL_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')
     await server.start()
@@ -72,5 +72,5 @@ async def serve() -> None:
 
 if __name__ == '__main__':
     logging.basicConfig(level=logging.getLevelName(
-        os.getenv('PENSIEVE_LOG_LEVEL', 'INFO')))
+        os.getenv('CAROUSEL_LOG_LEVEL', 'INFO')))
     asyncio.run(serve())

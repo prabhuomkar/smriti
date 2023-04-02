@@ -12,14 +12,14 @@ services:
       - database
       - worker
     environment:
-      PENSIEVE_DATABASE_HOST: database
-      PENSIEVE_DATABASE_PORT: 5432
-      PENSIEVE_DATABASE_USERNAME: pensieve
-      PENSIEVE_DATABASE_PASSWORD: pensieve
-      PENSIEVE_DATABASE_NAME: pensieve
-      PENSIEVE_WORKER_HOST: worker
-      PENSIEVE_WORKER_PORT: 15002
-      PENSIEVE_LOG_LEVEL: DEBUG
+      CAROUSEL_DATABASE_HOST: database
+      CAROUSEL_DATABASE_PORT: 5432
+      CAROUSEL_DATABASE_USERNAME: carousel
+      CAROUSEL_DATABASE_PASSWORD: carousel
+      CAROUSEL_DATABASE_NAME: carousel
+      CAROUSEL_WORKER_HOST: worker
+      CAROUSEL_WORKER_PORT: 15002
+      CAROUSEL_LOG_LEVEL: DEBUG
   worker:
     build: worker
     restart: always
@@ -27,9 +27,9 @@ services:
     ports:
       - '15002:15002'
     environment:
-      PENSIEVE_API_HOST: api
-      PENSIEVE_API_PORT: 15001
-      PENSIEVE_LOG_LEVEL: DEBUG
+      CAROUSEL_API_HOST: api
+      CAROUSEL_API_PORT: 15001
+      CAROUSEL_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
   # infra services
@@ -38,8 +38,8 @@ services:
     restart: always
     container_name: database
     environment:
-      POSTGRES_USER: pensieve
-      POSTGRES_PASSWORD: pensieve
+      POSTGRES_USER: carousel
+      POSTGRES_PASSWORD: carousel
     ports:
       - '5432:5432'
     volumes:

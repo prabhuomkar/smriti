@@ -1,13 +1,13 @@
-# fly.toml file generated for pensieve-api on 2022-09-30T22:34:01+05:30
+# fly.toml file generated for carousel-api on 2022-09-30T22:34:01+05:30
 
-app = "pensieve-api"
+app = "carousel-api"
 
 [env]
-  PENSIEVE_WORKER_HOST = "pensieve-worker.fly.dev"
-  PENSIEVE_DATABASE_HOST = "lucky.db.elephantsql.com"
-  PENSIEVE_DATABASE_USERNAME = "ztrpncqo"
-  PENSIEVE_DATABASE_PASSWORD = "RMBXZI0DqbtOIOLfVMZFk_M6qFfrljOz"
-  PENSIEVE_DATABASE_NAME = "ztrpncqo"
+  CAROUSEL_WORKER_HOST = "carousel-worker.fly.dev"
+  CAROUSEL_DATABASE_HOST = "lucky.db.elephantsql.com"
+  CAROUSEL_DATABASE_USERNAME = "ztrpncqo"
+  CAROUSEL_DATABASE_PASSWORD = "RMBXZI0DqbtOIOLfVMZFk_M6qFfrljOz"
+  CAROUSEL_DATABASE_NAME = "ztrpncqo"
 
 [[services]]
   internal_port = 5001

@@ -3,7 +3,7 @@
 app = "?"
 
 [env]
-  PENSIEVE_WORKER_HOST = "?"
+  CAROUSEL_WORKER_HOST = "?"
 
 [[services]]
   internal_port = 5001
