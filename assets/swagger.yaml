@@ -27,6 +27,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Version'
   /features:
     get:
       summary: Get list of enabled features
@@ -35,8 +39,10 @@ paths:
       responses:
         '200':
           description: Success
-        '500':
-          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Features'
   /v1/mediaItems:
     get:
       tags:
@@ -116,6 +122,13 @@ paths:
       summary: Update an existing mediaItem
       description: Update an existing mediaItem
       operationId: updateMediaItem
+      requestBody:
+        description: MediaItem request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaItemRequest'
       responses:
         '204':
           description: No Content
@@ -298,6 +311,13 @@ paths:
       summary: Add favourite mediaItems
       description: Add favourite mediaItems
       operationId: addFavouriteMediaItems
+      requestBody:
+        description: List of mediaitems request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaItemsRequest'
       responses:
         '204':
           description: No Content
@@ -348,6 +368,13 @@ paths:
       summary: Add hidden mediaItems
       description: Add hidden mediaItems
       operationId: addHiddenMediaItems
+      requestBody:
+        description: List of mediaitems request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaItemsRequest'
       responses:
         '204':
           description: No Content
@@ -398,6 +425,13 @@ paths:
       summary: Add deleted mediaItems
       description: Add deleted mediaItems
       operationId: addDeletedMediaItems
+      requestBody:
+        description: List of mediaitems request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaItemsRequest'
       responses:
         '204':
           description: No Content
@@ -553,6 +587,13 @@ paths:
       summary: Update a people entity
       description: Update a people entity
       operationId: updatePeople
+      requestBody:
+        description: People request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PeopleRequest'
       responses:
         '204':
           description: No Content
@@ -647,6 +688,13 @@ paths:
       summary: Create a new album
       description: Create a new album
       operationId: createAlbum
+      requestBody:
+        description: Album request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumRequest'
       responses:
         '201':
           description: Created
@@ -700,6 +748,13 @@ paths:
       summary: Update an existing album
       description: Update an existing album
       operationId: updateAlbum
+      requestBody:
+        description: Album request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AlbumRequest'
       responses:
         '204':
           description: No Content
@@ -780,6 +835,13 @@ paths:
       summary: Add mediaItems to an existing album
       description: Add mediaItems to an existing album
       operationId: addAlbumMediaItems
+      requestBody:
+        description: List of mediaitems request
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaItemsRequest'
       responses:
         '204':
           description: No Content
@@ -823,9 +885,20 @@ paths:
       summary: User Login
       description: User Login
       operationId: authLogin
+      requestBody:
+        description: Login request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AuthRequest'
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         '400':
           description: Bad Request
         '401':
@@ -844,6 +917,10 @@ paths:
       responses:
         '200':
           description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
         '400':
           description: Bad Request
         '401':
@@ -896,6 +973,13 @@ paths:
       summary: Create a new user
       description: Create a new user
       operationId: createUser
+      requestBody:
+        description: User request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '201':
           description: Created
@@ -949,6 +1033,13 @@ paths:
       summary: Update an existing user
       description: Update an existing user
       operationId: updateUser
+      requestBody:
+        description: User request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserRequest'
       responses:
         '204':
           description: No Content
@@ -987,104 +1078,201 @@ paths:
           description: Internal Server Error
 components:
   schemas:
-    PhotoMetadata:
+    Version:
       type: object
       properties:
-        cameraMake:
+        version:
           type: string
-          example: Apple
-        cameraModel:
+          example: 2023.04.30
+        gitSha:
           type: string
-          example: iPhone 12
-        focalLength:
-          type: string
-          example: 5.49 mm
-        apertureFNumber:
-          type: string
-          example: f/1.8
-        isoEquivalent:
-          type: string
-          example: ISO758
-        exposureTime:
-          type: string
-          example: 1/20
-    VideoMetadata:
+          example: addf120b430021c36c232c99ef8d926aea2acd6b
+    Features:
       type: object
       properties:
-        cameraMake:
-          type: string
-          example: Apple
-        cameraModel:
-          type: string
-          example: iPhone 12
-        fps:
-          type: string
-          example: 60
-    MediaItemMetadata:
+        favourites:
+          type: boolean
+          example: true
+        hidden:
+          type: boolean
+          example: false
+    AuthRequest:
       type: object
       properties:
-        status:
+        username:
           type: string
-          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
-        type:
+          example: prabhuomkar
+        password:
           type: string
-          enum: ["photo", "video"]
-        width:
-          type: integer
-          example: 1080
-        height:
-          type: integer
-          example: 720
-        creationTime:
+          example: Pwd1234!
+    AuthResponse:
+      type: object
+      properties:
+        accessToken:
           type: string
-          format: date-time
-          example: "2022-09-14T16:58:28Z"
-        latitude:
-          type: number
-          example: 19.384982
-        longitude:
-          type: number
-          example: -70.638324
-        photo:
-          $ref: '#/components/schemas/PhotoMetadata'
-        video:
-          $ref: '#/components/schemas/VideoMetadata'
+          example: string
+        refreshToken:
+          type: string
+          example: string
+    MediaItemRequest:
+      type: object
+      properties:
+        description:
+          type: string
+          example: Pictures from Wedding of Jane and Doe
+        favourite:
+          type: boolean
+          example: true
+        hidden:
+          type: boolean
+          example: false
     MediaItem:
       type: object
       properties:
         id:
+          readOnly: true
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        userId:
+          readOnly: true
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
         filename:
+          readOnly: true
           type: string
           example: IMG_4942.jpg
         description:
+          readOnly: true
           type: string
           example: Picture of a pizza from New York
         mimeType:
+          readOnly: true
           type: string
           example: image/jpeg
         sourceUrl:
+          readOnly: true
           type: string
-          example: https://cdn.Carousel/source
+          example: https://cdn.carousel/source
         thumbnailUrl:
+          readOnly: true
           type: string
-          example: https://cdn.Carousel/thumbnail
+          example: https://cdn.carousel/thumbnail
+        favourite:
+          type: boolean
+          example: false
+        shared:
+          type: boolean
+          example: true
+        hidden:
+          type: boolean
+          example: false
+        status:
+          readOnly: true
+          type: string
+          enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
+        mediaItemType:
+          readOnly: true
+          type: string
+          enum: ["photo", "video"]
+        width:
+          readOnly: true
+          type: integer
+          example: 1080
+        height:
+          readOnly: true
+          type: integer
+          example: 720
+        creationTime:
+          readOnly: true
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        latitude:
+          readOnly: true
+          type: number
+          example: 19.384982
+        longitude:
+          readOnly: true
+          type: number
+          example: -70.638324
+        cameraMake:
+          readOnly: true
+          type: string
+          example: Apple
+        cameraModel:
+          readOnly: true
+          type: string
+          example: iPhone 12
+        focalLength:
+          readOnly: true
+          type: string
+          example: 5.49 mm
+        apertureFNumber:
+          readOnly: true
+          type: string
+          example: f/1.8
+        isoEquivalent:
+          readOnly: true
+          type: string
+          example: ISO758
+        exposureTime:
+          readOnly: true
+          type: string
+          example: 1/20
+        fps:
+          readOnly: true
+          type: string
+          example: 60
         createdAt:
+          readOnly: true
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
         updatedAt:
+          readOnly: true
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
-        mediaItemMetadata:
-          $ref: '#/components/schemas/MediaItemMetadata'
+    AlbumRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: Jane's Wedding
+        description:
+          type: string
+          example: Pictures from Wedding of Jane and Doe
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        shared:
+          type: boolean
+          example: true
+        hidden:
+          type: boolean
+          example: false
+    MediaItemsRequest:
+      type: object
+      properties:
+        mediaItems:
+          type: array
+          items:
+            type: string
+            format: uuid
+            example: 102dc522de-1669-48a4-8270-4950a0237599
     Album:
       type: object
       properties:
         id:
+          readOnly: true
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        userId:
+          readOnly: true
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
@@ -1098,11 +1286,22 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        shared:
+          type: boolean
+          example: true
+        hidden:
+          type: boolean
+          example: false
+        mediaItemsCount:
+          type: integer
+          example: 42
         createdAt:
+          readOnly: true
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
         updatedAt:
+          readOnly: true
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
@@ -1112,6 +1311,7 @@ components:
       type: object
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
@@ -1148,6 +1348,7 @@ components:
       type: object
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
@@ -1168,10 +1369,24 @@ components:
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
           $ref: '#/components/schemas/MediaItem'
+    PeopleRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        hidden:
+          type: boolean
+          example: false
+        coverMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
     Person:
       type: object
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
@@ -1192,10 +1407,23 @@ components:
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
           $ref: '#/components/schemas/MediaItem'
+    UserRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          example: John Doe
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          example: somesecrethash
     User:
       type: object
       properties:
         id:
+          readOnly: true
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
@@ -1209,10 +1437,12 @@ components:
           type: string
           example: somesecrethash
         createdAt:
+          readOnly: true
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
         updatedAt:
+          readOnly: true
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
