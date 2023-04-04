@@ -13,3 +13,4 @@ Thumbs.db
 *.html
 api
 *.txt
+fly.toml
