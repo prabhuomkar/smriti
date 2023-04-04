@@ -239,7 +239,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 
-		err = sendFileToWorker(h.Worker, mediaItem.ID.String(), command, offset, openedFile)
+		err = sendFileToWorker(h.Worker, userID.String(), mediaItem.ID.String(), command, offset, openedFile)
 		if err != nil {
 			return err
 		}
@@ -249,7 +249,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		})
 	}
 
-	err = sendFileToWorker(h.Worker, session, command, offset, openedFile)
+	err = sendFileToWorker(h.Worker, userID.String(), session, command, offset, openedFile)
 	if err != nil {
 		return err
 	}
@@ -257,7 +257,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func sendFileToWorker(workerClient worker.WorkerClient, fileID, command string, offset int, file multipart.File) error {
+// nolint: lll
+func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command string, offset int, file multipart.File) error {
 	stream, err := workerClient.MediaItemProcess(context.Background())
 	if err != nil {
 		log.Printf("error creating stream for sending mediaitem to worker: %+v", err)
@@ -277,6 +278,7 @@ func sendFileToWorker(workerClient worker.WorkerClient, fileID, command string, 
 		}
 
 		err = stream.Send(&worker.MediaItemProcessRequest{
+			UserId:  userID,
 			Id:      fileID,
 			Offset:  int64(offset),
 			Command: command,

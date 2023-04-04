@@ -53,8 +53,8 @@ type (
 		Trash         bool `envconfig:"CAROUSEL_FEATURE_TRASH" default:"true"`
 		Albums        bool `envconfig:"CAROUSEL_FEATURE_ALBUMS" default:"true"`
 		Users         bool `envconfig:"CAROUSEL_FEATURE_USERS" default:"true"`
-		Explore       bool `envconfig:"CAROUSEL_FEATURE_EXPLORE" default:"false"`
-		ExplorePlaces bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_PLACES" default:"false"`
+		Explore       bool `envconfig:"CAROUSEL_FEATURE_EXPLORE" default:"true"`
+		ExplorePlaces bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_PLACES" default:"true"`
 		ExploreThings bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_THINGS" default:"false"`
 		ExplorePeople bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_PEOPLE" default:"false"`
 		Sharing       bool `envconfig:"CAROUSEL_FEATURE_SHARING" default:"false"`

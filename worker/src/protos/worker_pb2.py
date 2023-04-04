@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17src/protos/worker.proto\"W\n\x17MediaItemProcessRequest\x12\n\n\x02id\x18\x01 \x01(\t\x12\x0e\n\x06offset\x18\x02 \x01(\x03\x12\x0f\n\x07\x63ommand\x18\x03 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x04 \x01(\x0c\"&\n\x18MediaItemProcessResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\x32U\n\x06Worker\x12K\n\x10MediaItemProcess\x12\x18.MediaItemProcessRequest\x1a\x19.MediaItemProcessResponse\"\x00(\x01\x42\tZ\x07worker/b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17src/protos/worker.proto\"g\n\x17MediaItemProcessRequest\x12\x0e\n\x06userId\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x12\x0e\n\x06offset\x18\x03 \x01(\x03\x12\x0f\n\x07\x63ommand\x18\x04 \x01(\t\x12\x0f\n\x07\x63ontent\x18\x05 \x01(\x0c\"&\n\x18MediaItemProcessResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\x32U\n\x06Worker\x12K\n\x10MediaItemProcess\x12\x18.MediaItemProcessRequest\x1a\x19.MediaItemProcessResponse\"\x00(\x01\x42\tZ\x07worker/b\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'src.protos.worker_pb2', globals())
@@ -22,9 +22,9 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   DESCRIPTOR._options = None
   DESCRIPTOR._serialized_options = b'Z\007worker/'
   _MEDIAITEMPROCESSREQUEST._serialized_start=27
-  _MEDIAITEMPROCESSREQUEST._serialized_end=114
-  _MEDIAITEMPROCESSRESPONSE._serialized_start=116
-  _MEDIAITEMPROCESSRESPONSE._serialized_end=154
-  _WORKER._serialized_start=156
-  _WORKER._serialized_end=241
+  _MEDIAITEMPROCESSREQUEST._serialized_end=130
+  _MEDIAITEMPROCESSRESPONSE._serialized_start=132
+  _MEDIAITEMPROCESSRESPONSE._serialized_end=170
+  _WORKER._serialized_start=172
+  _WORKER._serialized_end=257
 # @@protoc_insertion_point(module_scope)

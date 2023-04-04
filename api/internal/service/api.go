@@ -83,23 +83,31 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 }
 
 func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
+	// nolint: golint
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	place := models.Place{
-		Postcode: req.Postcode,
-		Town:     req.Town,
-		City:     req.City,
-		State:    req.State,
-		Country:  req.Country,
+		UserID:           userID,
+		ID:               uuid.NewV4(),
+		CoverMediaItemID: uid,
+		Postcode:         req.Postcode,
+		Town:             req.Town,
+		City:             req.City,
+		State:            req.State,
+		Country:          req.Country,
 	}
 	place.Name = getNameForPlace(place)
-	place.CoverMediaItemID = uid
 	result := s.DB.Where(models.Place{
-		Name: place.Name, Postcode: place.Postcode,
-	}).FirstOrCreate(&place, place)
+		UserID: userID, Name: place.Name, Postcode: place.Postcode,
+	}).Attrs(place).FirstOrCreate(&place)
 	if result.Error != nil {
 		log.Printf("error getting or creating place: %+v", result.Error)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal,

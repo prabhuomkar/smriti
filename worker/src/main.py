@@ -24,23 +24,26 @@ class WorkerService(WorkerServicer):
     async def MediaItemProcess(self, request_iterator: AsyncIterable[
             MediaItemProcessRequest], unused_context) -> MediaItemProcessResponse:
         """MediaItem Process"""
+        mediaitem_user_id = None
         mediaitem_id = None
         mediaitem_command = None
         async for mediaitem in request_iterator:
             try:
                 self.file_storage.upload(mediaitem_id=mediaitem.id,
                                          content=mediaitem.content)
+                mediaitem_user_id = mediaitem.userId
                 mediaitem_id = mediaitem.id
                 mediaitem_command = mediaitem.command
             except Exception as e:
                 logging.error(f'error processing mediaitem for storage: {str(e)}', {
                               'id': mediaitem.id, 'offset': mediaitem.offset})
                 mediaitem_id = None
+                mediaitem_user_id = None
                 return MediaItemProcessResponse(ok=False)
-        if mediaitem_id is not None and 'finish' in mediaitem_command:
+        if mediaitem_id is not None and mediaitem_user_id is not None and 'finish' in mediaitem_command:
             loop = asyncio.get_event_loop()
             loop.create_task(process_metadata(
-                self.file_storage, self.api_stub, mediaitem_id))
+                self.file_storage, self.api_stub, mediaitem_user_id, mediaitem_id))
         return MediaItemProcessResponse(ok=True)
 
 

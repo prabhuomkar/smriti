@@ -5,16 +5,18 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 DESCRIPTOR: _descriptor.FileDescriptor
 
 class MediaItemProcessRequest(_message.Message):
-    __slots__ = ["command", "content", "id", "offset"]
+    __slots__ = ["command", "content", "id", "offset", "userId"]
     COMMAND_FIELD_NUMBER: _ClassVar[int]
     CONTENT_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     OFFSET_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
     command: str
     content: bytes
     id: str
     offset: int
-    def __init__(self, id: _Optional[str] = ..., offset: _Optional[int] = ..., command: _Optional[str] = ..., content: _Optional[bytes] = ...) -> None: ...
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., offset: _Optional[int] = ..., command: _Optional[str] = ..., content: _Optional[bytes] = ...) -> None: ...
 
 class MediaItemProcessResponse(_message.Message):
     __slots__ = ["ok"]

@@ -48,17 +48,19 @@ class MediaItemMetadataRequest(_message.Message):
     def __init__(self, id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., sourceUrl: _Optional[str] = ..., previewUrl: _Optional[str] = ..., thumbnailUrl: _Optional[str] = ..., type: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
 
 class MediaItemPlaceRequest(_message.Message):
-    __slots__ = ["city", "country", "id", "postcode", "state", "town"]
+    __slots__ = ["city", "country", "id", "postcode", "state", "town", "userId"]
     CITY_FIELD_NUMBER: _ClassVar[int]
     COUNTRY_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     POSTCODE_FIELD_NUMBER: _ClassVar[int]
     STATE_FIELD_NUMBER: _ClassVar[int]
     TOWN_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
     city: str
     country: str
     id: str
     postcode: str
     state: str
     town: str
-    def __init__(self, id: _Optional[str] = ..., postcode: _Optional[str] = ..., country: _Optional[str] = ..., state: _Optional[str] = ..., city: _Optional[str] = ..., town: _Optional[str] = ...) -> None: ...
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., postcode: _Optional[str] = ..., country: _Optional[str] = ..., state: _Optional[str] = ..., city: _Optional[str] = ..., town: _Optional[str] = ...) -> None: ...

@@ -50,6 +50,7 @@ var (
 	city                  = "city"
 	postcode              = "postcode"
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
+		UserId:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Country:  &country,
 		State:    &state,
@@ -58,8 +59,9 @@ var (
 		Postcode: &postcode,
 	}
 	mediaItemPlaceTownRequest = api.MediaItemPlaceRequest{
-		Id:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Town: &town,
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Town:   &town,
 	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
 	placeCols     = []string{"id", "name", "postcode", "town", "city", "state",
@@ -159,8 +161,14 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		ExpectedErr error
 	}{
 		{
+			"save mediaitem place with invalid mediaitem user id",
+			&api.MediaItemPlaceRequest{UserId: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+		},
+		{
 			"save mediaitem place with invalid mediaitem id",
-			&api.MediaItemPlaceRequest{Id: "bad-mediaitem-id"},
+			&api.MediaItemPlaceRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},

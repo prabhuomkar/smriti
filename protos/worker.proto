@@ -3,10 +3,11 @@ syntax = "proto3";
 option go_package = "worker/";
 
 message MediaItemProcessRequest {
-    string id = 1;
-    int64 offset = 2;
-    string command = 3; // start, continue, finish
-    bytes content = 4;
+    string userId = 1;
+    string id = 2;
+    int64 offset = 3;
+    string command = 4; // start, continue, finish
+    bytes content = 5;
 }
 
 message MediaItemProcessResponse {

@@ -27,12 +27,13 @@ message MediaItemMetadataRequest {
 }
 
 message MediaItemPlaceRequest {
-    string id = 1;
-    optional string postcode = 2;
-    optional string country = 3;
-    optional string state = 4;
-    optional string city = 5;
-    optional string town = 6;
+    string userId = 1;
+    string id = 2;
+    optional string postcode = 3;
+    optional string country = 4;
+    optional string state = 5;
+    optional string city = 6;
+    optional string town = 7;
 }
 
 service API {

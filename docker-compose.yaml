@@ -20,6 +20,9 @@ services:
       CAROUSEL_WORKER_HOST: worker
       CAROUSEL_WORKER_PORT: 15002
       CAROUSEL_LOG_LEVEL: DEBUG
+      CAROUSEL_DATABASE_LOG_LEVEL: INFO
+      CAROUSEL_FEATURE_EXPLORE: true
+      CAROUSEL_FEATURE_EXPLORE_PLACES: true
   worker:
     build: worker
     restart: always

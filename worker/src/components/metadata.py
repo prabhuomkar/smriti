@@ -1,5 +1,6 @@
 """Metadata Component"""
 import io
+import asyncio
 import logging
 import datetime
 
@@ -8,9 +9,9 @@ import rawpy
 from PIL import Image as PILImage
 from wand.image import Image as WandImage
 
+from src.components.place import process_place
 from src.components.utils import grpc_save_mediaitem_metadata, getval_from_dict
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
 
 
 PREVIEWABLE_PHOTO_MIME_TYPES = [
@@ -20,7 +21,7 @@ PREVIEWABLE_PHOTO_MIME_TYPES = [
     'image/svg+xml', 'image/webp', 'image/heic', 'image/heif',
 ]
 
-async def process_metadata(storage, api_stub: APIStub, mediaitem_id: str) -> None:
+async def process_metadata(storage, api_stub: APIStub, mediaitem_user_id: str, mediaitem_id: str) -> None:
     """Process required metadata and generate thumbnail from EXIF data"""
     file_path = storage.get(mediaitem_id)
 
@@ -32,8 +33,7 @@ async def process_metadata(storage, api_stub: APIStub, mediaitem_id: str) -> Non
     try:
         with exiftool.ExifToolHelper() as et:
             metadata = et.get_metadata(file_path)[0]
-            logging.debug(f'metadata for mediaitem {mediaitem_id}: {metadata}')
-            # work(omkar): do this is in cleaner way
+            logging.debug(f'metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {metadata}')
             result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
             result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
                 'video' if 'video' in metadata['File:MIMEType'] else None
@@ -62,17 +62,12 @@ async def process_metadata(storage, api_stub: APIStub, mediaitem_id: str) -> Non
                                                              'Composite:GPSLatitude'], return_type='float')
             result['longitude'] = getval_from_dict(metadata, ['EXIF:GPSLongitude', \
                                                               'Composite:GPSLongitude'], return_type='float')
-            logging.debug(f'extracted metadata for mediaitem {mediaitem_id}: {result}')
+            logging.debug(f'extracted metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
     except Exception as e:
         logging.error(
-            f'error extracting exif metadata for mediaitem {mediaitem_id}: {str(e)}')
+            f'error extracting exif metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {str(e)}')
         result['status'] = 'FAILED'
-        mediaItemMetadataRequest = MediaItemMetadataRequest(
-            id=result['id'],
-            status=result['status'],
-            sourceUrl=result['sourceUrl'],
-        )
-        grpc_save_mediaitem_metadata(api_stub, mediaItemMetadataRequest)
+        grpc_save_mediaitem_metadata(api_stub, result)
         return None
 
     # generate and upload preview and thumbnail
@@ -85,71 +80,38 @@ async def process_metadata(storage, api_stub: APIStub, mediaitem_id: str) -> Non
             mediaitem_id, thumbnail_bytes, 'thumbnails')
         result['previewUrl'] = preview_url
         result['thumbnailUrl'] = thumbnail_url
-        logging.debug(f'extracted preview and thumbnail for mediaitem {mediaitem_id}: {result}')
+        logging.debug(f'extracted preview and thumbnail for \
+                      user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
     except Exception as e:
         logging.error(
-            f'error generating and uploading preview and thumbnail for mediaitem {mediaitem_id}: {str(e)}')
+            f'error generating and uploading preview and thumbnail for \
+                user {mediaitem_user_id} mediaitem {mediaitem_id}: {str(e)}')
         result['status'] = 'FAILED'
-        mediaItemMetadataRequest = MediaItemMetadataRequest(
-            id=result['id'],
-            status=result['status'],
-            mimeType=result['mimeType'] if 'mimeType' in result else None,
-            sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
-            type=result['type'] if 'type' in result else None,
-            width=result['width'] if 'width' in result else None,
-            height=result['height'] if 'height' in result else None,
-            creationTime=result['creationTime'] if 'creationTime' in result else None,
-            cameraMake=result['cameraMake'] if 'cameraMake' in result else None,
-            cameraModel=result['cameraModel'] if 'cameraModel' in result else None,
-            focalLength=result['focalLength'] if 'focalLength' in result else None,
-            apertureFNumber=result['apertureFNumber'] if 'apertureFNumber' in result else None,
-            isoEquivalent=result['isoEquivalent'] if 'isoEquivalent' in result else None,
-            exposureTime=result['exposureTime'] if 'exposureTime' in result else None,
-            fps=result['fps'] if 'fps' in result else None,
-            latitude=result['latitude'] if 'latitude' in result else None,
-            longitude=result['longitude'] if 'longitude' in result else None,
-        )
-        grpc_save_mediaitem_metadata(api_stub, mediaItemMetadataRequest)
+        grpc_save_mediaitem_metadata(api_stub, result)
         return None
 
+    # metadata, preview and thumbnail extracted, so its READY
     result['status'] = 'READY'
-    mediaItemMetadataRequest = MediaItemMetadataRequest(
-        id=result['id'],
-        status=result['status'],
-        mimeType=result['mimeType'] if 'mimeType' in result else None,
-        sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
-        previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
-        thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
-        type=result['type'] if 'type' in result else None,
-        width=result['width'] if 'width' in result else None,
-        height=result['height'] if 'height' in result else None,
-        creationTime=result['creationTime'] if 'creationTime' in result else None,
-        cameraMake=result['cameraMake'] if 'cameraMake' in result else None,
-        cameraModel=result['cameraModel'] if 'cameraModel' in result else None,
-        focalLength=result['focalLength'] if 'focalLength' in result else None,
-        apertureFNumber=result['apertureFNumber'] if 'apertureFNumber' in result else None,
-        isoEquivalent=result['isoEquivalent'] if 'isoEquivalent' in result else None,
-        exposureTime=result['exposureTime'] if 'exposureTime' in result else None,
-        fps=result['fps'] if 'fps' in result else None,
-        latitude=result['latitude'] if 'latitude' in result else None,
-        longitude=result['longitude'] if 'longitude' in result else None,
-    )
-    grpc_save_mediaitem_metadata(api_stub, mediaItemMetadataRequest)
-    logging.info(f'processed metadata for mediaitem {mediaitem_id}')
+    grpc_save_mediaitem_metadata(api_stub, result)
+    logging.info(f'processed metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}')
+
+    # send mediaitem for further component processing
+    # work(omkar): find correct way to do for ML: things, people
+    if 'latitude' in result and 'longitude' in result:
+        asyncio.ensure_future(process_place(api_stub, mediaitem_user_id, mediaitem_id,
+                                            [result['latitude'], result['longitude']]))
+    return None
 
 
 def generate_thumbnail(preview_bytes: bytes):
     """Generate thumbnail image"""
     # work(omkar): thumbnail size should be configurable through UI
     with WandImage(blob=preview_bytes) as img:
-        if img.size[0] > img.size[1]:
-            wpercent = 512/float(img.size[0])
-            hsize = int((float(img.size[1])*float(wpercent)))
-            img.resize(512, hsize)
-        else:
-            hpercent = 512/float(img.size[1])
-            wsize = int((float(img.size[0])*float(hpercent)))
-            img.resize(wsize, 512)
+        lidx = 0 if img.size[0] > img.size[1] else 1
+        sidx = 1 if lidx == 0 else 0
+        percent = 512/float(img.size[lidx])
+        size = int((float(img.size[sidx])*float(percent)))
+        img.resize(512, size)
         with img.convert('jpeg') as converted:
             return converted.make_blob('jpeg')
 
