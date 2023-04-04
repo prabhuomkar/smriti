@@ -34,6 +34,7 @@ var (
 	width                 int32 = 1080
 	height                int32 = 720
 	mediaItemReultRequest       = api.MediaItemMetadataRequest{
+		UserId:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:           "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		MimeType:     &mimetype,
 		SourceUrl:    &sourceurl,
@@ -76,14 +77,21 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		ExpectedErr error
 	}{
 		{
+			"save mediaitem result with invalid mediaitem user id",
+			&api.MediaItemMetadataRequest{UserId: "bad-mediaitem-user-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+		},
+		{
 			"save mediaitem result with invalid mediaitem id",
-			&api.MediaItemMetadataRequest{Id: "bad-mediaitem-id"},
+			&api.MediaItemMetadataRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem result with incorrect creation time",
-			&api.MediaItemMetadataRequest{Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime},
+			&api.MediaItemMetadataRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
 		},
@@ -93,9 +101,9 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "mimetype", "sourceurl", "previewurl",
-						"thumbnailurl", "photo", 1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(),
-						"4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo",
+						1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -107,9 +115,9 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "mimetype", "sourceurl", "previewurl",
-						"thumbnailurl", "photo", 1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(),
-						"4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo",
+						1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},

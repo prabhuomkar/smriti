@@ -11,6 +11,7 @@ def grpc_save_mediaitem_metadata(api_stub: APIStub, result: dict):
     """gRPC call for saving mediaitem metadata"""
     try:
         request = MediaItemMetadataRequest(
+            userId=result['userId'],
             id=result['id'],
             status=result['status'],
             mimeType=result['mimeType'] if 'mimeType' in result else None,

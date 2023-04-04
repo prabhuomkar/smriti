@@ -25,6 +25,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
 			},
@@ -43,6 +44,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
 			},
@@ -60,6 +62,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
@@ -84,6 +87,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
 			},
@@ -99,6 +103,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -123,6 +128,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
 			},
@@ -144,6 +150,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
@@ -168,6 +175,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
 			},
@@ -183,6 +191,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -207,6 +216,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
 			},
@@ -228,6 +238,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
@@ -253,6 +264,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
 			},
@@ -271,6 +283,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
 			},
@@ -288,6 +301,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
@@ -312,6 +326,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
 			},
@@ -327,6 +342,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -351,6 +367,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
 			},
@@ -372,6 +389,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
@@ -396,6 +414,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
 			},
@@ -411,6 +430,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -435,6 +455,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
 			},
@@ -456,6 +477,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
@@ -481,6 +503,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
 			},
@@ -499,6 +522,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
 			},
@@ -516,6 +540,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
@@ -540,6 +565,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
 			},
@@ -555,6 +581,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -579,6 +606,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
 			},
@@ -600,6 +628,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
@@ -624,6 +653,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
 			},
@@ -639,6 +669,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -663,6 +694,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
 			},
@@ -684,6 +716,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems

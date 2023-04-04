@@ -18,6 +18,7 @@ func TestGetFeatures(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFeatures
 			},

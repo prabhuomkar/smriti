@@ -2,6 +2,9 @@ package handlers
 
 import (
 	"api/config"
+	"api/pkg/services/worker"
+	"context"
+	"errors"
 	"fmt"
 	"io"
 	"net/http/httptest"
@@ -12,23 +15,26 @@ import (
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/metadata"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
 )
 
 type Test struct {
-	Name            string
-	Method          string
-	Route           string
-	Path            string
-	Header          map[string]string
-	Body            io.Reader
-	MockDB          func(mock sqlmock.Sqlmock)
-	mockCache       []func(interface{}, interface{}) (interface{}, error)
-	Handler         func(handler *Handler) func(ctx echo.Context) error
-	ExpectedResCode int
-	ExpectedResBody string
+	Name             string
+	Method           string
+	Route            string
+	Path             string
+	Header           map[string]string
+	Body             io.Reader
+	MockDB           func(mock sqlmock.Sqlmock)
+	mockCache        []func(interface{}, interface{}) (interface{}, error)
+	mockWorkerClient *mockWorkerGRPCClient
+	Handler          func(handler *Handler) func(ctx echo.Context) error
+	ExpectedResCode  int
+	ExpectedResBody  string
 }
 
 func executeTests(t *testing.T, tests []Test) {
@@ -83,6 +89,7 @@ func executeTests(t *testing.T, tests []Test) {
 				Config: &config.Config{Auth: config.Auth{RefreshTTL: 60}},
 				DB:     mockGDB,
 				Cache:  mockCache,
+				Worker: test.mockWorkerClient,
 			}
 			server.Match([]string{test.Method}, test.Route, test.Handler(handler))
 			server.ServeHTTP(rec, req)
@@ -91,4 +98,51 @@ func executeTests(t *testing.T, tests []Test) {
 			assert.Contains(t, strings.TrimSpace(rec.Body.String()), test.ExpectedResBody)
 		})
 	}
+}
+
+type (
+	mockWorkerGRPCClient struct {
+		wantErr             bool
+		wantSendErr         bool
+		wantCloseAndRecvErr bool
+		wantOk              bool
+	}
+
+	mockWorkerMediaItemProcessClient struct {
+		wantSendErr         bool
+		wantCloseAndRecvErr bool
+		wantOk              bool
+	}
+)
+
+func (mwmpc *mockWorkerMediaItemProcessClient) Send(*worker.MediaItemProcessRequest) error {
+	if mwmpc.wantSendErr {
+		return errors.New("some error in send")
+	}
+	return nil
+}
+func (mwmpc *mockWorkerMediaItemProcessClient) CloseAndRecv() (*worker.MediaItemProcessResponse, error) {
+	if mwmpc.wantCloseAndRecvErr {
+		return nil, errors.New("some error in close and recv")
+	}
+	return &worker.MediaItemProcessResponse{Ok: mwmpc.wantOk}, nil
+}
+
+func (mwmpc *mockWorkerMediaItemProcessClient) Header() (metadata.MD, error) { return nil, nil }
+
+func (mwmpc *mockWorkerMediaItemProcessClient) Trailer() metadata.MD { return nil }
+
+func (mwmpc *mockWorkerMediaItemProcessClient) CloseSend() error { return nil }
+
+func (mwmpc *mockWorkerMediaItemProcessClient) Context() context.Context { return nil }
+
+func (mwmpc *mockWorkerMediaItemProcessClient) SendMsg(m interface{}) error { return nil }
+
+func (mwmpc *mockWorkerMediaItemProcessClient) RecvMsg(m interface{}) error { return nil }
+
+func (mwc *mockWorkerGRPCClient) MediaItemProcess(ctx context.Context, opts ...grpc.CallOption) (worker.Worker_MediaItemProcessClient, error) {
+	if mwc.wantErr {
+		return nil, errors.New("some grpc error")
+	}
+	return &mockWorkerMediaItemProcessClient{wantSendErr: mwc.wantSendErr, wantCloseAndRecvErr: mwc.wantCloseAndRecvErr, wantOk: mwc.wantOk}, nil
 }

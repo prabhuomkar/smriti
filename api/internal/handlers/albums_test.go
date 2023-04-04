@@ -66,6 +66,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			},
@@ -83,6 +84,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -102,6 +104,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			},
@@ -119,6 +122,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
@@ -141,6 +145,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			},
@@ -158,6 +163,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			},
@@ -173,6 +179,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -206,6 +213,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			},
@@ -230,6 +238,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
@@ -262,6 +271,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			},
@@ -283,6 +293,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			},
@@ -300,6 +311,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			},
@@ -315,6 +327,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -348,6 +361,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			},
@@ -370,6 +384,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
@@ -395,6 +410,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
@@ -427,6 +443,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			},
@@ -448,6 +465,7 @@ func TestGetAlbum(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			},
@@ -465,6 +483,7 @@ func TestGetAlbum(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnRows(sqlmock.NewRows(albumCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -486,6 +505,7 @@ func TestGetAlbum(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			},
@@ -503,6 +523,7 @@ func TestGetAlbum(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
@@ -525,6 +546,7 @@ func TestUpdateAlbum(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			},
@@ -537,6 +559,7 @@ func TestUpdateAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -557,6 +580,7 @@ func TestUpdateAlbum(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			},
@@ -572,6 +596,7 @@ func TestUpdateAlbum(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -599,6 +624,7 @@ func TestUpdateAlbum(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			},
@@ -624,6 +650,7 @@ func TestUpdateAlbum(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			},
@@ -642,6 +669,7 @@ func TestDeleteAlbum(t *testing.T) {
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -671,6 +699,7 @@ func TestDeleteAlbum(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
 			},
@@ -691,6 +720,7 @@ func TestDeleteAlbum(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
@@ -718,6 +748,7 @@ func TestDeleteAlbum(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
 			},
@@ -742,6 +773,7 @@ func TestGetAlbums(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(albumCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			},
@@ -762,6 +794,7 @@ func TestGetAlbums(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			},
@@ -779,6 +812,7 @@ func TestGetAlbums(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
@@ -803,6 +837,7 @@ func TestCreateAlbum(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			},
@@ -815,6 +850,7 @@ func TestCreateAlbum(t *testing.T) {
 			"/v1/albums",
 			"/v1/albums",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -833,6 +869,7 @@ func TestCreateAlbum(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -859,6 +896,7 @@ func TestCreateAlbum(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			},
@@ -883,6 +921,7 @@ func TestCreateAlbum(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum

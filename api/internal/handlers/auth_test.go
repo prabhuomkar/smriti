@@ -26,6 +26,7 @@ func TestLogin(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -38,6 +39,7 @@ func TestLogin(t *testing.T) {
 			"/v1/auth/login",
 			"/v1/auth/login",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -56,6 +58,7 @@ func TestLogin(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"username":"username"}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -78,6 +81,7 @@ func TestLogin(t *testing.T) {
 					WillReturnRows(getMockedUserRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -98,6 +102,7 @@ func TestLogin(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(userCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -117,6 +122,7 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
@@ -147,6 +153,7 @@ func TestLogin(t *testing.T) {
 				},
 				nil,
 			},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			},
@@ -171,6 +178,7 @@ func TestRefresh(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Refresh
 			},
@@ -183,6 +191,7 @@ func TestRefresh(t *testing.T) {
 			"/v1/auth/refresh",
 			"/v1/auth/refresh",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -207,6 +216,7 @@ func TestLogout(t *testing.T) {
 			map[string]string{
 				echo.HeaderAuthorization: atoken,
 			},
+			nil,
 			nil,
 			nil,
 			nil,

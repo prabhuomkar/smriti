@@ -35,6 +35,7 @@ func TestGetUser(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			},
@@ -52,6 +53,7 @@ func TestGetUser(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnRows(sqlmock.NewRows(userCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
@@ -71,6 +73,7 @@ func TestGetUser(t *testing.T) {
 					WillReturnRows(getMockedUserRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			},
@@ -88,6 +91,7 @@ func TestGetUser(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
@@ -110,6 +114,7 @@ func TestUpdateUser(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			},
@@ -122,6 +127,7 @@ func TestUpdateUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -140,6 +146,7 @@ func TestUpdateUser(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"bad":"request"}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -166,6 +173,7 @@ func TestUpdateUser(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			},
@@ -190,6 +198,7 @@ func TestUpdateUser(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			},
@@ -208,6 +217,7 @@ func TestDeleteUser(t *testing.T) {
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -232,6 +242,7 @@ func TestDeleteUser(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
 			},
@@ -252,6 +263,7 @@ func TestDeleteUser(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
@@ -277,6 +289,7 @@ func TestGetUsers(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(userCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			},
@@ -295,6 +308,7 @@ func TestGetUsers(t *testing.T) {
 					WillReturnRows(getMockedUserRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			},
@@ -312,6 +326,7 @@ func TestGetUsers(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
@@ -336,6 +351,7 @@ func TestCreateUser(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			},
@@ -348,6 +364,7 @@ func TestCreateUser(t *testing.T) {
 			"/v1/users",
 			"/v1/users",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -374,6 +391,7 @@ func TestCreateUser(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			},
@@ -396,6 +414,7 @@ func TestCreateUser(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser

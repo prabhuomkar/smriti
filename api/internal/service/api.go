@@ -25,6 +25,11 @@ type Service struct {
 
 // nolint: cyclop
 func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		log.Printf("error getting mediaitem id: %+v", err)
@@ -39,18 +44,10 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		}
 	}
 	mediaItem := models.MediaItem{
-		ID:              uid,
-		Status:          models.MediaItemStatus(req.Status),
-		CreationTime:    creationTime,
-		CameraMake:      req.CameraMake,
-		CameraModel:     req.CameraModel,
-		FocalLength:     req.FocalLength,
-		ApertureFnumber: req.ApertureFNumber,
-		IsoEquivalent:   req.IsoEquivalent,
-		ExposureTime:    req.ExposureTime,
-		FPS:             req.Fps,
-		Latitude:        req.Latitude,
-		Longitude:       req.Longitude,
+		UserID: userID, ID: uid, Status: models.MediaItemStatus(req.Status),
+		CreationTime: creationTime, CameraMake: req.CameraMake, CameraModel: req.CameraModel,
+		FocalLength: req.FocalLength, ApertureFnumber: req.ApertureFNumber, IsoEquivalent: req.IsoEquivalent,
+		ExposureTime: req.ExposureTime, FPS: req.Fps, Latitude: req.Latitude, Longitude: req.Longitude,
 	}
 	if req.MimeType != nil {
 		mediaItem.MimeType = *req.MimeType

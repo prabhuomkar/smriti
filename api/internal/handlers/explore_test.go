@@ -84,6 +84,7 @@ func TestGetPlaces(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(placeCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaces
 			},
@@ -104,6 +105,7 @@ func TestGetPlaces(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaces
 			},
@@ -121,6 +123,7 @@ func TestGetPlaces(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaces
@@ -143,6 +146,7 @@ func TestGetPlace(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
 			},
@@ -160,6 +164,7 @@ func TestGetPlace(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(sqlmock.NewRows(placeCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
@@ -181,6 +186,7 @@ func TestGetPlace(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
 			},
@@ -198,6 +204,7 @@ func TestGetPlace(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlace
@@ -220,6 +227,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
 			},
@@ -237,6 +245,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
@@ -256,6 +265,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
 			},
@@ -273,6 +283,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "place_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPlaceMediaItems
@@ -298,6 +309,7 @@ func TestGetThings(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(thingCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThings
 			},
@@ -318,6 +330,7 @@ func TestGetThings(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThings
 			},
@@ -335,6 +348,7 @@ func TestGetThings(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThings
@@ -357,6 +371,7 @@ func TestGetThing(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
 			},
@@ -374,6 +389,7 @@ func TestGetThing(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(sqlmock.NewRows(thingCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
@@ -395,6 +411,7 @@ func TestGetThing(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
 			},
@@ -412,6 +429,7 @@ func TestGetThing(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThing
@@ -434,6 +452,7 @@ func TestGetThingMediaItems(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
 			},
@@ -451,6 +470,7 @@ func TestGetThingMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
@@ -470,6 +490,7 @@ func TestGetThingMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
 			},
@@ -487,6 +508,7 @@ func TestGetThingMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "thing_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetThingMediaItems
@@ -509,6 +531,7 @@ func TestUpdatePeople(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
 			},
@@ -521,6 +544,7 @@ func TestUpdatePeople(t *testing.T) {
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			map[string]string{},
+			nil,
 			nil,
 			nil,
 			nil,
@@ -541,6 +565,7 @@ func TestUpdatePeople(t *testing.T) {
 			strings.NewReader(`{"bad":"request"}`),
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
 			},
@@ -556,6 +581,7 @@ func TestUpdatePeople(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"name":"name","coverMediaItemId":"bad-mediaitem-id"}`),
+			nil,
 			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
@@ -582,6 +608,7 @@ func TestUpdatePeople(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
 			},
@@ -605,6 +632,7 @@ func TestUpdatePeople(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdatePerson
@@ -630,6 +658,7 @@ func TestGetPeople(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(peopleCols))
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeople
 			},
@@ -650,6 +679,7 @@ func TestGetPeople(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeople
 			},
@@ -667,6 +697,7 @@ func TestGetPeople(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeople
@@ -689,6 +720,7 @@ func TestGetPerson(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
 			},
@@ -706,6 +738,7 @@ func TestGetPerson(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(sqlmock.NewRows(peopleCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
@@ -727,6 +760,7 @@ func TestGetPerson(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRow())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
 			},
@@ -744,6 +778,7 @@ func TestGetPerson(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPerson
@@ -766,6 +801,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			nil,
 			nil,
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
 			},
@@ -783,6 +819,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
@@ -802,6 +839,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems
 			},
@@ -819,6 +857,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetPeopleMediaItems

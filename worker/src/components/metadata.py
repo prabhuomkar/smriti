@@ -27,6 +27,7 @@ async def process_metadata(storage, api_stub: APIStub, mediaitem_user_id: str, m
 
     # extract metadata
     result = {}
+    result['userId'] = mediaitem_user_id
     result['id'] = mediaitem_id
     result['status'] = 'UNSPECIFIED'
     result['sourceUrl'] = file_path
