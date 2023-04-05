@@ -1,5 +1,11 @@
+install:
+	@pip install -r requirements.txt
+
 run:
 	@python3 -m src.main
+
+test-install:
+	@pip install pytest pytest-cov requests-mock pytest-asyncio
 
 test: 
 	@python3 -m pytest

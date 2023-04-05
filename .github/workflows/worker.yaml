@@ -25,12 +25,12 @@ jobs:
         with:
           python-version: '3.x'
       - run: python -c "import sys; print(sys.version)"
-      - run: pip install -r requirements.txt
+      - run: make install
       - run: |
           pip install pylint
           make lint
       - run: |
-          pip install pytest pytest-cov requests-mock
+          make test-install
           make cover
       - uses: codecov/codecov-action@v3
         with:

@@ -9,7 +9,7 @@ setup-api:
 setup-worker:
 	@cd worker; \
 		echo "[setup-worker]: Installing requirements"; \
-		pip install -r requirements.txt; \
+		make insall; \
 		echo "[setup-worker]: Running linter..."; \
 		make lint; \
 		echo "[setup-worker]: Running unit tests..."; \
