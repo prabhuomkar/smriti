@@ -2,7 +2,7 @@ from behave import *
 import requests
 from requests.auth import HTTPBasicAuth
 
-from environment import API_URL, ADMIN_USERNAME, ADMIN_PASSWORD, CREATED_USER
+from common import API_URL, ADMIN_USERNAME, ADMIN_PASSWORD, CREATED_USER
 
 
 @given('a user is created')

@@ -1168,6 +1168,9 @@ components:
         hidden:
           type: boolean
           example: false
+        deleted:
+          type: boolean
+          example: false
         status:
           readOnly: true
           type: string

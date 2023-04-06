@@ -1,7 +1,23 @@
 from behave import *
 import requests
+from requests.auth import HTTPBasicAuth
 
-from environment import API_URL, CREATED_ALBUM, UPDATED_ALBUM
+from common import API_URL, ADMIN_USERNAME, ADMIN_PASSWORD, CREATED_USER, CREATED_ALBUM, UPDATED_ALBUM
+
+
+@given('a user is created if does not exist')
+def step_impl(context):
+    res = requests.get(API_URL+'/v1/users',
+                        auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+    assert res.status_code == 200
+    users = res.json()
+    if len(users) != 0:
+        context.album_id = users[0]['id']
+    else:
+        res = requests.post(API_URL+'/v1/users', json=CREATED_USER,
+                            auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
+        assert res.status_code == 201
+        context.user_id = res.json()['id']
 
 
 @given('there are no albums')

@@ -1,11 +1,11 @@
 Feature: Albums
 
-    Scenario: Background
-        Given a user is created
-
-    Scenario: Validate Create Album
+    Background: Setup User
+        Given a user is created if does not exist
         When user logs in
         Then token is generated
+
+    Scenario: Validate Create Album
         Given there are no albums
         When create album without auth
         Then auth error is found
@@ -21,8 +21,6 @@ Feature: Albums
         Then album is present in list
 
     Scenario: Validate Update Album
-        When user logs in
-        Then token is generated
         Given an album exists
         When update album without auth
         Then auth error is found
@@ -38,8 +36,6 @@ Feature: Albums
         Then album is present in list
 
     Scenario: Validate Delete Album
-        When user logs in
-        Then token is generated
         Given an album exists
         When delete album without auth
         Then auth error is found

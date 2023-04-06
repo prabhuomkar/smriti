@@ -10,3 +10,8 @@ UPDATED_USER = {'name': 'UpdatedJohn Doe',
 
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description'}
+
+CREATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 
+                     'description': None, 'favourite': False, 'hidden': False}
+UPDATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 
+                     'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': True}

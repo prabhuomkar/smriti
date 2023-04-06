@@ -1,1 +1,2 @@
 behave
+psycopg2-binary
