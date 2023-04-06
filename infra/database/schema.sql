@@ -115,8 +115,8 @@ CREATE TABLE "album_mediaitems" (
 
 CREATE TABLE "users" (
   "id" uuid PRIMARY KEY NOT NULL,
+  "username" varchar UNIQUE,
   "name" varchar NOT NULL,
-  "username" varchar NOT NULL,
   "password" varchar NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp

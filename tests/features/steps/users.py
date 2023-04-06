@@ -122,8 +122,3 @@ def step_impl(context):
     assert context.response.status_code == 204
     context.match_user = UPDATED_USER
 
-
-@then('auth error is found')
-def step_impl(context):
-    assert context.response.status_code == 401
-    assert context.response.json()['message'] == 'Unauthorized'

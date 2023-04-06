@@ -30,7 +30,7 @@ Feature: User Management
         When get all users with auth
         Then user is present in list
 
-    Scenario: Validate User
+    Scenario: Validate Delete User
         Given a user exists
         When delete user without auth
         Then auth error is found

@@ -64,3 +64,9 @@ def step_impl(context):
 @then('token is deleted')
 def step_impl(context):
     assert context.response.status_code == 204
+
+
+@then('auth error is found')
+def step_impl(context):
+    assert context.response.status_code == 401
+    assert context.response.json()['message'] == 'Unauthorized'
