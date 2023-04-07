@@ -4,26 +4,29 @@ import (
 	"api/config"
 	"api/internal/handlers"
 	"api/internal/middlewares"
+	"context"
 	"errors"
 	"fmt"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 )
 
+const httpTimeout = 10
+
 // nolint:funlen
-// InitHTTPServer ...
-func InitHTTPServer(handler *handlers.Handler) {
+// StartHTTPServer ...
+func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	srvHandler := echo.New()
 	// nolint:gosec
-	server := http.Server{
+	httpServer := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port),
 		Handler: srvHandler,
 	}
 	// routes
-	// work(omkar): do this in a better way
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/features", handler.GetFeatures)
 	version1 := srvHandler.Group("/v1")
@@ -48,24 +51,21 @@ func InitHTTPServer(handler *handlers.Handler) {
 	mediaItems.POST("", handler.UploadMediaItems,
 		getMiddlewareFuncs(handler.Config, handler.Cache)...)
 	// library
-	version1.GET("/favourites", handler.GetFavouriteMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
-	version1.POST("/favourites", handler.AddFavouriteMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
-	version1.DELETE("/favourites", handler.RemoveFavouriteMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
-	version1.GET("/hidden", handler.GetHiddenMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
-	version1.POST("/hidden", handler.AddHiddenMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
-	version1.DELETE("/hidden", handler.RemoveHiddenMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
-	version1.GET("/trash", handler.GetDeletedMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
-	version1.POST("/trash", handler.AddDeletedMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
-	version1.DELETE("/trash", handler.RemoveDeletedMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
+	favourites := version1.Group("/favourites")
+	favourites.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
+	favourites.GET("", handler.GetFavouriteMediaItems)
+	favourites.POST("", handler.AddFavouriteMediaItems)
+	favourites.DELETE("", handler.RemoveFavouriteMediaItems)
+	hidden := version1.Group("/hidden")
+	hidden.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
+	hidden.GET("", handler.GetHiddenMediaItems)
+	hidden.POST("", handler.AddHiddenMediaItems)
+	hidden.DELETE("", handler.RemoveHiddenMediaItems)
+	trash := version1.Group("/trash")
+	trash.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
+	trash.GET("", handler.GetDeletedMediaItems)
+	trash.POST("", handler.AddDeletedMediaItems)
+	trash.DELETE("", handler.RemoveDeletedMediaItems)
 	// explore
 	explore := version1.Group("/explore")
 	explore.Use(middlewares.FeatureCheck(handler.Config, "explore"))
@@ -110,8 +110,22 @@ func InitHTTPServer(handler *handlers.Handler) {
 	users.GET("", handler.GetUsers)
 	users.POST("", handler.CreateUser)
 
-	log.Printf("starting http api server on: %d", handler.Config.API.Port)
-	if err := server.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+	go func() {
+		log.Printf("starting http api server on: %d", handler.Config.API.Port)
+		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
+			panic(err)
+		}
+	}()
+
+	return httpServer
+}
+
+// StartHTTPServer ...
+func StopHTTPServer(httpServer *http.Server) {
+	log.Println("stopping http api server")
+	ctx, cancel := context.WithTimeout(context.Background(), httpTimeout*time.Second)
+	defer cancel()
+	if err := httpServer.Shutdown(ctx); err != nil {
 		panic(err)
 	}
 }

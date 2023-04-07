@@ -9,6 +9,9 @@ import (
 	"api/pkg/database"
 	"api/pkg/services/worker"
 	"fmt"
+	"os"
+	"os/signal"
+	"syscall"
 
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
@@ -37,7 +40,7 @@ func main() {
 		Config: cfg,
 		DB:     pgDB,
 	}
-	server.InitGRPCServer(cfg, service)
+	grpcServer := server.StartGRPCServer(cfg, service)
 
 	cache, err := cache.Init()
 	if err != nil {
@@ -50,6 +53,12 @@ func main() {
 		Worker: workerClient,
 		Cache:  cache,
 	}
-	server.InitHTTPServer(handler)
-	// work(omkar): handling graceful shutdowns, grpc/http timeouts and reconnections
+	httpServer := server.StartHTTPServer(handler)
+
+	// graceful shutdown
+	shutdownSignal := make(chan os.Signal, 1)
+	signal.Notify(shutdownSignal, syscall.SIGINT, syscall.SIGTERM)
+	<-shutdownSignal
+	server.StopGRPCServer(grpcServer)
+	server.StopHTTPServer(httpServer)
 }
