@@ -92,19 +92,18 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	place := models.Place{
-		UserID:           userID,
-		ID:               uuid.NewV4(),
-		CoverMediaItemID: uid,
-		Postcode:         req.Postcode,
-		Town:             req.Town,
-		City:             req.City,
-		State:            req.State,
-		Country:          req.Country,
+		UserID:   userID,
+		Postcode: req.Postcode,
+		Town:     req.Town,
+		City:     req.City,
+		State:    req.State,
+		Country:  req.Country,
 	}
 	place.Name = getNameForPlace(place)
-	result := s.DB.Where(models.Place{
-		UserID: userID, Name: place.Name, Postcode: place.Postcode,
-	}).Attrs(place).FirstOrCreate(&place)
+	result := s.DB.Where(models.Place{UserID: userID, Name: place.Name, Postcode: place.Postcode}).
+		Attrs(models.Place{ID: uuid.NewV4()}).
+		Assign(models.Place{CoverMediaItemID: uid}).
+		FirstOrCreate(&place)
 	if result.Error != nil {
 		log.Printf("error getting or creating place: %+v", result.Error)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal,
