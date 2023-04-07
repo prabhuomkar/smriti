@@ -19,7 +19,7 @@ test-library:
 	behave -i library.feature
 test-explore:
 	@echo "testing feature: explore"
-	@echo "feature not developed yet!"
+	behave -i explore.feature
 test-search:
 	@echo "testing feature: search"
 	@echo "feature not developed yet!"

@@ -15,3 +15,5 @@ CREATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic',
                      'description': None, 'favourite': False, 'hidden': False}
 UPDATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 
                      'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': True}
+
+CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}
