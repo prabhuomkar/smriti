@@ -16,6 +16,8 @@ def grpc_save_mediaitem_metadata(api_stub: APIStub, result: dict):
             status=result['status'],
             mimeType=result['mimeType'] if 'mimeType' in result else None,
             sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
+            previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
+            thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
             type=result['type'] if 'type' in result else None,
             width=result['width'] if 'width' in result else None,
             height=result['height'] if 'height' in result else None,

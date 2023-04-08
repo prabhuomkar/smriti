@@ -1,4 +1,5 @@
 """Storage Disk Tests"""
+import os
 from unittest.mock import patch
 
 from src.store.disk import Disk
@@ -14,6 +15,6 @@ def test_disk_success(mock_mkdir, mock_open, mock_remove):
     f = mock_remove.return_value
     f.method.return_value = None
     disk = Disk(root='.')
-    assert disk.upload('mediaitem_id', None, 'previews') == './previews/mediaitem_id'
-    assert disk.get('mediaitem_id', 'thumbnails') == './thumbnails/mediaitem_id'
+    assert disk.upload('mediaitem_id', None, 'previews') == os.path.abspath('./previews/mediaitem_id')
+    assert disk.get('mediaitem_id', 'thumbnails') == os.path.abspath('./thumbnails/mediaitem_id')
     assert disk.delete('') == None

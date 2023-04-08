@@ -23,6 +23,9 @@ services:
       CAROUSEL_DATABASE_LOG_LEVEL: INFO
       CAROUSEL_FEATURE_EXPLORE: true
       CAROUSEL_FEATURE_EXPLORE_PLACES: true
+      CAROUSEL_STORAGE_DISK_ROOT: ../storage
+    volumes:
+      - ./storage:/storage:rw
   worker:
     build: worker
     restart: always
@@ -33,6 +36,7 @@ services:
       CAROUSEL_API_HOST: api
       CAROUSEL_API_PORT: 15001
       CAROUSEL_LOG_LEVEL: DEBUG
+      CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
   # infra services

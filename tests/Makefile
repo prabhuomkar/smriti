@@ -26,3 +26,8 @@ test-search:
 test-all:
 	@echo "testing all features"
 	behave
+clear:
+	@echo "clearing uploaded files"
+	@sudo rm -rf ../storage/originals/*
+	@sudo rm -rf ../storage/previews/*
+	@sudo rm -rf ../storage/thumbnails/*

@@ -1,3 +1,4 @@
+import os
 import psycopg2
 
 
@@ -21,6 +22,7 @@ def after_scenario(context, scenario):
         db_conn.close()
 
 def after_feature(context, feature):
+    # delete all rows from database
     db_conn = psycopg2.connect(
         database='carousel',
         user='carousel',

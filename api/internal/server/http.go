@@ -9,6 +9,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/bluele/gcache"
@@ -26,6 +27,10 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 		Addr:    fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port),
 		Handler: srvHandler,
 	}
+	// file server
+	fileRoute := getFileRoute(handler.Config.StorageDiskRoot)
+	log.Printf("starting file server on: %s", fileRoute)
+	srvHandler.Static(fileRoute, handler.Config.StorageDiskRoot)
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/features", handler.GetFeatures)
@@ -138,4 +143,9 @@ func getMiddlewareFuncs(cfg *config.Config, cache gcache.Cache, features ...stri
 		middlewareFuncs = append(middlewareFuncs, middlewares.FeatureCheck(cfg, feature))
 	}
 	return middlewareFuncs
+}
+
+func getFileRoute(storageDiskRoot string) string {
+	fileRoute := strings.ReplaceAll(storageDiskRoot, "..", "")
+	return fileRoute
 }

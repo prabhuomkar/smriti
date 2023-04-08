@@ -76,6 +76,7 @@ type (
 		Auth
 		Feature
 		Admin
+		StorageDiskRoot string `envconfig:"CAROUSEL_STORAGE_DISK_ROOT" default:"../storage"`
 	}
 )
 
