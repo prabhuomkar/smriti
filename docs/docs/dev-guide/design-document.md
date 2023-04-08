@@ -3,27 +3,21 @@
 ## Requirements
 - [EPICs](https://github.com/users/prabhuomkar/projects/5/views/7)
 
-
-## Architecture
-TODO(omkar): Add architecture diagram
-
 ## High Level Design
 
 ### Components
 
 #### API
-- TODO(omkar): Add Swagger Open API Spec
 - Service written in Golang
     - REST API: [echo](https://echo.labstack.com/)
     - RPC: [gRPC + protobuf](https://grpc.io/)
     - Postgres: [gorm](https://gorm.io/)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
-- Will exchange protobuf with Worker: TODO(omkar): add _api.proto_
+- Will exchange protobuf with Worker: [api.proto](https://github.com/prabhuomkar/carousel/blob/master/protos/api.proto)
 
 #### Database
-TODO(omkar): Add entity relationship diagram
-TODO(omkar): Add database schema sql
+- [Schema](https://github.com/prabhuomkar/carousel/blob/master/infra/database/schema.sql)
 - Total number of tables: 10
 - **Entities**:
     - MediaItem: `mediaitems`
@@ -39,7 +33,7 @@ TODO(omkar): Add database schema sql
     - LibRaw: [rawpy](https://pypi.org/project/rawpy/)
     - CDN: TBD, depends on file storage systems
 - Will process images and videos
-- Will exchange protobuf with API: TODO(omkar): add _worker.proto_
+- Will exchange protobuf with API: [worker.proto](https://github.com/prabhuomkar/carousel/blob/master/protos/worker.proto)
 
 ### Image & Video Processing
 
@@ -83,7 +77,6 @@ TODO(omkar): Add database schema sql
 | Video | MTS | ❓ |
 | Video | TOD | ❓ |
 | Video | WMV | ❓ |
-- TODO(omkar): Investiage support for Android Motion Photos, iOS Live Photos
 
 ### File Storage & Retrieval
 - Support for several file storage systems behind a common interface:
@@ -101,7 +94,14 @@ interface {
 - Best practices for security and other similar aspects for connecting to storage will be decided later
 
 ### Machine Learning Inference
-TODO(omkar): Add more information
+- Toggles for using CPU and GPU for inference
+- Graph workflow based model inference 
+- Default Models:
+    - Classification - [EfficientNet](https://github.com)
+    - Detection - [YOLOv8](https://github.com)
+    - Face Detection - [TBD](https://github.com)
+    - OCR - [TBD](https://github.com)
+    - Search Embeddings - [TBD](https://github.com)
 
 ## Performance
 - Benchmarking with several parallel uploads and system configuration

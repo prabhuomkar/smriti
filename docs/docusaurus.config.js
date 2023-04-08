@@ -32,6 +32,17 @@ const config = {
         },
       }),
     ],
+    [
+      'redocusaurus',
+      {
+        specs: [
+          {
+            spec: 'swagger.yaml',
+            route: '/api/',
+          },
+        ],
+      },
+    ],
   ],
   themeConfig:
     /** @type {import('@docusaurus/preset-classic').ThemeConfig} */
@@ -44,10 +55,15 @@ const config = {
         },
         items: [
           {
+            href: "/api/",
+            label: "API",
+            position: "left",
+          },
+          {
             type: "doc",
             docId: "dev-guide/introduction",
-            position: "right",
             label: "Documentation",
+            position: "right",
           },
           {
             href: "https://github.com/prabhuomkar/carousel",
