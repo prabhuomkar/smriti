@@ -1,8 +1,9 @@
 asyncio
 grpcio
 grpcio-tools
-rawpy
-PyExifTool
-requests
+moviepy
 Pillow
+PyExifTool
+rawpy
+requests
 Wand

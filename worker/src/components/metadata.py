@@ -1,11 +1,14 @@
 """Metadata Component"""
 import io
+import os
 import asyncio
 import logging
 import datetime
+import random
 
 import exiftool
 import rawpy
+from moviepy.editor import VideoFileClip
 from PIL import Image as PILImage
 from wand.image import Image as WandImage
 
@@ -21,6 +24,13 @@ PREVIEWABLE_PHOTO_MIME_TYPES = [
     'image/svg+xml', 'image/webp', 'image/heic', 'image/heif',
 ]
 
+PREVIEWABLE_VIDEO_MIME_TYPES = [
+    'video/x-msvideo', 'video/mp4', 'video/mpeg', 'video/ogg', 'video/mp2t',
+    'video/webm', 'video/3gpp', 'video/3gpp2',
+]
+
+
+# pylint: disable=too-many-statements
 async def process_metadata(storage, api_stub: APIStub, mediaitem_user_id: str, mediaitem_id: str) -> None:
     """Process required metadata and generate thumbnail from EXIF data"""
     file_path = storage.get(mediaitem_id)
@@ -71,25 +81,45 @@ async def process_metadata(storage, api_stub: APIStub, mediaitem_user_id: str, m
         grpc_save_mediaitem_metadata(api_stub, result)
         return None
 
-    # generate and upload preview and thumbnail
-    try:
-        preview_bytes, thumbnail_bytes = generate_preview_and_thumbnail(
-            file_path, result['mimeType'])
-        preview_url = storage.upload(
-            mediaitem_id, preview_bytes, 'previews')
-        thumbnail_url = storage.upload(
-            mediaitem_id, thumbnail_bytes, 'thumbnails')
-        result['previewUrl'] = preview_url
-        result['thumbnailUrl'] = thumbnail_url
-        logging.debug(f'extracted preview and thumbnail for \
-                      user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
-    except Exception as e:
-        logging.error(
-            f'error generating and uploading preview and thumbnail for \
-                user {mediaitem_user_id} mediaitem {mediaitem_id}: {str(e)}')
-        result['status'] = 'FAILED'
-        grpc_save_mediaitem_metadata(api_stub, result)
-        return None
+    if result['type'] == 'photo':
+        # generate and upload preview and thumbnail for a photo
+        try:
+            preview_bytes, thumbnail_bytes = generate_photo_preview_and_thumbnail(
+                file_path, result['mimeType'])
+            preview_url = storage.upload(
+                mediaitem_id, preview_bytes, 'previews')
+            thumbnail_url = storage.upload(
+                mediaitem_id, thumbnail_bytes, 'thumbnails')
+            result['previewUrl'] = preview_url
+            result['thumbnailUrl'] = thumbnail_url
+            logging.debug(f'extracted preview and thumbnail for \
+                        user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {result}')
+        except Exception as e:
+            logging.error(
+                f'error generating and uploading preview and thumbnail for \
+                    user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {str(e)}')
+            result['status'] = 'FAILED'
+            grpc_save_mediaitem_metadata(api_stub, result)
+            return None
+    else:
+        # generate and upload preview and thumbnail for a video
+        try:
+            preview_bytes, thumbnail_bytes = generate_video_preview_and_thumbnail(file_path)
+            preview_url = storage.upload(
+                mediaitem_id, preview_bytes, 'previews')
+            thumbnail_url = storage.upload(
+                mediaitem_id, thumbnail_bytes, 'thumbnails')
+            result['previewUrl'] = preview_url
+            result['thumbnailUrl'] = thumbnail_url
+            logging.debug(f'extracted preview and thumbnail for \
+                        user {mediaitem_user_id} video mediaitem {mediaitem_id}: {result}')
+        except Exception as e:
+            logging.error(
+                f'error generating and uploading preview and thumbnail for \
+                    user {mediaitem_user_id} video mediaitem {mediaitem_id}: {str(e)}')
+            result['status'] = 'FAILED'
+            grpc_save_mediaitem_metadata(api_stub, result)
+            return None
 
     # metadata, preview and thumbnail extracted, so its READY
     result['status'] = 'READY'
@@ -104,8 +134,8 @@ async def process_metadata(storage, api_stub: APIStub, mediaitem_user_id: str, m
     return None
 
 
-def generate_thumbnail(preview_bytes: bytes):
-    """Generate thumbnail image"""
+def generate_photo_thumbnail(preview_bytes: bytes):
+    """Generate thumbnail image from photo"""
     # work(omkar): thumbnail size should be configurable through UI
     with WandImage(blob=preview_bytes) as img:
         lidx = 0 if img.size[0] > img.size[1] else 1
@@ -117,8 +147,8 @@ def generate_thumbnail(preview_bytes: bytes):
             return converted.make_blob('jpeg')
 
 
-def generate_preview_and_thumbnail(original_file_path: str, mime_type: str):
-    """Generate preview and thumbnail image"""
+def generate_photo_preview_and_thumbnail(original_file_path: str, mime_type: str):
+    """Generate preview and thumbnail image for a photo"""
     if mime_type in PREVIEWABLE_PHOTO_MIME_TYPES:
         with WandImage(filename=original_file_path) as original:
             with original.convert('jpeg') as converted:
@@ -129,4 +159,28 @@ def generate_preview_and_thumbnail(original_file_path: str, mime_type: str):
             img = PILImage.fromarray(rgb)
             img_bytes = io.BytesIO()
             img.save(img_bytes, format='JPEG')
-    return img_bytes, generate_thumbnail(img_bytes)
+    return img_bytes, generate_photo_thumbnail(img_bytes)
+
+def generate_video_thumbnail(preview_video_path: str):
+    """Generate thumbnail image from video"""
+    # work(omkar): thumbnail size should be configurable through UI
+    clip = VideoFileClip(preview_video_path)
+    video_thumbnail_path = f'{preview_video_path}_thumbnail.jpeg'
+    clip.save_frame(video_thumbnail_path, t=random.uniform(0.1, clip.duration))
+    with open(video_thumbnail_path, 'rb') as thumbnail_file:
+        thumbnail_bytes = thumbnail_file.read()
+        thumbnail_file.close()
+    os.remove(video_thumbnail_path)
+    return thumbnail_bytes
+
+def generate_video_preview_and_thumbnail(original_file_path: str):
+    """Generate preview and thumbnail image for a video"""
+    video = VideoFileClip(original_file_path)
+    video_preview_path = f'{original_file_path}.mp4'
+    video.write_videofile(video_preview_path, codec='libx264', logger=None, verbose=False)
+    with open(video_preview_path, 'rb') as video_file:
+        video_bytes = video_file.read()
+        video_file.close()
+    video_thumbnail_bytes = generate_video_thumbnail(video_preview_path)
+    os.remove(video_preview_path)
+    return video_bytes, video_thumbnail_bytes

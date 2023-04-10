@@ -20,7 +20,7 @@ type (
 		ID              uuid.UUID       `json:"id" gorm:"primaryKey"`
 		UserID          uuid.UUID       `json:"userId" gorm:"column:user_id"`
 		Filename        string          `json:"filename"`
-		Description     *string         `json:"description"`
+		Description     *string         `json:"description,omitempty"`
 		MimeType        string          `json:"mimeType"`
 		SourceURL       string          `json:"sourceUrl"`
 		PreviewURL      string          `json:"previewUrl"`
