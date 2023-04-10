@@ -63,7 +63,7 @@
 | Video | 3GP | ❓ |
 | Video | 3G2 | ❓ |
 | Video | ASF | ❓ |
-| Video | AVI | ❓ |
+| Video | AVI | ✅ |
 | Video | DIVX | ❓ |
 | Video | M2T | ❓ |
 | Video | M2TS | ❓ |
@@ -71,8 +71,8 @@
 | Video | MKV | ❓ |
 | Video | MMV | ❓ |
 | Video | MOD | ❓ |
-| Video | MOV | ❓ |
-| Video | MP4 | ❓ |
+| Video | MOV | ✅ |
+| Video | MP4 | ✅ |
 | Video | MPG | ❓ |
 | Video | MTS | ❓ |
 | Video | TOD | ❓ |
