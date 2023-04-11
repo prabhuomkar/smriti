@@ -31,7 +31,19 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Version'
-  /features:
+  /disk:
+    get:
+      summary: Get disk usage of Carousel
+      description: Get disk usage of Carousel
+      operationId: getDisk
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Disk'
+  /v1/features:
     get:
       summary: Get list of enabled features
       description: Get list of enabled features
@@ -43,35 +55,6 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Features'
-  /v1/yearsAgo/{monthDate}/mediaItems:
-    get:
-      tags:
-        - Explore
-      parameters:
-        - name: monthDate
-          in: path
-          description: Month and Date in MMDD format
-          required: true
-          schema:
-            type: string
-      summary: Get all mediaItems which are N years ago from given month & date
-      description: Get all mediaItems which are N years ago from given month & date
-      operationId: getYearsAgoMediaItems
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
-          description: Not Found
-        '500':
-          description: Internal Server Error
   /v1/yearsAgo/{monthDate}/mediaItems:
     get:
       tags:
@@ -1125,6 +1108,18 @@ components:
         hidden:
           type: boolean
           example: false
+    Disk:
+      type: object
+      properties:
+        total:
+          type: number
+          example: 93896515584
+        free:
+          type: number
+          example: 58737410048
+        used:
+          type: number
+          example: 35159105536
     AuthRequest:
       type: object
       properties:

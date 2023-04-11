@@ -3,6 +3,8 @@ package middlewares
 import (
 	"api/config"
 	"api/internal/handlers"
+	"api/internal/models"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
@@ -95,9 +97,14 @@ func TestFeatureCheckOK(t *testing.T) {
 		server := echo.New()
 		req := httptest.NewRequest(http.MethodGet, "/v1/route", nil)
 		rec := httptest.NewRecorder()
+		// context
+		ctx := server.NewContext(req, rec)
+		var features models.Features
+		_ = json.Unmarshal([]byte(`{"albums":true}`), &features)
+		ctx.Set("features", features)
 		checkFeature := FeatureCheck(cfg, feature)
-		server.GET("/v1/route", checkFeature(handler.(func(ctx echo.Context) error)))
-		server.ServeHTTP(rec, req)
+		err := checkFeature(handler.(func(ctx echo.Context) error))(ctx)
+		assert.NoError(t, err)
 		assert.Equal(t, http.StatusOK, rec.Code)
 	}
 }

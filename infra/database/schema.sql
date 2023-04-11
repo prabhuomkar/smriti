@@ -118,6 +118,7 @@ CREATE TABLE "users" (
   "username" varchar UNIQUE,
   "name" varchar NOT NULL,
   "password" varchar NOT NULL,
+  "features" varchar NOT NULL,
   "created_at" timestamp,
   "updated_at" timestamp
 );

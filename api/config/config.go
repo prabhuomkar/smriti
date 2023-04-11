@@ -52,7 +52,6 @@ type (
 		Hidden        bool `envconfig:"CAROUSEL_FEATURE_HIDDEN" default:"true"`
 		Trash         bool `envconfig:"CAROUSEL_FEATURE_TRASH" default:"true"`
 		Albums        bool `envconfig:"CAROUSEL_FEATURE_ALBUMS" default:"true"`
-		Users         bool `envconfig:"CAROUSEL_FEATURE_USERS" default:"true"`
 		Explore       bool `envconfig:"CAROUSEL_FEATURE_EXPLORE" default:"true"`
 		ExplorePlaces bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_PLACES" default:"true"`
 		ExploreThings bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_THINGS" default:"false"`

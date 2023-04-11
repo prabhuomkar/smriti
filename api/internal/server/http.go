@@ -33,9 +33,9 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	srvHandler.Static(fileRoute, handler.Config.StorageDiskRoot)
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
-	srvHandler.GET("/features", handler.GetFeatures)
 	srvHandler.GET("/disk", handler.GetDisk)
 	version1 := srvHandler.Group("/v1")
+	version1.GET("/features", handler.GetFeatures, getMiddlewareFuncs(handler.Config, handler.Cache)...)
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
 	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces,
@@ -110,7 +110,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	auth.POST("/logout", handler.Logout)
 	// user management
 	users := version1.Group("/users")
-	users.Use(middlewares.FeatureCheck(handler.Config, "users"), middlewares.BasicAuthCheck(handler.Config))
+	users.Use(middlewares.BasicAuthCheck(handler.Config))
 	users.GET("/:id", handler.GetUser)
 	users.PUT("/:id", handler.UpdateUser)
 	users.DELETE("/:id", handler.DeleteUser)

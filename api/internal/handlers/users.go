@@ -18,6 +18,7 @@ type (
 		Name     *string `json:"name"`
 		Username *string `json:"username"`
 		Password *string `json:"password"`
+		Features *string `json:"features"`
 	}
 )
 
@@ -127,6 +128,9 @@ func getUser(ctx echo.Context) (*models.User, error) {
 	}
 	if UserRequest.Password != nil {
 		user.Password = *UserRequest.Password
+	}
+	if UserRequest.Features != nil {
+		user.Features = *UserRequest.Features
 	}
 	if reflect.DeepEqual(models.User{}, user) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user")

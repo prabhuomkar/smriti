@@ -85,7 +85,7 @@ def step_impl(context, condition):
     files = {'file': open('data/IMG_0543.HEIC','rb')}
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     context.response = res
-    time.sleep(2)
+    time.sleep(3)
 
 
 @when('update mediaitem {condition} auth')

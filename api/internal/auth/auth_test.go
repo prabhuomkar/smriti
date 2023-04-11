@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/bluele/gcache"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -48,7 +49,7 @@ func TestGetTokens(t *testing.T) {
 		t.Run(test.Name, func(t *testing.T) {
 			cfg := &config.Config{}
 			cache := gcache.New(1024).LRU().SerializeFunc(test.SerializeFunc).Build()
-			atoken, rtoken, err := GetTokens(cfg, cache, models.User{})
+			atoken, rtoken, err := GetTokens(cfg, cache, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")})
 			if test.WantErr {
 				assert.Empty(t, atoken)
 				assert.Empty(t, rtoken)
@@ -73,7 +74,7 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
 				_ = cache.Set(oldRToken, true)
 				return oldRToken
 			},
@@ -103,7 +104,7 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"error converting user id from claims",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, "invalid-user-id", "username")
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("invalid-user-id"), Username: "username"})
 				_ = cache.Set(oldRToken, true)
 				return oldRToken
 			},
@@ -147,7 +148,7 @@ func TestRemoveTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
 				_ = cache.Set(oldAToken, true)
 				return oldAToken
 			},
@@ -196,7 +197,7 @@ func TestVerifyToken(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache gcache.Cache) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(cfg, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "username")
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
 				_ = cache.Set(oldAToken, true)
 				return oldAToken
 			},

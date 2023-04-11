@@ -3,6 +3,7 @@ package auth
 import (
 	"api/config"
 	"api/internal/models"
+	"errors"
 	"log"
 	"time"
 
@@ -16,13 +17,14 @@ type (
 	TokenClaims struct {
 		ID       string `json:"id"`
 		Username string `json:"username"`
+		Features string `json:"features"`
 		jwt.RegisteredClaims
 	}
 )
 
 // GetTokens ...
 func GetTokens(cfg *config.Config, cache gcache.Cache, user models.User) (string, string, error) {
-	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user.ID.String(), user.Username)
+	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user)
 
 	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
 	if setRefreshErr != nil {
@@ -52,6 +54,10 @@ func RefreshTokens(cfg *config.Config, cache gcache.Cache, refreshToken string) 
 	}
 
 	userID, err := uuid.FromString(claims.ID)
+	if userID == uuid.Nil {
+		log.Printf("error getting user id from claims: %+v", err)
+		return "", "", errors.New("got nil user id")
+	}
 	if err != nil {
 		log.Printf("error converting user id from claims: %+v", err)
 		return "", "", err
@@ -90,8 +96,8 @@ func VerifyToken(cfg *config.Config, cache gcache.Cache, accessToken string) (*T
 	return claims, nil
 }
 
-func GetAccessAndRefreshTokens(cfg *config.Config, userID, username string) (string, string) {
-	return getSignedToken(cfg, userID, username, "access"), getSignedToken(cfg, userID, username, "refresh")
+func GetAccessAndRefreshTokens(cfg *config.Config, user models.User) (string, string) {
+	return getSignedToken(cfg, user, "access"), getSignedToken(cfg, user, "refresh")
 }
 
 func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) {
@@ -112,15 +118,16 @@ func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) 
 	return claims, nil
 }
 
-func getSignedToken(cfg *config.Config, userID, username, subject string) string {
+func getSignedToken(cfg *config.Config, user models.User, subject string) string {
 	ttl := cfg.Auth.AccessTTL
 	if subject == "refresh" {
 		ttl = cfg.Auth.RefreshTTL
 	}
 	creationTime := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
-		userID,
-		username,
+		user.ID.String(),
+		user.Username,
+		user.Features,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(creationTime.Add(time.Duration(ttl) * time.Second)),
 			IssuedAt:  jwt.NewNumericDate(creationTime),
@@ -128,7 +135,7 @@ func getSignedToken(cfg *config.Config, userID, username, subject string) string
 			Issuer:    cfg.Auth.Issuer,
 			Audience:  []string{cfg.Auth.Audience},
 			Subject:   subject,
-			ID:        userID,
+			ID:        user.ID.String(),
 		},
 	})
 	signedToken, _ := token.SignedString([]byte(cfg.Auth.Secret))

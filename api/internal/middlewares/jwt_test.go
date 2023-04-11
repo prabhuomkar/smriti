@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/internal/auth"
 	"api/internal/handlers"
+	"api/internal/models"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
@@ -13,6 +14,7 @@ import (
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -74,7 +76,7 @@ func TestJWTCheckOK(t *testing.T) {
 			AccessTTL: 60,
 		},
 	}
-	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, "userID", "username")
+	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.NewV4(), Username: "username"})
 	// mock cache
 	cache := gcache.New(1024).LRU().Build()
 	_ = cache.Set(accessToken, nil)

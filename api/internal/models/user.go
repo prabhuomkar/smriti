@@ -13,7 +13,8 @@ type User struct {
 	ID        uuid.UUID `json:"id" gorm:"primaryKey"`
 	Name      string    `json:"name"`
 	Username  string    `json:"username"`
-	Password  string    `json:"password"`
+	Password  string    `json:"-"`
+	Features  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`
 	UpdatedAt time.Time `json:"updatedAt"`
 }

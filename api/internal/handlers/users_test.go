@@ -14,13 +14,13 @@ import (
 var (
 	userCols         = []string{"id", "name", "username", "password", "created_at", "updated_at"}
 	userResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
-		`"username":"username","password":"password",` +
+		`"username":"username",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
 	usersResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
-		`"username":"username","password":"password",` +
+		`"username":"username",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"},` +
 		`{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","name":"name",` +
-		`"username":"username","password":"password",` +
+		`"username":"username",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
@@ -382,11 +382,11 @@ func TestCreateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
+			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "username", "password", sqlmock.AnyArg(), sqlmock.AnyArg()).
+					WithArgs(sqlmock.AnyArg(), "name", "username", "password", "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -396,7 +396,7 @@ func TestCreateUser(t *testing.T) {
 				return handler.CreateUser
 			},
 			http.StatusCreated,
-			`"name":"name","username":"username","password":"password"`,
+			`"name":"name","username":"username"`,
 		},
 		{
 			"create user with error",
@@ -406,11 +406,11 @@ func TestCreateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
+			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "username", "password", sqlmock.AnyArg(), sqlmock.AnyArg()).
+					WithArgs(sqlmock.AnyArg(), "name", "username", "password", "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},

@@ -9,9 +9,9 @@ import (
 type (
 	// Disk ...
 	Disk struct {
-		All  uint64 `json:"all,omitempty"`
-		Used uint64 `json:"used,omitempty"`
-		Free uint64 `json:"free,omitempty"`
+		Total uint64 `json:"total,omitempty"`
+		Used  uint64 `json:"used,omitempty"`
+		Free  uint64 `json:"free,omitempty"`
 	}
 )
 
@@ -25,9 +25,9 @@ func GetDisk(cfg *config.Config) *Disk {
 		return nil
 	}
 	disk := &Disk{
-		All:  diskStat.Blocks * uint64(diskStat.Bsize),
-		Free: diskStat.Bfree * uint64(diskStat.Bsize),
+		Total: diskStat.Blocks * uint64(diskStat.Bsize),
+		Free:  diskStat.Bfree * uint64(diskStat.Bsize),
 	}
-	disk.Used = disk.All - disk.Free
+	disk.Used = disk.Total - disk.Free
 	return disk
 }

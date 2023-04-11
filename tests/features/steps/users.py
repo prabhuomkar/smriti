@@ -48,14 +48,12 @@ def step_impl(context):
     assert len(context.users) == 1
     assert context.users[0]['name'] == context.match_user['name']
     assert context.users[0]['username'] == context.match_user['username']
-    assert context.users[0]['password'] == context.match_user['password']
 
 
 @then('user is present')
 def step_impl(context):
     assert context.user['name'] == context.match_user['name']
     assert context.user['username'] == context.match_user['username']
-    assert context.user['password'] == context.match_user['password']
 
 
 @then('user is not present in list')
@@ -63,14 +61,12 @@ def step_impl(context):
     if len(context.users) > 0:
         assert context.users[0]['name'] != context.match_user['name']
         assert context.users[0]['username'] != context.match_user['username']
-        assert context.users[0]['password'] != context.match_user['password']
 
 
 @then('user is not present')
 def step_impl(context):
     assert 'name' not in context.user
     assert 'username' not in context.user
-    assert 'password' not in context.user
     assert context.user['message'] == 'user not found'
 
 

@@ -3,6 +3,8 @@ package middlewares
 import (
 	"api/config"
 	"api/internal/auth"
+	"api/internal/models"
+	"encoding/json"
 	"strings"
 
 	"github.com/bluele/gcache"
@@ -19,6 +21,9 @@ func JWTCheck(cfg *config.Config, cache gcache.Cache) echo.MiddlewareFunc {
 			if err == nil && claims != nil {
 				ctx.Set("userID", claims.ID)
 				ctx.Set("username", claims.Username)
+				var features models.Features
+				_ = json.Unmarshal([]byte(claims.Features), &features)
+				ctx.Set("features", features)
 				return next(ctx)
 			}
 			return echo.ErrUnauthorized

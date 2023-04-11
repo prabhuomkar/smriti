@@ -3,10 +3,10 @@ ADMIN_USERNAME = 'carousel'
 ADMIN_PASSWORD = 'carouselT3st!'
 
 
-CREATED_USER = {'name': 'John Doe',
-                'username': 'johndoe', 'password': 'johndoeT3st!'}
-UPDATED_USER = {'name': 'UpdatedJohn Doe',
-                'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!'}
+CREATED_USER = {'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!',
+                'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true}'}
+UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!',
+                'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true}'}
 
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description'}
