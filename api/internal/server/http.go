@@ -34,6 +34,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/features", handler.GetFeatures)
+	srvHandler.GET("/disk", handler.GetDisk)
 	version1 := srvHandler.Group("/v1")
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
@@ -73,7 +74,8 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	trash.DELETE("", handler.RemoveDeletedMediaItems)
 	// explore
 	explore := version1.Group("/explore")
-	explore.Use(middlewares.FeatureCheck(handler.Config, "explore"))
+	explore.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "explore")...)
+	explore.GET("/yearsAgo/:monthDate/mediaItems", handler.GetYearsAgoMediaItems)
 	places := explore.Group("/places")
 	places.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "places")...)
 	places.GET("/:id/mediaItems", handler.GetPlaceMediaItems)
@@ -86,10 +88,10 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	things.GET("", handler.GetThings)
 	people := explore.Group("/people")
 	people.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "people")...)
-	explore.GET("/:id/mediaItems", handler.GetPeopleMediaItems)
-	explore.GET("/:id", handler.GetPerson)
-	explore.PUT("/:id", handler.UpdatePerson)
-	explore.GET("", handler.GetPeople)
+	people.GET("/:id/mediaItems", handler.GetPeopleMediaItems)
+	people.GET("/:id", handler.GetPerson)
+	people.PUT("/:id", handler.UpdatePerson)
+	people.GET("", handler.GetPeople)
 	// albums
 	albums := version1.Group("/albums")
 	albums.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "albums")...)

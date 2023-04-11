@@ -12,3 +12,4 @@ linters:
     - gci
     - nolintlint
     - dupl
+    - goerr113

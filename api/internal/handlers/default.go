@@ -18,3 +18,9 @@ func (h *Handler) GetFeatures(ctx echo.Context) error {
 	features := models.GetFeatures(h.Config)
 	return ctx.JSON(http.StatusOK, features)
 }
+
+// GetDisk ...
+func (h *Handler) GetDisk(ctx echo.Context) error {
+	disk := models.GetDisk(h.Config)
+	return ctx.JSON(http.StatusOK, disk)
+}

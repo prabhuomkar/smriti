@@ -3,6 +3,7 @@ package handlers
 import (
 	"api/config"
 	"api/pkg/services/worker"
+	"fmt"
 	"strconv"
 
 	"github.com/bluele/gcache"
@@ -45,4 +46,13 @@ func getOffsetAndLimit(ctx echo.Context) (int, int) {
 func getRequestingUserID(ctx echo.Context) uuid.UUID {
 	userID, _ := ctx.Get("userID").(string)
 	return uuid.FromStringOrNil(userID)
+}
+
+func getMonthAndDate(ctx echo.Context) (string, string, error) {
+	monthDate := ctx.Param("monthDate")
+	// nolint: gomnd
+	if len(monthDate) == 4 { // MMDD
+		return monthDate[:2], monthDate[2:], nil
+	}
+	return "", "", fmt.Errorf("invalid monthDate: %s", monthDate)
 }

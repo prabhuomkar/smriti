@@ -14,8 +14,26 @@ import (
 var (
 	placeCols = []string{"id", "user_id", "name", "postcode", "town", "city", "state",
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
-	thingCols                  = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
-	peopleCols                 = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	thingCols                    = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	peopleCols                   = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	memoryMediaItemCols          = append(mediaitemCols, "creation_year")
+	memoryMediaItemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"thumbnailUrl":"thumbnail_url","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
+		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
+		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
+		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30","year":"2023"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"thumbnailUrl":"thumbnail_url","favourite":false,"hidden":true,"deleted":true,"status":"status",` +
+		`"mediaItemType":"mediaitem_type","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
+		`"apertureFnumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
+		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30","year":"2022"}]`
 	coverMediaItemResponseBody = `"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
@@ -69,6 +87,85 @@ var (
 		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
 )
+
+func TestGetYearsAgoMediaItems(t *testing.T) {
+	tests := []Test{
+		{
+			"get years ago mediaitems bad request",
+			http.MethodGet,
+			"/v1/explore/yearsAgo/:monthDate/mediaItems",
+			"/v1/explore/yearsAgo/bad-month-date/mediaItems",
+			map[string]string{},
+			nil,
+			nil,
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetYearsAgoMediaItems
+			},
+			http.StatusBadRequest,
+			`{"message":"invalid month and date"}`,
+		},
+		{
+			"get years ago mediaitems not found",
+			http.MethodGet,
+			"/v1/explore/yearsAgo/:monthDate/mediaItems",
+			"/v1/explore/yearsAgo/0403/mediaItems",
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`FROM mediaitems`)).
+					WillReturnRows(sqlmock.NewRows(memoryMediaItemCols))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetYearsAgoMediaItems
+			},
+			http.StatusOK,
+			"",
+		},
+		{
+			"get years ago mediaitems with 2 years",
+			http.MethodGet,
+			"/v1/explore/yearsAgo/:monthDate/mediaItems",
+			"/v1/explore/yearsAgo/0403/mediaItems",
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`FROM mediaitems`)).
+					WillReturnRows(getMockedMemoryMediaItemRows())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetYearsAgoMediaItems
+			},
+			http.StatusOK,
+			memoryMediaItemsResponseBody,
+		},
+		{
+			"get years ago mediaitems with error",
+			http.MethodGet,
+			"/v1/explore/yearsAgo/:monthDate/mediaItems",
+			"/v1/explore/yearsAgo/0403/mediaItems",
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`FROM mediaitems`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetYearsAgoMediaItems
+			},
+			http.StatusInternalServerError,
+			`{"message":"some db error"}`,
+		},
+	}
+	executeTests(t, tests)
+}
 
 func TestGetPlaces(t *testing.T) {
 	tests := []Test{
@@ -912,4 +1009,18 @@ func getMockedPeopleRows() *sqlmock.Rows {
 			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
+}
+
+func getMockedMemoryMediaItemRows() *sqlmock.Rows {
+	return sqlmock.NewRows(memoryMediaItemCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename", "description", "mime_type", "source_url", "preview_url",
+			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", 720,
+			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime, "2023").
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename", "description", "mime_type", "source_url", "preview_url",
+			"thumbnail_url", "false", "true", "true", "status", "mediaitem_type", 720,
+			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime, "2022")
 }

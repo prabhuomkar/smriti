@@ -19,7 +19,34 @@ type (
 		IsHidden         *bool   `json:"hidden"`
 		CoverMediaItemID *string `json:"coverMediaItemId"`
 	}
+
+	// MemoryMediaItem ...
+	MemoryMediaItem struct {
+		models.MediaItem
+		Year string `json:"year" gorm:"column:creation_year"`
+	}
 )
+
+// GetYearsAgoMediaItems ...
+func (h *Handler) GetYearsAgoMediaItems(ctx echo.Context) error {
+	userID := getRequestingUserID(ctx)
+	month, date, err := getMonthAndDate(ctx)
+	if err != nil {
+		log.Printf("error getting month and date: %+v", err)
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid month and date")
+	}
+	var memoryMediaItems []MemoryMediaItem
+	result := h.DB.Raw("SELECT *, EXTRACT(year FROM creation_time) as creation_year "+
+		"FROM mediaitems "+
+		"WHERE user_id = ? AND EXTRACT(month FROM creation_time) = ? AND EXTRACT(day FROM creation_time) = ? "+
+		"AND EXTRACT(year FROM creation_time) IN (SELECT EXTRACT(year FROM creation_time) FROM mediaitems) "+
+		"ORDER BY creation_time", userID, month, date).Scan(&memoryMediaItems)
+	if result.Error != nil {
+		log.Printf("error getting years ago mediaitems: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	}
+	return ctx.JSON(http.StatusOK, memoryMediaItems)
+}
 
 // GetPlaces ...
 func (h *Handler) GetPlaces(ctx echo.Context) error {
