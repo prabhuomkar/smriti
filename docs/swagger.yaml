@@ -43,6 +43,64 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Features'
+  /v1/yearsAgo/{monthDate}/mediaItems:
+    get:
+      tags:
+        - Explore
+      parameters:
+        - name: monthDate
+          in: path
+          description: Month and Date in MMDD format
+          required: true
+          schema:
+            type: string
+      summary: Get all mediaItems which are N years ago from given month & date
+      description: Get all mediaItems which are N years ago from given month & date
+      operationId: getYearsAgoMediaItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/yearsAgo/{monthDate}/mediaItems:
+    get:
+      tags:
+        - Explore
+      parameters:
+        - name: monthDate
+          in: path
+          description: Month and Date in MMDD format
+          required: true
+          schema:
+            type: string
+      summary: Get all mediaItems which are N years ago from given month & date
+      description: Get all mediaItems which are N years ago from given month & date
+      operationId: getYearsAgoMediaItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
   /v1/mediaItems:
     get:
       tags:
@@ -631,35 +689,6 @@ paths:
           description: Bad Request
         '401':
           description: Unauthenticated
-        '500':
-          description: Internal Server Error
-  /v1/explore/yearsAgo/{monthDate}/mediaItems:
-    get:
-      tags:
-        - Explore
-      parameters:
-        - name: monthDate
-          in: path
-          description: Month and Date in MMYY format
-          required: true
-          schema:
-            type: string
-      summary: Get all mediaItems which are N years ago from given month & date
-      description: Get all mediaItems which are N years ago from given month & date
-      operationId: getYearsAgoMediaItems
-      responses:
-        '200':
-          description: Success
-          content:
-            application/json:
-              schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
-          description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
-          description: Not Found
         '500':
           description: Internal Server Error
   /v1/albums:
