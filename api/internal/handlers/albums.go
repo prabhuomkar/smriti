@@ -182,10 +182,12 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 func (h *Handler) GetAlbums(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
+	order := getAlbumSortOrder(ctx)
 	albums := []models.Album{}
 	result := h.DB.Model(&models.Album{}).
 		Where("is_hidden=false AND user_id=?", userID).
 		Preload("CoverMediaItem").
+		Order(order).
 		Find(&albums).
 		Offset(offset).
 		Limit(limit)

@@ -88,6 +88,19 @@ paths:
     get:
       tags:
         - MediaItems
+      parameters:
+        - name: page
+          in: query
+          description: Pagination page
+          schema:
+            type: number
+            default: 1
+        - name: limit
+          in: query
+          description: Pagination limit
+          schema:
+            type: number
+            default: 15
       summary: Get all existing mediaItems
       description: Get all existing mediaItems
       operationId: getMediaItems
@@ -678,6 +691,26 @@ paths:
     get:
       tags:
         - Albums
+      parameters:
+        - name: sort
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            default: name
+            example: updatedAt
+        - name: page
+          in: query
+          description: Pagination page
+          schema:
+            type: number
+            default: 1
+        - name: limit
+          in: query
+          description: Pagination limit
+          schema:
+            type: number
+            default: 15
       summary: Get all existing albums
       description: Get all existing albums
       operationId: getAlbums

@@ -56,3 +56,10 @@ func getMonthAndDate(ctx echo.Context) (string, string, error) {
 	}
 	return "", "", fmt.Errorf("invalid monthDate: %s", monthDate)
 }
+
+func getAlbumSortOrder(ctx echo.Context) string {
+	if ctx.QueryParam("sort") == "updatedAt" {
+		return "updated_at desc"
+	}
+	return "name asc"
+}
