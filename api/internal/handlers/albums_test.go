@@ -62,6 +62,8 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/bad-uuid/mediaItems",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -71,13 +73,15 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				return handler.GetAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album id"}`,
+			"invalid album id",
 		},
 		{
 			"get album mediaitems not found",
 			http.MethodGet,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -97,6 +101,8 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -116,6 +122,8 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -128,7 +136,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				return handler.GetAlbumMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -141,6 +149,8 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/bad-uuid/mediaItems",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -150,13 +160,15 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				return handler.AddAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album id"}`,
+			"invalid album id",
 		},
 		{
 			"add album mediaitems with bad payload",
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -168,13 +180,15 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				return handler.AddAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"add album mediaitems with bad mediaitem",
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -186,13 +200,15 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				return handler.AddAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"add album mediaitems with success",
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -225,6 +241,8 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -244,13 +262,15 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				return handler.AddAlbumMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 		{
 			"add album mediaitems with error updating album",
 			http.MethodPost,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -276,7 +296,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				return handler.AddAlbumMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -289,6 +309,8 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/bad-uuid/mediaItems",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -298,13 +320,15 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album id"}`,
+			"invalid album id",
 		},
 		{
 			"remove album mediaitems with bad payload",
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -316,13 +340,15 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"remove album mediaitems with bad mediaitem",
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -334,13 +360,15 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"remove album mediaitems with success",
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -373,6 +401,8 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -390,13 +420,15 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 		{
 			"remove album mediaitems with error getting cover mediaitem",
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -416,13 +448,15 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 		{
 			"remove album mediaitems with error updating album",
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -448,7 +482,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				return handler.RemoveAlbumMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -461,6 +495,8 @@ func TestGetAlbum(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -470,13 +506,15 @@ func TestGetAlbum(t *testing.T) {
 				return handler.GetAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album id"}`,
+			"invalid album id",
 		},
 		{
 			"get album not found",
 			http.MethodGet,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -489,13 +527,15 @@ func TestGetAlbum(t *testing.T) {
 				return handler.GetAlbum
 			},
 			http.StatusNotFound,
-			`{"message":"album not found"}`,
+			"album not found",
 		},
 		{
 			"get album",
 			http.MethodGet,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -517,6 +557,8 @@ func TestGetAlbum(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -529,7 +571,7 @@ func TestGetAlbum(t *testing.T) {
 				return handler.GetAlbum
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -542,6 +584,8 @@ func TestUpdateAlbum(t *testing.T) {
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -551,13 +595,15 @@ func TestUpdateAlbum(t *testing.T) {
 				return handler.UpdateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album id"}`,
+			"invalid album id",
 		},
 		{
 			"update album with no payload",
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			nil,
@@ -567,13 +613,15 @@ func TestUpdateAlbum(t *testing.T) {
 				return handler.UpdateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album"}`,
+			"invalid album",
 		},
 		{
 			"update album with bad payload",
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -585,13 +633,15 @@ func TestUpdateAlbum(t *testing.T) {
 				return handler.UpdateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album"}`,
+			"invalid album",
 		},
 		{
 			"update album with bad cover mediaitem id",
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -603,13 +653,15 @@ func TestUpdateAlbum(t *testing.T) {
 				return handler.UpdateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album cover mediaitem id"}`,
+			"invalid album cover mediaitem id",
 		},
 		{
 			"update album with success",
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -618,7 +670,7 @@ func TestUpdateAlbum(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", true, true,
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description", true, true,
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -636,6 +688,8 @@ func TestUpdateAlbum(t *testing.T) {
 			http.MethodPut,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -655,7 +709,7 @@ func TestUpdateAlbum(t *testing.T) {
 				return handler.UpdateAlbum
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -668,6 +722,8 @@ func TestDeleteAlbum(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id",
 			"/v1/albums/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -677,13 +733,15 @@ func TestDeleteAlbum(t *testing.T) {
 				return handler.DeleteAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album id"}`,
+			"invalid album id",
 		},
 		{
 			"delete album with success",
 			http.MethodDelete,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -711,6 +769,8 @@ func TestDeleteAlbum(t *testing.T) {
 			http.MethodDelete,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -726,13 +786,15 @@ func TestDeleteAlbum(t *testing.T) {
 				return handler.DeleteAlbum
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 		{
 			"delete album with error",
 			http.MethodDelete,
 			"/v1/albums/:id",
 			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -753,7 +815,7 @@ func TestDeleteAlbum(t *testing.T) {
 				return handler.DeleteAlbum
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -766,6 +828,8 @@ func TestGetAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -785,6 +849,8 @@ func TestGetAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -806,6 +872,8 @@ func TestGetAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -818,7 +886,7 @@ func TestGetAlbums(t *testing.T) {
 				return handler.GetAlbums
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -831,6 +899,8 @@ func TestCreateAlbum(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -842,13 +912,15 @@ func TestCreateAlbum(t *testing.T) {
 				return handler.CreateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album"}`,
+			"invalid album",
 		},
 		{
 			"create album with no payload",
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			nil,
@@ -858,13 +930,15 @@ func TestCreateAlbum(t *testing.T) {
 				return handler.CreateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album"}`,
+			"invalid album",
 		},
 		{
 			"create album with bad cover mediaitem id",
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -876,13 +950,15 @@ func TestCreateAlbum(t *testing.T) {
 				return handler.CreateAlbum
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid album cover mediaitem id"}`,
+			"invalid album cover mediaitem id",
 		},
 		{
 			"create album with success",
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -909,6 +985,8 @@ func TestCreateAlbum(t *testing.T) {
 			http.MethodPost,
 			"/v1/albums",
 			"/v1/albums",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -927,7 +1005,7 @@ func TestCreateAlbum(t *testing.T) {
 				return handler.CreateAlbum
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)

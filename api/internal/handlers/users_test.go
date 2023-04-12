@@ -31,6 +31,8 @@ func TestGetUser(t *testing.T) {
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -40,13 +42,15 @@ func TestGetUser(t *testing.T) {
 				return handler.GetUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user id"}`,
+			"invalid user id",
 		},
 		{
 			"get user not found",
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -59,13 +63,15 @@ func TestGetUser(t *testing.T) {
 				return handler.GetUser
 			},
 			http.StatusNotFound,
-			`{"message":"user not found"}`,
+			"user not found",
 		},
 		{
 			"get user",
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -85,6 +91,8 @@ func TestGetUser(t *testing.T) {
 			http.MethodGet,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -97,7 +105,7 @@ func TestGetUser(t *testing.T) {
 				return handler.GetUser
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -110,6 +118,8 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -119,13 +129,15 @@ func TestUpdateUser(t *testing.T) {
 				return handler.UpdateUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user id"}`,
+			"invalid user id",
 		},
 		{
 			"update user with no payload",
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			nil,
@@ -135,13 +147,15 @@ func TestUpdateUser(t *testing.T) {
 				return handler.UpdateUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user"}`,
+			"invalid user",
 		},
 		{
 			"update user with bad payload",
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -153,13 +167,15 @@ func TestUpdateUser(t *testing.T) {
 				return handler.UpdateUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user"}`,
+			"invalid user",
 		},
 		{
 			"update user with success",
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -185,6 +201,8 @@ func TestUpdateUser(t *testing.T) {
 			http.MethodPut,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -203,7 +221,7 @@ func TestUpdateUser(t *testing.T) {
 				return handler.UpdateUser
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -216,6 +234,8 @@ func TestDeleteUser(t *testing.T) {
 			http.MethodDelete,
 			"/v1/users/:id",
 			"/v1/users/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -225,13 +245,15 @@ func TestDeleteUser(t *testing.T) {
 				return handler.DeleteUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user id"}`,
+			"invalid user id",
 		},
 		{
 			"delete user with success",
 			http.MethodDelete,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -254,6 +276,8 @@ func TestDeleteUser(t *testing.T) {
 			http.MethodDelete,
 			"/v1/users/:id",
 			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -269,7 +293,7 @@ func TestDeleteUser(t *testing.T) {
 				return handler.DeleteUser
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -282,6 +306,8 @@ func TestGetUsers(t *testing.T) {
 			http.MethodGet,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -301,6 +327,8 @@ func TestGetUsers(t *testing.T) {
 			http.MethodGet,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -320,6 +348,8 @@ func TestGetUsers(t *testing.T) {
 			http.MethodGet,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -332,7 +362,7 @@ func TestGetUsers(t *testing.T) {
 				return handler.GetUsers
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -345,6 +375,8 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -356,13 +388,15 @@ func TestCreateUser(t *testing.T) {
 				return handler.CreateUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user"}`,
+			"invalid user",
 		},
 		{
 			"create user with no payload",
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			nil,
@@ -372,13 +406,15 @@ func TestCreateUser(t *testing.T) {
 				return handler.CreateUser
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid user"}`,
+			"invalid user",
 		},
 		{
 			"create user with success",
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -403,6 +439,8 @@ func TestCreateUser(t *testing.T) {
 			http.MethodPost,
 			"/v1/users",
 			"/v1/users",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -420,7 +458,7 @@ func TestCreateUser(t *testing.T) {
 				return handler.CreateUser
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)

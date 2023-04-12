@@ -2,11 +2,14 @@ package handlers
 
 import (
 	"api/config"
+	"api/internal/models"
 	"api/pkg/services/worker"
 	"context"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"io"
+	"net/http"
 	"net/http/httptest"
 	"strings"
 	"testing"
@@ -27,6 +30,8 @@ type Test struct {
 	Method           string
 	Route            string
 	Path             string
+	ParamNames       []string
+	ParamValues      []string
 	Header           map[string]string
 	Body             io.Reader
 	MockDB           func(mock sqlmock.Sqlmock)
@@ -54,7 +59,15 @@ func executeTests(t *testing.T, tests []Test) {
 			rec := httptest.NewRecorder()
 			// context
 			ctx := server.NewContext(req, rec)
+			ctx.SetPath(test.Route)
+			ctx.SetParamNames(test.ParamNames...)
+			ctx.SetParamValues(test.ParamValues...)
 			ctx.Set("userID", "4d05b5f6-17c2-475e-87fe-3fc8b9567179")
+			if _, ok := test.Header[echo.HeaderAuthorization]; ok {
+				var features models.Features
+				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true}`), &features)
+				ctx.Set("features", features)
+			}
 			// database
 			mockDB, mock, err := sqlmock.New()
 			assert.NoError(t, err)
@@ -86,16 +99,22 @@ func executeTests(t *testing.T, tests []Test) {
 			}
 			// handler
 			handler := &Handler{
-				Config: &config.Config{Auth: config.Auth{RefreshTTL: 60}},
+				Config: &config.Config{
+					Auth:    config.Auth{RefreshTTL: 60},
+					Feature: config.Feature{Albums: true, Explore: true, ExplorePlaces: true},
+				},
 				DB:     mockGDB,
 				Cache:  mockCache,
 				Worker: test.mockWorkerClient,
 			}
-			server.Match([]string{test.Method}, test.Route, test.Handler(handler))
-			server.ServeHTTP(rec, req)
-			// assert
-			assert.Equal(t, test.ExpectedResCode, rec.Code)
-			assert.Contains(t, strings.TrimSpace(rec.Body.String()), test.ExpectedResBody)
+			err = test.Handler(handler)(ctx)
+			if test.ExpectedResCode >= http.StatusBadRequest {
+				assert.Equal(t, test.ExpectedResCode, err.(*echo.HTTPError).Code)
+				assert.Contains(t, err.(*echo.HTTPError).Message.(string), test.ExpectedResBody)
+			} else {
+				assert.Equal(t, test.ExpectedResCode, rec.Code)
+				assert.Contains(t, strings.TrimSpace(rec.Body.String()), test.ExpectedResBody)
+			}
 		})
 	}
 }

@@ -22,6 +22,8 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -33,13 +35,15 @@ func TestLogin(t *testing.T) {
 				return handler.Login
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid username or password"}`,
+			"invalid username or password",
 		},
 		{
 			"login with no payload",
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			nil,
@@ -49,13 +53,15 @@ func TestLogin(t *testing.T) {
 				return handler.Login
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid username or password"}`,
+			"invalid username or password",
 		},
 		{
 			"login with incomplete credentials",
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -67,13 +73,15 @@ func TestLogin(t *testing.T) {
 				return handler.Login
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid username or password"}`,
+			"invalid username or password",
 		},
 		{
 			"login with success",
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -95,6 +103,8 @@ func TestLogin(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -109,13 +119,15 @@ func TestLogin(t *testing.T) {
 				return handler.Login
 			},
 			http.StatusNotFound,
-			`{"message":"incorrect username or password"}`,
+			"incorrect username or password",
 		},
 		{
 			"login with error",
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -130,13 +142,15 @@ func TestLogin(t *testing.T) {
 				return handler.Login
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 		{
 			"login with error getting tokens",
 			http.MethodPost,
 			"/v1/auth/login",
 			"/v1/auth/login",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -160,7 +174,7 @@ func TestLogin(t *testing.T) {
 				return handler.Login
 			},
 			http.StatusInternalServerError,
-			`{"message":"error getting tokens"}`,
+			"error getting tokens",
 		},
 	}
 	executeTests(t, tests)
@@ -175,6 +189,8 @@ func TestRefresh(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/refresh",
 			"/v1/auth/refresh",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderAuthorization: rtoken,
 			},
@@ -193,6 +209,8 @@ func TestRefresh(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/refresh",
 			"/v1/auth/refresh",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			nil,
@@ -202,7 +220,7 @@ func TestRefresh(t *testing.T) {
 				return handler.Refresh
 			},
 			http.StatusInternalServerError,
-			`{"message":"error refreshing tokens"}`,
+			"error refreshing tokens",
 		},
 	}
 	executeTests(t, tests)
@@ -217,6 +235,8 @@ func TestLogout(t *testing.T) {
 			http.MethodPost,
 			"/v1/auth/logout",
 			"/v1/auth/logout",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderAuthorization: atoken,
 			},

@@ -95,6 +95,8 @@ func TestGetYearsAgoMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/yearsAgo/:monthDate/mediaItems",
 			"/v1/explore/yearsAgo/bad-month-date/mediaItems",
+			[]string{"monthDate"},
+			[]string{"bad-month-date"},
 			map[string]string{},
 			nil,
 			nil,
@@ -104,13 +106,15 @@ func TestGetYearsAgoMediaItems(t *testing.T) {
 				return handler.GetYearsAgoMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid month and date"}`,
+			"invalid month and date",
 		},
 		{
 			"get years ago mediaitems not found",
 			http.MethodGet,
 			"/v1/explore/yearsAgo/:monthDate/mediaItems",
 			"/v1/explore/yearsAgo/0403/mediaItems",
+			[]string{"monthDate"},
+			[]string{"0403"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -130,6 +134,8 @@ func TestGetYearsAgoMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/yearsAgo/:monthDate/mediaItems",
 			"/v1/explore/yearsAgo/0403/mediaItems",
+			[]string{"monthDate"},
+			[]string{"0403"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -149,6 +155,8 @@ func TestGetYearsAgoMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/yearsAgo/:monthDate/mediaItems",
 			"/v1/explore/yearsAgo/0403/mediaItems",
+			[]string{"monthDate"},
+			[]string{"0403"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -161,7 +169,7 @@ func TestGetYearsAgoMediaItems(t *testing.T) {
 				return handler.GetYearsAgoMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -174,6 +182,8 @@ func TestGetPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places",
 			"/v1/explore/places",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -193,6 +203,8 @@ func TestGetPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places",
 			"/v1/explore/places",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -214,6 +226,8 @@ func TestGetPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places",
 			"/v1/explore/places",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -226,7 +240,7 @@ func TestGetPlaces(t *testing.T) {
 				return handler.GetPlaces
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -239,6 +253,8 @@ func TestGetPlace(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -248,13 +264,15 @@ func TestGetPlace(t *testing.T) {
 				return handler.GetPlace
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid place id"}`,
+			"invalid place id",
 		},
 		{
 			"get place not found",
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -267,13 +285,15 @@ func TestGetPlace(t *testing.T) {
 				return handler.GetPlace
 			},
 			http.StatusNotFound,
-			`{"message":"place not found"}`,
+			"place not found",
 		},
 		{
 			"get place",
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -295,6 +315,8 @@ func TestGetPlace(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/places/:id",
 			"/v1/explore/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -307,7 +329,7 @@ func TestGetPlace(t *testing.T) {
 				return handler.GetPlace
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -320,6 +342,8 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/bad-uuid/mediaItems",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -329,13 +353,15 @@ func TestGetPlaceMediaItems(t *testing.T) {
 				return handler.GetPlaceMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid place id"}`,
+			"invalid place id",
 		},
 		{
 			"get place mediaitems not found",
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -355,6 +381,8 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -374,6 +402,8 @@ func TestGetPlaceMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/places/:id/mediaItems",
 			"/v1/places/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -386,7 +416,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 				return handler.GetPlaceMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -399,6 +429,8 @@ func TestGetThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things",
 			"/v1/explore/things",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -418,6 +450,8 @@ func TestGetThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things",
 			"/v1/explore/things",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -439,6 +473,8 @@ func TestGetThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things",
 			"/v1/explore/things",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -451,7 +487,7 @@ func TestGetThings(t *testing.T) {
 				return handler.GetThings
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -464,6 +500,8 @@ func TestGetThing(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -473,13 +511,15 @@ func TestGetThing(t *testing.T) {
 				return handler.GetThing
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid thing id"}`,
+			"invalid thing id",
 		},
 		{
 			"get thing not found",
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -492,13 +532,15 @@ func TestGetThing(t *testing.T) {
 				return handler.GetThing
 			},
 			http.StatusNotFound,
-			`{"message":"thing not found"}`,
+			"thing not found",
 		},
 		{
 			"get thing",
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -520,6 +562,8 @@ func TestGetThing(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/things/:id",
 			"/v1/explore/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -532,7 +576,7 @@ func TestGetThing(t *testing.T) {
 				return handler.GetThing
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -545,6 +589,8 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/bad-uuid/mediaItems",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -554,13 +600,15 @@ func TestGetThingMediaItems(t *testing.T) {
 				return handler.GetThingMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid thing id"}`,
+			"invalid thing id",
 		},
 		{
 			"get thing mediaitems not found",
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -580,6 +628,8 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -599,6 +649,8 @@ func TestGetThingMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/things/:id/mediaItems",
 			"/v1/things/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -611,7 +663,7 @@ func TestGetThingMediaItems(t *testing.T) {
 				return handler.GetThingMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -624,6 +676,8 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -633,13 +687,15 @@ func TestUpdatePeople(t *testing.T) {
 				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid people id"}`,
+			"invalid people id",
 		},
 		{
 			"update people with no payload",
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			nil,
@@ -649,13 +705,15 @@ func TestUpdatePeople(t *testing.T) {
 				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid people"}`,
+			"invalid people",
 		},
 		{
 			"update people with bad payload",
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -667,13 +725,15 @@ func TestUpdatePeople(t *testing.T) {
 				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid people"}`,
+			"invalid people",
 		},
 		{
 			"update people with bad cover mediaitem id",
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -685,13 +745,15 @@ func TestUpdatePeople(t *testing.T) {
 				return handler.UpdatePerson
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid people cover mediaitem id"}`,
+			"invalid people cover mediaitem id",
 		},
 		{
 			"update people with success",
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -699,7 +761,7 @@ func TestUpdatePeople(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", true,
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", true,
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -717,6 +779,8 @@ func TestUpdatePeople(t *testing.T) {
 			http.MethodPut,
 			"/v1/people/:id",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -735,7 +799,7 @@ func TestUpdatePeople(t *testing.T) {
 				return handler.UpdatePerson
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -748,6 +812,8 @@ func TestGetPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people",
 			"/v1/explore/people",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -767,6 +833,8 @@ func TestGetPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people",
 			"/v1/explore/people",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -788,6 +856,8 @@ func TestGetPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people",
 			"/v1/explore/people",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -800,7 +870,7 @@ func TestGetPeople(t *testing.T) {
 				return handler.GetPeople
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -813,6 +883,8 @@ func TestGetPerson(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -822,13 +894,15 @@ func TestGetPerson(t *testing.T) {
 				return handler.GetPerson
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid person id"}`,
+			"invalid person id",
 		},
 		{
 			"get person not found",
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -841,13 +915,15 @@ func TestGetPerson(t *testing.T) {
 				return handler.GetPerson
 			},
 			http.StatusNotFound,
-			`{"message":"person not found"}`,
+			"person not found",
 		},
 		{
 			"get people",
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -869,6 +945,8 @@ func TestGetPerson(t *testing.T) {
 			http.MethodGet,
 			"/v1/explore/people/:id",
 			"/v1/explore/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -881,7 +959,7 @@ func TestGetPerson(t *testing.T) {
 				return handler.GetPerson
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -894,6 +972,8 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/bad-uuid/mediaItems",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -903,13 +983,15 @@ func TestGetPeopleMediaItems(t *testing.T) {
 				return handler.GetPeopleMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid people id"}`,
+			"invalid people id",
 		},
 		{
 			"get people mediaitems not found",
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -929,6 +1011,8 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -948,6 +1032,8 @@ func TestGetPeopleMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/people/:id/mediaItems",
 			"/v1/people/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -960,7 +1046,7 @@ func TestGetPeopleMediaItems(t *testing.T) {
 				return handler.GetPeopleMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)

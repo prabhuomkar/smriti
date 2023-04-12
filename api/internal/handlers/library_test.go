@@ -18,6 +18,8 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -37,6 +39,8 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -56,6 +60,8 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -68,7 +74,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 				return handler.GetFavouriteMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -81,6 +87,8 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -92,13 +100,15 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 				return handler.AddFavouriteMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"add favourite mediaitems with bad mediaitem",
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -110,13 +120,15 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 				return handler.AddFavouriteMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"add favourite mediaitems with success",
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -140,6 +152,8 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -156,7 +170,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 				return handler.AddFavouriteMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -169,6 +183,8 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -180,13 +196,15 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 				return handler.RemoveFavouriteMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"remove favourite mediaitems with bad mediaitem",
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -198,13 +216,15 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 				return handler.RemoveFavouriteMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"remove favourite mediaitems with success",
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -228,6 +248,8 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/favourites",
 			"/v1/favourites",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -244,7 +266,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 				return handler.RemoveFavouriteMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -257,6 +279,8 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -276,6 +300,8 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -295,6 +321,8 @@ func TestGetHiddenMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -307,7 +335,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 				return handler.GetHiddenMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -320,6 +348,8 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -331,13 +361,15 @@ func TestAddHiddenMediaItems(t *testing.T) {
 				return handler.AddHiddenMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"add hidden mediaitems with bad mediaitem",
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -349,13 +381,15 @@ func TestAddHiddenMediaItems(t *testing.T) {
 				return handler.AddHiddenMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"add hidden mediaitems with success",
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -379,6 +413,8 @@ func TestAddHiddenMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -395,7 +431,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 				return handler.AddHiddenMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -408,6 +444,8 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -419,13 +457,15 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 				return handler.RemoveHiddenMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"remove hidden mediaitems with bad mediaitem",
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -437,13 +477,15 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 				return handler.RemoveHiddenMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"remove hidden mediaitems with success",
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -467,6 +509,8 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/hidden",
 			"/v1/hidden",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -483,7 +527,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 				return handler.RemoveHiddenMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -496,6 +540,8 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -515,6 +561,8 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -534,6 +582,8 @@ func TestGetDeletedMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -546,7 +596,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 				return handler.GetDeletedMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -559,6 +609,8 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -570,13 +622,15 @@ func TestAddDeletedMediaItems(t *testing.T) {
 				return handler.AddDeletedMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"add deleted mediaitems with bad mediaitem",
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -588,13 +642,15 @@ func TestAddDeletedMediaItems(t *testing.T) {
 				return handler.AddDeletedMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"add deleted mediaitems with success",
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -618,6 +674,8 @@ func TestAddDeletedMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -634,7 +692,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 				return handler.AddDeletedMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -647,6 +705,8 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -658,13 +718,15 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 				return handler.RemoveDeletedMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitems"}`,
+			"invalid mediaitems",
 		},
 		{
 			"remove deleted mediaitems with bad mediaitem",
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -676,13 +738,15 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 				return handler.RemoveDeletedMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"remove deleted mediaitems with success",
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -706,6 +770,8 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 			http.MethodDelete,
 			"/v1/trash",
 			"/v1/trash",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -722,7 +788,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 				return handler.RemoveDeletedMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)

@@ -58,6 +58,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/bad-uuid/places",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -67,13 +69,15 @@ func TestGetMediaItemPlaces(t *testing.T) {
 				return handler.GetMediaItemPlaces
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"get mediaitem places with empty table",
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -93,6 +97,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -114,6 +120,8 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/places",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -126,7 +134,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 				return handler.GetMediaItemPlaces
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -139,6 +147,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/bad-uuid/things",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -148,13 +158,15 @@ func TestGetMediaItemThings(t *testing.T) {
 				return handler.GetMediaItemThings
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"get mediaitem things with empty table",
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -174,6 +186,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -195,6 +209,8 @@ func TestGetMediaItemThings(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/things",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/things",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -207,7 +223,7 @@ func TestGetMediaItemThings(t *testing.T) {
 				return handler.GetMediaItemThings
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -220,6 +236,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/bad-uuid/people",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -229,13 +247,15 @@ func TestGetMediaItemPeople(t *testing.T) {
 				return handler.GetMediaItemPeople
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"get mediaitem people with empty table",
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -255,6 +275,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -276,6 +298,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/people",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -288,7 +312,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 				return handler.GetMediaItemPeople
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -301,6 +325,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/bad-uuid/albums",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -310,13 +336,15 @@ func TestGetMediaItemAlbums(t *testing.T) {
 				return handler.GetMediaItemAlbums
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"get mediaitem albums with empty table",
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -336,6 +364,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -357,6 +387,8 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id/albums",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -369,7 +401,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 				return handler.GetMediaItemAlbums
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -382,6 +414,8 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -391,13 +425,15 @@ func TestGetMediaItem(t *testing.T) {
 				return handler.GetMediaItem
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"get mediaitem not found",
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -410,13 +446,15 @@ func TestGetMediaItem(t *testing.T) {
 				return handler.GetMediaItem
 			},
 			http.StatusNotFound,
-			`{"message":"mediaitem not found"}`,
+			"mediaitem not found",
 		},
 		{
 			"get mediaitem",
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -436,6 +474,8 @@ func TestGetMediaItem(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -448,7 +488,7 @@ func TestGetMediaItem(t *testing.T) {
 				return handler.GetMediaItem
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -461,6 +501,8 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -470,13 +512,15 @@ func TestUpdateMediaItem(t *testing.T) {
 				return handler.UpdateMediaItem
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"update mediaitem with no payload",
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			nil,
@@ -486,13 +530,15 @@ func TestUpdateMediaItem(t *testing.T) {
 				return handler.UpdateMediaItem
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem"}`,
+			"invalid mediaitem",
 		},
 		{
 			"update mediaitem with bad payload",
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -504,13 +550,15 @@ func TestUpdateMediaItem(t *testing.T) {
 				return handler.UpdateMediaItem
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem"}`,
+			"invalid mediaitem",
 		},
 		{
 			"update mediaitem with success",
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -518,7 +566,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "description", true, true,
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "description", true, true,
 						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -536,6 +584,8 @@ func TestUpdateMediaItem(t *testing.T) {
 			http.MethodPut,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
@@ -554,7 +604,7 @@ func TestUpdateMediaItem(t *testing.T) {
 				return handler.UpdateMediaItem
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -567,6 +617,8 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/bad-uuid",
+			[]string{"id"},
+			[]string{"bad-uuid"},
 			map[string]string{},
 			nil,
 			nil,
@@ -576,19 +628,21 @@ func TestDeleteMediaItem(t *testing.T) {
 				return handler.DeleteMediaItem
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid mediaitem id"}`,
+			"invalid mediaitem id",
 		},
 		{
 			"delete mediaitem with success",
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", true,
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", true,
 						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -606,6 +660,8 @@ func TestDeleteMediaItem(t *testing.T) {
 			http.MethodDelete,
 			"/v1/mediaItems/:id",
 			"/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -622,7 +678,7 @@ func TestDeleteMediaItem(t *testing.T) {
 				return handler.DeleteMediaItem
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -635,6 +691,8 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -654,6 +712,8 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -673,6 +733,8 @@ func TestGetMediaItems(t *testing.T) {
 			http.MethodGet,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			func(mock sqlmock.Sqlmock) {
@@ -685,7 +747,7 @@ func TestGetMediaItems(t *testing.T) {
 				return handler.GetMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -706,6 +768,8 @@ func TestUploadMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				HeaderUploadType: "resumable",
 			},
@@ -717,13 +781,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid command for resumable upload"}`,
+			"invalid command for resumable upload",
 		},
 		{
 			"upload mediaitems with invalid offset",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				HeaderUploadType:    "resumable",
 				HeaderUploadCommand: "finish",
@@ -736,13 +802,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid chunk offset for resumable upload"}`,
+			"invalid chunk offset for resumable upload",
 		},
 		{
 			"upload mediaitems with invalid session",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				HeaderUploadType:        "resumable",
 				HeaderUploadCommand:     "finish",
@@ -756,13 +824,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"invalid chunk session for resumable upload"}`,
+			"invalid chunk session for resumable upload",
 		},
 		{
 			"upload mediaitems with error uploading for resumable",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				HeaderUploadType:        "resumable",
 				HeaderUploadCommand:     "start",
@@ -776,13 +846,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"request Content-Type isn't multipart/form-data"}`,
+			"request Content-Type isn't multipart/form-data",
 		},
 		{
 			"upload mediaitems with error uploading",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{},
 			nil,
 			nil,
@@ -792,13 +864,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusBadRequest,
-			`{"message":"request Content-Type isn't multipart/form-data"}`,
+			"request Content-Type isn't multipart/form-data",
 		},
 		{
 			"upload mediaitems with error inserting mediaitem",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: contentType,
 			},
@@ -815,13 +889,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some db error"}`,
+			"some db error",
 		},
 		{
 			"upload mediaitems with error sending file to work due to error in mediaitem process",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: contentType2,
 			},
@@ -838,13 +914,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some grpc error"}`,
+			"some grpc error",
 		},
 		{
 			"upload mediaitems with error sending file to work due to error in grpc send",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: contentType3,
 			},
@@ -861,13 +939,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some error in send"}`,
+			"some error in send",
 		},
 		{
 			"upload mediaitems with error sending file to work due to error in grpc close and recv",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: contentType4,
 			},
@@ -884,13 +964,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"some error in close and recv"}`,
+			"some error in close and recv",
 		},
 		{
 			"upload mediaitems with error sending file to work due to not ok from worker",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: contentType5,
 			},
@@ -907,13 +989,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"error uploading mediaitem"}`,
+			"error uploading mediaitem",
 		},
 		{
 			"upload mediaitems successfully",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				echo.HeaderContentType: contentType6,
 			},
@@ -937,6 +1021,8 @@ func TestUploadMediaItems(t *testing.T) {
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				HeaderUploadType:         "resumable",
 				HeaderUploadCommand:      "finish",
@@ -957,13 +1043,15 @@ func TestUploadMediaItems(t *testing.T) {
 				return handler.UploadMediaItems
 			},
 			http.StatusInternalServerError,
-			`{"message":"error uploading mediaitem"}`,
+			"error uploading mediaitem",
 		},
 		{
 			"upload mediaitems successfully for resumable",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
+			[]string{},
+			[]string{},
 			map[string]string{
 				HeaderUploadType:         "resumable",
 				HeaderUploadCommand:      "finish",
