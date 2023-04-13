@@ -1212,6 +1212,10 @@ components:
           readOnly: true
           type: string
           example: https://cdn.carousel/source
+        previewUrl:
+          readOnly: true
+          type: string
+          example: https://cdn.carousel/preview
         thumbnailUrl:
           readOnly: true
           type: string
