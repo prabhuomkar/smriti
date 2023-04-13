@@ -8,7 +8,7 @@ const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 const config = {
   title: "Carousel",
   tagline: "Smarter Home for all your Photos and Videos",
-  url: "https://carousel-docs.vercel.app",
+  url: "https://carousel.omkar.xyz",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
