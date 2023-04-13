@@ -1,7 +1,9 @@
 setup:
 	@echo "[setup]: Installing requirements..."; \
 		pip install -r requirements.txt; \
-		echo "[setup]: Installing drivers..."
+		echo "[setup]: Installing drivers..."; \
+		echo "[setup]: Starting services..."; \
+		docker compose -f ../docker-compose.yaml up -d
 test-users:
 	@echo "testing feature: users"
 	behave -i users.feature

@@ -48,3 +48,7 @@ make cover
 ```
 make setup
 ```
+- Run the command for invoking integration tests for all features:
+```
+make test-all
+```
