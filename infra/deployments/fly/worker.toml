@@ -2,12 +2,15 @@
 
 app = "?"
 
+[build]
+  image = "?"
+
 [[services]]
   internal_port = 15002
   protocol = "tcp"
   [services.concurrency]
-    hard_limit = 25
-    soft_limit = 20
+    hard_limit = 15
+    soft_limit = 10
     type = "connections"
 
   [[services.ports]]
@@ -15,5 +18,5 @@ app = "?"
     port = 15002
 
   [[services.tcp_checks]]
-    interval = "15s"
+    interval = "30s"
     timeout = "2s"
