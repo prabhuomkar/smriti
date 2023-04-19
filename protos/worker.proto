@@ -8,6 +8,7 @@ message MediaItemProcessRequest {
     int64 offset = 3;
     string command = 4; // start, continue, finish
     bytes content = 5;
+    repeated string features = 6;
 }
 
 message MediaItemProcessResponse {

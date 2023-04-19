@@ -230,6 +230,12 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	}
 	defer openedFile.Close()
 
+	features, _ := ctx.Get("features").(models.Features)
+	var workerFeatures []string
+	if features.ML != nil {
+		workerFeatures = features.ML.GetMLFeaturesList()
+	}
+
 	if strings.Contains(command, "start") {
 		mediaItem := createNewMediaItem(userID, file.Filename)
 		result := h.DB.Create(&mediaItem)
@@ -238,7 +244,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 
-		err = sendFileToWorker(h.Worker, userID.String(), mediaItem.ID.String(), command, offset, openedFile)
+		err = sendFileToWorker(h.Worker, userID.String(), mediaItem.ID.String(), command, offset, workerFeatures, openedFile)
 		if err != nil {
 			return err
 		}
@@ -248,7 +254,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		})
 	}
 
-	err = sendFileToWorker(h.Worker, userID.String(), session, command, offset, openedFile)
+	err = sendFileToWorker(h.Worker, userID.String(), session, command, offset, workerFeatures, openedFile)
 	if err != nil {
 		return err
 	}
@@ -257,7 +263,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 }
 
 // nolint: lll
-func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command string, offset int, file multipart.File) error {
+func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command string, offset int, features []string, file multipart.File) error {
 	stream, err := workerClient.MediaItemProcess(context.Background())
 	if err != nil {
 		log.Printf("error creating stream for sending mediaitem to worker: %+v", err)
@@ -277,11 +283,12 @@ func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command 
 		}
 
 		err = stream.Send(&worker.MediaItemProcessRequest{
-			UserId:  userID,
-			Id:      fileID,
-			Offset:  int64(offset),
-			Command: command,
-			Content: buffer[:numBytes],
+			UserId:   userID,
+			Id:       fileID,
+			Offset:   int64(offset),
+			Command:  command,
+			Content:  buffer[:numBytes],
+			Features: features,
 		})
 		if err != nil {
 			log.Printf("error sending mediaitem to worker: %+v", err)

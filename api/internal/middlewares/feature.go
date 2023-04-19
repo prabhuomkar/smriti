@@ -18,9 +18,9 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "trash" && cfg.Feature.Trash && features.Trash) ||
 				(feature == "albums" && cfg.Feature.Albums && features.Albums) ||
 				(feature == "explore" && cfg.Feature.Explore && features.Explore) ||
-				(feature == "places" && cfg.Feature.ExplorePlaces && features.Places) ||
-				(feature == "things" && cfg.Feature.ExploreThings && features.Things) ||
-				(feature == "people" && cfg.Feature.ExplorePeople && features.People) ||
+				(feature == "places" && cfg.Feature.Places && features.Places) ||
+				(feature == "things" && cfg.Feature.Things && features.Things) ||
+				(feature == "people" && cfg.Feature.People && features.People) ||
 				(feature == "sharing" && cfg.Feature.Sharing && features.Sharing) {
 				return next(ctx)
 			}

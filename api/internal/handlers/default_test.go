@@ -45,7 +45,7 @@ func TestGetFeatures(t *testing.T) {
 				return handler.GetFeatures
 			},
 			http.StatusOK,
-			`{"albums":true,"explore":true,"places":true}`,
+			`{"albums":true,"explore":true,"places":true,"ml":{"places":true,"faces":true}}`,
 		},
 	}
 	executeTests(t, tests)

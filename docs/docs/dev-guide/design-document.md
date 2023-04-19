@@ -101,6 +101,7 @@ interface {
     - Detection - [YOLOv8](https://github.com)
     - Face Detection - [TBD](https://github.com)
     - OCR - [TBD](https://github.com)
+    - Speech - [TBD](https://github.com)
     - Search Embeddings - [TBD](https://github.com)
 
 ## Performance
