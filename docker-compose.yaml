@@ -2,9 +2,7 @@ version: '3'
 services:
   # applications
   api:
-    build: api
-    restart: always
-    container_name: api
+    image: carouselhq/api:latest
     ports:
       - '5001:5001'
       - '15001:15001'
@@ -21,15 +19,13 @@ services:
       CAROUSEL_WORKER_PORT: 15002
       CAROUSEL_LOG_LEVEL: DEBUG
       CAROUSEL_DATABASE_LOG_LEVEL: INFO
-      CAROUSEL_FEATURE_EXPLORE: true
-      CAROUSEL_FEATURE_EXPLORE_PLACES: true
+      CAROUSEL_FEATURE_EXPLORE: "true"
+      CAROUSEL_FEATURE_PLACES: "true"
       CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
   worker:
-    build: worker
-    restart: always
-    container_name: worker
+    image: carouselhq/worker:latest
     ports:
       - '15002:15002'
     environment:
@@ -39,11 +35,11 @@ services:
       CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
+    deploy:
+      replicas: 2
   # infra services
   database:
     image: postgres:15
-    restart: always
-    container_name: database
     environment:
       POSTGRES_USER: carousel
       POSTGRES_PASSWORD: carousel

@@ -1,4 +1,7 @@
-API_URL = 'http://localhost:5001'
+import os
+
+
+API_URL = os.getenv('API_URL', 'http://localhost:5001')
 ADMIN_USERNAME = 'carousel'
 ADMIN_PASSWORD = 'carouselT3st!'
 
