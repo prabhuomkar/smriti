@@ -24,14 +24,6 @@ func TestGetFeatures(t *testing.T) {
 		People:     falseVal,
 		Things:     falseVal,
 		Sharing:    falseVal,
-		ML: &MLFeatures{
-			Places:         falseVal,
-			Classification: falseVal,
-			Detection:      falseVal,
-			Faces:          falseVal,
-			OCR:            falseVal,
-			Speech:         falseVal,
-		},
 	}, features)
 
 	features = GetFeatures(&config.Config{
@@ -45,14 +37,6 @@ func TestGetFeatures(t *testing.T) {
 			People:     true,
 			Things:     true,
 			Sharing:    true,
-			ML: config.MLFeatures{
-				Places:         true,
-				Classification: true,
-				Detection:      true,
-				Faces:          true,
-				OCR:            true,
-				Speech:         true,
-			},
 		},
 	})
 	assert.Equal(t, &Features{
@@ -65,13 +49,5 @@ func TestGetFeatures(t *testing.T) {
 		People:     trueVal,
 		Things:     trueVal,
 		Sharing:    trueVal,
-		ML: &MLFeatures{
-			Places:         trueVal,
-			Classification: trueVal,
-			Detection:      trueVal,
-			Faces:          trueVal,
-			OCR:            trueVal,
-			Speech:         trueVal,
-		},
 	}, features)
 }

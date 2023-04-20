@@ -46,14 +46,14 @@ type (
 		Secret     string `envconfig:"CAROUSEL_AUTH_SECRET" default:"carousel"`
 	}
 
-	// MLFeatures ...
-	MLFeatures struct {
-		Places         bool `envconfig:"CAROUSEL_FEATURE_ML_PLACES" default:"false"`
-		Classification bool `envconfig:"CAROUSEL_FEATURE_ML_CLASSIFICATION" default:"false"`
-		Detection      bool `envconfig:"CAROUSEL_FEATURE_ML_Detection" default:"false"`
-		Faces          bool `envconfig:"CAROUSEL_FEATURE_ML_FACES" default:"false"`
-		OCR            bool `envconfig:"CAROUSEL_FEATURE_ML_OCR" default:"false"`
-		Speech         bool `envconfig:"CAROUSEL_FEATURE_ML_SPEECH" default:"false"`
+	// ML ...
+	ML struct {
+		Places         bool `envconfig:"CAROUSEL_ML_PLACES" default:"false"`
+		Classification bool `envconfig:"CAROUSEL_ML_CLASSIFICATION" default:"false"`
+		Detection      bool `envconfig:"CAROUSEL_ML_Detection" default:"false"`
+		Faces          bool `envconfig:"CAROUSEL_ML_FACES" default:"false"`
+		OCR            bool `envconfig:"CAROUSEL_ML_OCR" default:"false"`
+		Speech         bool `envconfig:"CAROUSEL_ML_SPEECH" default:"false"`
 	}
 
 	// Feature ...
@@ -67,7 +67,6 @@ type (
 		Things     bool `envconfig:"CAROUSEL_FEATURE_THINGS" default:"false"`
 		People     bool `envconfig:"CAROUSEL_FEATURE_PEOPLE" default:"false"`
 		Sharing    bool `envconfig:"CAROUSEL_FEATURE_SHARING" default:"false"`
-		ML         MLFeatures
 	}
 
 	// Admin ...
@@ -85,6 +84,7 @@ type (
 		Worker
 		Auth
 		Feature
+		ML
 		Admin
 		StorageDiskRoot string `envconfig:"CAROUSEL_STORAGE_DISK_ROOT" default:"../storage"`
 	}
