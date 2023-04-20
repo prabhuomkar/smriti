@@ -48,12 +48,18 @@ type (
 
 	// ML ...
 	ML struct {
-		Places         bool `envconfig:"CAROUSEL_ML_PLACES" default:"false"`
-		Classification bool `envconfig:"CAROUSEL_ML_CLASSIFICATION" default:"false"`
-		Detection      bool `envconfig:"CAROUSEL_ML_Detection" default:"false"`
-		Faces          bool `envconfig:"CAROUSEL_ML_FACES" default:"false"`
-		OCR            bool `envconfig:"CAROUSEL_ML_OCR" default:"false"`
-		Speech         bool `envconfig:"CAROUSEL_ML_SPEECH" default:"false"`
+		Places                 bool     `envconfig:"CAROUSEL_ML_PLACES" default:"false"`
+		Classification         bool     `envconfig:"CAROUSEL_ML_CLASSIFICATION" default:"false"`
+		Detection              bool     `envconfig:"CAROUSEL_ML_DETECTION" default:"false"`
+		Faces                  bool     `envconfig:"CAROUSEL_ML_FACES" default:"false"`
+		OCR                    bool     `envconfig:"CAROUSEL_ML_OCR" default:"false"`
+		Speech                 bool     `envconfig:"CAROUSEL_ML_SPEECH" default:"false"`
+		PlacesSource           string   `envconfig:"CAROUSEL_ML_PLACES_SOURCE" default:"openstreetmap"`
+		ClassificationDownload []string `envconfig:"CAROUSEL_ML_CLASSIFICATION_DOWNLOAD"`
+		DetectionDownload      []string `envconfig:"CAROUSEL_ML_DETECTION_DOWNLOAD"`
+		FacesDownload          []string `envconfig:"CAROUSEL_ML_FACES_DOWNLOAD"`
+		OCRDownload            []string `envconfig:"CAROUSEL_ML_OCR_DOWNLOAD"`
+		SpeechDownload         []string `envconfig:"CAROUSEL_ML_SPEECH_DOWNLOAD"`
 	}
 
 	// Feature ...

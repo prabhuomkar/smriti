@@ -5,6 +5,12 @@ from typing import ClassVar as _ClassVar, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
+class ConfigResponse(_message.Message):
+    __slots__ = ["config"]
+    CONFIG_FIELD_NUMBER: _ClassVar[int]
+    config: bytes
+    def __init__(self, config: _Optional[bytes] = ...) -> None: ...
+
 class MediaItemMetadataRequest(_message.Message):
     __slots__ = ["apertureFNumber", "cameraMake", "cameraModel", "creationTime", "exposureTime", "focalLength", "fps", "height", "id", "isoEquivalent", "latitude", "longitude", "mimeType", "previewUrl", "sourceUrl", "status", "thumbnailUrl", "type", "userId", "width"]
     APERTUREFNUMBER_FIELD_NUMBER: _ClassVar[int]

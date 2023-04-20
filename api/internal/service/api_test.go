@@ -18,6 +18,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 	"google.golang.org/grpc/status"
 	"google.golang.org/grpc/test/bufconn"
+	"google.golang.org/protobuf/types/known/emptypb"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -68,6 +69,47 @@ var (
 	placeCols     = []string{"id", "name", "postcode", "town", "city", "state",
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 )
+
+func TestGetWorkerConfig(t *testing.T) {
+	tests := []struct {
+		Name           string
+		Config         *config.Config
+		ExpectedConfig []byte
+		ExpectedErr    error
+	}{
+		{
+			"get worker config with success",
+			&config.Config{ML: config.ML{Places: true, PlacesSource: "openstreetmap"}},
+			[]byte{45, 32, 110, 97, 109, 101, 58, 32, 112, 108, 97, 99, 101, 115, 10, 32, 32, 115, 111, 117, 114, 99, 101, 58, 32, 111, 112, 101, 110, 115, 116, 114, 101, 101, 116, 109, 97, 112, 10},
+			nil,
+		},
+		{
+			"get worker config with no error",
+			&config.Config{},
+			[]byte{91, 93, 10},
+			nil,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// service
+			service := &Service{
+				Config: test.Config,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			res, err := client.GetWorkerConfig(ctx, &emptypb.Empty{})
+			// assert
+			assert.Equal(t, test.ExpectedConfig, res.Config)
+			assert.Equal(t, test.ExpectedErr, err)
+		})
+	}
+}
 
 func TestSaveMediaItemMetadata(t *testing.T) {
 	tests := []struct {

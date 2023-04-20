@@ -15,6 +15,11 @@ class APIStub(object):
         Args:
             channel: A grpc.Channel.
         """
+        self.GetWorkerConfig = channel.unary_unary(
+                '/API/GetWorkerConfig',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=src_dot_protos_dot_api__pb2.ConfigResponse.FromString,
+                )
         self.SaveMediaItemMetadata = channel.unary_unary(
                 '/API/SaveMediaItemMetadata',
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.SerializeToString,
@@ -29,6 +34,12 @@ class APIStub(object):
 
 class APIServicer(object):
     """Missing associated documentation comment in .proto file."""
+
+    def GetWorkerConfig(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
 
     def SaveMediaItemMetadata(self, request, context):
         """Missing associated documentation comment in .proto file."""
@@ -45,6 +56,11 @@ class APIServicer(object):
 
 def add_APIServicer_to_server(servicer, server):
     rpc_method_handlers = {
+            'GetWorkerConfig': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetWorkerConfig,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=src_dot_protos_dot_api__pb2.ConfigResponse.SerializeToString,
+            ),
             'SaveMediaItemMetadata': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMediaItemMetadata,
                     request_deserializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.FromString,
@@ -64,6 +80,23 @@ def add_APIServicer_to_server(servicer, server):
  # This class is part of an EXPERIMENTAL API.
 class API(object):
     """Missing associated documentation comment in .proto file."""
+
+    @staticmethod
+    def GetWorkerConfig(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/API/GetWorkerConfig',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            src_dot_protos_dot_api__pb2.ConfigResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
     def SaveMediaItemMetadata(request,

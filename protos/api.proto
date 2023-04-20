@@ -4,6 +4,10 @@ import "google/protobuf/empty.proto";
 
 option go_package = "api/";
 
+message ConfigResponse {
+    bytes config = 1;
+}
+
 message MediaItemMetadataRequest {
     string userId = 1;
     string id = 2;
@@ -38,6 +42,7 @@ message MediaItemPlaceRequest {
 }
 
 service API {
+    rpc GetWorkerConfig(google.protobuf.Empty) returns (ConfigResponse) {}
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
 }
