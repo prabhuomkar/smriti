@@ -3,8 +3,10 @@ import asyncio
 import logging
 import os
 from typing import AsyncIterable
+import yaml
 
 import grpc
+from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 
 from src.store import init_storage
 from src.components import process_metadata
@@ -16,7 +18,8 @@ from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_ser
 class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
-    def __init__(self, file_storage, api_stub: APIStub) -> None:
+    def __init__(self, cfg: dict, file_storage, api_stub: APIStub) -> None:
+        self.config = cfg
         self.file_storage = file_storage
         self.api_stub = api_stub
 
@@ -58,15 +61,20 @@ async def serve() -> None:
     api_channel = grpc.insecure_channel(f'{api_host}:{api_port}')
     future = grpc.channel_ready_future(api_channel)
     try:
-        future.result(timeout=int(os.getenv('CAROUSEL_API_TIMEOUT', '10')))
+        future.result(timeout=int(os.getenv('CAROUSEL_API_TIMEOUT', '30')))
         logging.info("grpc channel for api is ready")
     except grpc.FutureTimeoutError:
         logging.error("error as timed out waiting for grpc channel for api")
     api_stub = APIStub(api_channel)
 
+    # get worker config
+    worker_cfg = api_stub.GetWorkerConfig(Empty())
+    cfg = yaml.safe_load(worker_cfg.config)
+    logging.info(f'got worker configuration: {cfg}')
+
     # initialize grpc server
     server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(file_storage, api_stub), server)
+    add_WorkerServicer_to_server(WorkerService(cfg, file_storage, api_stub), server)
     port = int(os.getenv('CAROUSEL_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')
