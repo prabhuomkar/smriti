@@ -23,7 +23,7 @@ type (
 	// Database ...
 	Database struct {
 		LogLevel string `envconfig:"CAROUSEL_DATABASE_LOG_LEVEL" default:"ERROR"`
-		Host     string `envconfig:"CAROUSEL_DATABASE_HOST" default:"db"`
+		Host     string `envconfig:"CAROUSEL_DATABASE_HOST" default:"database"`
 		Port     int    `envconfig:"CAROUSEL_DATABASE_PORT" default:"5432"`
 		Username string `envconfig:"CAROUSEL_DATABASE_USERNAME" default:"carousel"`
 		Password string `envconfig:"CAROUSEL_DATABASE_PASSWORD" default:"carousel"`
@@ -48,7 +48,7 @@ type (
 
 	// ML ...
 	ML struct {
-		Places                 bool     `envconfig:"CAROUSEL_ML_PLACES" default:"false"`
+		Places                 bool     `envconfig:"CAROUSEL_ML_PLACES" default:"true"`
 		Classification         bool     `envconfig:"CAROUSEL_ML_CLASSIFICATION" default:"false"`
 		Detection              bool     `envconfig:"CAROUSEL_ML_DETECTION" default:"false"`
 		Faces                  bool     `envconfig:"CAROUSEL_ML_FACES" default:"false"`

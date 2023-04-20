@@ -8,20 +8,10 @@ services:
       - '15001:15001'
     depends_on:
       - database
-      - worker
     environment:
-      CAROUSEL_DATABASE_HOST: database
-      CAROUSEL_DATABASE_PORT: 5432
-      CAROUSEL_DATABASE_USERNAME: carousel
-      CAROUSEL_DATABASE_PASSWORD: carousel
-      CAROUSEL_DATABASE_NAME: carousel
       CAROUSEL_WORKER_HOST: worker
-      CAROUSEL_WORKER_PORT: 15002
       CAROUSEL_LOG_LEVEL: DEBUG
       CAROUSEL_DATABASE_LOG_LEVEL: INFO
-      CAROUSEL_FEATURE_EXPLORE: "true"
-      CAROUSEL_FEATURE_PLACES: "true"
-      CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
   worker:
@@ -30,9 +20,7 @@ services:
       - '15002:15002'
     environment:
       CAROUSEL_API_HOST: api
-      CAROUSEL_API_PORT: 15001
       CAROUSEL_LOG_LEVEL: DEBUG
-      CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
     deploy:
