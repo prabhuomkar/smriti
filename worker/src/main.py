@@ -49,9 +49,11 @@ class WorkerService(WorkerServicer):
 
 async def process_mediaitem(components: list[Component], mediaitem_user_id: str, mediaitem_id: str) -> None:
     """Process mediaitem"""
+    logging.info(f'started processing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
     metadata = await components[0].process(mediaitem_user_id, mediaitem_id, None)
     for i in range(1, len(components)):
         await components[i].process(mediaitem_user_id, mediaitem_id, metadata)
+    logging.info(f'finished processing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
 
 async def serve() -> None:
     """Main serve function"""
