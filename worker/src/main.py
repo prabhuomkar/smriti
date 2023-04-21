@@ -9,7 +9,7 @@ import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 
 from src.store import init_storage
-from src.components import process_metadata
+from src.components import Component, Metadata, Places
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessRequest, MediaItemProcessResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
@@ -18,10 +18,9 @@ from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_ser
 class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
-    def __init__(self, cfg: dict, file_storage, api_stub: APIStub) -> None:
-        self.config = cfg
+    def __init__(self, file_storage, components: list[Component]) -> None:
         self.file_storage = file_storage
-        self.api_stub = api_stub
+        self.components = components
 
     # pylint: disable=invalid-overridden-method
     async def MediaItemProcess(self, request_iterator: AsyncIterable[
@@ -45,10 +44,14 @@ class WorkerService(WorkerServicer):
                 return MediaItemProcessResponse(ok=False)
         if mediaitem_id is not None and mediaitem_user_id is not None and 'finish' in mediaitem_command:
             loop = asyncio.get_event_loop()
-            loop.create_task(process_metadata(
-                self.file_storage, self.api_stub, mediaitem_user_id, mediaitem_id))
+            loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id))
         return MediaItemProcessResponse(ok=True)
 
+async def process_mediaitem(components: list[Component], mediaitem_user_id: str, mediaitem_id: str) -> None:
+    """Process mediaitem"""
+    metadata = await components[0].process(mediaitem_user_id, mediaitem_id, None)
+    for i in range(1, len(components)):
+        await components[i].process(mediaitem_user_id, mediaitem_id, metadata)
 
 async def serve() -> None:
     """Main serve function"""
@@ -72,9 +75,15 @@ async def serve() -> None:
     cfg = yaml.safe_load(worker_cfg.config)
     logging.info(f'got worker configuration: {cfg}')
 
+    # initialize components
+    components = [Metadata(storage=file_storage, api_stub=api_stub)]
+    for item in cfg:
+        if item['name'] == 'places':
+            components.append(Places(storage=file_storage, api_stub=api_stub, source=item['source']))
+
     # initialize grpc server
     server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(cfg, file_storage, api_stub), server)
+    add_WorkerServicer_to_server(WorkerService(file_storage, components), server)
     port = int(os.getenv('CAROUSEL_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')
