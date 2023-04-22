@@ -5,6 +5,7 @@ import (
 	"api/internal/models"
 	"api/pkg/services/api"
 	"context"
+	"encoding/json"
 	"log"
 	"time"
 
@@ -21,6 +22,40 @@ type Service struct {
 	api.UnimplementedAPIServer
 	Config *config.Config
 	DB     *gorm.DB
+}
+
+func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
+	type WorkerTask struct {
+		Name     string   `json:"name"`
+		Source   string   `json:"source,omitempty"`
+		Download []string `json:"download,omitempty"`
+	}
+	var workerTasks []WorkerTask
+	if s.Config.ML.Places {
+		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesSource})
+	}
+	if s.Config.ML.Classification {
+		workerTasks = append(workerTasks, WorkerTask{Name: "classification", Download: s.Config.ClassificationDownload})
+	}
+	if s.Config.ML.Detection {
+		workerTasks = append(workerTasks, WorkerTask{Name: "detection", Download: s.Config.DetectionDownload})
+	}
+	if s.Config.ML.Faces {
+		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Download: s.Config.FacesDownload})
+	}
+	if s.Config.ML.OCR {
+		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Download: s.Config.OCRDownload})
+	}
+	if s.Config.ML.Speech {
+		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Download: s.Config.SpeechDownload})
+	}
+	configBytes, err := json.Marshal(&workerTasks)
+	if err != nil {
+		return nil, status.Errorf(codes.Internal, "error parsing worker config: %s", err.Error())
+	}
+	return &api.ConfigResponse{
+		Config: configBytes,
+	}, nil
 }
 
 // nolint: cyclop

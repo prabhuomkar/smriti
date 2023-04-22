@@ -18,3 +18,7 @@ setup-docs:
 	@cd docs; \
 		echo "[setup-docs]: Installing dependencies"; \
 		npm install;
+start:
+	@docker compose up -d
+stop:
+	@docker compose down

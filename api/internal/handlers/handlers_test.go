@@ -101,7 +101,7 @@ func executeTests(t *testing.T, tests []Test) {
 			handler := &Handler{
 				Config: &config.Config{
 					Auth:    config.Auth{RefreshTTL: 60},
-					Feature: config.Feature{Albums: true, Explore: true, ExplorePlaces: true},
+					Feature: config.Feature{Albums: true, Explore: true, Places: true},
 				},
 				DB:     mockGDB,
 				Cache:  mockCache,

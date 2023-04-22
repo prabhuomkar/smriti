@@ -29,13 +29,6 @@ func main() {
 		panic(err)
 	}
 
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock()}
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
-	if err != nil {
-		panic(err)
-	}
-	workerClient := worker.NewWorkerClient(conn)
-
 	service := &service.Service{
 		Config: cfg,
 		DB:     pgDB,
@@ -50,10 +43,16 @@ func main() {
 	handler := &handlers.Handler{
 		Config: cfg,
 		DB:     pgDB,
-		Worker: workerClient,
 		Cache:  cache,
 	}
 	httpServer := server.StartHTTPServer(handler)
+
+	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock()}
+	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
+	if err != nil {
+		panic(err)
+	}
+	handler.Worker = worker.NewWorkerClient(conn)
 
 	// graceful shutdown
 	shutdownSignal := make(chan os.Signal, 1)

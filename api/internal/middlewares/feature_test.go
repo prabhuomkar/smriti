@@ -21,15 +21,15 @@ import (
 func TestFeatureCheckForbidden(t *testing.T) {
 	// handler
 	cfg := &config.Config{Feature: config.Feature{
-		Albums:        false,
-		Favourites:    false,
-		Hidden:        false,
-		Trash:         false,
-		Explore:       false,
-		ExplorePlaces: false,
-		ExploreThings: false,
-		ExplorePeople: false,
-		Sharing:       false,
+		Albums:     false,
+		Favourites: false,
+		Hidden:     false,
+		Trash:      false,
+		Explore:    false,
+		Places:     false,
+		Things:     false,
+		People:     false,
+		Sharing:    false,
 	}}
 	handler := &handlers.Handler{
 		Config: cfg,

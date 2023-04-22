@@ -2,48 +2,37 @@ version: '3'
 services:
   # applications
   api:
+    container_name: api
     build: api
     restart: always
-    container_name: api
     ports:
       - '5001:5001'
       - '15001:15001'
     depends_on:
       - database
-      - worker
     environment:
-      CAROUSEL_DATABASE_HOST: database
-      CAROUSEL_DATABASE_PORT: 5432
-      CAROUSEL_DATABASE_USERNAME: carousel
-      CAROUSEL_DATABASE_PASSWORD: carousel
-      CAROUSEL_DATABASE_NAME: carousel
       CAROUSEL_WORKER_HOST: worker
-      CAROUSEL_WORKER_PORT: 15002
       CAROUSEL_LOG_LEVEL: DEBUG
       CAROUSEL_DATABASE_LOG_LEVEL: INFO
-      CAROUSEL_FEATURE_EXPLORE: true
-      CAROUSEL_FEATURE_EXPLORE_PLACES: true
-      CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
   worker:
+    container_name: worker
     build: worker
     restart: always
-    container_name: worker
     ports:
       - '15002:15002'
+    depends_on:
+      - api
     environment:
       CAROUSEL_API_HOST: api
-      CAROUSEL_API_PORT: 15001
       CAROUSEL_LOG_LEVEL: DEBUG
-      CAROUSEL_STORAGE_DISK_ROOT: ../storage
     volumes:
       - ./storage:/storage:rw
   # infra services
   database:
-    image: postgres:15
-    restart: always
     container_name: database
+    image: postgres:15
     environment:
       POSTGRES_USER: carousel
       POSTGRES_PASSWORD: carousel

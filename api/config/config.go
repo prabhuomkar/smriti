@@ -23,7 +23,7 @@ type (
 	// Database ...
 	Database struct {
 		LogLevel string `envconfig:"CAROUSEL_DATABASE_LOG_LEVEL" default:"ERROR"`
-		Host     string `envconfig:"CAROUSEL_DATABASE_HOST" default:"db"`
+		Host     string `envconfig:"CAROUSEL_DATABASE_HOST" default:"database"`
 		Port     int    `envconfig:"CAROUSEL_DATABASE_PORT" default:"5432"`
 		Username string `envconfig:"CAROUSEL_DATABASE_USERNAME" default:"carousel"`
 		Password string `envconfig:"CAROUSEL_DATABASE_PASSWORD" default:"carousel"`
@@ -46,17 +46,33 @@ type (
 		Secret     string `envconfig:"CAROUSEL_AUTH_SECRET" default:"carousel"`
 	}
 
+	// ML ...
+	ML struct {
+		Places                 bool     `envconfig:"CAROUSEL_ML_PLACES" default:"true"`
+		Classification         bool     `envconfig:"CAROUSEL_ML_CLASSIFICATION" default:"false"`
+		Detection              bool     `envconfig:"CAROUSEL_ML_DETECTION" default:"false"`
+		Faces                  bool     `envconfig:"CAROUSEL_ML_FACES" default:"false"`
+		OCR                    bool     `envconfig:"CAROUSEL_ML_OCR" default:"false"`
+		Speech                 bool     `envconfig:"CAROUSEL_ML_SPEECH" default:"false"`
+		PlacesSource           string   `envconfig:"CAROUSEL_ML_PLACES_SOURCE" default:"openstreetmap"`
+		ClassificationDownload []string `envconfig:"CAROUSEL_ML_CLASSIFICATION_DOWNLOAD"`
+		DetectionDownload      []string `envconfig:"CAROUSEL_ML_DETECTION_DOWNLOAD"`
+		FacesDownload          []string `envconfig:"CAROUSEL_ML_FACES_DOWNLOAD"`
+		OCRDownload            []string `envconfig:"CAROUSEL_ML_OCR_DOWNLOAD"`
+		SpeechDownload         []string `envconfig:"CAROUSEL_ML_SPEECH_DOWNLOAD"`
+	}
+
 	// Feature ...
 	Feature struct {
-		Favourites    bool `envconfig:"CAROUSEL_FEATURE_FAVOURITES" default:"true"`
-		Hidden        bool `envconfig:"CAROUSEL_FEATURE_HIDDEN" default:"true"`
-		Trash         bool `envconfig:"CAROUSEL_FEATURE_TRASH" default:"true"`
-		Albums        bool `envconfig:"CAROUSEL_FEATURE_ALBUMS" default:"true"`
-		Explore       bool `envconfig:"CAROUSEL_FEATURE_EXPLORE" default:"true"`
-		ExplorePlaces bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_PLACES" default:"true"`
-		ExploreThings bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_THINGS" default:"false"`
-		ExplorePeople bool `envconfig:"CAROUSEL_FEATURE_EXPLORE_PEOPLE" default:"false"`
-		Sharing       bool `envconfig:"CAROUSEL_FEATURE_SHARING" default:"false"`
+		Favourites bool `envconfig:"CAROUSEL_FEATURE_FAVOURITES" default:"true"`
+		Hidden     bool `envconfig:"CAROUSEL_FEATURE_HIDDEN" default:"true"`
+		Trash      bool `envconfig:"CAROUSEL_FEATURE_TRASH" default:"true"`
+		Albums     bool `envconfig:"CAROUSEL_FEATURE_ALBUMS" default:"true"`
+		Explore    bool `envconfig:"CAROUSEL_FEATURE_EXPLORE" default:"true"`
+		Places     bool `envconfig:"CAROUSEL_FEATURE_PLACES" default:"true"`
+		Things     bool `envconfig:"CAROUSEL_FEATURE_THINGS" default:"false"`
+		People     bool `envconfig:"CAROUSEL_FEATURE_PEOPLE" default:"false"`
+		Sharing    bool `envconfig:"CAROUSEL_FEATURE_SHARING" default:"false"`
 	}
 
 	// Admin ...
@@ -74,6 +90,7 @@ type (
 		Worker
 		Auth
 		Feature
+		ML
 		Admin
 		StorageDiskRoot string `envconfig:"CAROUSEL_STORAGE_DISK_ROOT" default:"../storage"`
 	}

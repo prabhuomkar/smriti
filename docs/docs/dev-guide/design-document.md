@@ -95,12 +95,47 @@ interface {
 
 ### Machine Learning Inference
 - Toggles for using CPU and GPU for inference
-- Graph workflow based model inference 
+- Model registration from API on startup:
+```yaml
+tasks:
+- name: places
+  service: openstreetmap # google-maps, geojson, paid services, etc.
+- name: classification
+  download: 
+    - s3://model-download-link
+  model: convnext
+- name: detection
+  download: 
+    - s3://model-download-link
+    - s3://model-labels-link
+  model: yolo
+- name: ocr
+  download: 
+    - s3://model-download-link
+    - s3://model-labels-link
+  model: tbd
+- name: faces
+  download: 
+    - s3://model-download-link
+    - s3://model-labels-link
+  model: tbd
+  params:
+    - face_size: 224
+    - similarity_threshold: 90
+- name: speech
+  download: 
+    - s3://model-download-link
+    - s3://model-labels-link
+  model: tbd
+  params:
+    - token_size: 10
+```
 - Default Models:
     - Classification - [EfficientNet](https://github.com)
     - Detection - [YOLOv8](https://github.com)
     - Face Detection - [TBD](https://github.com)
     - OCR - [TBD](https://github.com)
+    - Speech - [TBD](https://github.com)
     - Search Embeddings - [TBD](https://github.com)
 
 ## Performance

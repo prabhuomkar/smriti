@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type APIClient interface {
+	GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
@@ -33,6 +34,15 @@ type aPIClient struct {
 
 func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
 	return &aPIClient{cc}
+}
+
+func (c *aPIClient) GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error) {
+	out := new(ConfigResponse)
+	err := c.cc.Invoke(ctx, "/API/GetWorkerConfig", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *aPIClient) SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
@@ -57,6 +67,7 @@ func (c *aPIClient) SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRe
 // All implementations must embed UnimplementedAPIServer
 // for forward compatibility
 type APIServer interface {
+	GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error)
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAPIServer()
@@ -66,6 +77,9 @@ type APIServer interface {
 type UnimplementedAPIServer struct {
 }
 
+func (UnimplementedAPIServer) GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetWorkerConfig not implemented")
+}
 func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMetadata not implemented")
 }
@@ -83,6 +97,24 @@ type UnsafeAPIServer interface {
 
 func RegisterAPIServer(s grpc.ServiceRegistrar, srv APIServer) {
 	s.RegisterService(&API_ServiceDesc, srv)
+}
+
+func _API_GetWorkerConfig_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetWorkerConfig(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/GetWorkerConfig",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetWorkerConfig(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _API_SaveMediaItemMetadata_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -128,6 +160,10 @@ var API_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "API",
 	HandlerType: (*APIServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "GetWorkerConfig",
+			Handler:    _API_GetWorkerConfig_Handler,
+		},
 		{
 			MethodName: "SaveMediaItemMetadata",
 			Handler:    _API_SaveMediaItemMetadata_Handler,

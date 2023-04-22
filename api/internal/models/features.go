@@ -25,9 +25,9 @@ func GetFeatures(cfg *config.Config) *Features {
 		Trash:      cfg.Feature.Trash,
 		Albums:     cfg.Feature.Albums,
 		Explore:    cfg.Feature.Explore,
-		Places:     cfg.Feature.ExplorePlaces,
-		Things:     cfg.Feature.ExploreThings,
-		People:     cfg.Feature.ExplorePeople,
+		Places:     cfg.Feature.Places,
+		Things:     cfg.Feature.Things,
+		People:     cfg.Feature.People,
 		Sharing:    cfg.Feature.Sharing,
 	}
 }
