@@ -3,7 +3,7 @@ import asyncio
 import logging
 import os
 from typing import AsyncIterable
-import yaml
+import json
 
 import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
@@ -74,7 +74,7 @@ async def serve() -> None:
 
     # get worker config
     worker_cfg = api_stub.GetWorkerConfig(Empty())
-    cfg = yaml.safe_load(worker_cfg.config)
+    cfg = json.loads(worker_cfg.config)
     logging.info(f'got worker configuration: {cfg}')
 
     # initialize components

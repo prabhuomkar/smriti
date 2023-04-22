@@ -5,6 +5,7 @@ import (
 	"api/internal/models"
 	"api/pkg/services/api"
 	"context"
+	"encoding/json"
 	"log"
 	"time"
 
@@ -13,7 +14,6 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gopkg.in/yaml.v2"
 	"gorm.io/gorm"
 )
 
@@ -26,9 +26,9 @@ type Service struct {
 
 func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
 	type WorkerTask struct {
-		Name     string   `yaml:"name"`
-		Source   string   `yaml:"source,omitempty"`
-		Download []string `yaml:"download,omitempty"`
+		Name     string   `json:"name"`
+		Source   string   `json:"source,omitempty"`
+		Download []string `json:"download,omitempty"`
 	}
 	var workerTasks []WorkerTask
 	if s.Config.ML.Places {
@@ -49,7 +49,7 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	if s.Config.ML.Speech {
 		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Download: s.Config.SpeechDownload})
 	}
-	configBytes, err := yaml.Marshal(&workerTasks)
+	configBytes, err := json.Marshal(&workerTasks)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error parsing worker config: %s", err.Error())
 	}

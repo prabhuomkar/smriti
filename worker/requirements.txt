@@ -4,7 +4,6 @@ grpcio-tools
 moviepy
 Pillow
 PyExifTool
-pyyaml
 rawpy
 requests
 Wand

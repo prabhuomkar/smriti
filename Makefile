@@ -19,8 +19,6 @@ setup-docs:
 		echo "[setup-docs]: Installing dependencies"; \
 		npm install;
 start:
-	@docker build -t carouselhq/api ./api; \
-		docker build -t carouselhq/worker ./worker; \
-		docker stack deploy -c docker-compose.yaml carousel
+	@docker compose up -d
 stop:
-	@docker stack rm carousel
+	@docker compose down

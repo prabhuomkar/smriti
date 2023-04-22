@@ -2,7 +2,9 @@ version: '3'
 services:
   # applications
   api:
-    image: carouselhq/api:latest
+    container_name: api
+    build: api
+    restart: always
     ports:
       - '5001:5001'
       - '15001:15001'
@@ -15,18 +17,21 @@ services:
     volumes:
       - ./storage:/storage:rw
   worker:
-    image: carouselhq/worker:latest
+    container_name: worker
+    build: worker
+    restart: always
     ports:
       - '15002:15002'
+    depends_on:
+      - api
     environment:
       CAROUSEL_API_HOST: api
       CAROUSEL_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
-    deploy:
-      replicas: 2
   # infra services
   database:
+    container_name: database
     image: postgres:15
     environment:
       POSTGRES_USER: carousel
