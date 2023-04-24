@@ -309,6 +309,7 @@ func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {
 	mediaItem.UserID = userID
 	mediaItem.Filename = fileName
 	mediaItem.MediaItemType = models.Unknown
+	mediaItem.MediaItemCategory = models.Default
 	mediaItem.Status = models.Processing
 	return mediaItem
 }

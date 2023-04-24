@@ -86,7 +86,8 @@ func TestFeatureCheckOK(t *testing.T) {
 			"mediaitems_count", "created_at", "updated_at"}))
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 		WillReturnRows(sqlmock.NewRows([]string{"id", "filename", "description", "mime_type", "source_url", "preview_url",
-			"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "width",
+			"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
+			"width",
 			"height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 			"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at"}))
 	featureHandlerMap := map[string]interface{}{

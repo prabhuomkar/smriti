@@ -11,6 +11,15 @@ CREATE TYPE "mediaitem_type" AS ENUM (
   'video'
 );
 
+CREATE TYPE "mediaitem_category" AS ENUM (
+  'default',
+  'screenshot',
+  'panorama',
+  'slow',
+  'motion',
+  'live'
+);
+
 CREATE TABLE "mediaitems" (
   "id" uuid PRIMARY KEY NOT NULL,
   "user_id" uuid NOT NULL,
@@ -25,6 +34,7 @@ CREATE TABLE "mediaitems" (
   "is_deleted" boolean DEFAULT FALSE NOT NULL,
   "status" mediaitem_status,
   "mediaitem_type" mediaitem_type,
+  "mediaitem_category" mediaitem_category,
   "width" int,
   "height" int,
   "creation_time" timestamp,

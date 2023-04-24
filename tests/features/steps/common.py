@@ -14,9 +14,11 @@ UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'passwo
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description'}
 
-CREATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 
+CREATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic',
+                     'mediaItemType': 'photo', 'mediaItemCategory': 'default',
                      'description': None, 'favourite': False, 'hidden': False}
-UPDATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 
+UPDATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic',
+                     'mediaItemType': 'photo', 'mediaItemCategory': 'default',
                      'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': True}
 
 CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}

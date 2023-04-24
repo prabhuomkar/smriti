@@ -17,18 +17,19 @@ message MediaItemMetadataRequest {
     optional string previewUrl = 6;
     optional string thumbnailUrl = 7;
     optional string type = 8;
-    optional int32 width = 9;
-    optional int32 height = 10;
-    optional string creationTime = 11;
-    optional string cameraMake = 12;
-    optional string cameraModel = 13;
-    optional string focalLength = 14;
-    optional string apertureFNumber = 15;
-    optional string isoEquivalent = 16;
-    optional string exposureTime = 17;
-    optional string fps = 18;
-    optional double latitude = 19;
-    optional double longitude = 20;
+    optional string category = 9;
+    optional int32 width = 10;
+    optional int32 height = 11;
+    optional string creationTime = 12;
+    optional string cameraMake = 13;
+    optional string cameraModel = 14;
+    optional string focalLength = 15;
+    optional string apertureFNumber = 16;
+    optional string isoEquivalent = 17;
+    optional string exposureTime = 18;
+    optional string fps = 19;
+    optional double latitude = 20;
+    optional double longitude = 21;
 }
 
 message MediaItemPlaceRequest {

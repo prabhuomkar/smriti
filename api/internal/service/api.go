@@ -99,6 +99,9 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 	if req.Type != nil {
 		mediaItem.MediaItemType = models.MediaItemType(*req.Type)
 	}
+	if req.Category != nil {
+		mediaItem.MediaItemCategory = models.MediaItemCategory(*req.Category)
+	}
 	if req.Width != nil {
 		mediaItem.Width = int(*req.Width)
 	}

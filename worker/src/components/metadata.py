@@ -79,6 +79,7 @@ class Metadata(Component):
                                                                 'Composite:GPSLatitude'], return_type='float')
                 result['longitude'] = getval_from_dict(metadata, ['EXIF:GPSLongitude', \
                                                                 'Composite:GPSLongitude'], return_type='float')
+                result['category'] = self._get_mediaitem_category(metadata, result)
                 logging.debug(f'extracted metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
         except Exception as e:
             logging.error(
@@ -146,6 +147,7 @@ class Metadata(Component):
                 previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
                 thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
                 type=result['type'] if 'type' in result else None,
+                category=result['category'] if 'category' in result else None,
                 width=result['width'] if 'width' in result else None,
                 height=result['height'] if 'height' in result else None,
                 creationTime=result['creationTime'] if 'creationTime' in result else None,
@@ -175,7 +177,6 @@ class Metadata(Component):
             img.resize(512, size)
             with img.convert('jpeg') as converted:
                 return converted.make_blob('jpeg')
-
 
     def _generate_photo_preview_and_thumbnail(self, original_file_path: str, mime_type: str):
         """Generate preview and thumbnail image for a photo"""
@@ -214,3 +215,19 @@ class Metadata(Component):
         video_thumbnail_bytes = self._generate_video_thumbnail(video_preview_path)
         os.remove(video_preview_path)
         return video_bytes, video_thumbnail_bytes
+
+    def _get_mediaitem_category(self, metadata: dict, result: dict) -> str:
+        """Get mediaitem category from metadata"""
+        if result['type'] == 'photo':
+            if 'EXIF:UserComment' in metadata and metadata['EXIF:UserComment'].lower() == 'screenshot':
+                return 'screenshot'
+            if 'XMP:UserComment' in metadata and metadata['XMP:UserComment'].lower() == 'screenshot':
+                return 'screenshot'
+            if result['width'] > 10000 and result['height']*4 <= result['width']:
+                return 'panorama'
+        if result['type'] == 'video':
+            if result['fps'] > 150:
+                return 'slow'
+            if 'QuickTime:LivePhotoAuto' in metadata:
+                return 'live'
+        return 'default'

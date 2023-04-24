@@ -48,6 +48,8 @@ def step_impl(context):
     assert len(context.mediaitems) == 1
     assert context.mediaitems[0]['filename'] == context.match_mediaitem['filename']
     assert context.mediaitems[0]['mimeType'] == context.match_mediaitem['mimeType']
+    assert context.mediaitems[0]['mediaItemType'] == context.match_mediaitem['mediaItemType']
+    assert context.mediaitems[0]['mediaItemCategory'] == context.match_mediaitem['mediaItemCategory']
     if 'description' in context.mediaitems[0]:
         assert context.mediaitems[0]['description'] == context.match_mediaitem['description']
 
@@ -56,6 +58,8 @@ def step_impl(context):
 def step_impl(context):
     assert context.mediaitem['filename'] == context.match_mediaitem['filename']
     assert context.mediaitem['mimeType'] == context.match_mediaitem['mimeType']
+    assert context.mediaitem['mediaItemType'] == context.match_mediaitem['mediaItemType']
+    assert context.mediaitem['mediaItemCategory'] == context.match_mediaitem['mediaItemCategory']
     if 'description' in context.mediaitem:
         assert context.mediaitem['description'] == context.match_mediaitem['description']
 

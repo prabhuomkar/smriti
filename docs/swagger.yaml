@@ -1240,6 +1240,10 @@ components:
           readOnly: true
           type: string
           enum: ["photo", "video"]
+        mediaItemCategory:
+          readOnly: true
+          type: string
+          enum: ["default", "screenshot", "panorama", "slow", "motion", "live"]
         width:
           readOnly: true
           type: integer
