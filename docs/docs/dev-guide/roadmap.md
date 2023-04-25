@@ -6,7 +6,7 @@
 - [x] Authentication Mechanisms & User Management (v2022.12.31)
 - [x] Basic API for File Upload & Getting MediaItems (v2022.12.31)
 - [x] Get Places & its Collection (v2022.04.30)
-- [-] Demos including deployment & hosting techniques (v2022.04.30)
+- [x] Demos including deployment & hosting techniques (v2022.04.30)
 - [ ] Get Machine Learning Powered Things & its Collection (v2022.05.31)
 - [ ] Sharing Collections of Photos & Videos (v2023.05.31)
 - [ ] Get Machine Learning Powered Faces & People Collection (v2022.05.31)

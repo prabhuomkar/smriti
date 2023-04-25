@@ -22,6 +22,3 @@ flyctl secrets set CAROUSEL_WORKER_HOST=tonystark-carousel-worker.fly.dev
 
 ## Kubernetes
 TODO(omkar)
-
-## Raspberry Pi
-TODO(omkar)

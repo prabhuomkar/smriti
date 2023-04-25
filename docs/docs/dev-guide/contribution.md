@@ -44,11 +44,15 @@ make cover
 ### Integration Testing
 
 #### Setup
-- Run following command to setup the test suite:
+- From the root directory of the project, run all services:
+```
+make start
+```
+- From `tests` folder, run following command to setup the test suite:
 ```
 make setup
 ```
-- Run the command for invoking integration tests for all features:
+- From `tests` folder, run the command for invoking integration tests for all features:
 ```
 make test-all
 ```

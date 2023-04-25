@@ -55,20 +55,25 @@ const config = {
         },
         items: [
           {
+            type: "doc",
+            docId: "dev-guide/introduction",
+            label: "Docs",
+            position: "left",
+          },
+          {
             href: "/api/",
             label: "API",
             position: "left",
           },
           {
-            type: "doc",
-            docId: "dev-guide/introduction",
-            label: "Documentation",
+            type: "localeDropdown",
             position: "right",
           },
           {
             href: "https://github.com/prabhuomkar/carousel",
-            label: "GitHub",
             position: "right",
+            className: "header-github-link",
+            "aria-label": "GitHub repository",
           },
         ],
       },
