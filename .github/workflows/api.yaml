@@ -20,21 +20,29 @@ jobs:
       run:
         working-directory: ./api
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-go@v4
+      - name: Git Checkout
+        uses: actions/checkout@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v4
         with:
           go-version: '^1.20'
-      - run: go version
-      - uses: golangci/golangci-lint-action@v3
+      - name: Go Version
+        run: go version
+      - name: Run Lint
+        uses: golangci/golangci-lint-action@v3
         with:
           version: latest
           working-directory: api
-      - run: make build
-      - run: make cover
-      - uses: codecov/codecov-action@v3
+      - name: Run Build
+        run: make build
+      - name: Run Test & Cover
+        run: make cover
+      - name: Publish Coverage
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: api
+          files: ./coverage.txt
   publish:
     if: ${{ (github.event_name == 'release' && github.event.action == 'published') || github.ref == 'refs/heads/master' }}
     needs: ci
@@ -44,13 +52,17 @@ jobs:
       run:
         working-directory: ./api
     steps:
-      - uses: actions/checkout@v3
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Git Checkout
+        uses: actions/checkout@v3
+      - name: Docker Login
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build . --build-arg GITSHA=${GITHUB_SHA} --build-arg VERSION=${GITHUB_REF_NAME} --file Dockerfile --tag carouselhq/api:${GITHUB_REF_NAME}
-      - run: docker push carouselhq/api:${GITHUB_REF_NAME}
+      - name: Docker Build
+        run: docker build . --build-arg GITSHA=${GITHUB_SHA} --build-arg VERSION=${GITHUB_REF_NAME} --file Dockerfile --tag carouselhq/api:${GITHUB_REF_NAME}
+      - name: Docker Publish
+        run: docker push carouselhq/api:${GITHUB_REF_NAME}
   deploy:
     if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
     needs: publish

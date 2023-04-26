@@ -20,22 +20,30 @@ jobs:
       run:
         working-directory: ./worker
     steps:
-      - uses: actions/checkout@v3
-      - uses: actions/setup-python@v4
+      - name: Git Checkout
+        uses: actions/checkout@v3
+      - name: Setup Python
+        uses: actions/setup-python@v4
         with:
           python-version: '3.x'
-      - run: python -c "import sys; print(sys.version)"
-      - run: make install
-      - run: |
+      - name: Python Version
+        run: python -c "import sys; print(sys.version)"
+      - name: Install Dependencies
+        run: make install
+      - name: Run Lint
+        run: |
           pip install pylint
           make lint
-      - run: |
+      - name: Run Test & Cover
+        run: |
           make test-install
           make cover
-      - uses: codecov/codecov-action@v3
+      - name: Publish Coverage
+        uses: codecov/codecov-action@v3
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: worker
+          files: ./.coverage
   publish:
     if: ${{ (github.event_name == 'release' && github.event.action == 'published') || github.ref == 'refs/heads/master' }}
     needs: ci
@@ -45,13 +53,17 @@ jobs:
       run:
         working-directory: ./worker
     steps:
-      - uses: actions/checkout@v3
-      - run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
+      - name: Git Checkout
+        uses: actions/checkout@v3
+      - name: Docker Login
+        run: docker login -u $DOCKER_USER -p $DOCKER_PASSWORD
         env:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
-      - run: docker build . --file Dockerfile --tag carouselhq/worker:${GITHUB_REF_NAME}
-      - run: docker push carouselhq/worker:${GITHUB_REF_NAME}
+      - name: Docker Build
+        run: docker build . --file Dockerfile --tag carouselhq/worker:${GITHUB_REF_NAME}
+      - name: Docker Publish
+        run: docker push carouselhq/worker:${GITHUB_REF_NAME}
   deploy:
     if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
     needs: publish
