@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from src.store.disk import Disk
 
+
 @patch('os.mkdir')
 @patch('builtins.open')
 @patch('os.remove')

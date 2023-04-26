@@ -42,7 +42,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: api
-          files: ./coverage.txt
+          files: api/coverage.txt
   publish:
     if: ${{ (github.event_name == 'release' && github.event.action == 'published') || github.ref == 'refs/heads/master' }}
     needs: ci

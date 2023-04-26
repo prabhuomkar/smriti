@@ -848,7 +848,7 @@ func TestGetAlbums(t *testing.T) {
 			"get albums with 2 rows",
 			http.MethodGet,
 			"/v1/albums",
-			"/v1/albums",
+			"/v1/albums?sort=updatedAt",
 			[]string{},
 			[]string{},
 			map[string]string{},

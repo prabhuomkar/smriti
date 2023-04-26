@@ -4,6 +4,7 @@ from unittest.mock import patch
 from src.store.disk import Disk
 from src.store.utils import init_storage
 
+
 @patch('os.path.exists')
 def test_init_storage_success(mock_exists):
     f = mock_exists.return_value
