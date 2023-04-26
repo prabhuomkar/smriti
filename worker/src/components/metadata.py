@@ -15,7 +15,7 @@ from grpc import RpcError
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import MediaItemMetadataRequest  # pylint: disable=no-name-in-module
 from src.components.component import Component
-from src.components.utils import getval_from_dict
+from src.utils import getval_from_dict
 
 
 class Metadata(Component):

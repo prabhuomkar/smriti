@@ -1,4 +1,4 @@
-"""Component Utils"""
+"""Utils"""
 
 def getval_from_dict(data, keys: list[str], return_type: str = 'str') -> str | int | float | None:
     """Get possible value from dictionary"""

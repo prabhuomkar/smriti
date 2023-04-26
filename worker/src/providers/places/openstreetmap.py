@@ -2,7 +2,7 @@
 import logging
 import requests
 
-from src.components.utils import getval_from_dict
+from src.utils import getval_from_dict
 
 
 class OpenStreetMap:
