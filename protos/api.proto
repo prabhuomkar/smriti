@@ -13,11 +13,11 @@ message MediaItemMetadataRequest {
     string id = 2;
     string status = 3;
     optional string mimeType = 4;
-    optional string sourceUrl = 5;
+    string sourceUrl = 5;
     optional string previewUrl = 6;
     optional string thumbnailUrl = 7;
-    optional string type = 8;
-    optional string category = 9;
+    string type = 8;
+    string category = 9;
     optional int32 width = 10;
     optional int32 height = 11;
     optional string creationTime = 12;

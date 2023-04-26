@@ -1,6 +1,6 @@
 [MASTER]
 ignore=tests
 ignore-patterns=.*_pb2.py,.*_grpc.py,.*.txt,.*file,.*.toml
-disable=too-few-public-methods,invalid-name,logging-fstring-interpolation,broad-except
+disable=too-few-public-methods,logging-fstring-interpolation,broad-except
 [FORMAT]
 max-line-length=120

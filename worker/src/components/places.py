@@ -24,9 +24,9 @@ class Places(Component):
             logging.debug(f'extracted place for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
 
             self._grpc_save_mediaitem_place(result)
-        except Exception as e:
+        except Exception as exp:
             logging.error(f'error getting place response for user {mediaitem_user_id} '+
-                          f'mediaitem {mediaitem_id}: {str(e)}')
+                          f'mediaitem {mediaitem_id}: {str(exp)}')
 
         logging.info(f'processed place for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return None
@@ -45,6 +45,6 @@ class Places(Component):
                 town=result['town'] if 'town' in result else None,
             )
             _ = self.api_stub.SaveMediaItemPlace(request)
-        except RpcError as e:
+        except RpcError as rpc_exp:
             logging.error(
-                f'error sending place for mediaitem {request.id}: {str(e)}')
+                f'error sending place for mediaitem {request.id}: {str(rpc_exp)}')

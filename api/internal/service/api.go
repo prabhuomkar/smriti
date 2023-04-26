@@ -58,7 +58,6 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	}, nil
 }
 
-// nolint: cyclop
 func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
@@ -78,36 +77,11 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time")
 		}
 	}
+
 	mediaItem := models.MediaItem{
-		UserID: userID, ID: uid, Status: models.MediaItemStatus(req.Status),
-		CreationTime: creationTime, CameraMake: req.CameraMake, CameraModel: req.CameraModel,
-		FocalLength: req.FocalLength, ApertureFnumber: req.ApertureFNumber, IsoEquivalent: req.IsoEquivalent,
-		ExposureTime: req.ExposureTime, FPS: req.Fps, Latitude: req.Latitude, Longitude: req.Longitude,
+		UserID: userID, ID: uid, CreationTime: creationTime,
 	}
-	if req.MimeType != nil {
-		mediaItem.MimeType = *req.MimeType
-	}
-	if req.SourceUrl != nil {
-		mediaItem.SourceURL = *req.SourceUrl
-	}
-	if req.PreviewUrl != nil {
-		mediaItem.PreviewURL = *req.PreviewUrl
-	}
-	if req.ThumbnailUrl != nil {
-		mediaItem.ThumbnailURL = *req.ThumbnailUrl
-	}
-	if req.Type != nil {
-		mediaItem.MediaItemType = models.MediaItemType(*req.Type)
-	}
-	if req.Category != nil {
-		mediaItem.MediaItemCategory = models.MediaItemCategory(*req.Category)
-	}
-	if req.Width != nil {
-		mediaItem.Width = int(*req.Width)
-	}
-	if req.Height != nil {
-		mediaItem.Height = int(*req.Height)
-	}
+	parseMediaItem(&mediaItem, req)
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating mediaitem result: %+v", result.Error)
@@ -118,7 +92,6 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 }
 
 func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
-	// nolint: golint
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -162,4 +135,35 @@ func getNameForPlace(place models.Place) string {
 		return *place.City
 	}
 	return *place.Town
+}
+
+func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {
+	mediaItem.Status = models.MediaItemStatus(req.Status)
+	mediaItem.CameraMake = req.CameraMake
+	mediaItem.CameraModel = req.CameraModel
+	mediaItem.FocalLength = req.FocalLength
+	mediaItem.ApertureFnumber = req.ApertureFNumber
+	mediaItem.IsoEquivalent = req.IsoEquivalent
+	mediaItem.ExposureTime = req.ExposureTime
+	mediaItem.FPS = req.Fps
+	mediaItem.Latitude = req.Latitude
+	mediaItem.Longitude = req.Longitude
+	if req.MimeType != nil {
+		mediaItem.MimeType = *req.MimeType
+	}
+	mediaItem.SourceURL = req.SourceUrl
+	if req.PreviewUrl != nil {
+		mediaItem.PreviewURL = *req.PreviewUrl
+	}
+	if req.ThumbnailUrl != nil {
+		mediaItem.ThumbnailURL = *req.ThumbnailUrl
+	}
+	mediaItem.MediaItemType = models.MediaItemType(req.Type)
+	mediaItem.MediaItemCategory = models.MediaItemCategory(req.Category)
+	if req.Width != nil {
+		mediaItem.Width = int(*req.Width)
+	}
+	if req.Height != nil {
+		mediaItem.Height = int(*req.Height)
+	}
 }

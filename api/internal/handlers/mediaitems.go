@@ -201,7 +201,6 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
-// nolint: cyclop
 // UploadMediaItems ...
 func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
@@ -256,8 +255,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-// nolint: lll
-func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command string, offset int, file multipart.File) error {
+func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command string, offset int, file multipart.File) error { //nolint: lll
 	stream, err := workerClient.MediaItemProcess(context.Background())
 	if err != nil {
 		log.Printf("error creating stream for sending mediaitem to worker: %+v", err)

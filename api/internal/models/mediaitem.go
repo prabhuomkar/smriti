@@ -19,6 +19,7 @@ type (
 	MediaItemCategory string
 
 	// MediaItem ...
+	//nolint: lll
 	MediaItem struct {
 		ID                uuid.UUID         `json:"id" gorm:"primaryKey"`
 		UserID            uuid.UUID         `json:"userId" gorm:"column:user_id"`
@@ -48,11 +49,10 @@ type (
 		FPS               *string           `json:"fps,omitempty"`
 		CreatedAt         time.Time         `json:"createdAt"`
 		UpdatedAt         time.Time         `json:"updatedAt"`
-		// nolint: lll
-		Albums []*Album  `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
-		Places []*Place  `json:"-" gorm:"many2many:place_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
-		Things []*Thing  `json:"-" gorm:"many2many:thing_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
-		People []*People `json:"-" gorm:"many2many:people_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
+		Albums            []*Album          `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
+		Places            []*Place          `json:"-" gorm:"many2many:place_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
+		Things            []*Thing          `json:"-" gorm:"many2many:thing_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
+		People            []*People         `json:"-" gorm:"many2many:people_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID"`
 	}
 )
 

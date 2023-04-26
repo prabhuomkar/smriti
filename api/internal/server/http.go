@@ -18,11 +18,12 @@ import (
 
 const httpTimeout = 10
 
-// nolint:funlen
 // StartHTTPServer ...
+//
+//nolint:funlen
 func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	srvHandler := echo.New()
-	// nolint:gosec
+	//nolint:gosec
 	httpServer := &http.Server{
 		Addr:    fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port),
 		Handler: srvHandler,

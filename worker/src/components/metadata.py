@@ -47,9 +47,11 @@ class Metadata(Component):
         result['id'] = mediaitem_id
         result['status'] = 'UNSPECIFIED'
         result['sourceUrl'] = file_path
+        result['type'] = 'unknown'
+        result['category'] = 'default'
         try:
-            with exiftool.ExifToolHelper() as et:
-                metadata = et.get_metadata(file_path)[0]
+            with exiftool.ExifToolHelper() as ethelper:
+                metadata = ethelper.get_metadata(file_path)[0]
                 logging.debug(f'metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {metadata}')
                 result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
                 result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
@@ -65,9 +67,9 @@ class Metadata(Component):
                                             'QuickTime:CreationDate', 'File:FileModifyDate', \
                                             'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
-                creationTime = result['creationTime'].split("+")[0] if result['creationTime'] else None
-                result['creationTime'] = datetime.datetime.strptime(creationTime, '%Y:%m:%d %H:%M:%S').replace(
-                    tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creationTime else None
+                creation_time = result['creationTime'].split("+")[0] if result['creationTime'] else None
+                result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
+                    tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
                 result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
                 result['cameraModel'] = getval_from_dict(metadata, ['EXIF:Model', 'QuickTime:Model'])
                 result['focalLength'] = getval_from_dict(metadata, ['EXIF:FocalLength'])
@@ -81,9 +83,9 @@ class Metadata(Component):
                                                                 'Composite:GPSLongitude'], return_type='float')
                 result['category'] = self._get_mediaitem_category(metadata, result)
                 logging.debug(f'extracted metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
-        except Exception as e:
+        except Exception as exp:
             logging.error(
-                f'error extracting exif metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {str(e)}')
+                f'error extracting exif metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {str(exp)}')
             result['status'] = 'FAILED'
             self._grpc_save_mediaitem_metadata(result)
             return None
@@ -101,10 +103,10 @@ class Metadata(Component):
                 result['thumbnailUrl'] = thumbnail_url
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {result}')
-            except Exception as e:
+            except Exception as exp:
                 logging.error(
                     f'error generating and uploading preview and thumbnail for \
-                        user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {str(e)}')
+                        user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {str(exp)}')
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
                 return None
@@ -120,10 +122,10 @@ class Metadata(Component):
                 result['thumbnailUrl'] = thumbnail_url
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} video mediaitem {mediaitem_id}: {result}')
-            except Exception as e:
+            except Exception as exp:
                 logging.error(
                     f'error generating and uploading preview and thumbnail for \
-                        user {mediaitem_user_id} video mediaitem {mediaitem_id}: {str(e)}')
+                        user {mediaitem_user_id} video mediaitem {mediaitem_id}: {str(exp)}')
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
                 return None
@@ -162,9 +164,9 @@ class Metadata(Component):
                 longitude=result['longitude'] if 'longitude' in result else None,
             )
             _ = self.api_stub.SaveMediaItemMetadata(request)
-        except RpcError as e:
+        except RpcError as rpc_exp:
             logging.error(
-                f'error sending metadata for mediaitem {request.id}: {str(e)}')
+                f'error sending metadata for mediaitem {request.id}: {str(rpc_exp)}')
 
     def _generate_photo_thumbnail(self, preview_bytes: bytes):
         """Generate thumbnail image from photo"""

@@ -36,8 +36,8 @@ class WorkerService(WorkerServicer):
                 mediaitem_user_id = mediaitem.userId
                 mediaitem_id = mediaitem.id
                 mediaitem_command = mediaitem.command
-            except Exception as e:
-                logging.error(f'error processing mediaitem for storage: {str(e)}', {
+            except Exception as exp:
+                logging.error(f'error processing mediaitem for storage: {str(exp)}', {
                               'id': mediaitem.id, 'offset': mediaitem.offset})
                 mediaitem_id = None
                 mediaitem_user_id = None

@@ -6,9 +6,8 @@ import (
 	"github.com/bluele/gcache"
 )
 
-// nolint:ireturn
 // Init ...
-func Init() (gcache.Cache, error) {
+func Init() (gcache.Cache, error) { //nolint: ireturn
 	gc := gcache.New(math.MaxInt).
 		LRU().
 		Build()

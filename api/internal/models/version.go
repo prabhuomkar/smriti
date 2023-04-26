@@ -1,6 +1,6 @@
 package models
 
-// nolint:gochecknoglobals
+//nolint:gochecknoglobals
 var (
 	DefaultVersion = "dev"
 	DefaultGitSHA  = "-"

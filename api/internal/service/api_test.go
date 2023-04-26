@@ -29,7 +29,8 @@ var (
 	sourceurl                   = "sourceurl"
 	previewurl                  = "previewurl"
 	thumbnailurl                = "thumbnailurl"
-	mediaitemtype               = "photo"
+	mediaitemType               = "photo"
+	mediaitemCategory           = "default"
 	badcreationtime             = "bad-creation-time"
 	creationtime                = "2022-09-22 11:22:33"
 	width                 int32 = 1080
@@ -38,10 +39,11 @@ var (
 		UserId:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:           "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		MimeType:     &mimetype,
-		SourceUrl:    &sourceurl,
+		SourceUrl:    sourceurl,
 		PreviewUrl:   &previewurl,
 		ThumbnailUrl: &thumbnailurl,
-		Type:         &mediaitemtype,
+		Type:         mediaitemType,
+		Category:     mediaitemCategory,
 		Width:        &width,
 		Height:       &height,
 		CreationTime: &creationtime,
@@ -144,7 +146,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo",
+						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo", "default",
 						1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -158,7 +160,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo",
+						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo", "default",
 						1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()

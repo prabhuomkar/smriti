@@ -7,8 +7,9 @@ import (
 	"github.com/labstack/echo"
 )
 
-// nolint:cyclop,gocognit
 // FeatureCheck ...
+//
+//nolint:cyclop
 func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
