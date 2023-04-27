@@ -81,7 +81,7 @@ async def serve() -> None:
     components = [Metadata(storage=file_storage, api_stub=api_stub)]
     for item in cfg:
         if item['name'] == 'places':
-            components.append(Places(storage=file_storage, api_stub=api_stub, source=item['source']))
+            components.append(Places(api_stub=api_stub, source=item['source']))
 
     # initialize grpc server
     server = grpc.aio.server()

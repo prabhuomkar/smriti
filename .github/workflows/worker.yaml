@@ -36,6 +36,7 @@ jobs:
           make lint
       - name: Run Test & Cover
         run: |
+          sudo apt-get install -y libimage-exiftool-perl exiftool libraw-dev
           make test-install
           make cover
       - name: Publish Coverage

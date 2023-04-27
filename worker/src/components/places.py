@@ -11,8 +11,8 @@ from src.providers.places.utils import init_places
 
 class Places(Component):
     """Places Component"""
-    def __init__(self, storage, api_stub: APIStub, source: str) -> None:
-        super().__init__('places', storage, api_stub)
+    def __init__(self, api_stub: APIStub, source: str) -> None:
+        super().__init__('places', None, api_stub)
         self.source = init_places(source)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, metadata: dict) -> None:

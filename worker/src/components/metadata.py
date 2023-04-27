@@ -55,7 +55,7 @@ class Metadata(Component):
                 logging.debug(f'metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {metadata}')
                 result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
                 result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
-                    'video' if 'video' in metadata['File:MIMEType'] else None
+                    'video' if 'video' in metadata['File:MIMEType'] else 'unknown'
                 result['width'] = getval_from_dict(metadata, ['File:ImageWidth', 'EXIF:ExifImageWidth', \
                                             'QuickTime:ImageWidth', 'QuickTime:SourceImageWidth'], return_type='int')
                 result['height'] = getval_from_dict(metadata, ['File:ImageHeight', 'EXIF:ExifImageHeight', \
@@ -110,7 +110,7 @@ class Metadata(Component):
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
                 return None
-        else:
+        elif result['type'] == 'video':
             # generate and upload preview and thumbnail for a video
             try:
                 preview_bytes, thumbnail_bytes = self._generate_video_preview_and_thumbnail(file_path)
@@ -228,7 +228,7 @@ class Metadata(Component):
             if result['width'] > 10000 and result['height']*4 <= result['width']:
                 return 'panorama'
         if result['type'] == 'video':
-            if result['fps'] > 150:
+            if int(result['fps']) > 150:
                 return 'slow'
             if 'QuickTime:LivePhotoAuto' in metadata:
                 return 'live'
