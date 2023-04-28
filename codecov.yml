@@ -3,5 +3,11 @@ coverage:
     project: on
     patch: off
 flag_management:
-  default_rules:
+  api:
     carryforward: true
+    paths:
+      - api
+  worker:
+    carryforward: true
+    paths:
+      - worker

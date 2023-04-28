@@ -221,9 +221,8 @@ class Metadata(Component):
     def _get_mediaitem_category(self, metadata: dict, result: dict) -> str:
         """Get mediaitem category from metadata"""
         if result['type'] == 'photo':
-            if 'EXIF:UserComment' in metadata and metadata['EXIF:UserComment'].lower() == 'screenshot':
-                return 'screenshot'
-            if 'XMP:UserComment' in metadata and metadata['XMP:UserComment'].lower() == 'screenshot':
+            if 'EXIF:UserComment' in metadata and metadata['EXIF:UserComment'].lower() == 'screenshot' \
+                or 'XMP:UserComment' in metadata and metadata['XMP:UserComment'].lower() == 'screenshot':
                 return 'screenshot'
             if result['width'] > 10000 and result['height']*4 <= result['width']:
                 return 'panorama'

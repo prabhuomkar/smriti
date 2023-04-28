@@ -13,7 +13,7 @@ test:
 cover: 
 	@coverage run --source src -m pytest
 	@coverage report --omit=src/protos/*,*__.py
-	@coverage xml
+	@coverage xml --omit=src/protos/*,*__.py
 
 cover-html: cover
 	@coverage html --omit=src/protos/*,*__.py
