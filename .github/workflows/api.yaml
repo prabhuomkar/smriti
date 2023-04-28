@@ -63,27 +63,3 @@ jobs:
         run: docker build . --build-arg GITSHA=${GITHUB_SHA} --build-arg VERSION=${GITHUB_REF_NAME} --file Dockerfile --tag carouselhq/api:${GITHUB_REF_NAME}
       - name: Docker Publish
         run: docker push carouselhq/api:${GITHUB_REF_NAME}
-  deploy:
-    if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-    needs: publish
-    name: Fly Deploy
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./infra/deployments/fly
-    steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-        with:
-          args: latest
-      - run: |
-          sed -i -e '/app =/ s/= .*/= "carousel-api"/' api.toml
-          sed -i -e '/image =/ s/= .*/= "carouselhq\/api:'$GITHUB_REF_NAME'"/' api.toml
-          sed -i -e '/CAROUSEL_WORKER_HOST =/ s/= .*/= "carousel-worker.fly.dev"/' api.toml
-          sed -i -e '/CAROUSEL_DATABASE_HOST =/ s/= .*/= "'$CAROUSEL_DEMO_DATABASE_HOST'"/' api.toml
-          sed -i -e '/CAROUSEL_DATABASE_USERNAME =/ s/= .*/= "'$CAROUSEL_DEMO_DATABASE_HOST'"/' api.toml
-          sed -i -e '/CAROUSEL_DATABASE_PASSWORD =/ s/= .*/= "'$CAROUSEL_DEMO_DATABASE_PASSWORD'"/' api.toml
-          sed -i -e '/CAROUSEL_DATABASE_NAME =/ s/= .*/= "'$CAROUSEL_DEMO_DATABASE_NAME'"/' api.toml
-      - run: flyctl deploy
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}

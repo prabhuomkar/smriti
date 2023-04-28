@@ -65,22 +65,3 @@ jobs:
         run: docker build . --file Dockerfile --tag carouselhq/worker:${GITHUB_REF_NAME}
       - name: Docker Publish
         run: docker push carouselhq/worker:${GITHUB_REF_NAME}
-  deploy:
-    if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
-    needs: publish
-    name: Fly Deploy
-    runs-on: ubuntu-latest
-    defaults:
-      run:
-        working-directory: ./infra/deployments/fly
-    steps:
-      - uses: actions/checkout@v3
-      - uses: superfly/flyctl-actions/setup-flyctl@master
-        with:
-          args: latest
-      - run: |
-          sed -i -e '/app =/ s/= .*/= "carousel-worker"/' worker.toml
-          sed -i -e '/image =/ s/= .*/= "carouselhq\/worker:'$GITHUB_REF_NAME'"/' worker.toml
-      - run: flyctl deploy
-        env:
-          FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
