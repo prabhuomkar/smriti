@@ -3,6 +3,7 @@ package main
 import (
 	"api/config"
 	"api/internal/handlers"
+	"api/internal/models"
 	"api/internal/server"
 	"api/internal/service"
 	"api/pkg/cache"
@@ -25,6 +26,10 @@ func main() {
 
 	pgDB, err := database.Init(cfg.Database.LogLevel, cfg.Database.Host, cfg.Database.Port,
 		cfg.Database.Username, cfg.Database.Password, cfg.Database.Name)
+	if err != nil {
+		panic(err)
+	}
+	err = pgDB.AutoMigrate(models.GetModels()...)
 	if err != nil {
 		panic(err)
 	}

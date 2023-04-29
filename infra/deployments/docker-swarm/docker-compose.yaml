@@ -33,5 +33,3 @@ services:
       POSTGRES_PASSWORD: carousel
     ports:
       - '5432:5432'
-    volumes:
-      - ./infra/database/schema.sql:/docker-entrypoint-initdb.d/schema.sql

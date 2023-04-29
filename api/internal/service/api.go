@@ -113,7 +113,7 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 	place.Name = getNameForPlace(place)
 	result := s.DB.Where(models.Place{UserID: userID, Name: place.Name, Postcode: place.Postcode}).
 		Attrs(models.Place{ID: uuid.NewV4()}).
-		Assign(models.Place{CoverMediaItemID: uid}).
+		Assign(models.Place{CoverMediaItemID: &uid}).
 		FirstOrCreate(&place)
 	if result.Error != nil {
 		log.Printf("error getting or creating place: %+v", result.Error)

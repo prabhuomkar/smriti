@@ -281,7 +281,7 @@ func getPeople(ctx echo.Context) (*models.People, error) {
 		if err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people cover mediaitem id")
 		}
-		people.CoverMediaItemID = coverMediaItemID
+		people.CoverMediaItemID = &coverMediaItemID
 	}
 	if reflect.DeepEqual(models.People{}, people) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people")
