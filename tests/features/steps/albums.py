@@ -1,4 +1,3 @@
-import time
 from behave import *
 import requests
 from requests.auth import HTTPBasicAuth

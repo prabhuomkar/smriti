@@ -41,7 +41,7 @@ type (
 		CameraMake        *string           `json:"cameraMake,omitempty"`
 		CameraModel       *string           `json:"cameraModel,omitempty"`
 		FocalLength       *string           `json:"focalLength,omitempty"`
-		ApertureFnumber   *string           `json:"apertureFnumber,omitempty" gorm:"column:aperture_fnumber"`
+		ApertureFnumber   *string           `json:"apertureFNumber,omitempty" gorm:"column:aperture_fnumber"`
 		IsoEquivalent     *string           `json:"isoEquivalent,omitempty"`
 		ExposureTime      *string           `json:"exposureTime,omitempty"`
 		Latitude          *float64          `json:"latitude,omitempty"`

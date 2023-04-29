@@ -42,35 +42,30 @@ def step_impl(context, condition):
 @then('mediaitem is present in list')
 def step_impl(context):
     assert len(context.mediaitems) == 1
-    assert context.mediaitems[0]['filename'] == context.match_mediaitem['filename']
-    assert context.mediaitems[0]['mimeType'] == context.match_mediaitem['mimeType']
-    assert context.mediaitems[0]['mediaItemType'] == context.match_mediaitem['mediaItemType']
-    assert context.mediaitems[0]['mediaItemCategory'] == context.match_mediaitem['mediaItemCategory']
-    if 'description' in context.mediaitems[0]:
-        assert context.mediaitems[0]['description'] == context.match_mediaitem['description']
+    for field in context.match_mediaitem:
+        if field == 'description':
+            if 'description' in context.mediaitems[0]:
+                assert context.mediaitems[0]['description'] == context.match_mediaitem['description']
+        else:
+            assert context.mediaitems[0][field] == context.match_mediaitem[field]
 
 @then('mediaitem is present')
 def step_impl(context):
-    assert context.mediaitem['filename'] == context.match_mediaitem['filename']
-    assert context.mediaitem['mimeType'] == context.match_mediaitem['mimeType']
-    assert context.mediaitem['mediaItemType'] == context.match_mediaitem['mediaItemType']
-    assert context.mediaitem['mediaItemCategory'] == context.match_mediaitem['mediaItemCategory']
-    if 'description' in context.mediaitem:
-        assert context.mediaitem['description'] == context.match_mediaitem['description']
+    for field in context.match_mediaitem:
+        if field == 'description':
+            if 'description' in context.mediaitem:
+                assert context.mediaitem['description'] == context.match_mediaitem['description']
+        else:
+            assert context.mediaitem[field] == context.match_mediaitem[field]
 
 @then('mediaitem is not present in list')
 def step_impl(context):
-    if len(context.mediaitems) > 0:
-        assert context.mediaitems[0]['filename'] != context.match_mediaitem['filename']
-        assert context.mediaitems[0]['mimeType'] != context.match_mediaitem['mimeType']
-        if 'description' in context.mediaitems[0]:
-            assert context.mediaitems[0]['description'] != context.match_mediaitem['description']
+    assert len(context.mediaitems) == 0
 
 @then('mediaitem is not present')
 def step_impl(context):
-    assert 'filename' not in context.mediaitem
-    assert 'mimeType' not in context.mediaitem
-    assert 'description' not in context.mediaitem
+    for field in context.match_mediaitem:
+        assert field not in context.mediaitem
     assert context.mediaitem['message'] == 'mediaitem not found'
 
 @when('upload mediaitem {condition} auth')
