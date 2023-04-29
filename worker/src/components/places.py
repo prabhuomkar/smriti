@@ -17,6 +17,9 @@ class Places(Component):
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, metadata: dict) -> None:
         """Process place details from latitude and longitude"""
+        if metadata is None or ('latitude' not in metadata or 'longitude' not in metadata) or \
+            (metadata['latitude'] is None and metadata['longitude'] is None):
+            return None
         coordinates = [metadata['latitude'], metadata['longitude']]
         try:
             result = self.source.reverse_geocode(mediaitem_user_id, mediaitem_id, coordinates)

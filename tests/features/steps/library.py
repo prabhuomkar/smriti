@@ -13,13 +13,11 @@ def step_impl(context, operation, condition):
     context.response = res
     context.mediaitems = res.json()
 
-
 @then('mediaitem is present in {operation} list')
 def step_impl(context, operation):
     assert len(context.mediaitems) == 1
     assert context.mediaitems[0]['filename'] == context.match_mediaitem['filename']
     assert context.mediaitems[0]['mimeType'] == context.match_mediaitem['mimeType']
-
 
 @then('mediaitem is not present in {operation} list')
 def step_impl(context, operation):
@@ -27,18 +25,15 @@ def step_impl(context, operation):
         assert context.mediaitems[0]['filename'] != context.match_mediaitem['filename']
         assert context.mediaitems[0]['mimeType'] != context.match_mediaitem['mimeType']
 
-
 @then('mediaitem is present with marked as {operation}')
 def step_impl(context, operation):
     assert context.mediaitem[get_field(operation)] == True
     context.match_mediaitem = context.mediaitem
 
-
 @then('mediaitem is present with unmarked as {operation}')
 def step_impl(context, operation):
     assert context.mediaitem[get_field(operation)] == False
     context.match_mediaitem = context.mediaitem
-
 
 @when('mark {operation} mediaitem {condition} auth')
 def step_impl(context, operation, condition):
@@ -48,7 +43,6 @@ def step_impl(context, operation, condition):
     res = requests.post(API_URL+'/v1/'+get_route(operation), json={'mediaItems': [context.mediaitem_id]}, headers=headers)
     context.response = res
 
-
 @when('unmark {operation} mediaitem {condition} auth')
 def step_impl(context, operation, condition):
     headers = None
@@ -57,16 +51,13 @@ def step_impl(context, operation, condition):
     res = requests.delete(API_URL+'/v1/'+get_route(operation), json={'mediaItems': [context.mediaitem_id]}, headers=headers)
     context.response = res
 
-
 @then('mediaitem is marked as {operation}')
 def step_impl(context, operation):
     assert context.response.status_code == 204
 
-
 @then('mediaitem is unmarked as {operation}')
 def step_impl(context, operation):
     assert context.response.status_code == 204
-
 
 def get_route(operation: str) -> str:
     if operation == 'favourite':

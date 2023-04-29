@@ -106,7 +106,13 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	mediaItemCount := int(h.DB.Model(&album).Association("MediaItems").Count())
 	album.MediaItemsCount = &mediaItemCount
 	album.CoverMediaItemID = &newCoverMediaItem.ID
-	result := h.DB.Model(&album).Omit("MediaItems").Updates(album)
+	if newCoverMediaItem.ID == uuid.Nil {
+		album.CoverMediaItemID = nil
+	}
+	result := h.DB.Model(&album).Omit("MediaItems").Updates(map[string]interface{}{
+		"MediaItemsCount":  &mediaItemCount,
+		"CoverMediaItemID": album.CoverMediaItemID,
+	})
 	if result.Error != nil {
 		log.Printf("error updating album: %+v", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())

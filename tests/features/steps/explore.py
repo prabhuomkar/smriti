@@ -14,7 +14,6 @@ def step_impl(context, condition):
     context.response = res
     context.places = res.json()
 
-
 @when('get all places {condition} auth')
 def step_impl(context, condition):
     headers = None
@@ -23,7 +22,6 @@ def step_impl(context, condition):
     res = requests.get(API_URL+'/v1/explore/places', headers=headers)
     context.response = res
     context.places = res.json()
-
 
 @when('get place {condition} auth')
 def step_impl(context, condition):
@@ -35,7 +33,6 @@ def step_impl(context, condition):
     context.response = res
     context.place = res.json()
 
-
 @then('place is present in list')
 def step_impl(context):
     assert len(context.places) == 1
@@ -45,7 +42,6 @@ def step_impl(context):
     assert context.places[0]['country'] == context.match_place['country']
     assert context.places[0]['postcode'] == context.match_place['postcode']
 
-
 @then('place is present')
 def step_impl(context):
     assert context.place['name'] == context.match_place['name']
@@ -53,7 +49,6 @@ def step_impl(context):
     assert context.place['state'] == context.match_place['state']
     assert context.place['country'] == context.match_place['country']
     assert context.place['postcode'] == context.match_place['postcode']
-
 
 @given('a mediaitem exists with place')
 def step_impl(context):

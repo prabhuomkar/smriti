@@ -50,3 +50,51 @@ func TestGetFeatures(t *testing.T) {
 	}
 	executeTests(t, tests)
 }
+
+func TestGetVersion(t *testing.T) {
+	tests := []Test{
+		{
+			"get version successfully",
+			http.MethodGet,
+			"/v1/version",
+			"/v1/version",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			nil,
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetVersion
+			},
+			http.StatusOK,
+			``,
+		},
+	}
+	executeTests(t, tests)
+}
+
+func TestGetDisk(t *testing.T) {
+	tests := []Test{
+		{
+			"get disk successfully",
+			http.MethodGet,
+			"/v1/disk",
+			"/v1/disk",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			nil,
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetDisk
+			},
+			http.StatusOK,
+			``,
+		},
+	}
+	executeTests(t, tests)
+}

@@ -56,10 +56,17 @@ class Metadata(Component):
                 result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
                 result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
                     'video' if 'video' in metadata['File:MIMEType'] else 'unknown'
-                result['width'] = getval_from_dict(metadata, ['File:ImageWidth', 'EXIF:ExifImageWidth', \
-                                            'QuickTime:ImageWidth', 'QuickTime:SourceImageWidth'], return_type='int')
-                result['height'] = getval_from_dict(metadata, ['File:ImageHeight', 'EXIF:ExifImageHeight', \
-                                            'QuickTime:ImageHeight', 'QuickTime:SourceImageHeight'], return_type='int')
+                result['width'] = getval_from_dict(metadata, ['File:ImageWidth', 'EXIF:ExifImageWidth',
+                                                              'PNG:ImageWidth', 'QuickTime:ImageWidth',
+                                                              'QuickTime:SourceImageWidth'], return_type='int')
+                result['height'] = getval_from_dict(metadata, ['File:ImageHeight', 'EXIF:ExifImageHeight',
+                                                               'PNG:ImageHeight', 'QuickTime:ImageHeight',
+                                                               'QuickTime:SourceImageHeight'], return_type='int')
+                if result['height'] is None or result['width'] is None and 'Composite:ImageSize' in metadata:
+                    composite_dims = metadata['Composite:ImageSize'].split(' ')
+                    if len(composite_dims) == 2:
+                        result['width'] = int(composite_dims[0])
+                        result['height'] = int(composite_dims[1])
                 result['creationTime'] = getval_from_dict(metadata, ['EXIF:DateTimeOriginal', 'EXIF:CreateDate', \
                                             'XMP:CreateDate', 'XMP:DateCreated', 'Composite:SubSecCreateDate', \
                                             'Composite:SubSecDateTimeOriginal', 'QuickTime:CreateDate', \

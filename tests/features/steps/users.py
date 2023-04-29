@@ -12,7 +12,6 @@ def step_impl(context):
     users = res.json()
     assert len(users) == 0
 
-
 @given('a user exists')
 def step_impl(context):
     res = requests.get(API_URL+'/v1/users',
@@ -20,7 +19,6 @@ def step_impl(context):
     users = res.json()
     assert len(users) == 1
     context.user_id = users[0]['id']
-
 
 @when('get all users {condition} auth')
 def step_impl(context, condition):
@@ -30,7 +28,6 @@ def step_impl(context, condition):
     res = requests.get(API_URL+'/v1/users', auth=auth)
     context.response = res
     context.users = res.json()
-
 
 @when('get user {condition} auth')
 def step_impl(context, condition):
@@ -42,19 +39,16 @@ def step_impl(context, condition):
     context.response = res
     context.user = res.json()
 
-
 @then('user is present in list')
 def step_impl(context):
     assert len(context.users) == 1
     assert context.users[0]['name'] == context.match_user['name']
     assert context.users[0]['username'] == context.match_user['username']
 
-
 @then('user is present')
 def step_impl(context):
     assert context.user['name'] == context.match_user['name']
     assert context.user['username'] == context.match_user['username']
-
 
 @then('user is not present in list')
 def step_impl(context):
@@ -62,13 +56,11 @@ def step_impl(context):
         assert context.users[0]['name'] != context.match_user['name']
         assert context.users[0]['username'] != context.match_user['username']
 
-
 @then('user is not present')
 def step_impl(context):
     assert 'name' not in context.user
     assert 'username' not in context.user
     assert context.user['message'] == 'user not found'
-
 
 @when('create user {condition} auth')
 def step_impl(context, condition):
@@ -77,7 +69,6 @@ def step_impl(context, condition):
         auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
     res = requests.post(API_URL+'/v1/users', json=CREATED_USER, auth=auth)
     context.response = res
-
 
 @when('update user {condition} auth')
 def step_impl(context, condition):
@@ -89,7 +80,6 @@ def step_impl(context, condition):
                        json=UPDATED_USER, auth=auth)
     context.response = res
 
-
 @when('delete user {condition} auth')
 def step_impl(context, condition):
     auth = None
@@ -99,19 +89,16 @@ def step_impl(context, condition):
     res = requests.delete(API_URL+'/v1/users/'+user_id, auth=auth)
     context.response = res
 
-
 @then('user is created')
 def step_impl(context):
     assert context.response.status_code == 201
     context.user_id = context.response.json()['id']
     context.match_user = CREATED_USER
 
-
 @then('user is updated')
 def step_impl(context):
     assert context.response.status_code == 204
     context.match_user = UPDATED_USER
-
 
 @then('user is deleted')
 def step_impl(context):

@@ -12,7 +12,6 @@ def step_impl(context):
     mediaitems = res.json()
     assert len(mediaitems) == 0
 
-
 @given('a mediaitem exists')
 def step_impl(context):
     res = requests.get(API_URL+'/v1/mediaItems',
@@ -20,7 +19,6 @@ def step_impl(context):
     mediaitems = res.json()
     assert len(mediaitems) == 1
     context.mediaitem_id = mediaitems[0]['id']
-
 
 @when('get all mediaitems {condition} auth')
 def step_impl(context, condition):
@@ -30,7 +28,6 @@ def step_impl(context, condition):
     res = requests.get(API_URL+'/v1/mediaItems', headers=headers)
     context.response = res
     context.mediaitems = res.json()
-
 
 @when('get mediaitem {condition} auth')
 def step_impl(context, condition):
@@ -42,7 +39,6 @@ def step_impl(context, condition):
     context.response = res
     context.mediaitem = res.json()
 
-
 @then('mediaitem is present in list')
 def step_impl(context):
     assert len(context.mediaitems) == 1
@@ -53,7 +49,6 @@ def step_impl(context):
     if 'description' in context.mediaitems[0]:
         assert context.mediaitems[0]['description'] == context.match_mediaitem['description']
 
-
 @then('mediaitem is present')
 def step_impl(context):
     assert context.mediaitem['filename'] == context.match_mediaitem['filename']
@@ -63,7 +58,6 @@ def step_impl(context):
     if 'description' in context.mediaitem:
         assert context.mediaitem['description'] == context.match_mediaitem['description']
 
-
 @then('mediaitem is not present in list')
 def step_impl(context):
     if len(context.mediaitems) > 0:
@@ -72,14 +66,12 @@ def step_impl(context):
         if 'description' in context.mediaitems[0]:
             assert context.mediaitems[0]['description'] != context.match_mediaitem['description']
 
-
 @then('mediaitem is not present')
 def step_impl(context):
     assert 'filename' not in context.mediaitem
     assert 'mimeType' not in context.mediaitem
     assert 'description' not in context.mediaitem
     assert context.mediaitem['message'] == 'mediaitem not found'
-
 
 @when('upload mediaitem {condition} auth')
 def step_impl(context, condition):
@@ -91,7 +83,6 @@ def step_impl(context, condition):
     context.response = res
     time.sleep(3)
 
-
 @when('update mediaitem {condition} auth')
 def step_impl(context, condition):
     headers = None
@@ -102,7 +93,6 @@ def step_impl(context, condition):
                        json=UPDATED_MEDIAITEM, headers=headers)
     context.response = res
 
-
 @when('delete mediaitem {condition} auth')
 def step_impl(context, condition):
     headers = None
@@ -112,19 +102,16 @@ def step_impl(context, condition):
     res = requests.delete(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
     context.response = res
 
-
 @then('mediaitem is uploaded')
 def step_impl(context):
     assert context.response.status_code == 201
     context.mediaitem_id = context.response.json()['id']
     context.match_mediaitem = CREATED_MEDIAITEM
 
-
 @then('mediaitem is updated')
 def step_impl(context):
     assert context.response.status_code == 204
     context.match_mediaitem = UPDATED_MEDIAITEM
-
 
 @then('mediaitem is deleted')
 def step_impl(context):

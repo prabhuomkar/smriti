@@ -17,6 +17,11 @@ async def test_places_process_success():
                     {'latitude': 19.2195856, 'longitude': 73.1056888})
     assert result == None
 
+@pytest.mark.asyncio
+async def test_places_process_success_no_metadata():
+    result = await Places(None, 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', None)
+    assert result == None
+
 @mock.patch('src.components.Places._grpc_save_mediaitem_place', return_value=None)
 @pytest.mark.asyncio
 async def test_places_process_failed_process_exception(_):

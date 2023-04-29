@@ -18,7 +18,7 @@ async def test_metadata_process_photo_success(_, __):
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = {
-        'File:MIMEType': 'image/jpeg', 'File:ImageWidth': '14124', 'File:ImageHeight': '3100',
+        'File:MIMEType': 'image/jpeg', 'Composite:ImageSize': '14124 3100',
         'EXIF:Make': 'Apple', 'EXIF:Model': 'iPhone 12 mini', 'EXIF:FocalLength': '5.49', 'EXIF:ExposureTime': '1/20',
         'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'EXIF:GPSLatitude': '19.292902', 'EXIF:GPSLongitude': '70.2822',
     }

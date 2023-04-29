@@ -12,13 +12,11 @@ def step_impl(context):
     assert res.status_code == 201
     context.user_id = res.json()['id']
 
-
 @then('a user is deleted')
 def step_impl(context):
     res = requests.delete(API_URL+'/v1/users/'+context.user_id, json=CREATED_USER,
                           auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
     assert res.status_code == 204
-
 
 @when('user logs in')
 def step_impl(context):
@@ -26,20 +24,17 @@ def step_impl(context):
                         'username': CREATED_USER['username'], 'password': CREATED_USER['password']})
     context.response = res
 
-
 @when('user refreshes token')
 def step_impl(context):
     res = requests.post(API_URL+'/v1/auth/refresh',
                         headers={'Authorization': 'Bearer '+context.refresh_token})
     context.response = res
 
-
 @when('user logs out')
 def step_impl(context):
     res = requests.post(API_URL+'/v1/auth/logout',
                         headers={'Authorization': 'Bearer '+context.access_token})
     context.response = res
-
 
 @then('token is generated')
 def step_impl(context):
@@ -50,7 +45,6 @@ def step_impl(context):
     context.access_token = body['accessToken']
     context.refresh_token = body['refreshToken']
 
-
 @then('token is refreshed')
 def step_impl(context):
     assert context.response.status_code == 200
@@ -60,11 +54,9 @@ def step_impl(context):
     context.access_token = body['accessToken']
     context.refresh_token = body['refreshToken']
 
-
 @then('token is deleted')
 def step_impl(context):
     assert context.response.status_code == 204
-
 
 @then('auth error is found')
 def step_impl(context):
