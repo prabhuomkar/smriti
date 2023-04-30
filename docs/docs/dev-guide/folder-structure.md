@@ -5,7 +5,7 @@
   - `docker-compose.yaml`: Containerized services for local integration tests
 - `api`: contains the source code for the API server
 - `docs`: contains the overall documentation of the project
-- `infra`: contains examples for `database` schemas, deployment examples e.g. [Fly](https://fly.io), [AWS](https://aws.amazon.com/), [GCP](https://cloud.google.com/), etc.
+- `infra`: contains examples for deployments e.g. Docker, Kubernetes, etc.
 - `protos`: contains Protocol Buffer definitions for API and Worker services
 - `tests`: contains code and test cases for Integration Tests
 - `worker`: contains the source code for the Worker server with its individual components for Place Detection, Face Detection & Clustering and Things Detection

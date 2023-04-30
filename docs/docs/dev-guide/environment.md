@@ -37,3 +37,10 @@ make setup-worker
 ```
 make setup-docs
 ```
+
+### Tests
+- Install [Python 3.10](https://www.python.org/downloads/) or above
+- Run the following command to finish your Tests setup
+```
+make setup-tests
+```

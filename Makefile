@@ -1,3 +1,4 @@
+setup: setup-api setup-worker setup-docs setup-tests
 setup-api:
 	@cd api; \
 		echo "[setup-api]: Verifying go modules..."; \
@@ -17,7 +18,11 @@ setup-worker:
 setup-docs:
 	@cd docs; \
 		echo "[setup-docs]: Installing dependencies"; \
-		npm install;
+		npm install
+setup-tests:
+	@cd tests; \
+		echo "[setup-tests]: Installing dependencies"; \
+		make setup
 start:
 	@docker compose up -d
 stop:
