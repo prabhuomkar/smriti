@@ -3,6 +3,7 @@ package handlers
 import (
 	"api/config"
 	"api/internal/models"
+	"api/pkg/cache"
 	"api/pkg/services/worker"
 	"context"
 	"encoding/json"
@@ -13,6 +14,7 @@ import (
 	"net/http/httptest"
 	"strings"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
@@ -84,17 +86,17 @@ func executeTests(t *testing.T, tests []Test) {
 			if test.MockDB != nil {
 				test.MockDB(mock)
 			}
-			mockCache := gcache.New(1024).LRU().Build()
+			mockCache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 			if test.mockCache != nil {
-				mockCache = gcache.New(1024).
+				mockCache = &cache.InMemoryCache{Connection: gcache.New(1024).
 					LRU().
 					SerializeFunc(test.mockCache[0]).
 					DeserializeFunc(test.mockCache[1]).
-					Build()
+					Build()}
 			}
 			for key, val := range test.Header {
 				if key == echo.HeaderAuthorization {
-					mockCache.Set(val, true)
+					mockCache.SetWithExpire(val, true, 1*time.Minute)
 				}
 			}
 			// handler

@@ -40,10 +40,7 @@ func main() {
 	}
 	grpcServer := server.StartGRPCServer(cfg, service)
 
-	cache, err := cache.Init()
-	if err != nil {
-		panic(err)
-	}
+	cache := cache.Init(cfg)
 
 	handler := &handlers.Handler{
 		Config: cfg,

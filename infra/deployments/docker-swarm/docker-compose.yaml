@@ -33,3 +33,9 @@ services:
       POSTGRES_PASSWORD: carousel
     ports:
       - '5432:5432'
+  cache:
+    image: redis:7.0-alpine
+    command: >
+      --requirepass carousel
+    ports:
+      - '6379:6379'

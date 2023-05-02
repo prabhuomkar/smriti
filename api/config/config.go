@@ -30,6 +30,14 @@ type (
 		Name     string `envconfig:"CAROUSEL_DATABASE_NAME" default:"carousel"`
 	}
 
+	// Cache ...
+	Cache struct {
+		Type     string `envconfig:"CAROUSEL_CACHE_TYPE" default:"inmemory"`
+		Host     string `envconfig:"CAROUSEL_CACHE_HOST" default:"cache"`
+		Port     int    `envconfig:"CAROUSEL_CACHE_PORT" default:"6379"`
+		Password string `envconfig:"CAROUSEL_CACHE_PASSWORD" default:"carousel"`
+	}
+
 	// Worker ...
 	Worker struct {
 		Host string `envconfig:"CAROUSEL_WORKER_HOST" default:"127.0.0.1"`
@@ -87,6 +95,7 @@ type (
 		API
 		GRPC
 		Database
+		Cache
 		Worker
 		Auth
 		Feature

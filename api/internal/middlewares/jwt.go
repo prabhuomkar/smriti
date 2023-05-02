@@ -4,15 +4,15 @@ import (
 	"api/config"
 	"api/internal/auth"
 	"api/internal/models"
+	"api/pkg/cache"
 	"encoding/json"
 	"strings"
 
-	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 )
 
 // JWTCheck ...
-func JWTCheck(cfg *config.Config, cache gcache.Cache) echo.MiddlewareFunc {
+func JWTCheck(cfg *config.Config, cache cache.Cache) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			accessToken := ctx.Request().Header.Get("Authorization")
