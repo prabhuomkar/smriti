@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/internal/handlers"
 	"api/internal/middlewares"
+	"api/pkg/cache"
 	"context"
 	"errors"
 	"fmt"
@@ -12,7 +13,6 @@ import (
 	"strings"
 	"time"
 
-	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 )
 
@@ -138,7 +138,7 @@ func StopHTTPServer(httpServer *http.Server) {
 	}
 }
 
-func getMiddlewareFuncs(cfg *config.Config, cache gcache.Cache, features ...string) []echo.MiddlewareFunc {
+func getMiddlewareFuncs(cfg *config.Config, cache cache.Cache, features ...string) []echo.MiddlewareFunc {
 	middlewareFuncs := []echo.MiddlewareFunc{
 		middlewares.JWTCheck(cfg, cache),
 	}

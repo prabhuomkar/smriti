@@ -3,8 +3,10 @@ package auth
 import (
 	"api/config"
 	"api/internal/models"
+	"api/pkg/cache"
 	"errors"
 	"testing"
+	"time"
 
 	"github.com/bluele/gcache"
 	uuid "github.com/satori/go.uuid"
@@ -48,7 +50,7 @@ func TestGetTokens(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			cfg := &config.Config{}
-			cache := gcache.New(1024).LRU().SerializeFunc(test.SerializeFunc).Build()
+			cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().SerializeFunc(test.SerializeFunc).Build()}
 			atoken, rtoken, err := GetTokens(cfg, cache, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")})
 			if test.WantErr {
 				assert.Empty(t, atoken)
@@ -66,16 +68,16 @@ func TestGetTokens(t *testing.T) {
 func TestRefreshTokens(t *testing.T) {
 	tests := []struct {
 		Name            string
-		Token           func(*config.Config, gcache.Cache) string
+		Token           func(*config.Config, cache.Cache) string
 		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
 		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
 		WantErr         bool
 	}{
 		{
 			"success",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
-				_ = cache.Set(oldRToken, true)
+				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
 			},
 			nil,
@@ -84,7 +86,7 @@ func TestRefreshTokens(t *testing.T) {
 		},
 		{
 			"error getting refresh token",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				return "badToken"
 			},
 			nil,
@@ -93,8 +95,8 @@ func TestRefreshTokens(t *testing.T) {
 		},
 		{
 			"error parsing claims from token",
-			func(cfg *config.Config, cache gcache.Cache) string {
-				_ = cache.Set("badToken", true)
+			func(cfg *config.Config, cache cache.Cache) string {
+				_ = cache.SetWithExpire("badToken", true, 1*time.Minute)
 				return "badToken"
 			},
 			nil,
@@ -103,9 +105,9 @@ func TestRefreshTokens(t *testing.T) {
 		},
 		{
 			"error converting user id from claims",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("invalid-user-id"), Username: "username"})
-				_ = cache.Set(oldRToken, true)
+				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
 			},
 			nil,
@@ -118,10 +120,10 @@ func TestRefreshTokens(t *testing.T) {
 			cfg := &config.Config{Auth: config.Auth{
 				RefreshTTL: 60,
 			}}
-			cache := gcache.New(1024).LRU().
+			cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().
 				SerializeFunc(test.SerializeFunc).
 				DeserializeFunc(test.DeserializeFunc).
-				Build()
+				Build()}
 			oldRToken := test.Token(cfg, cache)
 			atoken, rtoken, err := RefreshTokens(cfg, cache, oldRToken)
 			if test.WantErr {
@@ -140,16 +142,16 @@ func TestRefreshTokens(t *testing.T) {
 func TestRemoveTokens(t *testing.T) {
 	tests := []struct {
 		Name            string
-		Token           func(*config.Config, gcache.Cache) string
+		Token           func(*config.Config, cache.Cache) string
 		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
 		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
 		WantErr         bool
 	}{
 		{
 			"success",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
-				_ = cache.Set(oldAToken, true)
+				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
 			},
 			nil,
@@ -158,7 +160,7 @@ func TestRemoveTokens(t *testing.T) {
 		},
 		{
 			"error getting refresh token",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				return "badToken"
 			},
 			nil,
@@ -171,10 +173,10 @@ func TestRemoveTokens(t *testing.T) {
 			cfg := &config.Config{Auth: config.Auth{
 				RefreshTTL: 60,
 			}}
-			cache := gcache.New(1024).LRU().
+			cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().
 				SerializeFunc(test.SerializeFunc).
 				DeserializeFunc(test.DeserializeFunc).
-				Build()
+				Build()}
 			oldAToken := test.Token(cfg, cache)
 			err := RemoveTokens(cache, oldAToken)
 			if test.WantErr {
@@ -189,16 +191,16 @@ func TestRemoveTokens(t *testing.T) {
 func TestVerifyToken(t *testing.T) {
 	tests := []struct {
 		Name            string
-		Token           func(*config.Config, gcache.Cache) string
+		Token           func(*config.Config, cache.Cache) string
 		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
 		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
 		WantErr         bool
 	}{
 		{
 			"success",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
-				_ = cache.Set(oldAToken, true)
+				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
 			},
 			nil,
@@ -207,7 +209,7 @@ func TestVerifyToken(t *testing.T) {
 		},
 		{
 			"error getting access token",
-			func(cfg *config.Config, cache gcache.Cache) string {
+			func(cfg *config.Config, cache cache.Cache) string {
 				return "badToken"
 			},
 			nil,
@@ -216,8 +218,8 @@ func TestVerifyToken(t *testing.T) {
 		},
 		{
 			"error parsing claims from token",
-			func(cfg *config.Config, cache gcache.Cache) string {
-				_ = cache.Set("badToken", true)
+			func(cfg *config.Config, cache cache.Cache) string {
+				_ = cache.SetWithExpire("badToken", true, 1*time.Minute)
 				return "badToken"
 			},
 			nil,
@@ -230,10 +232,10 @@ func TestVerifyToken(t *testing.T) {
 			cfg := &config.Config{Auth: config.Auth{
 				AccessTTL: 60,
 			}}
-			cache := gcache.New(1024).LRU().
+			cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().
 				SerializeFunc(test.SerializeFunc).
 				DeserializeFunc(test.DeserializeFunc).
-				Build()
+				Build()}
 			oldAToken := test.Token(cfg, cache)
 			claims, err := VerifyToken(cfg, cache, oldAToken)
 			if test.WantErr {

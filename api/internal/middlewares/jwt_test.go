@@ -5,11 +5,13 @@ import (
 	"api/internal/auth"
 	"api/internal/handlers"
 	"api/internal/models"
+	"api/pkg/cache"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
+	"time"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
@@ -27,7 +29,7 @@ func TestJWTCheckUnauthorizedWithNoToken(t *testing.T) {
 		Albums: true,
 	}}
 	// mock cache
-	cache := gcache.New(1024).LRU().Build()
+	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	handler := &handlers.Handler{
 		Config: cfg,
 		Cache:  cache,
@@ -49,7 +51,7 @@ func TestJWTCheckUnauthorizedWithBadToken(t *testing.T) {
 		Albums: true,
 	}}
 	// mock cache
-	cache := gcache.New(1024).LRU().Build()
+	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	handler := &handlers.Handler{
 		Config: cfg,
 		Cache:  cache,
@@ -78,8 +80,8 @@ func TestJWTCheckOK(t *testing.T) {
 	}
 	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.NewV4(), Username: "username"})
 	// mock cache
-	cache := gcache.New(1024).LRU().Build()
-	_ = cache.Set(accessToken, nil)
+	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
+	_ = cache.SetWithExpire(accessToken, nil, 1*time.Minute)
 	// mock db
 	// database
 	mockDB, mock, err := sqlmock.New()

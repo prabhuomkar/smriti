@@ -14,6 +14,7 @@ services:
       CAROUSEL_WORKER_HOST: worker
       CAROUSEL_LOG_LEVEL: DEBUG
       CAROUSEL_DATABASE_LOG_LEVEL: INFO
+      CAROUSEL_CACHE_TYPE: redis
     volumes:
       - ./storage:/storage:rw
   worker:
@@ -33,8 +34,17 @@ services:
   database:
     container_name: database
     image: postgres:15
+    restart: always
     environment:
       POSTGRES_USER: carousel
       POSTGRES_PASSWORD: carousel
     ports:
       - '5432:5432'
+  cache:
+    container_name: cache
+    image: redis:7.0-alpine
+    restart: always
+    command: >
+      --requirepass carousel
+    ports:
+      - '6379:6379'

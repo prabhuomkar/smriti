@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"api/config"
+	"api/pkg/cache"
 	"api/pkg/services/worker"
 	"fmt"
 	"strconv"
 
-	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
@@ -17,7 +17,7 @@ type Handler struct {
 	Config *config.Config
 	DB     *gorm.DB
 	Worker worker.WorkerClient
-	Cache  gcache.Cache
+	Cache  cache.Cache
 }
 
 const (
