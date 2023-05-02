@@ -4,6 +4,8 @@ import logging
 import os
 from typing import AsyncIterable
 import json
+import multiprocessing as mp
+from multiprocessing.pool import ThreadPool
 
 import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
@@ -52,7 +54,8 @@ async def process_mediaitem(components: list[Component], mediaitem_user_id: str,
     logging.info(f'started processing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
     metadata = await components[0].process(mediaitem_user_id, mediaitem_id, None)
     for i in range(1, len(components)):
-        await components[i].process(mediaitem_user_id, mediaitem_id, metadata)
+        loop = asyncio.get_event_loop()
+        loop.create_task(components[i].process(mediaitem_user_id, mediaitem_id, metadata))
     logging.info(f'finished processing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
 
 async def serve() -> None:
