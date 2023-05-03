@@ -54,7 +54,7 @@
 | Photo | .PNG | ✅ |
 | Photo | .TIFF | ✅ |
 | Photo | .WEBP | ✅ |
-| Photo | [RAW Formats](https://www.libraw.org/supported-cameras) | ✅ |
+| Photo | [RAW Formats](https://raw.pixls.us/) | ✅ |
 
 **Post Stable Release, Scope for Video**:
 
