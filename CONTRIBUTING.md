@@ -1,2 +1,2 @@
 # Contributing Guide
-Checkout [Contributing Guide](https://carousel.omkar.xyz/docs/dev-guide/contribution).
+Checkout [Contributing Guide](https://smriti.omkar.xyz/docs/dev-guide/contribution).

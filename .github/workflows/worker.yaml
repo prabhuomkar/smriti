@@ -1,4 +1,4 @@
-name: Carousel Worker CI
+name: Smriti Worker CI
 on:
   push:
     branches:    
@@ -62,6 +62,6 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Build
-        run: docker build . --file Dockerfile --tag carouselhq/worker:${GITHUB_REF_NAME}
+        run: docker build . --file Dockerfile --tag smritihq/worker:${GITHUB_REF_NAME}
       - name: Docker Publish
-        run: docker push carouselhq/worker:${GITHUB_REF_NAME}
+        run: docker push smritihq/worker:${GITHUB_REF_NAME}

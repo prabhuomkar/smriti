@@ -2,25 +2,25 @@ version: '3'
 services:
   # applications
   api:
-    image: carouselhq/api:master
+    image: smritihq/api:master
     ports:
       - '5001:5001'
       - '15001:15001'
     depends_on:
       - database
     environment:
-      CAROUSEL_WORKER_HOST: worker
-      CAROUSEL_LOG_LEVEL: DEBUG
-      CAROUSEL_DATABASE_LOG_LEVEL: INFO
+      SMRITI_WORKER_HOST: worker
+      SMRITI_LOG_LEVEL: DEBUG
+      SMRITI_DATABASE_LOG_LEVEL: INFO
     volumes:
       - ./storage:/storage:rw
   worker:
-    image: carouselhq/worker:master
+    image: smritihq/worker:master
     ports:
       - '15002:15002'
     environment:
-      CAROUSEL_API_HOST: api
-      CAROUSEL_LOG_LEVEL: DEBUG
+      SMRITI_API_HOST: api
+      SMRITI_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
     deploy:
@@ -29,13 +29,13 @@ services:
   database:
     image: postgres:15
     environment:
-      POSTGRES_USER: carousel
-      POSTGRES_PASSWORD: carousel
+      POSTGRES_USER: smriti
+      POSTGRES_PASSWORD: smriti
     ports:
       - '5432:5432'
   cache:
     image: redis:7.0-alpine
     command: >
-      --requirepass carousel
+      --requirepass smriti
     ports:
       - '6379:6379'

@@ -2,5 +2,5 @@
 
 Enable this feature using API Configuration:
 ```bash
-CAROUSEL_FEATURE_PLACES: true
+SMRITI_FEATURE_PLACES: true
 ```

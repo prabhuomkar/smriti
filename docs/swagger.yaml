@@ -1,6 +1,6 @@
 openapi: 3.0.3
 info:
-  title: Carousel API
+  title: Smriti API
   description: Smarter Home for all your Photos and Videos
   version: 2023.04.30
 servers:
@@ -21,8 +21,8 @@ tags:
 paths:
   /version:
     get:
-      summary: Get version of Carousel
-      description: Get version of Carousel
+      summary: Get version of Smriti
+      description: Get version of Smriti
       operationId: getVersion
       responses:
         '200':
@@ -33,8 +33,8 @@ paths:
                 $ref: '#/components/schemas/Version'
   /disk:
     get:
-      summary: Get disk usage of Carousel
-      description: Get disk usage of Carousel
+      summary: Get disk usage of Smriti
+      description: Get disk usage of Smriti
       operationId: getDisk
       responses:
         '200':
@@ -1211,15 +1211,15 @@ components:
         sourceUrl:
           readOnly: true
           type: string
-          example: https://cdn.carousel/source
+          example: https://cdn.smriti/source
         previewUrl:
           readOnly: true
           type: string
-          example: https://cdn.carousel/preview
+          example: https://cdn.smriti/preview
         thumbnailUrl:
           readOnly: true
           type: string
-          example: https://cdn.carousel/thumbnail
+          example: https://cdn.smriti/thumbnail
         favourite:
           type: boolean
           example: false

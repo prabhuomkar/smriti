@@ -3,17 +3,17 @@
 ## Favourites
 Enable this feature using API Configuration:
 ```bash
-CAROUSEL_FEATURE_FAVOURITES: true
+SMRITI_FEATURE_FAVOURITES: true
 ```
 
 ## Hidden
 Enable this feature using API Configuration:
 ```bash
-CAROUSEL_FEATURE_HIDDEN: true
+SMRITI_FEATURE_HIDDEN: true
 ```
 
 ## Trash
 Enable this feature using API Configuration:
 ```bash
-CAROUSEL_FEATURE_TRASH: true
+SMRITI_FEATURE_TRASH: true
 ```

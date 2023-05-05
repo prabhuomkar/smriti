@@ -2,5 +2,5 @@
 
 Enable this feature using API Configuration:
 ```bash
-CAROUSEL_FEATURE_ALBUMS: true
+SMRITI_FEATURE_ALBUMS: true
 ```

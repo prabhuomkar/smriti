@@ -14,10 +14,10 @@
     - Postgres: [gorm](https://gorm.io/)
     - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
-- Will exchange protobuf with Worker: [api.proto](https://github.com/prabhuomkar/carousel/blob/master/protos/api.proto)
+- Will exchange protobuf with Worker: [api.proto](https://github.com/prabhuomkar/smriti/blob/master/protos/api.proto)
 
 #### Database
-- [Schema](https://github.com/prabhuomkar/carousel/blob/master/infra/database/schema.sql)
+- [Schema](https://github.com/prabhuomkar/smriti/blob/master/infra/database/schema.sql)
 - Total number of tables: 10
 - **Entities**:
     - MediaItem: `mediaitems`
@@ -33,7 +33,7 @@
     - LibRaw: [rawpy](https://pypi.org/project/rawpy/)
     - CDN: TBD, depends on file storage systems
 - Will process images and videos
-- Will exchange protobuf with API: [worker.proto](https://github.com/prabhuomkar/carousel/blob/master/protos/worker.proto)
+- Will exchange protobuf with API: [worker.proto](https://github.com/prabhuomkar/smriti/blob/master/protos/worker.proto)
 
 ### Image & Video Processing
 

@@ -1,1 +1,1 @@
-# Carousel API
+# Smriti API

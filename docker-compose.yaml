@@ -11,10 +11,10 @@ services:
     depends_on:
       - database
     environment:
-      CAROUSEL_WORKER_HOST: worker
-      CAROUSEL_LOG_LEVEL: DEBUG
-      CAROUSEL_DATABASE_LOG_LEVEL: INFO
-      CAROUSEL_CACHE_TYPE: redis
+      SMRITI_WORKER_HOST: worker
+      SMRITI_LOG_LEVEL: DEBUG
+      SMRITI_DATABASE_LOG_LEVEL: INFO
+      SMRITI_CACHE_TYPE: redis
     volumes:
       - ./storage:/storage:rw
   worker:
@@ -26,8 +26,8 @@ services:
     depends_on:
       - api
     environment:
-      CAROUSEL_API_HOST: api
-      CAROUSEL_LOG_LEVEL: DEBUG
+      SMRITI_API_HOST: api
+      SMRITI_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
   # infra services
@@ -36,8 +36,8 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: carousel
-      POSTGRES_PASSWORD: carousel
+      POSTGRES_USER: smriti
+      POSTGRES_PASSWORD: smriti
     ports:
       - '5432:5432'
   cache:
@@ -45,6 +45,6 @@ services:
     image: redis:7.0-alpine
     restart: always
     command: >
-      --requirepass carousel
+      --requirepass smriti
     ports:
       - '6379:6379'

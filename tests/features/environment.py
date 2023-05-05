@@ -11,9 +11,9 @@ ALL_TABLES = CLEAR_MEDIAITEM_TABLES + ['users']
 def after_scenario(context, scenario):
     if 'clear' in scenario.tags:
         db_conn = psycopg2.connect(
-            database='carousel',
-            user='carousel',
-            password='carousel',
+            database='smriti',
+            user='smriti',
+            password='smriti',
             host='localhost',
             port='5432'
         )
@@ -24,9 +24,9 @@ def after_scenario(context, scenario):
 def after_feature(context, feature):
     # delete all rows from database
     db_conn = psycopg2.connect(
-        database='carousel',
-        user='carousel',
-        password='carousel',
+        database='smriti',
+        user='smriti',
+        password='smriti',
         host='localhost',
         port='5432'
     )

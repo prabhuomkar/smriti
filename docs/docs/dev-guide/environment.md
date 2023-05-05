@@ -1,5 +1,5 @@
 # Environment Setup
-The following guide will help you in setting up the development environment to work on Carousel.
+The following guide will help you in setting up the development environment to work on Smriti.
 
 ## Prerequisites
 Make sure, before you start any development, following things are installed and available on your system of choice: 
@@ -10,7 +10,7 @@ Make sure, before you start any development, following things are installed and 
 ## Getting Codebase
 Git clone the repository using: 
 ```
-git clone git@github.com:prabhuomkar/carousel.git
+git clone git@github.com:prabhuomkar/smriti.git
 ```
 
 ## Setup

@@ -2,15 +2,15 @@ const lightCodeTheme = require("prism-react-renderer/themes/github");
 const darkCodeTheme = require("prism-react-renderer/themes/dracula");
 
 const config = {
-  title: "Carousel",
+  title: "Smriti",
   tagline: "Smarter Home for all your Photos and Videos",
-  url: "https://carousel.omkar.xyz",
+  url: "https://smriti.omkar.xyz",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
   favicon: "img/favicon.ico",
   organizationName: "prabhuomkar",
-  projectName: "carousel",
+  projectName: "smriti",
   i18n: {
     defaultLocale: "en",
     locales: ["en"],
@@ -50,9 +50,9 @@ const config = {
         isCloseable: false,
       },
       navbar: {
-        title: "Carousel",
+        title: "Smriti",
         logo: {
-          alt: "Carousel Logo",
+          alt: "Smriti Logo",
           src: "img/logo.png",
           srcDark: "img/logo-white.png"
         },
@@ -73,7 +73,7 @@ const config = {
             position: "right",
           },
           {
-            href: "https://github.com/prabhuomkar/carousel",
+            href: "https://github.com/prabhuomkar/smriti",
             position: "right",
             className: "header-github-link",
             "aria-label": "GitHub repository",
@@ -82,7 +82,7 @@ const config = {
       },
       footer: {
         style: "dark",
-        copyright: `Copyright © ${new Date().getFullYear()} Carousel. Built with ❤️ in India.`,
+        copyright: `Copyright © ${new Date().getFullYear()} Smriti. Built with ❤️ in India.`,
       },
       prism: {
         theme: lightCodeTheme,

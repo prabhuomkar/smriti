@@ -1,4 +1,4 @@
-name: Carousel API CI
+name: Smriti API CI
 on:
   push:
     branches:    
@@ -60,6 +60,6 @@ jobs:
           DOCKER_USER: ${{ secrets.DOCKER_USER }}
           DOCKER_PASSWORD: ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Build
-        run: docker build . --build-arg GITSHA=${GITHUB_SHA} --build-arg VERSION=${GITHUB_REF_NAME} --file Dockerfile --tag carouselhq/api:${GITHUB_REF_NAME}
+        run: docker build . --build-arg GITSHA=${GITHUB_SHA} --build-arg VERSION=${GITHUB_REF_NAME} --file Dockerfile --tag smritihq/api:${GITHUB_REF_NAME}
       - name: Docker Publish
-        run: docker push carouselhq/api:${GITHUB_REF_NAME}
+        run: docker push smritihq/api:${GITHUB_REF_NAME}

@@ -2,8 +2,8 @@ import os
 
 
 API_URL = os.getenv('API_URL', 'http://localhost:5001')
-ADMIN_USERNAME = 'carousel'
-ADMIN_PASSWORD = 'carouselT3st!'
+ADMIN_USERNAME = 'smriti'
+ADMIN_PASSWORD = 'smritiT3st!'
 
 CREATED_USER = {'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!',
                 'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true}'}
