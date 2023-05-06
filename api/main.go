@@ -14,6 +14,7 @@ import (
 	"os/signal"
 	"syscall"
 
+	_ "go.uber.org/automaxprocs"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 )
