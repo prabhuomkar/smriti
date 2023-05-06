@@ -44,8 +44,8 @@ const config = {
       announcementBar: {
         id: 'wip',
         content:
-          'Currently under development, check out <a href="/docs/dev-guide/contribution">Contributing Guide</a>',
-        backgroundColor: '#8390e7',
+          'Currently under active development, check out <a href="/docs/dev-guide/contribution">Contributing Guide</a>',
+        backgroundColor: '#071320',
         textColor: '#ffffff',
         isCloseable: false,
       },
