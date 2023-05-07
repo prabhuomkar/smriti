@@ -3,7 +3,7 @@ import os
 import re
 from behave import *
 import requests
-from multiprocessing import Pool
+import datetime
 
 from common import API_URL
 
@@ -11,17 +11,25 @@ from common import API_URL
 def get_exif(url: str) -> dict:
     res = requests.get(url)
     data = res.text
-    width, height, make = None, None, None
+    width, height, make, model, creation_time = None, None, None, None, None
     for item in data.split('\n'):
         if '.ImageWidth' in item:
-            width = item.split()[1]
-        elif '.ImageHeight' in item:
-            height = item.split()[1]
+            width = int(item.split()[1])
+        elif '.ImageHeight' in item or '.ImageLength' in item:
+            height = int(item.split()[1])
         elif '.Make' in item and not 'Maker' in item:
             make = item.split()[1]
-        if width is not None and height is not None and make is not None:
+        elif '.Model' in item:
+            model = item.split()[1]
+        elif '.DateTime' in item:
+            creation_time = (item.split()[1]+' '+item.split()[2])
+            creation_time = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
+                    tzinfo=datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+        if width is not None and height is not None and make is not None and model is not None \
+            and creation_time is not None:
             break
-    return {'width': width, 'height': height, 'make': make}
+    return {'width': width, 'height': height, 'cameraMake': make, 'cameraModel': model,
+            'creationTime': creation_time}
 
 def download_upload_remove(mediaitem):
     # download
@@ -60,4 +68,20 @@ def step_impl(context):
 
 @then('get raw mediaitems with auth and validate it is present')
 def step_impl(context):
-    raise Exception(context.result)
+    for mediaitem_id, upload_mediaitem in zip(context.upload_mediaitem_ids, context.upload_mediaitems):
+        while True:
+            headers = {'Authorization': f'Bearer {context.access_token}'}
+            res = requests.get(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
+            res = res.json()
+            if res['status'] == 'READY':
+                print(res)
+                mediaitem_exif = upload_mediaitem['exif']
+                assert res['id'] == mediaitem_id
+                assert res['width'] == mediaitem_exif['width']
+                assert res['height'] == mediaitem_exif['height']
+                assert res['cameraMake'] == mediaitem_exif['cameraMake']
+                assert res['cameraModel'] == mediaitem_exif['cameraModel']
+                assert res['creationTime'] == mediaitem_exif['creationTime']
+                break
+            time.sleep(5)
+

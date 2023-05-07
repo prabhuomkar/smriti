@@ -74,7 +74,10 @@ class Metadata(Component):
                                             'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
                                             'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
-                creation_time = result['creationTime'].split("+")[0] if result['creationTime'] else None
+                if '+' in result['creationTime']:
+                    creation_time = result['creationTime'].split("+")[0] if result['creationTime'] else None
+                if '-' in result['creationTime']:
+                    creation_time = result['creationTime'].split("-")[0] if result['creationTime'] else None
                 result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                     tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
                 result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
