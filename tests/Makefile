@@ -25,9 +25,12 @@ test-explore:
 test-search:
 	@echo "testing feature: search"
 	@echo "feature not developed yet!"
+test-raw:
+	@echo "testing feature: raw mediaitems"
+	behave -i raw.feature
 test-all:
 	@echo "testing all features"
-	behave
+	behave --tags=~long
 clear:
 	@echo "clearing uploaded files"
 	@sudo rm -rf ../storage/originals/*
