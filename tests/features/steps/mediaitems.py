@@ -17,8 +17,11 @@ def step_impl(context):
     res = requests.get(API_URL+'/v1/mediaItems',
                        headers={'Authorization': f'Bearer {context.access_token}'})
     mediaitems = res.json()
-    assert len(mediaitems) == 1
-    context.mediaitem_id = mediaitems[0]['id']
+    if len(mediaitems) == 1:
+        context.mediaitem_id = mediaitems[0]['id']
+    else:
+        mediaitem_ids = [mediaitem['id'] for mediaitem in mediaitems]
+        assert context.mediaitem_id in mediaitem_ids
 
 @when('get all mediaitems {condition} auth')
 def step_impl(context, condition):
@@ -57,6 +60,7 @@ def step_impl(context):
                 assert context.mediaitem['description'] == context.match_mediaitem['description']
         else:
             assert context.mediaitem[field] == context.match_mediaitem[field]
+    context.mediaitem_id = context.mediaitem['id']
 
 @then('mediaitem is not present in list')
 def step_impl(context):

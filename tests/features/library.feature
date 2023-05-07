@@ -1,6 +1,6 @@
 Feature: Library
 
-    Background: Setup User
+    Background: Setup User and MediaItem
         Given a user is created if does not exist
         When user logs in
         Then token is generated
@@ -9,7 +9,6 @@ Feature: Library
         When get mediaitem with auth
         Then mediaitem is present
 
-    @clear
     Scenario: Validate Favourites
         Given a mediaitem exists
         When mark favourite mediaitem without auth
@@ -31,7 +30,6 @@ Feature: Library
         When get all favourite mediaitems with auth
         Then mediaitem is not present in list
 
-    @clear
     Scenario: Validate Hidden
         Given a mediaitem exists
         When mark hide mediaitem without auth
@@ -53,7 +51,6 @@ Feature: Library
         When get all hidden mediaitems with auth
         Then mediaitem is not present in list
 
-    @clear
     Scenario: Validate Trash
         Given a mediaitem exists
         When mark delete mediaitem without auth
