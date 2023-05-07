@@ -71,8 +71,8 @@ class Metadata(Component):
                                             'XMP:CreateDate', 'XMP:DateCreated', 'Composite:SubSecCreateDate', \
                                             'Composite:SubSecDateTimeOriginal', 'QuickTime:CreateDate', \
                                             'QuickTime:TrackModifyDate', 'QuickTime:MediaCreateDate', \
-                                            'QuickTime:CreationDate', 'File:FileModifyDate', \
-                                            'File:FileAccessDate', 'File:FileInodeChangeDate'])
+                                            'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
+                                            'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
                 creation_time = result['creationTime'].split("+")[0] if result['creationTime'] else None
                 result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
@@ -109,7 +109,7 @@ class Metadata(Component):
                 result['previewUrl'] = preview_url
                 result['thumbnailUrl'] = thumbnail_url
                 logging.debug(f'extracted preview and thumbnail for \
-                            user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {result}')
+                            user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
                 logging.error(
                     f'error generating and uploading preview and thumbnail for \
@@ -128,7 +128,7 @@ class Metadata(Component):
                 result['previewUrl'] = preview_url
                 result['thumbnailUrl'] = thumbnail_url
                 logging.debug(f'extracted preview and thumbnail for \
-                            user {mediaitem_user_id} video mediaitem {mediaitem_id}: {result}')
+                            user {mediaitem_user_id} video mediaitem {mediaitem_id}')
             except Exception as exp:
                 logging.error(
                     f'error generating and uploading preview and thumbnail for \
@@ -190,15 +190,19 @@ class Metadata(Component):
     def _generate_photo_preview_and_thumbnail(self, original_file_path: str, mime_type: str):
         """Generate preview and thumbnail image for a photo"""
         if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES:
-            with WandImage(filename=original_file_path) as original:
-                with original.convert('jpeg') as converted:
-                    img_bytes = converted.make_blob('jpeg')
+            print('first')
+            with open(original_file_path, 'rb') as file_reader:
+                with WandImage(file=file_reader) as original:
+                    with original.convert('jpeg') as converted:
+                        img_bytes = converted.make_blob('jpeg')
         else:
+            print('second')
             with rawpy.imread(original_file_path) as raw:
                 rgb = raw.postprocess(use_camera_wb=True)
                 img = PILImage.fromarray(rgb)
-                img_bytes = io.BytesIO()
-                img.save(img_bytes, format='JPEG')
+                byte_stream = io.BytesIO()
+                img.save(byte_stream, format='JPEG')
+                img_bytes = byte_stream.getvalue()
         return img_bytes, self._generate_photo_thumbnail(img_bytes)
 
     def _generate_video_thumbnail(self, preview_video_path: str):
