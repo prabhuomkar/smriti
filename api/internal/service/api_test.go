@@ -81,7 +81,7 @@ func TestGetWorkerConfig(t *testing.T) {
 	}{
 		{
 			"get worker config with success",
-			&config.Config{ML: config.ML{Places: true, PlacesSource: "openstreetmap"}},
+			&config.Config{ML: config.ML{Places: true, PlacesProvider: "openstreetmap"}},
 			[]byte(`[{"name":"places","source":"openstreetmap"}]`),
 			nil,
 		},

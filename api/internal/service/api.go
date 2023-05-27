@@ -31,8 +31,9 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 		Download []string `json:"download,omitempty"`
 	}
 	var workerTasks []WorkerTask
+	workerTasks = append(workerTasks, WorkerTask{Name: "storage", Source: s.Config.Storage.Provider})
 	if s.Config.ML.Places {
-		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesSource})
+		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
 	}
 	if s.Config.ML.Classification {
 		workerTasks = append(workerTasks, WorkerTask{Name: "classification", Download: s.Config.ClassificationDownload})

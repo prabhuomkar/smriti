@@ -58,9 +58,6 @@ async def process_mediaitem(components: list[Component], mediaitem_user_id: str,
 
 async def serve() -> None:
     """Main serve function"""
-    # initialize storage
-    file_storage = init_storage(os.getenv('SMRITI_STORAGE', 'disk'))
-
     # initialize grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('SMRITI_API_PORT', '15001'))
@@ -77,6 +74,10 @@ async def serve() -> None:
     worker_cfg = api_stub.GetWorkerConfig(Empty())
     cfg = json.loads(worker_cfg.config)
     logging.info(f'got worker configuration: {cfg}')
+
+    # initialize storage
+    storage_provider = next((item['source'] for item in cfg if item['name'] == 'storage'), 'disk')
+    file_storage = init_storage(name=storage_provider)
 
     # initialize components
     components = [Metadata(storage=file_storage, api_stub=api_stub)]

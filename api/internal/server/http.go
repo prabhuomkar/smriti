@@ -29,9 +29,9 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 		Handler: srvHandler,
 	}
 	// file server
-	fileRoute := getFileRoute(handler.Config.StorageDiskRoot)
+	fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
 	log.Printf("starting file server on: %s", fileRoute)
-	srvHandler.Static(fileRoute, handler.Config.StorageDiskRoot)
+	srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/disk", handler.GetDisk)
