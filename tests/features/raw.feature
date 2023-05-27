@@ -8,7 +8,8 @@ Feature: RAW MediaItems
 
     Scenario: Validate Create RAW MediaItem
         Given get list of raw mediaitems to upload
-            | camera   |
+            | camera      |
             | raspberrypi |
+            | samsung     |
         When upload raw mediaitems
         Then get raw mediaitems with auth and validate it is present

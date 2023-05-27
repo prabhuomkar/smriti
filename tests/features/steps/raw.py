@@ -83,5 +83,5 @@ def step_impl(context):
                 assert res['cameraModel'] == mediaitem_exif['cameraModel']
                 assert res['creationTime'] == mediaitem_exif['creationTime']
                 break
-            time.sleep(5)
+            time.sleep(2)
 
