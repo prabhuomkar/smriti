@@ -67,14 +67,17 @@ class Metadata(Component):
                     if len(composite_dims) == 2:
                         result['width'] = int(composite_dims[0])
                         result['height'] = int(composite_dims[1])
-                result['creationTime'] = getval_from_dict(metadata, ['EXIF:DateTimeOriginal', 'EXIF:CreateDate', \
+                creation_time = getval_from_dict(metadata, ['EXIF:DateTimeOriginal', 'EXIF:CreateDate', \
                                             'XMP:CreateDate', 'XMP:DateCreated', 'Composite:SubSecCreateDate', \
                                             'Composite:SubSecDateTimeOriginal', 'QuickTime:CreateDate', \
                                             'QuickTime:TrackModifyDate', 'QuickTime:MediaCreateDate', \
-                                            'QuickTime:CreationDate', 'File:FileModifyDate', \
-                                            'File:FileAccessDate', 'File:FileInodeChangeDate'])
+                                            'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
+                                            'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
-                creation_time = result['creationTime'].split("+")[0] if result['creationTime'] else None
+                if '+' in creation_time:
+                    creation_time = creation_time.split("+")[0] if creation_time else None
+                if '-' in creation_time:
+                    creation_time = creation_time.split("-")[0] if creation_time else None
                 result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                     tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
                 result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
@@ -101,7 +104,7 @@ class Metadata(Component):
             # generate and upload preview and thumbnail for a photo
             try:
                 preview_bytes, thumbnail_bytes = self._generate_photo_preview_and_thumbnail(
-                    file_path, result['mimeType'])
+                    file_path, result['mimeType'], metadata)
                 preview_url = self.storage.upload(
                     mediaitem_id, preview_bytes, 'previews')
                 thumbnail_url = self.storage.upload(
@@ -109,7 +112,7 @@ class Metadata(Component):
                 result['previewUrl'] = preview_url
                 result['thumbnailUrl'] = thumbnail_url
                 logging.debug(f'extracted preview and thumbnail for \
-                            user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {result}')
+                            user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
                 logging.error(
                     f'error generating and uploading preview and thumbnail for \
@@ -128,7 +131,7 @@ class Metadata(Component):
                 result['previewUrl'] = preview_url
                 result['thumbnailUrl'] = thumbnail_url
                 logging.debug(f'extracted preview and thumbnail for \
-                            user {mediaitem_user_id} video mediaitem {mediaitem_id}: {result}')
+                            user {mediaitem_user_id} video mediaitem {mediaitem_id}')
             except Exception as exp:
                 logging.error(
                     f'error generating and uploading preview and thumbnail for \
@@ -187,18 +190,20 @@ class Metadata(Component):
             with img.convert('jpeg') as converted:
                 return converted.make_blob('jpeg')
 
-    def _generate_photo_preview_and_thumbnail(self, original_file_path: str, mime_type: str):
+    def _generate_photo_preview_and_thumbnail(self, original_file_path: str, mime_type: str, metadata: dict):
         """Generate preview and thumbnail image for a photo"""
-        if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES:
-            with WandImage(filename=original_file_path) as original:
-                with original.convert('jpeg') as converted:
-                    img_bytes = converted.make_blob('jpeg')
+        if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES and not self._is_raw(metadata):
+            with open(original_file_path, 'rb') as file_reader:
+                with WandImage(file=file_reader) as original:
+                    with original.convert('jpeg') as converted:
+                        img_bytes = converted.make_blob('jpeg')
         else:
             with rawpy.imread(original_file_path) as raw:
                 rgb = raw.postprocess(use_camera_wb=True)
                 img = PILImage.fromarray(rgb)
-                img_bytes = io.BytesIO()
-                img.save(img_bytes, format='JPEG')
+                byte_stream = io.BytesIO()
+                img.save(byte_stream, format='JPEG')
+                img_bytes = byte_stream.getvalue()
         return img_bytes, self._generate_photo_thumbnail(img_bytes)
 
     def _generate_video_thumbnail(self, preview_video_path: str):
@@ -239,3 +244,10 @@ class Metadata(Component):
             if 'QuickTime:LivePhotoAuto' in metadata:
                 return 'live'
         return 'default'
+    
+    def _is_raw(self, metadata: dict) -> bool:
+        """Detect if the image is RAW irrespective of the image mimetype"""
+        if 'EXIF:JpgFromRaw' in metadata:
+            return True
+        return False
+

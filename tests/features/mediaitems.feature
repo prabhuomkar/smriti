@@ -1,6 +1,6 @@
 Feature: MediaItems
 
-    Background: Setup User and MediaItem
+    Background: Setup User
         Given a user is created if does not exist
         When user logs in
         Then token is generated
