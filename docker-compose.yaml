@@ -36,8 +36,9 @@ services:
     image: postgres:15
     restart: always
     environment:
-      POSTGRES_USER: smriti
-      POSTGRES_PASSWORD: smriti
+      POSTGRES_USER: smritiuser
+      POSTGRES_PASSWORD: smritipass
+      POSTGRES_DB: smriti
     ports:
       - '5432:5432'
   cache:
@@ -45,7 +46,7 @@ services:
     image: redis:7.0-alpine
     restart: always
     command: >
-      --requirepass smriti
+      --requirepass smritipass
     ports:
       - '6379:6379'
   storage:
@@ -56,7 +57,7 @@ services:
     ports:
       - '9000:9000'
     environment:
-      MINIO_ROOT_USER: smriti
-      MINIO_ROOT_PASSWORD: smriti123
+      MINIO_ROOT_USER: smritiuser
+      MINIO_ROOT_PASSWORD: smritipass
     command: server --address 0.0.0.0:9000 /storage
     restart: always
