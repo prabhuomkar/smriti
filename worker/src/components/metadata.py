@@ -75,9 +75,9 @@ class Metadata(Component):
                                             'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
                 if '+' in creation_time:
-                    creation_time = creation_time.split("+")[0] if creation_time else None
+                    creation_time = creation_time.split("+", maxsplit=1)[0] if creation_time else None
                 if '-' in creation_time:
-                    creation_time = creation_time.split("-")[0] if creation_time else None
+                    creation_time = creation_time.split("-", maxsplit=1)[0] if creation_time else None
                 result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                     tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
                 result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
@@ -244,10 +244,9 @@ class Metadata(Component):
             if 'QuickTime:LivePhotoAuto' in metadata:
                 return 'live'
         return 'default'
-    
+
     def _is_raw(self, metadata: dict) -> bool:
         """Detect if the image is RAW irrespective of the image mimetype"""
         if 'EXIF:JpgFromRaw' in metadata:
             return True
         return False
-

@@ -1,6 +1,7 @@
 asyncio
 grpcio
 grpcio-tools
+minio
 moviepy
 Pillow
 PyExifTool
