@@ -15,6 +15,7 @@ services:
       SMRITI_LOG_LEVEL: DEBUG
       SMRITI_DATABASE_LOG_LEVEL: INFO
       SMRITI_CACHE_TYPE: redis
+      SMRITI_STORAGE_PROVIDER: disk
     volumes:
       - ./storage:/storage:rw
   worker:
@@ -28,6 +29,9 @@ services:
     environment:
       SMRITI_API_HOST: api
       SMRITI_LOG_LEVEL: DEBUG
+      SMRITI_STORAGE_MINIO_ENDPOINT: storage:9000
+      SMRITI_STORAGE_MINIO_ACCESS_KEY: smritiuser
+      SMRITI_STORAGE_MINIO_SECRET_KEY: smritipass
     volumes:
       - ./storage:/storage:rw
   # infra services

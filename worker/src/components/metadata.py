@@ -39,7 +39,7 @@ class Metadata(Component):
     # pylint: disable=too-many-statements
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: dict) -> dict:
         """Process required metadata and generate thumbnail from EXIF data"""
-        file_path = self.storage.get(mediaitem_id)
+        file_path, clear = self.storage.get(mediaitem_id)
 
         # extract metadata
         result = {}
@@ -144,6 +144,10 @@ class Metadata(Component):
         result['status'] = 'READY'
         self._grpc_save_mediaitem_metadata(result)
         logging.info(f'processed metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}')
+
+        # clear the disk space if originals is processed
+        if clear is not None:
+            clear()
 
         return result
 

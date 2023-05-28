@@ -25,7 +25,7 @@ const (
 	HeaderUploadChunkOffset  = "X-Smriti-Upload-Chunk-Offset"
 	HeaderUploadChunkSession = "X-Smriti-Upload-Chunk-Session"
 
-	streamChunkByteSize = 1024
+	streamChunkByteSize = 5 * 1024 * 1024
 )
 
 type (

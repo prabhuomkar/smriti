@@ -20,9 +20,9 @@ class Disk:
             file_bytes.write(content)
         return os.path.abspath(f'{self.root}/{mediaitem_type}/{mediaitem_id}')
 
-    def get(self, mediaitem_id: str, mediaitem_type: str = 'originals') -> str:
+    def get(self, mediaitem_id: str, mediaitem_type: str = 'originals') -> tuple[str, callable]:
         """Get file"""
-        return os.path.abspath(f'{self.root}/{mediaitem_type}/{mediaitem_id}')
+        return os.path.abspath(f'{self.root}/{mediaitem_type}/{mediaitem_id}'), None
 
     def delete(self, mediaitem_id: str) -> None:
         """Delete file"""
