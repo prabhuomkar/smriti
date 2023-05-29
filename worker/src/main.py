@@ -86,7 +86,9 @@ async def serve() -> None:
             components.append(Places(api_stub=api_stub, source=item['source']))
 
     # initialize grpc server
-    server = grpc.aio.server()
+    server = grpc.aio.server(options=[
+        ('grpc.max_receive_message_length', 6 * 1024 * 1024)
+    ])
     add_WorkerServicer_to_server(WorkerService(file_storage, components), server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
