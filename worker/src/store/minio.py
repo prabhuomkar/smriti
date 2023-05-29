@@ -1,6 +1,7 @@
 """Storage: MinIO"""
 import os
 from io import BytesIO
+import logging
 
 from minio import Minio
 
@@ -23,11 +24,12 @@ class MinIO:
                                data=content_io, length=-1, part_size=5*1024*1024)
         return f'{mediaitem_type}/{mediaitem_id}'
 
-    def get(self, mediaitem_id: str, mediaitem_type: str = 'originals') -> str:
+    def get(self, mediaitem_id: str, mediaitem_type: str = 'originals') -> tuple[str, callable]:
         """Get file"""
         file_path = f'{mediaitem_type}-{mediaitem_id}'
         self.client.fget_object(mediaitem_type, mediaitem_id, file_path)
         def clear():
+            logging.debug(f'deleting downloaded file: {file_path}')
             os.remove(file_path)
         return file_path, clear
 

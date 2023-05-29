@@ -15,7 +15,7 @@ services:
       SMRITI_LOG_LEVEL: DEBUG
       SMRITI_DATABASE_LOG_LEVEL: INFO
       SMRITI_CACHE_TYPE: redis
-      SMRITI_STORAGE_PROVIDER: disk
+      SMRITI_STORAGE_PROVIDER: minio
     volumes:
       - ./storage:/storage:rw
   worker:
