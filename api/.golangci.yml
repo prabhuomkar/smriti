@@ -13,3 +13,5 @@ linters:
     - gci
     - dupl
     - goerr113
+    - tagalign
+    - depguard
