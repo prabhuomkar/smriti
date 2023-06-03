@@ -74,9 +74,9 @@ class Metadata(Component):
                                             'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
                                             'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
-                if '+' in creation_time:
+                if creation_time and '+' in creation_time:
                     creation_time = creation_time.split("+", maxsplit=1)[0] if creation_time else None
-                if '-' in creation_time:
+                if creation_time and '-' in creation_time:
                     creation_time = creation_time.split("-", maxsplit=1)[0] if creation_time else None
                 result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                     tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None

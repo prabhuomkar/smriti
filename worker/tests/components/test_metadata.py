@@ -14,7 +14,7 @@ from src.protos.api_pb2_grpc import APIStub
 @pytest.mark.asyncio
 async def test_metadata_process_photo_success(_, __):
     storage_mock = mock.MagicMock()
-    storage_mock.return_value.get.return_value = None
+    storage_mock.return_value.get.return_value = [None, None]
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = {
@@ -39,7 +39,7 @@ async def test_metadata_process_photo_success(_, __):
 @pytest.mark.asyncio
 async def test_metadata_process_video_success(_, __):
     storage_mock = mock.MagicMock()
-    storage_mock.return_value.get.return_value = None
+    storage_mock.return_value.get.return_value = [None, None]
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = {
@@ -64,7 +64,7 @@ async def test_metadata_process_video_success(_, __):
 @pytest.mark.asyncio
 async def test_metadata_process_failed_process_exception(_):
     storage_mock = mock.MagicMock()
-    storage_mock.return_value.get.return_value = None
+    storage_mock.return_value.get.return_value = [None, None]
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = None
@@ -77,7 +77,7 @@ async def test_metadata_process_failed_process_exception(_):
 @pytest.mark.asyncio
 async def test_metadata_process_grpc_exception(_):
     storage_mock = mock.MagicMock()
-    storage_mock.return_value.get.return_value = None
+    storage_mock.return_value.get.return_value = [None, None]
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = {
@@ -104,7 +104,7 @@ async def test_metadata_process_grpc_exception(_):
 @pytest.mark.asyncio
 async def test_metadata_process_photo_preview_thumbnail_exception(_):
     storage_mock = mock.MagicMock()
-    storage_mock.return_value.get.return_value = None
+    storage_mock.return_value.get.return_value = [None, None]
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = {
@@ -124,7 +124,7 @@ async def test_metadata_process_photo_preview_thumbnail_exception(_):
 @pytest.mark.asyncio
 async def test_metadata_process_video_preview_thumbnail_exception(_):
     storage_mock = mock.MagicMock()
-    storage_mock.return_value.get.return_value = None
+    storage_mock.return_value.get.return_value = [None, None]
     storage_mock.return_value.upload.return_value = None
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = {
