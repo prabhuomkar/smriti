@@ -23,7 +23,7 @@ func (imc *InMemoryCache) Get(key string) (interface{}, error) {
 func (imc *InMemoryCache) Remove(key string) error {
 	result := imc.Connection.Remove(key)
 	if !result {
-		return fmt.Errorf("error removing from cache for key: %v", key)
+		return fmt.Errorf("error removing from cache for key: %+v", key)
 	}
 	return nil
 }

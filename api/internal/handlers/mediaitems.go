@@ -3,13 +3,14 @@ package handlers
 import (
 	"api/internal/models"
 	"api/pkg/services/worker"
-	"bufio"
 	"context"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"mime/multipart"
 	"net/http"
+	"os"
 	"reflect"
 	"strconv"
 	"strings"
@@ -25,7 +26,8 @@ const (
 	HeaderUploadChunkOffset  = "X-Smriti-Upload-Chunk-Offset"
 	HeaderUploadChunkSession = "X-Smriti-Upload-Chunk-Session"
 
-	streamChunkByteSize = 5 * 1024 * 1024
+	fileFlag       = os.O_WRONLY | os.O_APPEND | os.O_CREATE //nolint: nosnakecase
+	filePermission = 0o644
 )
 
 type (
@@ -205,12 +207,11 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	command := "start, finish"
-	offset := 0
 	session := ""
 	var err error
 	uploadType := ctx.Request().Header.Get(HeaderUploadType)
 	if uploadType == "resumable" {
-		command, offset, session, err = validateChunk(ctx)
+		command, session, err = validateChunk(ctx)
 		if err != nil {
 			return err
 		}
@@ -237,7 +238,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 
-		err = sendFileToWorker(h.Worker, userID.String(), mediaItem.ID.String(), command, offset, openedFile)
+		err = saveToDiskAndSendToWorker(h.Config.Storage.DiskRoot, userID.String(), mediaItem.ID.String(),
+			openedFile, strings.Contains(command, "finish"), h.Worker)
 		if err != nil {
 			return err
 		}
@@ -247,7 +249,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		})
 	}
 
-	err = sendFileToWorker(h.Worker, userID.String(), session, command, offset, openedFile)
+	err = saveToDiskAndSendToWorker(h.Config.Storage.DiskRoot, userID.String(), session,
+		openedFile, strings.Contains(command, "finish"), h.Worker)
 	if err != nil {
 		return err
 	}
@@ -255,47 +258,31 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func sendFileToWorker(workerClient worker.WorkerClient, userID, fileID, command string, offset int, file multipart.File) error { //nolint: lll
-	stream, err := workerClient.MediaItemProcess(context.Background())
+func saveToDiskAndSendToWorker(root, userID, mediaItemID string, openedFile multipart.File,
+	sendToWorker bool, client worker.WorkerClient,
+) error {
+	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", root, mediaItemID), fileFlag, filePermission)
 	if err != nil {
-		log.Printf("error creating stream for sending mediaitem to worker: %+v", err)
+		log.Printf("error opening file: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	reader := bufio.NewReader(file)
-	buffer := make([]byte, streamChunkByteSize)
-	for {
-		numBytes, err := reader.Read(buffer)
-		if errors.Is(err, io.EOF) {
-			break
-		}
-		if err != nil {
-			log.Printf("error reading uploaded file: %+v", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
+	_, err = io.Copy(dstFile, openedFile)
+	if err != nil {
+		log.Printf("error copying file: %+v", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 
-		err = stream.Send(&worker.MediaItemProcessRequest{
-			UserId:  userID,
-			Id:      fileID,
-			Offset:  int64(offset),
-			Command: command,
-			Content: buffer[:numBytes],
+	if sendToWorker {
+		_, err = client.MediaItemProcess(context.Background(), &worker.MediaItemProcessRequest{
+			UserId:   userID,
+			Id:       mediaItemID,
+			FilePath: root,
 		})
 		if err != nil {
-			log.Printf("error sending mediaitem to worker: %+v", err)
+			log.Printf("error sending mediaitem for processing: %+v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-	}
-
-	res, err := stream.CloseAndRecv()
-	if err != nil {
-		log.Printf("error receiving response from worker: %+v", err)
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	if !res.Ok {
-		log.Println("error due to bad response from worker")
-		return echo.NewHTTPError(http.StatusInternalServerError, "error uploading mediaitem")
 	}
 
 	return nil
@@ -312,25 +299,25 @@ func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {
 	return mediaItem
 }
 
-func validateChunk(ctx echo.Context) (string, int, string, error) {
+func validateChunk(ctx echo.Context) (string, string, error) {
 	command := ctx.Request().Header.Get(HeaderUploadCommand)
 	offset, _ := strconv.Atoi(ctx.Request().Header.Get(HeaderUploadChunkOffset))
 
 	if len(command) == 0 {
 		log.Printf("error getting command for resumable upload")
-		return "", 0, "", echo.NewHTTPError(http.StatusBadRequest, "invalid command for resumable upload")
+		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid command for resumable upload")
 	}
 	if command != "start" && offset == 0 {
 		log.Printf("error getting chunk offset for resumable upload")
-		return "", 0, "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk offset for resumable upload")
+		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk offset for resumable upload")
 	}
 	session := ctx.Request().Header.Get(HeaderUploadChunkSession)
 	if command != "start" && len(session) == 0 {
 		log.Printf("error getting chunk session for resumable upload")
-		return "", 0, "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk session for resumable upload")
+		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk session for resumable upload")
 	}
 
-	return command, offset, session, nil
+	return command, session, nil
 }
 
 func getMediaItemID(ctx echo.Context) (uuid.UUID, error) {

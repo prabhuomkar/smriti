@@ -1,13 +1,14 @@
 package middlewares
 
 import (
-	"api/config"
-	"api/internal/handlers"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
 	"time"
+
+	"api/config"
+	"api/internal/handlers"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo"

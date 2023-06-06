@@ -12,10 +12,10 @@ from src.providers.places.utils import init_places
 class Places(Component):
     """Places Component"""
     def __init__(self, api_stub: APIStub, source: str) -> None:
-        super().__init__('places', None, api_stub)
+        super().__init__('places', api_stub)
         self.source = init_places(source)
 
-    async def process(self, mediaitem_user_id: str, mediaitem_id: str, metadata: dict) -> None:
+    async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process place details from latitude and longitude"""
         if metadata is None or ('latitude' not in metadata or 'longitude' not in metadata) or \
             (metadata['latitude'] is None and metadata['longitude'] is None):

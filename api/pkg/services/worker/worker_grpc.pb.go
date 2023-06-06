@@ -22,7 +22,7 @@ const _ = grpc.SupportPackageIsVersion7
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerClient interface {
-	MediaItemProcess(ctx context.Context, opts ...grpc.CallOption) (Worker_MediaItemProcessClient, error)
+	MediaItemProcess(ctx context.Context, in *MediaItemProcessRequest, opts ...grpc.CallOption) (*MediaItemProcessResponse, error)
 }
 
 type workerClient struct {
@@ -33,45 +33,20 @@ func NewWorkerClient(cc grpc.ClientConnInterface) WorkerClient {
 	return &workerClient{cc}
 }
 
-func (c *workerClient) MediaItemProcess(ctx context.Context, opts ...grpc.CallOption) (Worker_MediaItemProcessClient, error) {
-	stream, err := c.cc.NewStream(ctx, &Worker_ServiceDesc.Streams[0], "/Worker/MediaItemProcess", opts...)
+func (c *workerClient) MediaItemProcess(ctx context.Context, in *MediaItemProcessRequest, opts ...grpc.CallOption) (*MediaItemProcessResponse, error) {
+	out := new(MediaItemProcessResponse)
+	err := c.cc.Invoke(ctx, "/Worker/MediaItemProcess", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
-	x := &workerMediaItemProcessClient{stream}
-	return x, nil
-}
-
-type Worker_MediaItemProcessClient interface {
-	Send(*MediaItemProcessRequest) error
-	CloseAndRecv() (*MediaItemProcessResponse, error)
-	grpc.ClientStream
-}
-
-type workerMediaItemProcessClient struct {
-	grpc.ClientStream
-}
-
-func (x *workerMediaItemProcessClient) Send(m *MediaItemProcessRequest) error {
-	return x.ClientStream.SendMsg(m)
-}
-
-func (x *workerMediaItemProcessClient) CloseAndRecv() (*MediaItemProcessResponse, error) {
-	if err := x.ClientStream.CloseSend(); err != nil {
-		return nil, err
-	}
-	m := new(MediaItemProcessResponse)
-	if err := x.ClientStream.RecvMsg(m); err != nil {
-		return nil, err
-	}
-	return m, nil
+	return out, nil
 }
 
 // WorkerServer is the server API for Worker service.
 // All implementations must embed UnimplementedWorkerServer
 // for forward compatibility
 type WorkerServer interface {
-	MediaItemProcess(Worker_MediaItemProcessServer) error
+	MediaItemProcess(context.Context, *MediaItemProcessRequest) (*MediaItemProcessResponse, error)
 	mustEmbedUnimplementedWorkerServer()
 }
 
@@ -79,8 +54,8 @@ type WorkerServer interface {
 type UnimplementedWorkerServer struct {
 }
 
-func (UnimplementedWorkerServer) MediaItemProcess(Worker_MediaItemProcessServer) error {
-	return status.Errorf(codes.Unimplemented, "method MediaItemProcess not implemented")
+func (UnimplementedWorkerServer) MediaItemProcess(context.Context, *MediaItemProcessRequest) (*MediaItemProcessResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method MediaItemProcess not implemented")
 }
 func (UnimplementedWorkerServer) mustEmbedUnimplementedWorkerServer() {}
 
@@ -95,30 +70,22 @@ func RegisterWorkerServer(s grpc.ServiceRegistrar, srv WorkerServer) {
 	s.RegisterService(&Worker_ServiceDesc, srv)
 }
 
-func _Worker_MediaItemProcess_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(WorkerServer).MediaItemProcess(&workerMediaItemProcessServer{stream})
-}
-
-type Worker_MediaItemProcessServer interface {
-	SendAndClose(*MediaItemProcessResponse) error
-	Recv() (*MediaItemProcessRequest, error)
-	grpc.ServerStream
-}
-
-type workerMediaItemProcessServer struct {
-	grpc.ServerStream
-}
-
-func (x *workerMediaItemProcessServer) SendAndClose(m *MediaItemProcessResponse) error {
-	return x.ServerStream.SendMsg(m)
-}
-
-func (x *workerMediaItemProcessServer) Recv() (*MediaItemProcessRequest, error) {
-	m := new(MediaItemProcessRequest)
-	if err := x.ServerStream.RecvMsg(m); err != nil {
+func _Worker_MediaItemProcess_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemProcessRequest)
+	if err := dec(in); err != nil {
 		return nil, err
 	}
-	return m, nil
+	if interceptor == nil {
+		return srv.(WorkerServer).MediaItemProcess(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Worker/MediaItemProcess",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkerServer).MediaItemProcess(ctx, req.(*MediaItemProcessRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 // Worker_ServiceDesc is the grpc.ServiceDesc for Worker service.
@@ -127,13 +94,12 @@ func (x *workerMediaItemProcessServer) Recv() (*MediaItemProcessRequest, error) 
 var Worker_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "Worker",
 	HandlerType: (*WorkerServer)(nil),
-	Methods:     []grpc.MethodDesc{},
-	Streams: []grpc.StreamDesc{
+	Methods: []grpc.MethodDesc{
 		{
-			StreamName:    "MediaItemProcess",
-			Handler:       _Worker_MediaItemProcess_Handler,
-			ClientStreams: true,
+			MethodName: "MediaItemProcess",
+			Handler:    _Worker_MediaItemProcess_Handler,
 		},
 	},
+	Streams:  []grpc.StreamDesc{},
 	Metadata: "worker.proto",
 }

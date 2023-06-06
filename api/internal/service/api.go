@@ -31,9 +31,6 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 		Download []string `json:"download,omitempty"`
 	}
 	var workerTasks []WorkerTask
-	if s.Config.Storage.Provider != "" {
-		workerTasks = append(workerTasks, WorkerTask{Name: "storage", Source: s.Config.Storage.Provider})
-	}
 	if s.Config.ML.Places {
 		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
 	}

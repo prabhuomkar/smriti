@@ -1,8 +1,6 @@
 package service
 
 import (
-	"api/config"
-	"api/pkg/services/api"
 	"context"
 	"errors"
 	"log"
@@ -10,6 +8,9 @@ import (
 	"regexp"
 	"testing"
 	"time"
+
+	"api/config"
+	"api/pkg/services/api"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
@@ -68,8 +69,10 @@ var (
 		Town:   &town,
 	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
-	placeCols     = []string{"id", "name", "postcode", "town", "city", "state",
-		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	placeCols     = []string{
+		"id", "name", "postcode", "town", "city", "state",
+		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
+	}
 )
 
 func TestGetWorkerConfig(t *testing.T) {
@@ -81,8 +84,8 @@ func TestGetWorkerConfig(t *testing.T) {
 	}{
 		{
 			"get worker config with success",
-			&config.Config{Storage: config.Storage{Provider: "disk"}, ML: config.ML{Places: true, PlacesProvider: "openstreetmap"}},
-			[]byte(`[{"name":"storage","source":"disk"},{"name":"places","source":"openstreetmap"}]`),
+			&config.Config{ML: config.ML{Places: true, PlacesProvider: "openstreetmap"}},
+			[]byte(`[{"name":"places","source":"openstreetmap"}]`),
 			nil,
 		},
 		{
@@ -134,8 +137,10 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		},
 		{
 			"save mediaitem result with incorrect creation time",
-			&api.MediaItemMetadataRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime},
+			&api.MediaItemMetadataRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime,
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
 		},

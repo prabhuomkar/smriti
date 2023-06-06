@@ -14,7 +14,7 @@ class WorkerStub(object):
         Args:
             channel: A grpc.Channel.
         """
-        self.MediaItemProcess = channel.stream_unary(
+        self.MediaItemProcess = channel.unary_unary(
                 '/Worker/MediaItemProcess',
                 request_serializer=src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.SerializeToString,
                 response_deserializer=src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.FromString,
@@ -24,7 +24,7 @@ class WorkerStub(object):
 class WorkerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
-    def MediaItemProcess(self, request_iterator, context):
+    def MediaItemProcess(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -33,7 +33,7 @@ class WorkerServicer(object):
 
 def add_WorkerServicer_to_server(servicer, server):
     rpc_method_handlers = {
-            'MediaItemProcess': grpc.stream_unary_rpc_method_handler(
+            'MediaItemProcess': grpc.unary_unary_rpc_method_handler(
                     servicer.MediaItemProcess,
                     request_deserializer=src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.FromString,
                     response_serializer=src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.SerializeToString,
@@ -49,7 +49,7 @@ class Worker(object):
     """Missing associated documentation comment in .proto file."""
 
     @staticmethod
-    def MediaItemProcess(request_iterator,
+    def MediaItemProcess(request,
             target,
             options=(),
             channel_credentials=None,
@@ -59,7 +59,7 @@ class Worker(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.stream_unary(request_iterator, target, '/Worker/MediaItemProcess',
+        return grpc.experimental.unary_unary(request, target, '/Worker/MediaItemProcess',
             src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.SerializeToString,
             src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.FromString,
             options, channel_credentials,

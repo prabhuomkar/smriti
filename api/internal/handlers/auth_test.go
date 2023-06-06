@@ -1,14 +1,15 @@
 package handlers
 
 import (
-	"api/config"
-	"api/internal/auth"
-	"api/internal/models"
 	"errors"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
+
+	"api/config"
+	"api/internal/auth"
+	"api/internal/models"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo"

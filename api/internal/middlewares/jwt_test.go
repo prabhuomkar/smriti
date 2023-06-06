@@ -1,17 +1,18 @@
 package middlewares
 
 import (
-	"api/config"
-	"api/internal/auth"
-	"api/internal/handlers"
-	"api/internal/models"
-	"api/pkg/cache"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
 	"time"
+
+	"api/config"
+	"api/internal/auth"
+	"api/internal/handlers"
+	"api/internal/models"
+	"api/pkg/cache"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
@@ -102,14 +103,18 @@ func TestJWTCheckOK(t *testing.T) {
 		DB:     mockGDB,
 	}
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
-			"mediaitems_count", "created_at", "updated_at"}))
+		WillReturnRows(sqlmock.NewRows([]string{
+			"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
+			"mediaitems_count", "created_at", "updated_at",
+		}))
 	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-		WillReturnRows(sqlmock.NewRows([]string{"id", "filename", "description", "mime_type", "source_url", "preview_url",
+		WillReturnRows(sqlmock.NewRows([]string{
+			"id", "filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
 			"width",
 			"height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at"}))
+			"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
+		}))
 	checkJWT := JWTCheck(cfg, cache)
 
 	// test

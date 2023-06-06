@@ -1,12 +1,13 @@
 package auth
 
 import (
-	"api/config"
-	"api/internal/models"
-	"api/pkg/cache"
 	"errors"
 	"testing"
 	"time"
+
+	"api/config"
+	"api/internal/models"
+	"api/pkg/cache"
 
 	"github.com/bluele/gcache"
 	uuid "github.com/satori/go.uuid"
