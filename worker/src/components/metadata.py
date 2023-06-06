@@ -84,7 +84,8 @@ class Metadata(Component):
                 result['apertureFNumber'] = getval_from_dict(metadata, ['EXIF:FNumber'])
                 result['isoEquivalent'] = getval_from_dict(metadata, ['EXIF:ISO'])
                 result['exposureTime'] = getval_from_dict(metadata, ['EXIF:ExposureTime'])
-                result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'])
+                result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'], return_type='float')
+                result['fps'] = str(round(result['fps'])) if result['fps'] is not None else None
                 result['latitude'] = getval_from_dict(metadata, ['EXIF:GPSLatitude', \
                                                                 'Composite:GPSLatitude'], return_type='float')
                 result['longitude'] = getval_from_dict(metadata, ['EXIF:GPSLongitude', \
