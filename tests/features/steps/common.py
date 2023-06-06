@@ -13,13 +13,19 @@ UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'passwo
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description', 'shared': True}
 
-CREATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
+CREATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
                      'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
                      'exposureTime': '0.04', 'mediaItemType': 'photo', 'mediaItemCategory': 'default',
-                     'description': None, 'favourite': False, 'hidden': False}
-UPDATED_MEDIAITEM = {'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
+                     'description': None, 'favourite': False, 'hidden': False},
+                     'video':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'video', 'mediaItemCategory': 'default',
+                     'description': None, 'favourite': False, 'hidden': False}}
+UPDATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
                      'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
                      'exposureTime': '0.04', 'mediaItemType': 'photo', 'mediaItemCategory': 'default',
-                     'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': True}
+                     'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': False},
+                     'video':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'video', 'mediaItemCategory': 'default',
+                     'description': None, 'favourite': False, 'hidden': False}}
 
 CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}

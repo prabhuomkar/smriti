@@ -19,9 +19,13 @@ def step_impl(context):
     mediaitems = res.json()
     if len(mediaitems) == 1:
         context.mediaitem_id = mediaitems[0]['id']
+        context.mediaitem_type = mediaitems[0]['mediaItemType']
     else:
         mediaitem_ids = [mediaitem['id'] for mediaitem in mediaitems]
         assert context.mediaitem_id in mediaitem_ids
+        for mediaitem in mediaitems:
+            if mediaitem['id'] == context.mediaitem_id:
+                context.mediaitem_type = mediaitem['mediaItemType']
 
 @when('get all mediaitems {condition} auth')
 def step_impl(context, condition):
@@ -64,6 +68,7 @@ def step_impl(context):
 
 @then('mediaitem is not present in list')
 def step_impl(context):
+    print(context.mediaitems)
     assert len(context.mediaitems) == 0
 
 @then('mediaitem is not present')
@@ -72,14 +77,15 @@ def step_impl(context):
         assert field not in context.mediaitem
     assert context.mediaitem['message'] == 'mediaitem not found'
 
-@when('upload mediaitem {condition} auth')
-def step_impl(context, condition):
+@when('upload {type} mediaitem {condition} auth')
+def step_impl(context, type, condition):
     headers = None
     if condition == 'with':
         headers = {'Authorization': f'Bearer {context.access_token}'}
-    files = {'file': open('data/IMG_0543.HEIC','rb')}
+    files = {'file': open(f'data/{"IMG_0543.HEIC" if type == "photo" else "IMG_6470.MOV"}','rb')}
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     context.response = res
+    context.mediaitem_type = type
     time.sleep(3)
 
 @when('update mediaitem {condition} auth')
@@ -89,7 +95,7 @@ def step_impl(context, condition):
         headers = {'Authorization': f'Bearer {context.access_token}'}
     mediaitem_id = context.mediaitem_id
     res = requests.put(API_URL+'/v1/mediaItems/'+mediaitem_id,
-                       json=UPDATED_MEDIAITEM, headers=headers)
+                       json=UPDATED_MEDIAITEM[context.mediaitem_type], headers=headers)
     context.response = res
 
 @when('delete mediaitem {condition} auth')
@@ -105,15 +111,15 @@ def step_impl(context, condition):
 def step_impl(context):
     assert context.response.status_code == 201
     context.mediaitem_id = context.response.json()['id']
-    context.match_mediaitem = CREATED_MEDIAITEM
+    context.match_mediaitem = CREATED_MEDIAITEM[context.mediaitem_type]
 
 @then('mediaitem is updated')
 def step_impl(context):
     assert context.response.status_code == 204
-    context.match_mediaitem = UPDATED_MEDIAITEM
+    context.match_mediaitem = UPDATED_MEDIAITEM[context.mediaitem_type]
 
 @then('mediaitem is deleted')
 def step_impl(context):
     assert context.response.status_code == 204
-    context.match_mediaitem = UPDATED_MEDIAITEM
+    context.match_mediaitem = UPDATED_MEDIAITEM[context.mediaitem_type]
 

@@ -33,6 +33,4 @@ test-all:
 	behave --tags=~long
 clear:
 	@echo "clearing uploaded files"
-	@sudo rm -rf ../storage/originals/*
-	@sudo rm -rf ../storage/previews/*
-	@sudo rm -rf ../storage/thumbnails/*
+	@sudo rm -rf ../storage/*
