@@ -6,6 +6,7 @@ import (
 	"api/pkg/services/api"
 	"context"
 	"encoding/json"
+	"errors"
 	"log"
 	"time"
 
@@ -82,6 +83,21 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		UserID: userID, ID: uid, CreationTime: creationTime,
 	}
 	parseMediaItem(&mediaItem, req)
+	mediaItem.SourceURL, err = uploadFile(req.SourcePath, "original")
+	if err != nil {
+		log.Printf("error uploading original file for mediaitem %s: %v", req.Id, err)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error uploading original file: %s", err.Error())
+	}
+	mediaItem.PreviewURL, err = uploadFile(*req.PreviewPath, "preview")
+	if err != nil {
+		log.Printf("error uploading preview file for mediaitem %s: %v", req.Id, err)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error uploading preview file: %s", err.Error())
+	}
+	mediaItem.ThumbnailURL, err = uploadFile(*req.ThumbnailPath, "thumbnail")
+	if err != nil {
+		log.Printf("error uploading thumbnail file for mediaitem %s: %v", req.Id, err)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error uploading thumbnail file: %s", err.Error())
+	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil || result.RowsAffected != 1 {
 		log.Printf("error updating mediaitem result: %+v", result.Error)
@@ -151,13 +167,6 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	if req.MimeType != nil {
 		mediaItem.MimeType = *req.MimeType
 	}
-	mediaItem.SourceURL = req.SourceUrl
-	if req.PreviewUrl != nil {
-		mediaItem.PreviewURL = *req.PreviewUrl
-	}
-	if req.ThumbnailUrl != nil {
-		mediaItem.ThumbnailURL = *req.ThumbnailUrl
-	}
 	mediaItem.MediaItemType = models.MediaItemType(req.Type)
 	mediaItem.MediaItemCategory = models.MediaItemCategory(req.Category)
 	if req.Width != nil {
@@ -166,4 +175,13 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	if req.Height != nil {
 		mediaItem.Height = int(*req.Height)
 	}
+}
+
+func uploadFile(filePath, fileType string) (string, error) {
+	if len(filePath) == 0 {
+		return "", errors.New("error uploading due to invalid file path")
+	}
+
+	// work(omkar): add upload based on storage type
+	return "/" + fileType + "/" + filePath, nil
 }

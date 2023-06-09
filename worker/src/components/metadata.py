@@ -44,7 +44,7 @@ class Metadata(Component):
         result['userId'] = mediaitem_user_id
         result['id'] = mediaitem_id
         result['status'] = 'UNSPECIFIED'
-        result['sourceUrl'] = file_path
+        result['sourcePath'] = file_path
         result['type'] = 'unknown'
         result['category'] = 'default'
         try:
@@ -104,8 +104,8 @@ class Metadata(Component):
             try:
                 preview_path, thumbnail_path = self._generate_photo_preview_and_thumbnail(
                     file_path, result['mimeType'], metadata)
-                result['previewUrl'] = preview_path
-                result['thumbnailUrl'] = thumbnail_path
+                result['previewPath'] = preview_path
+                result['thumbnailPath'] = thumbnail_path
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
@@ -119,8 +119,8 @@ class Metadata(Component):
             # generate and upload preview and thumbnail for a video
             try:
                 preview_path, thumbnail_path = self._generate_video_preview_and_thumbnail(file_path)
-                result['previewUrl'] = preview_path
-                result['thumbnailUrl'] = thumbnail_path
+                result['previewPath'] = preview_path
+                result['thumbnailPath'] = thumbnail_path
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} video mediaitem {mediaitem_id}')
             except Exception as exp:
@@ -146,9 +146,9 @@ class Metadata(Component):
                 id=result['id'],
                 status=result['status'],
                 mimeType=result['mimeType'] if 'mimeType' in result else None,
-                sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
-                previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
-                thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
+                sourcePath=result['sourcePath'] if 'sourcePath' in result else None,
+                previewPath=result['previewPath'] if 'previewPath' in result else None,
+                thumbnailPath=result['thumbnailPath'] if 'thumbnailPath' in result else None,
                 type=result['type'] if 'type' in result else None,
                 category=result['category'] if 'category' in result else None,
                 width=result['width'] if 'width' in result else None,

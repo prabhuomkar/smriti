@@ -12,7 +12,7 @@ class ConfigResponse(_message.Message):
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
 class MediaItemMetadataRequest(_message.Message):
-    __slots__ = ["apertureFNumber", "cameraMake", "cameraModel", "category", "creationTime", "exposureTime", "focalLength", "fps", "height", "id", "isoEquivalent", "latitude", "longitude", "mimeType", "previewUrl", "sourceUrl", "status", "thumbnailUrl", "type", "userId", "width"]
+    __slots__ = ["apertureFNumber", "cameraMake", "cameraModel", "category", "creationTime", "exposureTime", "focalLength", "fps", "height", "id", "isoEquivalent", "latitude", "longitude", "mimeType", "previewPath", "sourcePath", "status", "thumbnailPath", "type", "userId", "width"]
     APERTUREFNUMBER_FIELD_NUMBER: _ClassVar[int]
     CAMERAMAKE_FIELD_NUMBER: _ClassVar[int]
     CAMERAMODEL_FIELD_NUMBER: _ClassVar[int]
@@ -27,10 +27,10 @@ class MediaItemMetadataRequest(_message.Message):
     LATITUDE_FIELD_NUMBER: _ClassVar[int]
     LONGITUDE_FIELD_NUMBER: _ClassVar[int]
     MIMETYPE_FIELD_NUMBER: _ClassVar[int]
-    PREVIEWURL_FIELD_NUMBER: _ClassVar[int]
-    SOURCEURL_FIELD_NUMBER: _ClassVar[int]
+    PREVIEWPATH_FIELD_NUMBER: _ClassVar[int]
+    SOURCEPATH_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
-    THUMBNAILURL_FIELD_NUMBER: _ClassVar[int]
+    THUMBNAILPATH_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     USERID_FIELD_NUMBER: _ClassVar[int]
     WIDTH_FIELD_NUMBER: _ClassVar[int]
@@ -48,14 +48,14 @@ class MediaItemMetadataRequest(_message.Message):
     latitude: float
     longitude: float
     mimeType: str
-    previewUrl: str
-    sourceUrl: str
+    previewPath: str
+    sourcePath: str
     status: str
-    thumbnailUrl: str
+    thumbnailPath: str
     type: str
     userId: str
     width: int
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., sourceUrl: _Optional[str] = ..., previewUrl: _Optional[str] = ..., thumbnailUrl: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., sourcePath: _Optional[str] = ..., previewPath: _Optional[str] = ..., thumbnailPath: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
 
 class MediaItemPlaceRequest(_message.Message):
     __slots__ = ["city", "country", "id", "postcode", "state", "town", "userId"]

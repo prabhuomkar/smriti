@@ -20,9 +20,9 @@ async def test_metadata_process_photo_success(_, __):
     }
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
-        del result['sourceUrl']
-        del result['previewUrl']
-        del result['thumbnailUrl']
+        del result['sourcePath']
+        del result['previewPath']
+        del result['thumbnailPath']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'panorama', 'mimeType': 'image/jpeg', 'width': 14124, 
                         'height': 3100, 'creationTime': None, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -42,9 +42,9 @@ async def test_metadata_process_video_success(_, __):
     }
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
-        del result['sourceUrl']
-        del result['previewUrl']
-        del result['thumbnailUrl']
+        del result['sourcePath']
+        del result['previewPath']
+        del result['thumbnailPath']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'live', 'mimeType': 'video/mpeg', 'width': 1080, 
                         'height': 720, 'creationTime': None, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -74,9 +74,9 @@ async def test_metadata_process_grpc_exception(_):
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         with mock.patch('src.protos.API.SaveMediaItemMetadata', grpc_mock):
             result = await Metadata(APIStub(channel=grpc.insecure_channel(''))).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
-            del result['sourceUrl']
-            del result['previewUrl']
-            del result['thumbnailUrl']
+            del result['sourcePath']
+            del result['previewPath']
+            del result['thumbnailPath']
             assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'screenshot', 'mimeType': 'image/jpeg', 'width': 4022, 
                         'height': 3100, 'creationTime': None, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
