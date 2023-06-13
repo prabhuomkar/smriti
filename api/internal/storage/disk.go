@@ -34,15 +34,14 @@ func (d *Disk) Upload(filePath, fileType, fileID string) (string, error) {
 	return result, nil
 }
 
-func (d *Disk) Delete(filePath string) error {
-	//nolint: ifshort
-	err := os.Remove(filePath)
+func (d *Disk) Delete(fileType, fileID string) error {
+	err := os.Remove(fmt.Sprintf("%s/%s/%s", d.Root, fileType, fileID))
 	if err != nil {
 		return fmt.Errorf("error deleting file: %w", err)
 	}
 	return nil
 }
 
-func (d *Disk) Get(filePath string) (string, error) {
-	return filePath, nil
+func (d *Disk) Get(fileType, fileID string) (string, error) {
+	return fmt.Sprintf("%s/%s/%s", d.Root, fileType, fileID), nil
 }
