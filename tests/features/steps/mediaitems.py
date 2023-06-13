@@ -77,8 +77,8 @@ def step_impl(context):
         assert field not in context.mediaitem
     assert context.mediaitem['message'] == 'mediaitem not found'
 
-@when('upload {type} mediaitem {condition} auth')
-def step_impl(context, type, condition):
+@when('upload {type} mediaitem {condition} auth and wait {seconds} seconds')
+def step_impl(context, type, condition, seconds):
     headers = None
     if condition == 'with':
         headers = {'Authorization': f'Bearer {context.access_token}'}
@@ -86,7 +86,8 @@ def step_impl(context, type, condition):
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     context.response = res
     context.mediaitem_type = type
-    time.sleep(3)
+    if condition == 'with':
+        time.sleep(int(seconds))
 
 @when('update mediaitem {condition} auth')
 def step_impl(context, condition):

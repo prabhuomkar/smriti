@@ -3,6 +3,7 @@ package service
 import (
 	"api/config"
 	"api/internal/models"
+	"api/internal/storage"
 	"api/pkg/services/api"
 	"context"
 	"encoding/json"
@@ -21,8 +22,9 @@ import (
 // Service ...
 type Service struct {
 	api.UnimplementedAPIServer
-	Config *config.Config
-	DB     *gorm.DB
+	Config  *config.Config
+	DB      *gorm.DB
+	Storage storage.Provider
 }
 
 func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
@@ -83,23 +85,23 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		UserID: userID, ID: uid, CreationTime: creationTime,
 	}
 	parseMediaItem(&mediaItem, req)
-	mediaItem.SourceURL, err = uploadFile(req.SourcePath, "original")
+	mediaItem.SourceURL, err = uploadFile(s.Storage, req.SourcePath, "originals", req.Id)
 	if err != nil {
-		log.Printf("error uploading original file for mediaitem %s: %v", req.Id, err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error uploading original file: %s", err.Error())
+		log.Printf("error uploading original file for mediaitem %s: %+v", req.Id, err)
+		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
 	}
-	mediaItem.PreviewURL, err = uploadFile(*req.PreviewPath, "preview")
+	mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
 	if err != nil {
-		log.Printf("error uploading preview file for mediaitem %s: %v", req.Id, err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error uploading preview file: %s", err.Error())
+		log.Printf("error uploading preview file for mediaitem %s: %+v", req.Id, err)
+		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
 	}
-	mediaItem.ThumbnailURL, err = uploadFile(*req.ThumbnailPath, "thumbnail")
+	mediaItem.ThumbnailURL, err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
 	if err != nil {
-		log.Printf("error uploading thumbnail file for mediaitem %s: %v", req.Id, err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error uploading thumbnail file: %s", err.Error())
+		log.Printf("error uploading thumbnail file for mediaitem %s: %+v", req.Id, err)
+		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
 	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		log.Printf("error updating mediaitem result: %+v", result.Error)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
 	}
@@ -177,11 +179,9 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	}
 }
 
-func uploadFile(filePath, fileType string) (string, error) {
+func uploadFile(provider storage.Provider, filePath, fileType, fileID string) (string, error) {
 	if len(filePath) == 0 {
 		return "", errors.New("error uploading due to invalid file path")
 	}
-
-	// work(omkar): add upload based on storage type
-	return "/" + fileType + "/" + filePath, nil
+	return provider.Upload(filePath, fileType, fileID)
 }

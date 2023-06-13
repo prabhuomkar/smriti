@@ -7,9 +7,9 @@ Feature: MediaItems
 
     Scenario: Validate Create Photo MediaItem
         Given there are no mediaitems
-        When upload photo mediaitem without auth
+        When upload photo mediaitem without auth and wait 0 seconds
         Then auth error is found
-        When upload photo mediaitem with auth
+        When upload photo mediaitem with auth and wait 2 seconds
         Then mediaitem is uploaded
         When get mediaitem without auth
         Then auth error is found
@@ -52,9 +52,9 @@ Feature: MediaItems
 
     Scenario: Validate Create Video MediaItem
         Given there are no mediaitems
-        When upload video mediaitem without auth
+        When upload video mediaitem without auth and wait 0 seconds
         Then auth error is found
-        When upload video mediaitem with auth
+        When upload video mediaitem with auth and wait 10 seconds
         Then mediaitem is uploaded
         When get mediaitem without auth
         Then auth error is found

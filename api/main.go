@@ -6,6 +6,7 @@ import (
 	"api/internal/models"
 	"api/internal/server"
 	"api/internal/service"
+	"api/internal/storage"
 	"api/pkg/cache"
 	"api/pkg/database"
 	"api/pkg/services/worker"
@@ -36,8 +37,9 @@ func main() {
 	}
 
 	service := &service.Service{
-		Config: cfg,
-		DB:     pgDB,
+		Config:  cfg,
+		DB:      pgDB,
+		Storage: storage.Init(cfg.Storage),
 	}
 	grpcServer := server.StartGRPCServer(cfg, service)
 

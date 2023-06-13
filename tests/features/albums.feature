@@ -4,7 +4,7 @@ Feature: Albums
         Given a user is created if does not exist
         When user logs in
         Then token is generated
-        When upload photo mediaitem with auth
+        When upload photo mediaitem with auth and wait 2 seconds
         Then mediaitem is uploaded
 
     Scenario: Validate Create Album
