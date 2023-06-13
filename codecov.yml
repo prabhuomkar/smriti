@@ -1,8 +1,6 @@
 coverage:
   status:
-    project:
-      default:
-        if_ci_failed: success
+    project: on
     patch: off
 flag_management:
   api:
