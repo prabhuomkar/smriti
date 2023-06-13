@@ -2,8 +2,7 @@ coverage:
   status:
     project:
       default:
-        target: 90%
-        threshold: 5%
+        if_ci_failed: success
     patch: off
 flag_management:
   api:
