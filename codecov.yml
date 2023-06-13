@@ -1,6 +1,9 @@
 coverage:
   status:
-    project: on
+    project:
+      default:
+        target: 90%
+        threshold: 5%
     patch: off
 flag_management:
   api:
