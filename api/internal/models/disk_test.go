@@ -1,16 +1,17 @@
 package models
 
 import (
-	"api/config"
 	"testing"
+
+	"api/config"
 
 	"github.com/stretchr/testify/assert"
 )
 
 func TestGetDisk(t *testing.T) {
-	disk := GetDisk(&config.Config{StorageDiskRoot: "/tmp"})
+	disk := GetDisk(&config.Config{Storage: config.Storage{DiskRoot: "/tmp"}})
 	assert.NotNil(t, disk)
 
-	disk = GetDisk(&config.Config{StorageDiskRoot: "invalid"})
+	disk = GetDisk(&config.Config{Storage: config.Storage{DiskRoot: "invalid"}})
 	assert.Nil(t, disk)
 }

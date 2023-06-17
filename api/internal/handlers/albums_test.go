@@ -13,8 +13,10 @@ import (
 )
 
 var (
-	albumCols = []string{"id", "user_id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
-		"mediaitems_count", "created_at", "updated_at"}
+	albumCols = []string{
+		"id", "user_id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
+		"mediaitems_count", "created_at", "updated_at",
+	}
 	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"name":"name","description":"description",` +
 		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +

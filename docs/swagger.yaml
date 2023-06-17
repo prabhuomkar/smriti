@@ -101,6 +101,17 @@ paths:
           schema:
             type: number
             default: 15
+        - name: type
+          in: query
+          description: MediaItem Type
+          schema:
+            type: string
+            example: video
+        - name: category
+          in: query
+          description: MediaItem Category
+          schema:
+            type: live
       summary: Get all existing mediaItems
       description: Get all existing mediaItems
       operationId: getMediaItems

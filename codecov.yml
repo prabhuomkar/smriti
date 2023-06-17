@@ -1,14 +1,11 @@
 coverage:
   status:
-    project: on
+    project:
+      default:
+        target: 90%
+        threshold: 10%
+        paths:
+          - api
+          - worker
     patch: off
-flag_management:
-  api:
-    carryforward: true
-    paths:
-      - api
-  worker:
-    carryforward: true
-    paths:
-      - worker
 comment: false

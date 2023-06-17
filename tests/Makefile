@@ -36,3 +36,4 @@ clear:
 	@sudo rm -rf ../storage/originals/*
 	@sudo rm -rf ../storage/previews/*
 	@sudo rm -rf ../storage/thumbnails/*
+	@sudo find ../storage/* -maxdepth 0 ! -name 'originals' ! -name 'previews' ! -name 'thumbnails' -exec rm -rf {} +

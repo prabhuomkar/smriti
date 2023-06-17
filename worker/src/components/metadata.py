@@ -1,6 +1,4 @@
 """Metadata Component"""
-import io
-import os
 import logging
 import datetime
 import random
@@ -33,20 +31,20 @@ class Metadata(Component):
         'video/webm', 'video/3gpp', 'video/3gpp2',
     ]
 
-    def __init__(self, storage, api_stub: APIStub) -> None:
-        super().__init__('metadata', storage, api_stub)
+    def __init__(self, api_stub: APIStub) -> None:
+        super().__init__('metadata', api_stub)
 
     # pylint: disable=too-many-statements
-    async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: dict) -> dict:
+    async def process(self, mediaitem_user_id: str, mediaitem_id: str, mediaitem_file_path: str, _: dict) -> dict:
         """Process required metadata and generate thumbnail from EXIF data"""
-        file_path = self.storage.get(mediaitem_id)
+        file_path = f'{mediaitem_file_path}/{mediaitem_id}'
 
         # extract metadata
         result = {}
         result['userId'] = mediaitem_user_id
         result['id'] = mediaitem_id
         result['status'] = 'UNSPECIFIED'
-        result['sourceUrl'] = file_path
+        result['sourcePath'] = file_path
         result['type'] = 'unknown'
         result['category'] = 'default'
         try:
@@ -74,10 +72,10 @@ class Metadata(Component):
                                             'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
                                             'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
-                if '+' in creation_time:
-                    creation_time = creation_time.split("+")[0] if creation_time else None
-                if '-' in creation_time:
-                    creation_time = creation_time.split("-")[0] if creation_time else None
+                if creation_time and '+' in creation_time:
+                    creation_time = creation_time.split("+", maxsplit=1)[0] if creation_time else None
+                if creation_time and '-' in creation_time:
+                    creation_time = creation_time.split("-", maxsplit=1)[0] if creation_time else None
                 result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                     tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
                 result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
@@ -86,7 +84,8 @@ class Metadata(Component):
                 result['apertureFNumber'] = getval_from_dict(metadata, ['EXIF:FNumber'])
                 result['isoEquivalent'] = getval_from_dict(metadata, ['EXIF:ISO'])
                 result['exposureTime'] = getval_from_dict(metadata, ['EXIF:ExposureTime'])
-                result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'])
+                result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'], return_type='float')
+                result['fps'] = str(round(result['fps'])) if result['fps'] is not None else None
                 result['latitude'] = getval_from_dict(metadata, ['EXIF:GPSLatitude', \
                                                                 'Composite:GPSLatitude'], return_type='float')
                 result['longitude'] = getval_from_dict(metadata, ['EXIF:GPSLongitude', \
@@ -103,14 +102,10 @@ class Metadata(Component):
         if result['type'] == 'photo':
             # generate and upload preview and thumbnail for a photo
             try:
-                preview_bytes, thumbnail_bytes = self._generate_photo_preview_and_thumbnail(
+                preview_path, thumbnail_path = self._generate_photo_preview_and_thumbnail(
                     file_path, result['mimeType'], metadata)
-                preview_url = self.storage.upload(
-                    mediaitem_id, preview_bytes, 'previews')
-                thumbnail_url = self.storage.upload(
-                    mediaitem_id, thumbnail_bytes, 'thumbnails')
-                result['previewUrl'] = preview_url
-                result['thumbnailUrl'] = thumbnail_url
+                result['previewPath'] = preview_path
+                result['thumbnailPath'] = thumbnail_path
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
@@ -123,13 +118,9 @@ class Metadata(Component):
         elif result['type'] == 'video':
             # generate and upload preview and thumbnail for a video
             try:
-                preview_bytes, thumbnail_bytes = self._generate_video_preview_and_thumbnail(file_path)
-                preview_url = self.storage.upload(
-                    mediaitem_id, preview_bytes, 'previews')
-                thumbnail_url = self.storage.upload(
-                    mediaitem_id, thumbnail_bytes, 'thumbnails')
-                result['previewUrl'] = preview_url
-                result['thumbnailUrl'] = thumbnail_url
+                preview_path, thumbnail_path = self._generate_video_preview_and_thumbnail(file_path)
+                result['previewPath'] = preview_path
+                result['thumbnailPath'] = thumbnail_path
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} video mediaitem {mediaitem_id}')
             except Exception as exp:
@@ -155,9 +146,9 @@ class Metadata(Component):
                 id=result['id'],
                 status=result['status'],
                 mimeType=result['mimeType'] if 'mimeType' in result else None,
-                sourceUrl=result['sourceUrl'] if 'sourceUrl' in result else None,
-                previewUrl=result['previewUrl'] if 'previewUrl' in result else None,
-                thumbnailUrl=result['thumbnailUrl'] if 'thumbnailUrl' in result else None,
+                sourcePath=result['sourcePath'] if 'sourcePath' in result else None,
+                previewPath=result['previewPath'] if 'previewPath' in result else None,
+                thumbnailPath=result['thumbnailPath'] if 'thumbnailPath' in result else None,
                 type=result['type'] if 'type' in result else None,
                 category=result['category'] if 'category' in result else None,
                 width=result['width'] if 'width' in result else None,
@@ -178,33 +169,34 @@ class Metadata(Component):
             logging.error(
                 f'error sending metadata for mediaitem {request.id}: {str(rpc_exp)}')
 
-    def _generate_photo_thumbnail(self, preview_bytes: bytes):
+    def _generate_photo_thumbnail(self, original_file_path: str, preview_file_path: str):
         """Generate thumbnail image from photo"""
+        thumbnail_path = f'{original_file_path}-thumbnail'
         # work(omkar): thumbnail size should be configurable through UI
-        with WandImage(blob=preview_bytes) as img:
+        with WandImage(filename=preview_file_path) as img:
             lidx = 0 if img.size[0] > img.size[1] else 1
             sidx = 1 if lidx == 0 else 0
             percent = 512/float(img.size[lidx])
             size = int((float(img.size[sidx])*float(percent)))
             img.resize(512, size)
             with img.convert('jpeg') as converted:
-                return converted.make_blob('jpeg')
+                converted.save(filename=thumbnail_path)
+        return thumbnail_path
 
     def _generate_photo_preview_and_thumbnail(self, original_file_path: str, mime_type: str, metadata: dict):
         """Generate preview and thumbnail image for a photo"""
+        preview_path = f'{original_file_path}-preview'
         if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES and not self._is_raw(metadata):
             with open(original_file_path, 'rb') as file_reader:
                 with WandImage(file=file_reader) as original:
                     with original.convert('jpeg') as converted:
-                        img_bytes = converted.make_blob('jpeg')
+                        converted.save(filename=preview_path)
         else:
             with rawpy.imread(original_file_path) as raw:
                 rgb = raw.postprocess(use_camera_wb=True)
                 img = PILImage.fromarray(rgb)
-                byte_stream = io.BytesIO()
-                img.save(byte_stream, format='JPEG')
-                img_bytes = byte_stream.getvalue()
-        return img_bytes, self._generate_photo_thumbnail(img_bytes)
+                img.save(preview_path, format='JPEG')
+        return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
 
     def _generate_video_thumbnail(self, preview_video_path: str):
         """Generate thumbnail image from video"""
@@ -212,23 +204,15 @@ class Metadata(Component):
         clip = VideoFileClip(preview_video_path)
         video_thumbnail_path = f'{preview_video_path}_thumbnail.jpeg'
         clip.save_frame(video_thumbnail_path, t=random.uniform(0.1, clip.duration))
-        with open(video_thumbnail_path, 'rb') as thumbnail_file:
-            thumbnail_bytes = thumbnail_file.read()
-            thumbnail_file.close()
-        os.remove(video_thumbnail_path)
-        return thumbnail_bytes
+        return video_thumbnail_path
 
     def _generate_video_preview_and_thumbnail(self, original_file_path: str):
         """Generate preview and thumbnail image for a video"""
         video = VideoFileClip(original_file_path)
-        video_preview_path = f'{original_file_path}.mp4'
+        video_preview_path = f'{original_file_path}-preview.mp4'
         video.write_videofile(video_preview_path, codec='libx264', logger=None, verbose=False)
-        with open(video_preview_path, 'rb') as video_file:
-            video_bytes = video_file.read()
-            video_file.close()
-        video_thumbnail_bytes = self._generate_video_thumbnail(video_preview_path)
-        os.remove(video_preview_path)
-        return video_bytes, video_thumbnail_bytes
+        video_thumbnail_path = self._generate_video_thumbnail(video_preview_path)
+        return video_preview_path, video_thumbnail_path
 
     def _get_mediaitem_category(self, metadata: dict, result: dict) -> str:
         """Get mediaitem category from metadata"""
@@ -244,10 +228,9 @@ class Metadata(Component):
             if 'QuickTime:LivePhotoAuto' in metadata:
                 return 'live'
         return 'default'
-    
+
     def _is_raw(self, metadata: dict) -> bool:
         """Detect if the image is RAW irrespective of the image mimetype"""
         if 'EXIF:JpgFromRaw' in metadata:
             return True
         return False
-

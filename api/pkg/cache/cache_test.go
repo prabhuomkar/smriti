@@ -1,9 +1,10 @@
 package cache
 
 import (
-	"api/config"
 	"reflect"
 	"testing"
+
+	"api/config"
 
 	"github.com/stretchr/testify/assert"
 )

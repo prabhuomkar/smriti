@@ -13,9 +13,9 @@ message MediaItemMetadataRequest {
     string id = 2;
     string status = 3;
     optional string mimeType = 4;
-    string sourceUrl = 5;
-    optional string previewUrl = 6;
-    optional string thumbnailUrl = 7;
+    string sourcePath = 5;
+    optional string previewPath = 6;
+    optional string thumbnailPath = 7;
     string type = 8;
     string category = 9;
     optional int32 width = 10;

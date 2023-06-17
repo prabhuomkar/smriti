@@ -23,7 +23,7 @@ type (
 )
 
 // GetTokens ...
-func GetTokens(cfg *config.Config, cache cache.Cache, user models.User) (string, string, error) {
+func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (string, string, error) {
 	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user)
 
 	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
@@ -41,7 +41,7 @@ func GetTokens(cfg *config.Config, cache cache.Cache, user models.User) (string,
 }
 
 // RefreshTokens ...
-func RefreshTokens(cfg *config.Config, cache cache.Cache, refreshToken string) (string, string, error) {
+func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string) (string, string, error) {
 	if _, err := cache.Get(refreshToken); err != nil {
 		log.Printf("error getting refresh token from cache: %+v", err)
 		return "", "", err
@@ -67,7 +67,7 @@ func RefreshTokens(cfg *config.Config, cache cache.Cache, refreshToken string) (
 }
 
 // RemoveTokens ...
-func RemoveTokens(cache cache.Cache, accessToken string) error {
+func RemoveTokens(cache cache.Provider, accessToken string) error {
 	refreshToken, err := cache.Get(accessToken)
 	if err != nil {
 		log.Printf("error getting access token from cache: %+v", err)
@@ -82,7 +82,7 @@ func RemoveTokens(cache cache.Cache, accessToken string) error {
 }
 
 // VerifyToken ...
-func VerifyToken(cfg *config.Config, cache cache.Cache, accessToken string) (*TokenClaims, error) {
+func VerifyToken(cfg *config.Config, cache cache.Provider, accessToken string) (*TokenClaims, error) {
 	if _, err := cache.Get(accessToken); err != nil {
 		log.Printf("error getting access token from cache: %+v", err)
 		return nil, err

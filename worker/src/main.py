@@ -2,65 +2,47 @@
 import asyncio
 import logging
 import os
-from typing import AsyncIterable
 import json
 
 import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 
-from src.store import init_storage
 from src.components import Component, Metadata, Places
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.worker_pb2 import MediaItemProcessRequest, MediaItemProcessResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
 class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
-    def __init__(self, file_storage, components: list[Component]) -> None:
-        self.file_storage = file_storage
+    def __init__(self, components: list[Component]) -> None:
         self.components = components
 
     # pylint: disable=invalid-overridden-method
-    async def MediaItemProcess(self, request_iterator: AsyncIterable[
-            MediaItemProcessRequest], unused_context) -> MediaItemProcessResponse:
+    async def MediaItemProcess(self, request, context) -> MediaItemProcessResponse:
         """MediaItem Process"""
-        mediaitem_user_id = None
-        mediaitem_id = None
-        mediaitem_command = None
-        async for mediaitem in request_iterator:
-            try:
-                self.file_storage.upload(mediaitem_id=mediaitem.id,
-                                         content=mediaitem.content)
-                mediaitem_user_id = mediaitem.userId
-                mediaitem_id = mediaitem.id
-                mediaitem_command = mediaitem.command
-            except Exception as exp:
-                logging.error(f'error processing mediaitem for storage: {str(exp)}', {
-                              'id': mediaitem.id, 'offset': mediaitem.offset})
-                mediaitem_id = None
-                mediaitem_user_id = None
-                return MediaItemProcessResponse(ok=False)
-        if mediaitem_id is not None and mediaitem_user_id is not None and 'finish' in mediaitem_command:
+        mediaitem_user_id = request.userId
+        mediaitem_id = request.id
+        mediaitem_file_path = request.filePath
+        if mediaitem_id is not None and mediaitem_user_id is not None and mediaitem_file_path is not None:
             loop = asyncio.get_event_loop()
-            loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id))
-        return MediaItemProcessResponse(ok=True)
+            loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id, mediaitem_file_path))
+            return MediaItemProcessResponse(ok=True)
+        return MediaItemProcessResponse(ok=False)
 
-async def process_mediaitem(components: list[Component], mediaitem_user_id: str, mediaitem_id: str) -> None:
+# pylint: disable=redefined-builtin,invalid-name
+async def process_mediaitem(components: list[Component], user_id: str, id: str, file_path: str) -> None:
     """Process mediaitem"""
-    logging.info(f'started processing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
-    metadata = await components[0].process(mediaitem_user_id, mediaitem_id, None)
+    logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
+    metadata = await components[0].process(user_id, id, file_path, None)
     for i in range(1, len(components)):
         loop = asyncio.get_event_loop()
-        loop.create_task(components[i].process(mediaitem_user_id, mediaitem_id, metadata))
-    logging.info(f'finished processing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
+        loop.create_task(components[i].process(user_id, id, file_path, metadata))
+    logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
 async def serve() -> None:
     """Main serve function"""
-    # initialize storage
-    file_storage = init_storage(os.getenv('SMRITI_STORAGE', 'disk'))
-
     # initialize grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('SMRITI_API_PORT', '15001'))
@@ -79,14 +61,14 @@ async def serve() -> None:
     logging.info(f'got worker configuration: {cfg}')
 
     # initialize components
-    components = [Metadata(storage=file_storage, api_stub=api_stub)]
+    components = [Metadata(api_stub=api_stub)]
     for item in cfg:
         if item['name'] == 'places':
             components.append(Places(api_stub=api_stub, source=item['source']))
 
     # initialize grpc server
     server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(file_storage, components), server)
+    add_WorkerServicer_to_server(WorkerService(components), server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')

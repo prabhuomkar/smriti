@@ -1,15 +1,18 @@
 package service
 
 import (
-	"api/config"
-	"api/pkg/services/api"
 	"context"
 	"errors"
 	"log"
 	"net"
+	"os"
 	"regexp"
 	"testing"
 	"time"
+
+	"api/config"
+	"api/pkg/services/api"
+	"api/pkg/storage"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"
@@ -26,9 +29,6 @@ import (
 
 var (
 	mimetype                    = "mimetype"
-	sourceurl                   = "sourceurl"
-	previewurl                  = "previewurl"
-	thumbnailurl                = "thumbnailurl"
 	mediaitemType               = "photo"
 	mediaitemCategory           = "default"
 	badcreationtime             = "bad-creation-time"
@@ -39,9 +39,6 @@ var (
 		UserId:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:           "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		MimeType:     &mimetype,
-		SourceUrl:    sourceurl,
-		PreviewUrl:   &previewurl,
-		ThumbnailUrl: &thumbnailurl,
 		Type:         mediaitemType,
 		Category:     mediaitemCategory,
 		Width:        &width,
@@ -68,8 +65,10 @@ var (
 		Town:   &town,
 	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
-	placeCols     = []string{"id", "name", "postcode", "town", "city", "state",
-		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	placeCols     = []string{
+		"id", "name", "postcode", "town", "city", "state",
+		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
+	}
 )
 
 func TestGetWorkerConfig(t *testing.T) {
@@ -81,8 +80,25 @@ func TestGetWorkerConfig(t *testing.T) {
 	}{
 		{
 			"get worker config with success",
-			&config.Config{ML: config.ML{Places: true, PlacesSource: "openstreetmap"}},
+			&config.Config{ML: config.ML{Places: true, PlacesProvider: "openstreetmap"}},
 			[]byte(`[{"name":"places","source":"openstreetmap"}]`),
+			nil,
+		},
+		{
+			"get worker config with success with all config",
+			&config.Config{ML: config.ML{
+				Places: true, PlacesProvider: "openstreetmap",
+				Classification: true, ClassificationDownload: []string{"http://classification/model/link"},
+				Detection: true, DetectionDownload: []string{"http://detection/model/link"},
+				Faces: true, FacesDownload: []string{"http://faces/model/link"},
+				OCR: true, OCRDownload: []string{"http://ocr/model/link"},
+				Speech: true, SpeechDownload: []string{"http://speech/model/link"},
+			}},
+			[]byte(`[{"name":"places","source":"openstreetmap"},{"name":"classification","` +
+				`download":["http://classification/model/link"]},{"name":"detection","download":[` +
+				`"http://detection/model/link"]},{"name":"faces","download":["http://faces/model/link"]},` +
+				`{"name":"ocr","download":["http://ocr/model/link"]},{"name":"speech",` +
+				`"download":["http://speech/model/link"]}]`),
 			nil,
 		},
 		{
@@ -118,11 +134,13 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		Name        string
 		Request     *api.MediaItemMetadataRequest
 		MockDB      func(mock sqlmock.Sqlmock)
+		MockFiles   func(string) (string, string, string, func(), error)
 		ExpectedErr error
 	}{
 		{
 			"save mediaitem result with invalid mediaitem user id",
 			&api.MediaItemMetadataRequest{UserId: "bad-mediaitem-user-id"},
+			nil,
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
@@ -130,14 +148,69 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			"save mediaitem result with invalid mediaitem id",
 			&api.MediaItemMetadataRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
 			nil,
+			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem result with incorrect creation time",
-			&api.MediaItemMetadataRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime},
+			&api.MediaItemMetadataRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime,
+			},
+			nil,
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
+		},
+		{
+			"save mediaitem result with error uploading original file",
+			&mediaItemReultRequest,
+			nil,
+			func(tmpRoot string) (string, string, string, func(), error) {
+				return "", "", "", func() {}, nil
+			},
+			status.Errorf(codes.Internal, "error uploading original file"),
+		},
+		{
+			"save mediaitem result with error uploading preview file",
+			&mediaItemReultRequest,
+			nil,
+			func(tmpRoot string) (string, string, string, func(), error) {
+				os.Mkdir(tmpRoot+"/originals/", 0777)
+				originalFile, err := os.CreateTemp(tmpRoot, "original")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				os.Mkdir(tmpRoot+"/previews/", 0777)
+				return originalFile.Name(), "", "", func() {
+					defer os.Remove(tmpRoot + "/originals/")
+					defer os.Remove(originalFile.Name())
+				}, nil
+			},
+			status.Errorf(codes.Internal, "error uploading preview file"),
+		},
+		{
+			"save mediaitem result with error uploading thumbnail file",
+			&mediaItemReultRequest,
+			nil,
+			func(tmpRoot string) (string, string, string, func(), error) {
+				os.Mkdir(tmpRoot+"/originals/", 0777)
+				originalFile, err := os.CreateTemp(tmpRoot, "original")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				os.Mkdir(tmpRoot+"/previews/", 0777)
+				previewFile, err := os.CreateTemp(tmpRoot, "preview")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				return originalFile.Name(), previewFile.Name(), "", func() {
+					defer os.Remove(tmpRoot + "/originals/")
+					defer os.Remove(originalFile.Name())
+					defer os.Remove(tmpRoot + "/previews/")
+					defer os.Remove(previewFile.Name())
+				}, nil
+			},
+			status.Errorf(codes.Internal, "error uploading thumbnail file"),
 		},
 		{
 			"save mediaitem result with success",
@@ -146,10 +219,35 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo", "default",
+						"mimetype", sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), "photo", "default",
 						1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
+			},
+			func(tmpRoot string) (string, string, string, func(), error) {
+				os.Mkdir(tmpRoot+"/originals/", 0777)
+				originalFile, err := os.CreateTemp(tmpRoot, "original")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				os.Mkdir(tmpRoot+"/previews/", 0777)
+				previewFile, err := os.CreateTemp(tmpRoot, "preview")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				os.Mkdir(tmpRoot+"/thumbnails/", 0777)
+				thumbnailFile, err := os.CreateTemp(tmpRoot, "thumbnail")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				return originalFile.Name(), previewFile.Name(), thumbnailFile.Name(), func() {
+					defer os.Remove(tmpRoot + "/originals/")
+					defer os.Remove(originalFile.Name())
+					defer os.Remove(tmpRoot + "/previews/")
+					defer os.Remove(previewFile.Name())
+					defer os.Remove(tmpRoot + "/thumbnails/")
+					defer os.Remove(thumbnailFile.Name())
+				}, nil
 			},
 			nil,
 		},
@@ -160,10 +258,31 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"mimetype", "sourceurl", "previewurl", "thumbnailurl", "photo", "default",
+						"mimetype", sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), "photo", "default",
 						1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
+			},
+			func(tmpRoot string) (string, string, string, func(), error) {
+				os.Mkdir(tmpRoot+"/originals/", 0777)
+				originalFile, err := os.CreateTemp(tmpRoot, "original")
+				if err != nil {
+					return "", "", "", nil, err
+				}
+				os.Mkdir(tmpRoot+"/previews/", 0777)
+				previewFile, err := os.CreateTemp(tmpRoot, "preview")
+				assert.NoError(t, err)
+				os.Mkdir(tmpRoot+"/thumbnails/", 0777)
+				thumbnailFile, err := os.CreateTemp(tmpRoot, "thumbnail")
+				assert.NoError(t, err)
+				return originalFile.Name(), previewFile.Name(), thumbnailFile.Name(), func() {
+					defer os.Remove(tmpRoot + "/originals/")
+					defer os.Remove(originalFile.Name())
+					defer os.Remove(tmpRoot + "/previews/")
+					defer os.Remove(previewFile.Name())
+					defer os.Remove(tmpRoot + "/thumbnails/")
+					defer os.Remove(thumbnailFile.Name())
+				}, nil
 			},
 			status.Error(codes.Internal, "error updating mediaitem result: some db error"),
 		},
@@ -187,9 +306,20 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				test.MockDB(mock)
 			}
 			// service
+			tmpRoot := os.TempDir()
 			service := &Service{
-				Config: &config.Config{},
-				DB:     mockGDB,
+				Config:  &config.Config{},
+				DB:      mockGDB,
+				Storage: &storage.Disk{Root: tmpRoot},
+			}
+			// mock tmp files
+			if test.MockFiles != nil {
+				originalPath, previewPath, thumbnailPath, clear, err := test.MockFiles(tmpRoot)
+				assert.NoError(t, err)
+				test.Request.SourcePath = originalPath
+				test.Request.PreviewPath = &previewPath
+				test.Request.ThumbnailPath = &thumbnailPath
+				defer clear()
 			}
 			// server
 			ctx := context.Background()

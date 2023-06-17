@@ -5,9 +5,7 @@ option go_package = "worker/";
 message MediaItemProcessRequest {
     string userId = 1;
     string id = 2;
-    int64 offset = 3;
-    string command = 4; // start, continue, finish
-    bytes content = 5;
+    string filePath = 3;
 }
 
 message MediaItemProcessResponse {
@@ -15,5 +13,5 @@ message MediaItemProcessResponse {
 }
 
 service Worker {
-    rpc MediaItemProcess(stream MediaItemProcessRequest) returns (MediaItemProcessResponse) {}
+    rpc MediaItemProcess(MediaItemProcessRequest) returns (MediaItemProcessResponse) {}
 }

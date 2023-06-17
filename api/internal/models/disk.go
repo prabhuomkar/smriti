@@ -19,7 +19,7 @@ type (
 func GetDisk(cfg *config.Config) *Disk {
 	//nolint: nosnakecase
 	diskStat := syscall.Statfs_t{}
-	err := syscall.Statfs(cfg.StorageDiskRoot, &diskStat)
+	err := syscall.Statfs(cfg.Storage.DiskRoot, &diskStat)
 	if err != nil {
 		log.Printf("error getting disk stats: %+v", err)
 		return nil

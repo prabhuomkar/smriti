@@ -12,7 +12,7 @@ import (
 )
 
 // JWTCheck ...
-func JWTCheck(cfg *config.Config, cache cache.Cache) echo.MiddlewareFunc {
+func JWTCheck(cfg *config.Config, cache cache.Provider) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(ctx echo.Context) error {
 			accessToken := ctx.Request().Header.Get("Authorization")

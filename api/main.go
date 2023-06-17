@@ -9,6 +9,7 @@ import (
 	"api/pkg/cache"
 	"api/pkg/database"
 	"api/pkg/services/worker"
+	"api/pkg/storage"
 	"fmt"
 	"os"
 	"os/signal"
@@ -35,13 +36,27 @@ func main() {
 		panic(err)
 	}
 
+	cache := cache.Init(cfg)
+
+	storageProvider := storage.Init(&storage.Config{
+		Provider: cfg.Storage.Provider, Root: cfg.Storage.DiskRoot,
+		Endpoint: cfg.Storage.Endpoint, AccessKey: cfg.Storage.AccessKey, SecretKey: cfg.Storage.SecretKey,
+	})
+
 	service := &service.Service{
-		Config: cfg,
-		DB:     pgDB,
+		Config:  cfg,
+		DB:      pgDB,
+		Storage: storageProvider,
 	}
 	grpcServer := server.StartGRPCServer(cfg, service)
 
-	cache := cache.Init(cfg)
+	err = pgDB.Callback().Query().Register("mediaItemUrl", (&models.MediaItemURLPlugin{
+		Storage: storageProvider,
+		Cache:   cache,
+	}).TransformMediaItemURL)
+	if err != nil {
+		panic(err)
+	}
 
 	handler := &handlers.Handler{
 		Config: cfg,
@@ -50,7 +65,10 @@ func main() {
 	}
 	httpServer := server.StartHTTPServer(handler)
 
-	opts := []grpc.DialOption{grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithBlock()}
+	opts := []grpc.DialOption{
+		grpc.WithTransportCredentials(insecure.NewCredentials()),
+		grpc.WithBlock(),
+	}
 	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
 	if err != nil {
 		panic(err)

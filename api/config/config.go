@@ -25,8 +25,8 @@ type (
 		LogLevel string `envconfig:"SMRITI_DATABASE_LOG_LEVEL" default:"ERROR"`
 		Host     string `envconfig:"SMRITI_DATABASE_HOST" default:"database"`
 		Port     int    `envconfig:"SMRITI_DATABASE_PORT" default:"5432"`
-		Username string `envconfig:"SMRITI_DATABASE_USERNAME" default:"smriti"`
-		Password string `envconfig:"SMRITI_DATABASE_PASSWORD" default:"smriti"`
+		Username string `envconfig:"SMRITI_DATABASE_USERNAME" default:"smritiuser"`
+		Password string `envconfig:"SMRITI_DATABASE_PASSWORD" default:"smritipass"`
 		Name     string `envconfig:"SMRITI_DATABASE_NAME" default:"smriti"`
 	}
 
@@ -35,7 +35,7 @@ type (
 		Type     string `envconfig:"SMRITI_CACHE_TYPE" default:"inmemory"`
 		Host     string `envconfig:"SMRITI_CACHE_HOST" default:"cache"`
 		Port     int    `envconfig:"SMRITI_CACHE_PORT" default:"6379"`
-		Password string `envconfig:"SMRITI_CACHE_PASSWORD" default:"smriti"`
+		Password string `envconfig:"SMRITI_CACHE_PASSWORD" default:"smritipass"`
 	}
 
 	// Worker ...
@@ -62,7 +62,7 @@ type (
 		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
 		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"false"`
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
-		PlacesSource           string   `envconfig:"SMRITI_ML_PLACES_SOURCE" default:"openstreetmap"`
+		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
 		ClassificationDownload []string `envconfig:"SMRITI_ML_CLASSIFICATION_DOWNLOAD"`
 		DetectionDownload      []string `envconfig:"SMRITI_ML_DETECTION_DOWNLOAD"`
 		FacesDownload          []string `envconfig:"SMRITI_ML_FACES_DOWNLOAD"`
@@ -89,6 +89,15 @@ type (
 		Password string `envconfig:"SMRITI_ADMIN_PASSWORD" default:"smritiT3st!"`
 	}
 
+	// Storage ...
+	Storage struct {
+		Provider  string `envconfig:"SMRITI_STORAGE_PROVIDER" default:"disk"`
+		DiskRoot  string `envconfig:"SMRITI_STORAGE_DISK_ROOT" default:"../storage"`
+		Endpoint  string `envconfig:"SMRITI_STORAGE_ENDPOINT" default:"storage:9000"`
+		AccessKey string `envconfig:"SMRITI_STORAGE_ACCESS_KEY" default:"smritiuser"`
+		SecretKey string `envconfig:"SMRITI_STORAGE_SECRET_KEY" default:"smritipass"`
+	}
+
 	// Config ...
 	Config struct {
 		Log
@@ -101,7 +110,7 @@ type (
 		Feature
 		ML
 		Admin
-		StorageDiskRoot string `envconfig:"SMRITI_STORAGE_DISK_ROOT" default:"../storage"`
+		Storage
 	}
 )
 

@@ -1,10 +1,6 @@
 package handlers
 
 import (
-	"api/config"
-	"api/internal/models"
-	"api/pkg/cache"
-	"api/pkg/services/worker"
 	"context"
 	"encoding/json"
 	"errors"
@@ -12,16 +8,21 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"strings"
 	"testing"
 	"time"
+
+	"api/config"
+	"api/internal/models"
+	"api/pkg/cache"
+	"api/pkg/services/worker"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/metadata"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 	"gorm.io/gorm/logger"
@@ -102,6 +103,7 @@ func executeTests(t *testing.T, tests []Test) {
 			// handler
 			handler := &Handler{
 				Config: &config.Config{
+					Storage: config.Storage{DiskRoot: os.TempDir()},
 					Auth:    config.Auth{RefreshTTL: 60},
 					Feature: config.Feature{Albums: true, Explore: true, Places: true},
 				},
@@ -123,47 +125,14 @@ func executeTests(t *testing.T, tests []Test) {
 
 type (
 	mockWorkerGRPCClient struct {
-		wantErr             bool
-		wantSendErr         bool
-		wantCloseAndRecvErr bool
-		wantOk              bool
-	}
-
-	mockWorkerMediaItemProcessClient struct {
-		wantSendErr         bool
-		wantCloseAndRecvErr bool
-		wantOk              bool
+		wantErr bool
+		wantOk  bool
 	}
 )
 
-func (mwmpc *mockWorkerMediaItemProcessClient) Send(*worker.MediaItemProcessRequest) error {
-	if mwmpc.wantSendErr {
-		return errors.New("some error in send")
-	}
-	return nil
-}
-func (mwmpc *mockWorkerMediaItemProcessClient) CloseAndRecv() (*worker.MediaItemProcessResponse, error) {
-	if mwmpc.wantCloseAndRecvErr {
-		return nil, errors.New("some error in close and recv")
-	}
-	return &worker.MediaItemProcessResponse{Ok: mwmpc.wantOk}, nil
-}
-
-func (mwmpc *mockWorkerMediaItemProcessClient) Header() (metadata.MD, error) { return nil, nil }
-
-func (mwmpc *mockWorkerMediaItemProcessClient) Trailer() metadata.MD { return nil }
-
-func (mwmpc *mockWorkerMediaItemProcessClient) CloseSend() error { return nil }
-
-func (mwmpc *mockWorkerMediaItemProcessClient) Context() context.Context { return nil }
-
-func (mwmpc *mockWorkerMediaItemProcessClient) SendMsg(m interface{}) error { return nil }
-
-func (mwmpc *mockWorkerMediaItemProcessClient) RecvMsg(m interface{}) error { return nil }
-
-func (mwc *mockWorkerGRPCClient) MediaItemProcess(ctx context.Context, opts ...grpc.CallOption) (worker.Worker_MediaItemProcessClient, error) {
+func (mwc *mockWorkerGRPCClient) MediaItemProcess(ctx context.Context, request *worker.MediaItemProcessRequest, opts ...grpc.CallOption) (*worker.MediaItemProcessResponse, error) {
 	if mwc.wantErr {
 		return nil, errors.New("some grpc error")
 	}
-	return &mockWorkerMediaItemProcessClient{wantSendErr: mwc.wantSendErr, wantCloseAndRecvErr: mwc.wantCloseAndRecvErr, wantOk: mwc.wantOk}, nil
+	return &worker.MediaItemProcessResponse{Ok: mwc.wantOk}, nil
 }

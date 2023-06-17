@@ -12,8 +12,10 @@ import (
 )
 
 var (
-	placeCols = []string{"id", "user_id", "name", "postcode", "town", "city", "state",
-		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	placeCols = []string{
+		"id", "user_id", "name", "postcode", "town", "city", "state",
+		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
+	}
 	thingCols                    = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 	peopleCols                   = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
 	memoryMediaItemCols          = append(mediaitemCols, "creation_year")

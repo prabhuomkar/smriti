@@ -17,8 +17,8 @@ def cleanup_tables():
     # delete all rows from database
     db_conn = psycopg2.connect(
         database='smriti',
-        user='smriti',
-        password='smriti',
+        user='smritiuser',
+        password='smritipass',
         host='localhost',
         port='5432'
     )

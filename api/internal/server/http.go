@@ -29,9 +29,11 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 		Handler: srvHandler,
 	}
 	// file server
-	fileRoute := getFileRoute(handler.Config.StorageDiskRoot)
-	log.Printf("starting file server on: %s", fileRoute)
-	srvHandler.Static(fileRoute, handler.Config.StorageDiskRoot)
+	if handler.Config.Storage.Provider == "disk" {
+		fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
+		log.Printf("starting file server on: %s", fileRoute)
+		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
+	}
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/disk", handler.GetDisk)
@@ -138,7 +140,7 @@ func StopHTTPServer(httpServer *http.Server) {
 	}
 }
 
-func getMiddlewareFuncs(cfg *config.Config, cache cache.Cache, features ...string) []echo.MiddlewareFunc {
+func getMiddlewareFuncs(cfg *config.Config, cache cache.Provider, features ...string) []echo.MiddlewareFunc {
 	middlewareFuncs := []echo.MiddlewareFunc{
 		middlewares.JWTCheck(cfg, cache),
 	}
