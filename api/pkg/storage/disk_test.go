@@ -21,51 +21,53 @@ func TestDiskUpload(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			Name:   "error due to cannot open file",
-			Config: &Config{Provider: "disk"},
-			MockFiles: func() (string, func()) {
+			"error due to cannot open file",
+			&Config{Provider: "disk"},
+			func() (string, func()) {
 				return "", func() {}
 			},
-			WantErr:     true,
-			ErrContains: "error uploading file to disk as cannot open file",
+			true,
+			"error uploading file to disk as cannot open file",
 		},
 		{
-			Name:   "error due to cannot create file",
-			Config: &Config{Provider: "disk", Root: "invalid"},
-			MockFiles: func() (string, func()) {
+			"error due to cannot create file",
+			&Config{Provider: "disk", Root: "invalid"},
+			func() (string, func()) {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return file.Name(), func() {
 					os.Remove(file.Name())
 				}
 			},
-			WantErr:     true,
-			ErrContains: "error uploading file to disk as cannot create file",
+			true,
+			"error uploading file to disk as cannot create file",
 		},
 		{
-			Name:   "success",
-			Config: &Config{Provider: "disk", Root: os.TempDir()},
-			MockFiles: func() (string, func()) {
+			"success",
+			&Config{Provider: "disk", Root: os.TempDir()},
+			func() (string, func()) {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return file.Name(), func() {
 					os.Remove(file.Name())
 				}
 			},
-			WantErr:     false,
-			ErrContains: "",
+			false,
+			"",
 		},
 	}
 	for _, test := range tests {
-		provider := Init(test.Config)
-		filePath, clear := test.MockFiles()
-		defer clear()
-		res, err := provider.Upload(filePath, "originals", "fileID")
-		if test.WantErr {
-			assert.Error(t, err)
-			assert.Contains(t, err.Error(), test.ErrContains)
-		} else {
-			assert.NoError(t, err)
-			assert.Equal(t, "/tmp/originals/fileID", res)
-		}
+		t.Run(test.Name, func(t *testing.T) {
+			provider := Init(test.Config)
+			filePath, clear := test.MockFiles()
+			defer clear()
+			res, err := provider.Upload(filePath, "originals", "fileID")
+			if test.WantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), test.ErrContains)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, "/tmp/originals/fileID", res)
+			}
+		})
 	}
 }
 
@@ -78,41 +80,43 @@ func TestDiskDelete(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			Name:   "error",
-			Config: &Config{Provider: "disk", Root: "invalid"},
-			MockFiles: func() func() {
+			"error",
+			&Config{Provider: "disk", Root: "invalid"},
+			func() func() {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return func() {
 					os.Remove(file.Name())
 				}
 			},
-			WantErr:     true,
-			ErrContains: "error deleting file from disk",
+			true,
+			"error deleting file from disk",
 		},
 		{
-			Name:   "success",
-			Config: &Config{Provider: "disk", Root: os.TempDir()},
-			MockFiles: func() func() {
+			"success",
+			&Config{Provider: "disk", Root: os.TempDir()},
+			func() func() {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return func() {
 					os.Remove(file.Name())
 				}
 			},
-			WantErr:     false,
-			ErrContains: "",
+			false,
+			"",
 		},
 	}
 	for _, test := range tests {
-		provider := Init(test.Config)
-		clear := test.MockFiles()
-		defer clear()
-		err := provider.Delete("originals", "fileID")
-		if test.WantErr {
-			assert.Error(t, err)
-			assert.Contains(t, err.Error(), test.ErrContains)
-		} else {
-			assert.NoError(t, err)
-		}
+		t.Run(test.Name, func(t *testing.T) {
+			provider := Init(test.Config)
+			clear := test.MockFiles()
+			defer clear()
+			err := provider.Delete("originals", "fileID")
+			if test.WantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), test.ErrContains)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
 	}
 }
 

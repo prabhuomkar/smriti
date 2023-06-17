@@ -14,7 +14,6 @@ import (
 
 type mockMinioClient struct {
 	wantErr bool
-	resURL  *url.URL
 }
 
 func (m *mockMinioClient) FPutObject(_ context.Context, _ string, _ string, _ string, _ minio.PutObjectOptions) (minio.UploadInfo, error) {
@@ -50,26 +49,28 @@ func TestMinioUpload(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			Name:        "error",
-			WantErr:     true,
-			ErrContains: "error uploading file to minio",
+			"error",
+			true,
+			"error uploading file to minio",
 		},
 		{
-			Name:        "success",
-			WantErr:     false,
-			ErrContains: "",
+			"success",
+			false,
+			"",
 		},
 	}
 	for _, test := range tests {
-		provider := &Minio{&mockMinioClient{wantErr: test.WantErr}}
-		res, err := provider.Upload("filePath", "originals", "fileID")
-		if test.WantErr {
-			assert.Error(t, err)
-			assert.Contains(t, err.Error(), test.ErrContains)
-		} else {
-			assert.NoError(t, err)
-			assert.Equal(t, "/originals/fileID", res)
-		}
+		t.Run(test.Name, func(t *testing.T) {
+			provider := &Minio{&mockMinioClient{test.WantErr}}
+			res, err := provider.Upload("filePath", "originals", "fileID")
+			if test.WantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), test.ErrContains)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, "/originals/fileID", res)
+			}
+		})
 	}
 }
 
@@ -80,25 +81,27 @@ func TestMinioDelete(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			Name:        "error",
-			WantErr:     true,
-			ErrContains: "error deleting file from minio",
+			"error",
+			true,
+			"error deleting file from minio",
 		},
 		{
-			Name:        "success",
-			WantErr:     false,
-			ErrContains: "",
+			"success",
+			false,
+			"",
 		},
 	}
 	for _, test := range tests {
-		provider := &Minio{&mockMinioClient{wantErr: test.WantErr}}
-		err := provider.Delete("originals", "fileID")
-		if test.WantErr {
-			assert.Error(t, err)
-			assert.Contains(t, err.Error(), test.ErrContains)
-		} else {
-			assert.NoError(t, err)
-		}
+		t.Run(test.Name, func(t *testing.T) {
+			provider := &Minio{&mockMinioClient{test.WantErr}}
+			err := provider.Delete("originals", "fileID")
+			if test.WantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), test.ErrContains)
+			} else {
+				assert.NoError(t, err)
+			}
+		})
 	}
 }
 
@@ -109,25 +112,27 @@ func TestMinioGet(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			Name:        "error",
-			WantErr:     true,
-			ErrContains: "error getting file from minio",
+			"error",
+			true,
+			"error getting file from minio",
 		},
 		{
-			Name:        "success",
-			WantErr:     false,
-			ErrContains: "",
+			"success",
+			false,
+			"",
 		},
 	}
 	for _, test := range tests {
-		provider := &Minio{&mockMinioClient{wantErr: test.WantErr}}
-		res, err := provider.Get("originals", "fileID")
-		if test.WantErr {
-			assert.Error(t, err)
-			assert.Contains(t, err.Error(), test.ErrContains)
-		} else {
-			assert.NoError(t, err)
-			assert.Equal(t, "https://minio/originals/fileID", res)
-		}
+		t.Run(test.Name, func(t *testing.T) {
+			provider := &Minio{&mockMinioClient{test.WantErr}}
+			res, err := provider.Get("originals", "fileID")
+			if test.WantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), test.ErrContains)
+			} else {
+				assert.NoError(t, err)
+				assert.Equal(t, "https://minio/originals/fileID", res)
+			}
+		})
 	}
 }
