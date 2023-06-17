@@ -57,6 +57,19 @@ func getMonthAndDate(ctx echo.Context) (string, string, error) {
 	return "", "", fmt.Errorf("invalid monthDate: %s", monthDate)
 }
 
+func getMediaItemFilters(ctx echo.Context) string {
+	filterQuery := ""
+	mediaItemType := ctx.QueryParam("type")
+	if mediaItemType != "" {
+		filterQuery += fmt.Sprintf(" AND mediaitem_type = '%s'", mediaItemType)
+	}
+	mediaItemCategory := ctx.QueryParam("category")
+	if mediaItemCategory != "" {
+		filterQuery += fmt.Sprintf(" AND mediaitem_category = '%s'", mediaItemCategory)
+	}
+	return filterQuery
+}
+
 func getAlbumSortOrder(ctx echo.Context) string {
 	if ctx.QueryParam("sort") == "updatedAt" {
 		return "updated_at desc"

@@ -713,7 +713,7 @@ func TestGetMediaItems(t *testing.T) {
 			"get mediaitems with 2 rows",
 			http.MethodGet,
 			"/v1/mediaItems",
-			"/v1/mediaItems",
+			"/v1/mediaItems?type=photo&category=panorama",
 			[]string{},
 			[]string{},
 			map[string]string{},
