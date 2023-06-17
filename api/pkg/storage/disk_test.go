@@ -1,6 +1,7 @@
 package storage
 
 import (
+	"fmt"
 	"os"
 	"testing"
 
@@ -22,7 +23,7 @@ func TestDiskUpload(t *testing.T) {
 	}{
 		{
 			"error due to cannot open file",
-			&Config{Provider: "disk"},
+			&Config{Provider: "disk", Root: os.TempDir()},
 			func() (string, func()) {
 				return "", func() {}
 			},
@@ -121,8 +122,9 @@ func TestDiskDelete(t *testing.T) {
 }
 
 func TestDiskGet(t *testing.T) {
-	provider := Init(&Config{Provider: "disk", Root: "../storage"})
+	tmpRoot := os.TempDir()
+	provider := Init(&Config{Provider: "disk", Root: tmpRoot})
 	res, err := provider.Get("fileType", "fileID")
 	assert.NoError(t, err)
-	assert.Equal(t, "../storage/fileType/fileID", res)
+	assert.Equal(t, fmt.Sprintf("%s/fileType/fileID", tmpRoot), res)
 }
