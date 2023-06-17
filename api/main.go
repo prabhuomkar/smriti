@@ -6,10 +6,10 @@ import (
 	"api/internal/models"
 	"api/internal/server"
 	"api/internal/service"
-	"api/internal/storage"
 	"api/pkg/cache"
 	"api/pkg/database"
 	"api/pkg/services/worker"
+	"api/pkg/storage"
 	"fmt"
 	"os"
 	"os/signal"
@@ -36,14 +36,27 @@ func main() {
 		panic(err)
 	}
 
+	cache := cache.Init(cfg)
+
+	storageProvider := storage.Init(&storage.Config{
+		Provider: cfg.Storage.Provider, Root: cfg.Storage.DiskRoot,
+		Endpoint: cfg.Storage.Endpoint, AccessKey: cfg.Storage.AccessKey, SecretKey: cfg.Storage.SecretKey,
+	})
+
 	service := &service.Service{
 		Config:  cfg,
 		DB:      pgDB,
-		Storage: storage.Init(cfg.Storage),
+		Storage: storageProvider,
 	}
 	grpcServer := server.StartGRPCServer(cfg, service)
 
-	cache := cache.Init(cfg)
+	err = pgDB.Callback().Query().Register("mediaItemUrl", (&models.MediaItemURLPlugin{
+		Storage: storageProvider,
+		Cache:   cache,
+	}).TransformMediaItemURL)
+	if err != nil {
+		panic(err)
+	}
 
 	handler := &handlers.Handler{
 		Config: cfg,

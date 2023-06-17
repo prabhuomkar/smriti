@@ -140,7 +140,7 @@ func StopHTTPServer(httpServer *http.Server) {
 	}
 }
 
-func getMiddlewareFuncs(cfg *config.Config, cache cache.Cache, features ...string) []echo.MiddlewareFunc {
+func getMiddlewareFuncs(cfg *config.Config, cache cache.Provider, features ...string) []echo.MiddlewareFunc {
 	middlewareFuncs := []echo.MiddlewareFunc{
 		middlewares.JWTCheck(cfg, cache),
 	}

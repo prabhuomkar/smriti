@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"api/config"
-	"api/internal/storage"
 	"api/pkg/services/api"
+	"api/pkg/storage"
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/stretchr/testify/assert"

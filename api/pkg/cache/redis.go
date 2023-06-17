@@ -7,10 +7,23 @@ import (
 	"github.com/go-redis/redis/v8"
 )
 
-// RedisCache ...
-type RedisCache struct {
-	Connection RedisClient
-}
+type (
+	// RedisClient ...
+	RedisClient interface {
+		Get(context.Context, string) (string, error)
+		Set(context.Context, string, interface{}, time.Duration) error
+		Del(context.Context, string) error
+	}
+
+	// RedisCache ...
+	RedisCache struct {
+		Connection RedisClient
+	}
+
+	redisClient struct {
+		client *redis.Client
+	}
+)
 
 func (rc *RedisCache) SetWithExpire(key string, value interface{}, expiration time.Duration) error {
 	return rc.Connection.Set(context.TODO(), key, value, expiration)
@@ -23,18 +36,6 @@ func (rc *RedisCache) Get(key string) (interface{}, error) {
 func (rc *RedisCache) Remove(key string) error {
 	return rc.Connection.Del(context.TODO(), key)
 }
-
-type (
-	// RedisClient ...
-	RedisClient interface {
-		Get(context.Context, string) (string, error)
-		Set(context.Context, string, interface{}, time.Duration) error
-		Del(context.Context, string) error
-	}
-	redisClient struct {
-		client *redis.Client
-	}
-)
 
 func (c *redisClient) Get(ctx context.Context, key string) (string, error) {
 	return c.client.Get(ctx, key).Result()

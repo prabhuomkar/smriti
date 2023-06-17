@@ -17,7 +17,7 @@ type Handler struct {
 	Config *config.Config
 	DB     *gorm.DB
 	Worker worker.WorkerClient
-	Cache  cache.Cache
+	Cache  cache.Provider
 }
 
 const (

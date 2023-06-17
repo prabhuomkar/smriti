@@ -91,11 +91,11 @@ type (
 
 	// Storage ...
 	Storage struct {
-		Provider       string `envconfig:"SMRITI_STORAGE_PROVIDER" default:"disk"`
-		DiskRoot       string `envconfig:"SMRITI_STORAGE_DISK_ROOT" default:"../storage"`
-		MinioEndpoint  string `envconfig:"SMRITI_STORAGE_MINIO_ENDPOINT" default:"storage:9000"`
-		MinioAccessKey string `envconfig:"SMRITI_STORAGE_MINIO_ACCESS_KEY" default:"smritiuser"`
-		MinioSecretKey string `envconfig:"SMRITI_STORAGE_MINIO_SECRET_KEY" default:"smritipass"`
+		Provider  string `envconfig:"SMRITI_STORAGE_PROVIDER" default:"disk"`
+		DiskRoot  string `envconfig:"SMRITI_STORAGE_DISK_ROOT" default:"../storage"`
+		Endpoint  string `envconfig:"SMRITI_STORAGE_ENDPOINT" default:"storage:9000"`
+		AccessKey string `envconfig:"SMRITI_STORAGE_ACCESS_KEY" default:"smritiuser"`
+		SecretKey string `envconfig:"SMRITI_STORAGE_SECRET_KEY" default:"smritipass"`
 	}
 
 	// Config ...

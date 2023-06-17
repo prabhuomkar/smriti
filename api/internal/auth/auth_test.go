@@ -69,14 +69,14 @@ func TestGetTokens(t *testing.T) {
 func TestRefreshTokens(t *testing.T) {
 	tests := []struct {
 		Name            string
-		Token           func(*config.Config, cache.Cache) string
+		Token           func(*config.Config, cache.Provider) string
 		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
 		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
 		WantErr         bool
 	}{
 		{
 			"success",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
@@ -87,7 +87,7 @@ func TestRefreshTokens(t *testing.T) {
 		},
 		{
 			"error getting refresh token",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				return "badToken"
 			},
 			nil,
@@ -96,7 +96,7 @@ func TestRefreshTokens(t *testing.T) {
 		},
 		{
 			"error parsing claims from token",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				_ = cache.SetWithExpire("badToken", true, 1*time.Minute)
 				return "badToken"
 			},
@@ -106,7 +106,7 @@ func TestRefreshTokens(t *testing.T) {
 		},
 		{
 			"error converting user id from claims",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("invalid-user-id"), Username: "username"})
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
@@ -143,14 +143,14 @@ func TestRefreshTokens(t *testing.T) {
 func TestRemoveTokens(t *testing.T) {
 	tests := []struct {
 		Name            string
-		Token           func(*config.Config, cache.Cache) string
+		Token           func(*config.Config, cache.Provider) string
 		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
 		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
 		WantErr         bool
 	}{
 		{
 			"success",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
 				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
@@ -161,7 +161,7 @@ func TestRemoveTokens(t *testing.T) {
 		},
 		{
 			"error getting refresh token",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				return "badToken"
 			},
 			nil,
@@ -192,14 +192,14 @@ func TestRemoveTokens(t *testing.T) {
 func TestVerifyToken(t *testing.T) {
 	tests := []struct {
 		Name            string
-		Token           func(*config.Config, cache.Cache) string
+		Token           func(*config.Config, cache.Provider) string
 		SerializeFunc   func(interface{}, interface{}) (interface{}, error)
 		DeserializeFunc func(interface{}, interface{}) (interface{}, error)
 		WantErr         bool
 	}{
 		{
 			"success",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
 				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
@@ -210,7 +210,7 @@ func TestVerifyToken(t *testing.T) {
 		},
 		{
 			"error getting access token",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				return "badToken"
 			},
 			nil,
@@ -219,7 +219,7 @@ func TestVerifyToken(t *testing.T) {
 		},
 		{
 			"error parsing claims from token",
-			func(cfg *config.Config, cache cache.Cache) string {
+			func(cfg *config.Config, cache cache.Provider) string {
 				_ = cache.SetWithExpire("badToken", true, 1*time.Minute)
 				return "badToken"
 			},
