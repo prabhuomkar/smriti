@@ -1,38 +1,34 @@
 # Software Design Document
 
-## Requirements
-- [EPICs](https://github.com/users/prabhuomkar/projects/5/views/7)
-
 ## High Level Design
 
 ### Components
 
 #### API
 - Service written in Golang
-    - REST API: [echo](https://echo.labstack.com/)
-    - RPC: [gRPC + protobuf](https://grpc.io/)
-    - Postgres: [gorm](https://gorm.io/)
-    - Linting: [golangci-lint](https://golangci-lint.run/)
+  - REST API: [echo](https://echo.labstack.com/)
+  - RPC: [gRPC + protobuf](https://grpc.io/)
+  - Postgres: [gorm](https://gorm.io/)
+  - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
+- Will read/write to Disk
 - Will exchange protobuf with Worker: [api.proto](https://github.com/prabhuomkar/smriti/blob/master/protos/api.proto)
 
 #### Database
 - [Schema](https://github.com/prabhuomkar/smriti/blob/master/infra/database/schema.sql)
 - Total number of tables: 10
 - **Entities**:
-    - MediaItem: `mediaitems`
-    - Album: `albums`, `album_mediaitems`
-    - Explore: `places`, `things`, `people`, `place_mediaitems`, `thing_mediaitems`, `people_mediaitems`
-    - User Management: `users`
+  - MediaItem: `mediaitems`
+  - Album: `albums`, `album_mediaitems`
+  - Explore: `places`, `things`, `people`, `place_mediaitems`, `thing_mediaitems`, `people_mediaitems`
+  - User Management: `users`
 
 #### Worker
 - Service written in Python
-    - RPC: [gRPC + protobuf](https://grpc.io/)
-    - Linting: [pylint](https://pypi.org/project/pylint/)
-    - Exiftool: [PyExifTool](https://pypi.org/project/PyExifTool/)
-    - LibRaw: [rawpy](https://pypi.org/project/rawpy/)
-    - CDN: TBD, depends on file storage systems
-- Will process images and videos
+  - RPC: [gRPC + protobuf](https://grpc.io/)
+  - Linting: [pylint](https://pypi.org/project/pylint/)
+  - Exiftool: [PyExifTool](https://pypi.org/project/PyExifTool/)
+- Will process mediaitem files for several types of tasks
 - Will exchange protobuf with API: [worker.proto](https://github.com/prabhuomkar/smriti/blob/master/protos/worker.proto)
 
 ### Image & Video Processing
@@ -42,6 +38,7 @@
 
 #### Extracting Thumbnail
 - [LibRaw](https://www.libraw.org/) - Processing and extracting RAW images
+- [ImageMagick](https://imagemagick.org/index.php) - General purpose extraction
 
 #### Supported File Formats
 | Type | Extension | Support |
@@ -49,7 +46,7 @@
 | Photo | .BMP | ✅ |
 | Photo | .GIF | ✅ |
 | Photo | .HEIC | ✅ |
-| Photo | .ICO | ❓ |
+| Photo | .ICO | ✅ |
 | Photo | .JPG | ✅ |
 | Photo | .PNG | ✅ |
 | Photo | .TIFF | ✅ |
@@ -82,15 +79,15 @@
 - Support for several file storage systems behind a common interface:
 ```
 interface {
-    connect() // initialize connection
-    reconnect() // re-establish connection
-    upload() // upload the file (in chunks if required)
-    delete() // delete the file
-    get() // get the file
+  upload() // upload the file (in chunks if required)
+  delete() // delete the file
+  get() // get the file
 }
 ```
 - Out of the box incremental support for storage:
-    - [Amazon S3](https://aws.amazon.com/s3/)
+  - Disk
+  - [MinIO](https://min.io/)
+  - [Amazon S3](https://aws.amazon.com/s3/)
 - Best practices for security and other similar aspects for connecting to storage will be decided later
 
 ### Machine Learning Inference
@@ -131,12 +128,12 @@ tasks:
     - token_size: 10
 ```
 - Default Models:
-    - Classification - [EfficientNet](https://github.com)
-    - Detection - [YOLOv8](https://github.com)
-    - Face Detection - [TBD](https://github.com)
-    - OCR - [TBD](https://github.com)
-    - Speech - [TBD](https://github.com)
-    - Search Embeddings - [TBD](https://github.com)
+  - Classification - [EfficientNet](https://github.com)
+  - Detection - [YOLOv8](https://github.com)
+  - Face Detection - [TBD](https://github.com)
+  - OCR - [TBD](https://github.com)
+  - Speech - [TBD](https://github.com)
+  - Search Embeddings - [TBD](https://github.com)
 
 ## Performance
 - Benchmarking with several parallel uploads and system configuration
