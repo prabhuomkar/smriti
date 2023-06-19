@@ -1,4 +1,4 @@
-# Installation Guide
+# Installation
 
 ## Docker
 - Deploying with Docker is plain and simple. 

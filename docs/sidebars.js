@@ -6,6 +6,7 @@ const sidebars = {
       items: [
         "user-guide/introduction",
         "user-guide/installation",
+        "user-guide/deployment",
         {
           type: "category",
           label: "Features",
