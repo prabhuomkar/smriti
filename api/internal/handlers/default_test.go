@@ -4,7 +4,7 @@ import (
 	"net/http"
 	"testing"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 func TestGetFeatures(t *testing.T) {

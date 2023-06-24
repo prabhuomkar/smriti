@@ -4,6 +4,7 @@ grpcio-tools
 minio
 moviepy
 Pillow
+prometheus-client
 PyExifTool
 rawpy
 requests

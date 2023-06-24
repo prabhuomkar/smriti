@@ -13,7 +13,8 @@ import (
 	"strings"
 	"time"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo-contrib/echoprometheus"
+	"github.com/labstack/echo/v4"
 )
 
 const httpTimeout = 10
@@ -34,6 +35,9 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 		log.Printf("starting file server on: %s", fileRoute)
 		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
 	}
+	// metrics
+	srvHandler.Use(echoprometheus.NewMiddleware("smriti"))
+	srvHandler.GET("/metrics", echoprometheus.NewHandler())
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/disk", handler.GetDisk)

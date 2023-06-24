@@ -4,7 +4,7 @@ import (
 	"api/config"
 	"api/internal/models"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // FeatureCheck ...

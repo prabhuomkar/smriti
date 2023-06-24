@@ -20,7 +20,7 @@ import (
 
 	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"gorm.io/driver/postgres"

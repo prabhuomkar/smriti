@@ -6,6 +6,7 @@ import json
 
 import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
+from prometheus_client import start_http_server
 
 from src.components import Component, Metadata, Places
 from src.protos.api_pb2_grpc import APIStub
@@ -43,6 +44,9 @@ async def process_mediaitem(components: list[Component], user_id: str, id: str, 
 
 async def serve() -> None:
     """Main serve function"""
+    # start metrics
+    start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
+
     # initialize grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('SMRITI_API_PORT', '15001'))

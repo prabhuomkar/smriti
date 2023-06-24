@@ -4,7 +4,7 @@ import (
 	"api/internal/models"
 	"net/http"
 
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 )
 
 // GetVersion ...

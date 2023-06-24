@@ -11,7 +11,7 @@ import (
 	"api/internal/handlers"
 
 	"github.com/DATA-DOG/go-sqlmock"
-	"github.com/labstack/echo"
+	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
