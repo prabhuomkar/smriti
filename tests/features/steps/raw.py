@@ -32,19 +32,13 @@ def get_exif(url: str) -> dict:
             'creationTime': creation_time}
 
 def download_upload_remove(mediaitem):
-    # download
-    file_name = f'/tmp/{mediaitem["source"].split("/")[-1]}'
-    response = requests.get(mediaitem["source"])
-    with open(file_name, 'wb') as file:
-        file.write(response.content)
+    file_name = f'/tmp/{mediaitem["source"].split("/")[-1]}'.lower()
     # upload
     headers = {'Authorization': f'Bearer {mediaitem["access_token"]}'}
     files = {'file': open(file_name, 'rb')}
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     assert res.status_code == 201
     res = res.json()
-    # remove
-    os.remove(file_name)
     return res['id']
 
 @given('get list of raw mediaitems to upload')

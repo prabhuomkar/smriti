@@ -100,7 +100,7 @@ class Metadata(Component):
             return None
 
         if result['type'] == 'photo':
-            # generate and upload preview and thumbnail for a photo
+            # generate preview and thumbnail for a photo
             try:
                 preview_path, thumbnail_path = self._generate_photo_preview_and_thumbnail(
                     file_path, result['mimeType'], metadata)
@@ -109,14 +109,13 @@ class Metadata(Component):
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
-                logging.error(
-                    f'error generating and uploading preview and thumbnail for \
-                        user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {str(exp)}')
+                logging.error(f'error generating preview and thumbnail for \
+                              user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {str(exp)}')
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
                 return None
         elif result['type'] == 'video':
-            # generate and upload preview and thumbnail for a video
+            # generate preview and thumbnail for a video
             try:
                 preview_path, thumbnail_path = self._generate_video_preview_and_thumbnail(file_path)
                 result['previewPath'] = preview_path
@@ -124,9 +123,8 @@ class Metadata(Component):
                 logging.debug(f'extracted preview and thumbnail for \
                             user {mediaitem_user_id} video mediaitem {mediaitem_id}')
             except Exception as exp:
-                logging.error(
-                    f'error generating and uploading preview and thumbnail for \
-                        user {mediaitem_user_id} video mediaitem {mediaitem_id}: {str(exp)}')
+                logging.error(f'error generating preview and thumbnail for \
+                              user {mediaitem_user_id} video mediaitem {mediaitem_id}: {str(exp)}')
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
                 return None
