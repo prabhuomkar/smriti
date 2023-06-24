@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Smriti API
   description: Smarter Home for all your Photos and Videos
-  version: 2023.04.30
+  version: 2023.06.30
 servers:
   - url: https://localhost:5001
 tags:
