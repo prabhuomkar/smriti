@@ -15,6 +15,7 @@ import (
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
+	"github.com/prometheus/client_golang/prometheus"
 )
 
 const httpTimeout = 10
@@ -29,15 +30,19 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 		Addr:    fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port),
 		Handler: srvHandler,
 	}
+	// metrics
+	srvHandler.Use(echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
+		Namespace:  "http",
+		Subsystem:  "server",
+		Registerer: prometheus.DefaultRegisterer,
+	}))
+	srvHandler.GET("/metrics", echoprometheus.NewHandler())
 	// file server
 	if handler.Config.Storage.Provider == "disk" {
 		fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
 		log.Printf("starting file server on: %s", fileRoute)
 		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
 	}
-	// metrics
-	srvHandler.Use(echoprometheus.NewMiddleware("smriti"))
-	srvHandler.GET("/metrics", echoprometheus.NewHandler())
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/disk", handler.GetDisk)
