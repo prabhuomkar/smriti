@@ -1,6 +1,7 @@
 import time
 import os
 import re
+import json
 from behave import *
 import requests
 import datetime
@@ -53,8 +54,16 @@ def download_upload_remove(mediaitem):
 
 @given('get list of raw mediaitems to upload')
 def step_impl(context):
-    res = requests.get(f'https://raw.pixls.us/json/getrepository.php?set=all&_={int(time.time()*1000)}')
-    data = res.json()['data']
+    file_name = '/tmp/raw-list.json'
+    data = []
+    if os.path.exists(file_name):
+        with open(file_name, 'r') as f:
+            data = json.load(f)
+    else:
+        res = requests.get(f'https://raw.pixls.us/json/getrepository.php?set=all&_={int(time.time()*1000)}')
+        data = res.json()['data']
+        with open(file_name, 'w') as f:
+            json.dump(data, f)
     cameras = [row['camera'] for row in context.table]
     context.upload_mediaitems = []
     for mediaitem in data:

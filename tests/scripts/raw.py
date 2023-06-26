@@ -1,3 +1,5 @@
+import os
+import json
 import sys
 import time
 import requests
@@ -17,8 +19,18 @@ def download_mediaitem(mediaitem):
         return None
 
 if __name__ == '__main__':
-    res = requests.get(f'https://raw.pixls.us/json/getrepository.php?set=all&_={int(time.time()*1000)}')
-    items = res.json()['data']
+    items = []
+    file_name = '/tmp/raw-list.json'
+    if os.path.exists(file_name):
+        print('raw list exists')
+        with open(file_name, 'r') as f:
+            items = json.load(f)
+    else:
+        print('raw list does not exist')
+        res = requests.get(f'https://raw.pixls.us/json/getrepository.php?set=all&_={int(time.time()*1000)}')
+        items = res.json()['data']
+        with open(file_name, 'w') as f:
+            json.dump(items, f)
     cameras = sys.argv[1].split(',') if len(sys.argv) > 0 else []
     data = []
     for mediaitem in items:

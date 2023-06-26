@@ -91,10 +91,21 @@ class Metadata(Component):
                 result['exposureTime'] = getval_from_dict(metadata, ['EXIF:ExposureTime'])
                 result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'], return_type='float')
                 result['fps'] = str(round(result['fps'])) if result['fps'] is not None else None
-                result['latitude'] = getval_from_dict(metadata, ['EXIF:GPSLatitude', \
-                                                                'Composite:GPSLatitude'], return_type='float')
-                result['longitude'] = getval_from_dict(metadata, ['EXIF:GPSLongitude', \
-                                                                'Composite:GPSLongitude'], return_type='float')
+                result['latitude'] = getval_from_dict(metadata, ['Composite:GPSLatitude'], return_type='float')
+                result['longitude'] = getval_from_dict(metadata, ['Composite:GPSLongitude'], return_type='float')
+                if result['latitude'] is None or result['longitude'] is None:
+                    if 'EXIF:GPSLatitudeRef' in metadata and 'EXIF:GPSLatitude' in metadata and \
+                        'EXIF:GPSLongitudeRef' in metadata and 'EXIF:GPSLongitude' in metadata:
+                        result['latitude'] = metadata['EXIF:GPSLatitude'] * (1 \
+                            if metadata['EXIF:GPSLatitudeRef'] == 'N' else -1)
+                        result['longitude'] = metadata['EXIF:GPSLongitude'] * (1 \
+                            if metadata['EXIF:GPSLongitudeRef'] == 'E' else -1)
+                    elif 'Composite:GPSPosition' in metadata:
+                        splits = metadata['Composite:GPSPosition'].split()
+                        result['latitude'] = splits[0]
+                        result['longitude'] = splits[1]
+                result['latitude'] = result['latitude'] if result['latitude'] > 0 else None
+                result['longitude'] = result['longitude'] if result['longitude'] > 0 else None
                 result['category'] = self._get_mediaitem_category(metadata, result)
                 logging.debug(f'extracted metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
         except Exception as exp:
