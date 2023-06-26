@@ -61,7 +61,7 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop,lll
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -90,15 +90,19 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		log.Printf("error uploading original file for mediaitem %s: %+v", req.Id, err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
 	}
-	mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
-	if err != nil {
-		log.Printf("error uploading preview file for mediaitem %s: %+v", req.Id, err)
-		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
+	if req.PreviewPath != nil {
+		mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
+		if err != nil {
+			log.Printf("error uploading preview file for mediaitem %s: %+v", req.Id, err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
+		}
 	}
-	mediaItem.ThumbnailURL, err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
-	if err != nil {
-		log.Printf("error uploading thumbnail file for mediaitem %s: %+v", req.Id, err)
-		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
+	if req.ThumbnailPath != nil {
+		mediaItem.ThumbnailURL, err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
+		if err != nil {
+			log.Printf("error uploading thumbnail file for mediaitem %s: %+v", req.Id, err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
+		}
 	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil {
@@ -152,7 +156,10 @@ func getNameForPlace(place models.Place) string {
 	if place.City != nil {
 		return *place.City
 	}
-	return *place.Town
+	if place.Town != nil {
+		return *place.Town
+	}
+	return *place.State
 }
 
 func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {

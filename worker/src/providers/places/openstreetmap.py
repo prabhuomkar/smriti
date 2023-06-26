@@ -15,7 +15,7 @@ class OpenStreetMap:
     def reverse_geocode(self, mediaitem_user_id: str, mediaitem_id: str, coordinates: list[float]) -> dict:
         """Reverse geocode location from co-ordinates"""
         url = self.url.format(lat=coordinates[0], lon=coordinates[1])
-        res = requests.get(url=url, timeout=self.timeout)
+        res = requests.get(url=url, headers={'accept-language':'en-GB,en-US'}, timeout=self.timeout)
         res.raise_for_status()
 
         body = res.json()
@@ -28,6 +28,6 @@ class OpenStreetMap:
             'postcode': getval_from_dict(address, ['postcode']),
             'country': getval_from_dict(address, ['country']),
             'state': getval_from_dict(address, ['state']),
-            'city': getval_from_dict(address, ['city']),
+            'city': getval_from_dict(address, ['city', 'county']),
             'town':  getval_from_dict(address, ['town']),
         })
