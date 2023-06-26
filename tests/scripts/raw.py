@@ -7,7 +7,7 @@ import multiprocessing as mp
 
 def download_mediaitem(mediaitem):
     source = re.findall(r"href='([^']*)'", mediaitem[7])[0]
-    file_name = f'/tmp/{source.split("/")[-1]}'.lower()
+    file_name = f'/tmp/{source.split("/")[-3]}-{source.split("/")[-1]}'.lower()
     try:
         response = requests.get(source)
         with open(file_name, 'wb') as file:

@@ -5,7 +5,7 @@ from behave import *
 import requests
 import datetime
 
-from common import API_URL
+from common import API_URL, FILES_TO_SKIP
 
 
 def get_exif(url: str) -> dict:
@@ -42,7 +42,7 @@ def get_exif(url: str) -> dict:
             'creationTime': creation_time}
 
 def download_upload_remove(mediaitem):
-    file_name = f'/tmp/{mediaitem["source"].split("/")[-1]}'.lower()
+    file_name = f'/tmp/{mediaitem["source"].split("/")[-3]}-{mediaitem["source"].split("/")[-1]}'.lower()
     # upload
     headers = {'Authorization': f'Bearer {mediaitem["access_token"]}'}
     files = {'file': open(file_name, 'rb')}
@@ -59,9 +59,10 @@ def step_impl(context):
     context.upload_mediaitems = []
     for mediaitem in data:
         if mediaitem[0].lower() in cameras:
-            context.upload_mediaitems.append({'access_token': context.access_token,
-                                              'source': re.findall(r"href='([^']*)'", mediaitem[7])[0],
-                                              'exif': get_exif(re.findall(r"href='([^']*)'", mediaitem[8])[0])})
+            source = re.findall(r"href='([^']*)'", mediaitem[7])[0]
+            if f'{source.split("/")[-3]}-{source.split("/")[-1]}'.lower() not in FILES_TO_SKIP:
+                context.upload_mediaitems.append({'access_token': context.access_token, 'source': source,
+                                                  'exif': get_exif(re.findall(r"href='([^']*)'", mediaitem[8])[0])})
 
 @when('upload raw mediaitems')
 def step_impl(context):

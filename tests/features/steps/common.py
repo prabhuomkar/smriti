@@ -29,3 +29,5 @@ UPDATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/he
                      'description': None, 'favourite': False, 'hidden': False}}
 
 CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}
+
+FILES_TO_SKIP = ['3839-samsung - sm-g973u - 16bit (2.1132075471698).dng']

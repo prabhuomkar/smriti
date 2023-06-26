@@ -26,6 +26,9 @@ class Metadata(Component):
         'image/svg+xml', 'image/webp', 'image/heic', 'image/heif',
     ]
 
+    RAW_FILE_TYPES = ['CR2', 'NEF', 'ARW', 'ORF', 'RW2', 'DNG', 'RAF', 'SRW', 'PEF',
+                      'MOS', 'CRW', 'MRW', 'RWL', 'SRF', 'RAW']
+
     PREVIEWABLE_VIDEO_MIME_TYPES = [
         'video/x-msvideo', 'video/mp4', 'video/mpeg', 'video/ogg', 'video/mp2t',
         'video/webm', 'video/3gpp', 'video/3gpp2',
@@ -232,5 +235,7 @@ class Metadata(Component):
     def _is_raw(self, metadata: dict) -> bool:
         """Detect if the image is RAW irrespective of the image mimetype"""
         if 'EXIF:JpgFromRaw' in metadata:
+            return True
+        if 'File:FileType' in metadata and metadata['File:FileType'] in self.RAW_FILE_TYPES:
             return True
         return False
