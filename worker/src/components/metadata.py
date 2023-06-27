@@ -104,8 +104,10 @@ class Metadata(Component):
                         splits = metadata['Composite:GPSPosition'].split()
                         result['latitude'] = splits[0]
                         result['longitude'] = splits[1]
-                result['latitude'] = result['latitude'] if result['latitude'] > 0 else None
-                result['longitude'] = result['longitude'] if result['longitude'] > 0 else None
+                result['latitude'] = result['latitude'] if result['latitude'] is not None \
+                    and result['latitude'] > 0 else None
+                result['longitude'] = result['longitude'] if result['longitude'] is not None \
+                    and result['longitude'] > 0 else None
                 result['category'] = self._get_mediaitem_category(metadata, result)
                 logging.debug(f'extracted metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
         except Exception as exp:

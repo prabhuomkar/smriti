@@ -9,10 +9,13 @@ Feature: RAW MediaItems
     Scenario: Validate Create RAW MediaItem
         Given get list of raw mediaitems to upload
             | camera      |
-            #| apple |
+            | adobe dng converter |
+            | apple |
+            | arashi vision |
+            | autel |
             | blackmagic |
             | dji |
-            #| samsung |
+            | samsung |
 
         When upload raw mediaitems
         Then get raw mediaitems with auth and validate it is present

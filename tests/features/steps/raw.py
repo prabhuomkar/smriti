@@ -93,9 +93,15 @@ def step_impl(context):
                 assert res['id'] == mediaitem_id
                 assert res['width'] == mediaitem_exif['width']
                 assert res['height'] == mediaitem_exif['height']
-                assert res['cameraMake'] == mediaitem_exif['cameraMake']
-                assert res['cameraModel'] == mediaitem_exif['cameraModel']
-                assert res['creationTime'] == mediaitem_exif['creationTime']
+                if mediaitem_exif['cameraMake'] is not None:
+                    assert 'cameraMake' in res
+                    assert res['cameraMake'] == mediaitem_exif['cameraMake']
+                if mediaitem_exif['cameraModel'] is not None:
+                    assert 'cameraModel' in res
+                    assert res['cameraModel'] == mediaitem_exif['cameraModel']
+                if mediaitem_exif['creationTime'] is not None:
+                    assert 'creationTime' in res
+                    assert res['creationTime'] == mediaitem_exif['creationTime']
                 break
             if res['status'] == 'FAILED':
                 raise Exception(f'failed to process mediaitem: {mediaitem_id}, response: {res}')
