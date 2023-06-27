@@ -2,6 +2,7 @@
 import logging
 import datetime
 import random
+import re
 
 import exiftool
 import rawpy
@@ -22,8 +23,8 @@ class Metadata(Component):
     PREVIEWABLE_PHOTO_MIME_TYPES = [
         'image/avif', 'image/bmp', 'image/gif', 'image/vnd.microsoft.icon', 'image/x-icon',
         'image/icon', 'image/jpeg', 'image/x-citrix-jpeg', 'image/pjpeg',
-        'image/apng', 'image/x-png', 'image/x-citrix-png', 'image/png', 'image/tiff',
-        'image/svg+xml', 'image/webp', 'image/heic', 'image/heif',
+        'image/apng', 'image/x-png', 'image/x-citrix-png', 'image/png',
+        'image/svg+xml', 'image/webp', 'image/heic', 'image/heif', 'image/tiff'
     ]
 
     RAW_FILE_TYPES = ['CR2', 'NEF', 'ARW', 'ORF', 'RW2', 'DNG', 'RAF', 'SRW', 'PEF',
@@ -37,7 +38,7 @@ class Metadata(Component):
     def __init__(self, api_stub: APIStub) -> None:
         super().__init__('metadata', api_stub)
 
-    # pylint: disable=too-many-statements
+    # pylint: disable=too-many-statements,too-many-branches
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, mediaitem_file_path: str, _: dict) -> dict:
         """Process required metadata and generate thumbnail from EXIF data"""
         file_path = f'{mediaitem_file_path}/{mediaitem_id}'
@@ -77,14 +78,21 @@ class Metadata(Component):
                                             'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
                                             'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
-                if creation_time and '+' in creation_time:
-                    creation_time = creation_time.split("+", maxsplit=1)[0] if creation_time else None
-                if creation_time and '-' in creation_time:
-                    creation_time = creation_time.split("-", maxsplit=1)[0] if creation_time else None
-                result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
-                    tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
-                result['cameraMake'] = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
-                result['cameraModel'] = getval_from_dict(metadata, ['EXIF:Model', 'QuickTime:Model'])
+                if creation_time and re.search(r'[\+]\d{2}:\d{2}', creation_time):
+                    creation_time = creation_time.rsplit("+", maxsplit=1)[0] if creation_time else None
+                elif creation_time and re.search(r'[\-]\d{2}:\d{2}', creation_time):
+                    creation_time = creation_time.rsplit("-", maxsplit=1)[0] if creation_time else None
+                creation_time = creation_time.replace('T', ' ') if 'T' in creation_time else creation_time
+                creation_time = creation_time.replace('Z', '') if 'Z' in creation_time else creation_time
+                if creation_time and '-' not in creation_time:
+                    result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
+                        tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
+                elif creation_time:
+                    result['creationTime'] = creation_time
+                camera_make = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
+                result['cameraMake'] = camera_make.strip() if camera_make else None
+                camera_model = getval_from_dict(metadata, ['EXIF:Model', 'QuickTime:Model'])
+                result['cameraModel'] = camera_model.strip() if camera_model else None
                 result['focalLength'] = getval_from_dict(metadata, ['EXIF:FocalLength'])
                 result['apertureFNumber'] = getval_from_dict(metadata, ['EXIF:FNumber'])
                 result['isoEquivalent'] = getval_from_dict(metadata, ['EXIF:ISO'])
@@ -94,20 +102,20 @@ class Metadata(Component):
                 result['latitude'] = getval_from_dict(metadata, ['Composite:GPSLatitude'], return_type='float')
                 result['longitude'] = getval_from_dict(metadata, ['Composite:GPSLongitude'], return_type='float')
                 if result['latitude'] is None or result['longitude'] is None:
+                    # pylint: disable=too-many-boolean-expressions
                     if 'EXIF:GPSLatitudeRef' in metadata and 'EXIF:GPSLatitude' in metadata and \
-                        'EXIF:GPSLongitudeRef' in metadata and 'EXIF:GPSLongitude' in metadata:
-                        result['latitude'] = metadata['EXIF:GPSLatitude'] * (1 \
+                        'EXIF:GPSLongitudeRef' in metadata and 'EXIF:GPSLongitude' in metadata and \
+                         metadata['EXIF:GPSLatitudeRef'] != '' and metadata['EXIF:GPSLatitude'] != '' and \
+                         metadata['EXIF:GPSLongitudeRef'] != '' and metadata['EXIF:GPSLongitude'] != '':
+                        result['latitude'] = float(metadata['EXIF:GPSLatitude']) * (1 \
                             if metadata['EXIF:GPSLatitudeRef'] == 'N' else -1)
-                        result['longitude'] = metadata['EXIF:GPSLongitude'] * (1 \
+                        result['longitude'] = float(metadata['EXIF:GPSLongitude']) * (1 \
                             if metadata['EXIF:GPSLongitudeRef'] == 'E' else -1)
                     elif 'Composite:GPSPosition' in metadata:
                         splits = metadata['Composite:GPSPosition'].split()
-                        result['latitude'] = splits[0]
-                        result['longitude'] = splits[1]
-                result['latitude'] = result['latitude'] if result['latitude'] is not None \
-                    and result['latitude'] > 0 else None
-                result['longitude'] = result['longitude'] if result['longitude'] is not None \
-                    and result['longitude'] > 0 else None
+                        if len(splits) == 2:
+                            result['latitude'] = float(splits[0])
+                            result['longitude'] = float(splits[1])
                 result['category'] = self._get_mediaitem_category(metadata, result)
                 logging.debug(f'extracted metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
         except Exception as exp:
@@ -203,15 +211,32 @@ class Metadata(Component):
         """Generate preview and thumbnail image for a photo"""
         preview_path = f'{original_file_path}-preview'
         if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES and not self._is_raw(metadata):
-            with open(original_file_path, 'rb') as file_reader:
-                with WandImage(file=file_reader) as original:
-                    with original.convert('jpeg') as converted:
-                        converted.save(filename=preview_path)
+            try:
+                with open(original_file_path, 'rb') as file_reader:
+                    with WandImage(file=file_reader) as original:
+                        with original.convert('jpeg') as converted:
+                            converted.save(filename=preview_path)
+                return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
+            except Exception:
+                logging.warning(f'error generating preview for default photo mediaitem: {original_file_path}')
+                with rawpy.imread(original_file_path) as raw:
+                    rgb = raw.postprocess(use_camera_wb=True)
+                    img = PILImage.fromarray(rgb)
+                    img.save(preview_path, format='JPEG')
+                return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
         else:
-            with rawpy.imread(original_file_path) as raw:
-                rgb = raw.postprocess(use_camera_wb=True)
-                img = PILImage.fromarray(rgb)
-                img.save(preview_path, format='JPEG')
+            try:
+                with rawpy.imread(original_file_path) as raw:
+                    rgb = raw.postprocess(use_camera_wb=True)
+                    img = PILImage.fromarray(rgb)
+                    img.save(preview_path, format='JPEG')
+                return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
+            except Exception:
+                logging.warning(f'error generating preview for raw photo mediaitem: {original_file_path}')
+        with open(original_file_path, 'rb') as file_reader:
+            with WandImage(file=file_reader) as original:
+                with original.convert('jpeg') as converted:
+                    converted.save(filename=preview_path)
         return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
 
     def _generate_video_thumbnail(self, preview_video_path: str):
@@ -247,7 +272,8 @@ class Metadata(Component):
 
     def _is_raw(self, metadata: dict) -> bool:
         """Detect if the image is RAW irrespective of the image mimetype"""
-        if 'EXIF:JpgFromRaw' in metadata:
+        if 'EXIF:JpgFromRaw' in metadata or 'EXIF:OriginalRawFileName' in metadata or\
+            'EXIF:NewRawImageDigest' in metadata or 'EXIF:RawDataUniqueID' in metadata:
             return True
         if 'File:FileType' in metadata and metadata['File:FileType'] in self.RAW_FILE_TYPES:
             return True

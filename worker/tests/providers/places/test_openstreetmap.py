@@ -22,9 +22,7 @@ def test_openstreetmap_failed_empty_response(requests_mock):
     requests_mock.get(url=API_URL.format(
         lat=19.2195856, lon=73.1056888), json={})
     result = init_places('openstreetmap').reverse_geocode('mediaitem_user_id', 'mediaitem_id', [19.2195856, 73.1056888])
-    assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id',
-                      'postcode': None, 'country': None,
-                      'state': None, 'city': None, 'town': None}
+    assert result == None
 
 
 def test_openstreetmap_failed_exception(requests_mock):
@@ -33,6 +31,4 @@ def test_openstreetmap_failed_exception(requests_mock):
     with patch('requests.get', side_effect=HTTPError()):
         with pytest.raises(HTTPError):
             result = init_places('openstreetmap').reverse_geocode('mediaitem_user_id', 'mediaitem_id', [19.2195856, 73.1056888])
-            assert result == {'userId': 'mediaitem_user_id','id': 'mediaitem_id',
-                              'postcode': None, 'country': None,
-                              'state': None, 'city': None, 'town': None}
+            assert result == None

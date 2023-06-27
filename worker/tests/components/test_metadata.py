@@ -16,7 +16,8 @@ async def test_metadata_process_photo_success(_, __):
     exiftool_mock.return_value.__getitem__.return_value = {
         'File:MIMEType': 'image/jpeg', 'Composite:ImageSize': '14124 3100',
         'EXIF:Make': 'Apple', 'EXIF:Model': 'iPhone 12 mini', 'EXIF:FocalLength': '5.49', 'EXIF:ExposureTime': '1/20',
-        'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'EXIF:GPSLatitude': '19.292902', 'EXIF:GPSLongitude': '70.2822',
+        'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'EXIF:GPSLatitudeRef': 'N', 'EXIF:GPSLatitude': '19.292902',
+        'EXIF:GPSLongitudeRef': 'E', 'EXIF:GPSLongitude': '70.2822',
     }
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
@@ -37,8 +38,8 @@ async def test_metadata_process_video_success(_, __):
     exiftool_mock.return_value.__getitem__.return_value = {
         'File:MIMEType': 'video/mpeg', 'QuickTime:ImageWidth': '1080', 'QuickTime:ImageHeight': '720',
         'EXIF:Make': 'Apple', 'EXIF:Model': 'iPhone 12 mini', 'EXIF:FocalLength': '5.49', 'QuickTime:LivePhotoAuto': '1',
-        'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'EXIF:GPSLatitude': '19.292902', 'EXIF:GPSLongitude': '70.2822',
-        'QuickTime:VideoFrameRate': '60', 'EXIF:ExposureTime': '1/20',
+        'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'EXIF:GPSLatitudeRef': 'N', 'EXIF:GPSLatitude': '19.292902',
+        'EXIF:GPSLongitudeRef': 'E', 'EXIF:GPSLongitude': '70.2822', 'QuickTime:VideoFrameRate': '60', 'EXIF:ExposureTime': '1/20',
     }
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
@@ -67,7 +68,7 @@ async def test_metadata_process_grpc_exception(_):
     exiftool_mock.return_value.__getitem__.return_value = {
         'File:MIMEType': 'image/jpeg', 'File:ImageWidth': '4022', 'File:ImageHeight': '3100', 'EXIF:UserComment': 'Screenshot',
         'EXIF:Make': 'Apple', 'EXIF:Model': 'iPhone 12 mini', 'EXIF:FocalLength': '5.49', 'EXIF:ExposureTime': '1/20',
-        'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'EXIF:GPSLatitude': '19.292902', 'EXIF:GPSLongitude': '70.2822',
+        'EXIF:FNumber': '1.8', 'EXIF:ISO': '758', 'Composite:GPSPosition': '19.292902 70.2822',
     }
     grpc_mock = mock.MagicMock()
     grpc_mock.side_effect = grpc.RpcError(Exception('some error'))

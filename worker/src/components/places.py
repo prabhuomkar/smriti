@@ -26,7 +26,8 @@ class Places(Component):
 
             logging.debug(f'extracted place for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
 
-            self._grpc_save_mediaitem_place(result)
+            if result is not None:
+                self._grpc_save_mediaitem_place(result)
         except Exception as exp:
             logging.error(f'error getting place response for user {mediaitem_user_id} '+
                           f'mediaitem {mediaitem_id}: {str(exp)}')

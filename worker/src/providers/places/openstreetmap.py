@@ -21,7 +21,14 @@ class OpenStreetMap:
         body = res.json()
         logging.debug(f'place for user {mediaitem_user_id} mediaitem {mediaitem_id}: {body}')
 
-        address = body['address'] if 'address' in body else {}
+        if 'address' not in body:
+            return None
+        if 'address' in body and ('postcode' not in body['address'] or \
+                                   'country' not in body['address'] or \
+                                   'state' not in body['address']):
+            return None
+
+        address = body['address']
         return dict({
             'userId': mediaitem_user_id,
             'id': mediaitem_id,

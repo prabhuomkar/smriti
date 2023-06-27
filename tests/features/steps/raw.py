@@ -23,14 +23,23 @@ def get_exif(url: str) -> dict:
             width = int(item.split()[1])
         elif (('.ImageHeight' in item and subtype != '' and f'{subtype}.ImageHeight' in item) or ('.ImageLength' in item and subtype != '' and f'{subtype}.ImageLength' in item)):
             height = int(item.split()[1])
-        elif '.Make' in item and not 'Maker' in item:
+        elif '.Make' in item and not 'Maker' in item and make is None:
             make = item.split(maxsplit=1)[1].strip()
-        elif '.Model' in item:
+        elif '.Model' in item and model is None:
             model = item.split(maxsplit=1)[1].strip()
         elif '.DateTime' in item:
-            creation_time = (item.split()[1]+' '+item.split()[2])
-            creation_time = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
+            creation_time = item.split(maxsplit=1)[1].strip()
+            if 'T' not in creation_time and 'Z' not in creation_time:
+                if '-' in creation_time:
+                    creation_time = creation_time.replace(' ', '', -1)
+                    creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%d%H:%M:%S').replace(
+                        tzinfo=datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+                else:
+                    creation_time = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                     tzinfo=datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
+            elif 'T' in creation_time and 'Z' not in creation_time:
+                creation_time = datetime.datetime.strptime(creation_time, '%Y-%m-%dT%H:%M:%S').replace(
+                        tzinfo=datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     if width == None or height == None:
         for item in data.split('\n'):
             if '.ImageWidth' in item:
@@ -88,22 +97,24 @@ def step_impl(context):
             res = requests.get(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
             res = res.json()
             if res['status'] == 'READY':
-                mediaitem_exif = upload_mediaitem['exif']
-                print(res, mediaitem_exif)
-                assert res['id'] == mediaitem_id
-                assert res['width'] == mediaitem_exif['width']
-                assert res['height'] == mediaitem_exif['height']
-                if mediaitem_exif['cameraMake'] is not None:
-                    assert 'cameraMake' in res
-                    assert res['cameraMake'] == mediaitem_exif['cameraMake']
-                if mediaitem_exif['cameraModel'] is not None:
-                    assert 'cameraModel' in res
-                    assert res['cameraModel'] == mediaitem_exif['cameraModel']
-                if mediaitem_exif['creationTime'] is not None:
-                    assert 'creationTime' in res
-                    assert res['creationTime'] == mediaitem_exif['creationTime']
-                break
+                try:
+                    mediaitem_exif = upload_mediaitem['exif']
+                    assert res['id'] == mediaitem_id
+                    assert res['width'] == mediaitem_exif['width']
+                    assert res['height'] == mediaitem_exif['height']
+                    if mediaitem_exif['cameraMake'] is not None:
+                        assert 'cameraMake' in res
+                        assert res['cameraMake'] == mediaitem_exif['cameraMake']
+                    if mediaitem_exif['cameraModel'] is not None:
+                        assert 'cameraModel' in res
+                        assert res['cameraModel'] == mediaitem_exif['cameraModel']
+                    if mediaitem_exif['creationTime'] is not None:
+                        assert 'creationTime' in res
+                        assert res['creationTime'] == mediaitem_exif['creationTime']
+                    break
+                except Exception as e:
+                    raise Exception(f'failed assertion for mediaitem: {upload_mediaitem["source"]} wanted: {upload_mediaitem["exif"]}')
             if res['status'] == 'FAILED':
-                raise Exception(f'failed to process mediaitem: {mediaitem_id}, response: {res}')
+                raise Exception(f'failed to process mediaitem: {upload_mediaitem["source"]}, response: {res} wanted: {upload_mediaitem["exif"]}')
             time.sleep(2)
 
