@@ -72,6 +72,7 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		log.Printf("error getting mediaitem id: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
+	log.Printf("saving mediaitem metadata for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
 	creationTime := time.Now()
 	if req.CreationTime != nil {
 		creationTime, err = time.Parse("2006-01-02 15:04:05", *req.CreationTime)
@@ -124,6 +125,7 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		log.Printf("error getting mediaitem id: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
+	log.Printf("saving mediaitem place for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
 	place := models.Place{
 		UserID:   userID,
 		Postcode: req.Postcode,

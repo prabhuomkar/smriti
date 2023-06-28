@@ -15,9 +15,9 @@ def get_exif(url: str) -> dict:
     width, height, make, model, creation_time = None, None, None, None, None
     subtype = ''
     for item in data.split('\n'):
-        if '.SubImage1.NewSubfileType' in item and item.split(maxsplit=1)[1] == 'Primary image':
+        if '.SubImage1.NewSubfileType' in item and item.split(maxsplit=1)[1] == 'Primary image' and subtype == '':
             subtype = '.SubImage1'
-        if '.SubImage2.NewSubfileType' in item and item.split(maxsplit=1)[1] == 'Primary image':
+        if '.SubImage2.NewSubfileType' in item and item.split(maxsplit=1)[1] == 'Primary image' and subtype == '':
             subtype = '.SubImage2'
         if ('.ImageWidth' in item and subtype != '' and f'{subtype}.ImageWidth' in item):
             width = int(item.split()[1])
@@ -29,6 +29,10 @@ def get_exif(url: str) -> dict:
             model = item.split(maxsplit=1)[1].strip()
         elif '.DateTime' in item:
             creation_time = item.split(maxsplit=1)[1].strip()
+            if creation_time and re.search(r'[\+]\d{2}:\d{2}', creation_time):
+                creation_time = creation_time.rsplit("+", maxsplit=1)[0]
+            elif creation_time and re.search(r'[\-]\d{2}:\d{2}', creation_time):
+                creation_time = creation_time.rsplit("-", maxsplit=1)[0]
             if 'T' not in creation_time and 'Z' not in creation_time:
                 if '-' in creation_time:
                     creation_time = creation_time.replace(' ', '', -1)
@@ -42,9 +46,9 @@ def get_exif(url: str) -> dict:
                         tzinfo=datetime.timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ')
     if width == None or height == None:
         for item in data.split('\n'):
-            if '.ImageWidth' in item:
+            if '.ImageWidth' in item or '.SensorWidth' in item:
                 width = int(item.split()[1])
-            elif '.ImageHeight' in item or '.ImageLength' in item:
+            elif '.ImageHeight' in item or '.ImageLength' in item or '.SensorHeight' in item:
                 height = int(item.split()[1])
             if width is not None and height is not None:
                 break
@@ -82,6 +86,16 @@ def step_impl(context):
                 context.upload_mediaitems.append({'access_token': context.access_token, 'source': source,
                                                   'exif': get_exif(re.findall(r"href='([^']*)'", mediaitem[8])[0])})
 
+@then('raw mediaitems are ready to upload')
+def step_impl(context):
+    for mediaitem in context.upload_mediaitems:
+        file_name = f'/tmp/{mediaitem["source"].split("/")[-3]}-{mediaitem["source"].split("/")[-1]}'.lower()
+        try:
+            assert os.path.exists(file_name)
+            assert os.path.getsize(file_name) > 1000
+        except Exception as exp:
+            raise Exception(f'assertion failed for {file_name}')
+
 @when('upload raw mediaitems')
 def step_impl(context):
     context.upload_mediaitem_ids = []
@@ -113,7 +127,7 @@ def step_impl(context):
                         assert res['creationTime'] == mediaitem_exif['creationTime']
                     break
                 except Exception as e:
-                    raise Exception(f'failed assertion for mediaitem: {upload_mediaitem["source"]} wanted: {upload_mediaitem["exif"]}')
+                    raise Exception(f'failed assertion for mediaitem: {upload_mediaitem["source"]} response: {res} wanted: {upload_mediaitem["exif"]}')
             if res['status'] == 'FAILED':
                 raise Exception(f'failed to process mediaitem: {upload_mediaitem["source"]}, response: {res} wanted: {upload_mediaitem["exif"]}')
             time.sleep(2)

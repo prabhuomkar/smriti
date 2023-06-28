@@ -58,12 +58,14 @@ class Metadata(Component):
                 result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
                 result['type'] = 'photo' if 'image' in metadata['File:MIMEType'] else \
                     'video' if 'video' in metadata['File:MIMEType'] else 'unknown'
-                result['width'] = getval_from_dict(metadata, ['File:ImageWidth', 'EXIF:ImageWidth',
-                                                              'EXIF:ExifImageWidth', 'PNG:ImageWidth',
+                result['width'] = getval_from_dict(metadata, ['EXIF:SensorWidth', 'EXIF:ImageWidth',
+                                                              'EXIF:ExifImageWidth', 'File:ImageWidth',
+                                                              'PNG:ImageWidth', 'XMP:ExifImageWidth',
                                                               'QuickTime:ImageWidth', 'QuickTime:SourceImageWidth'],
                                                               return_type='int')
-                result['height'] = getval_from_dict(metadata, ['File:ImageHeight', 'EXIF:ImageHeight',
-                                                               'EXIF:ExifImageHeight', 'PNG:ImageHeight',
+                result['height'] = getval_from_dict(metadata, ['EXIF:SensorHeight', 'EXIF:ImageHeight',
+                                                               'EXIF:ExifImageHeight', 'File:ImageHeight',
+                                                               'PNG:ImageHeight', 'XMP:ExifImageHeight',
                                                                'QuickTime:ImageHeight', 'QuickTime:SourceImageHeight'],
                                                                return_type='int')
                 if result['height'] is None or result['width'] is None and 'Composite:ImageSize' in metadata:
@@ -72,30 +74,35 @@ class Metadata(Component):
                         result['width'] = int(composite_dims[0])
                         result['height'] = int(composite_dims[1])
                 creation_time = getval_from_dict(metadata, ['EXIF:DateTimeOriginal', 'EXIF:CreateDate', \
-                                            'XMP:CreateDate', 'XMP:DateCreated', 'Composite:SubSecCreateDate', \
-                                            'Composite:SubSecDateTimeOriginal', 'QuickTime:CreateDate', \
-                                            'QuickTime:TrackModifyDate', 'QuickTime:MediaCreateDate', \
-                                            'QuickTime:CreationDate', 'EXIF:ModifyDate', 'XMP:ModifyDate', \
+                                            'XMP:CreateDate', 'XMP:DateCreated', 'XMP:DateTimeOriginal', \
+                                            'Composite:SubSecCreateDate', 'Composite:SubSecDateTimeOriginal', \
+                                            'QuickTime:CreateDate', 'QuickTime:TrackModifyDate', \
+                                            'QuickTime:MediaCreateDate', 'QuickTime:CreationDate', \
+                                            'EXIF:ModifyDate', 'XMP:ModifyDate', \
                                             'File:FileModifyDate', 'File:FileAccessDate', 'File:FileInodeChangeDate'])
                 # work(omkar): handle timezone when "its time" :P
                 if creation_time and re.search(r'[\+]\d{2}:\d{2}', creation_time):
                     creation_time = creation_time.rsplit("+", maxsplit=1)[0] if creation_time else None
                 elif creation_time and re.search(r'[\-]\d{2}:\d{2}', creation_time):
                     creation_time = creation_time.rsplit("-", maxsplit=1)[0] if creation_time else None
-                creation_time = creation_time.replace('T', ' ') if 'T' in creation_time else creation_time
-                creation_time = creation_time.replace('Z', '') if 'Z' in creation_time else creation_time
+                if creation_time:
+                    creation_time = creation_time.replace('- ', '-')
+                    creation_time = creation_time.replace(' -', '-')
+                    creation_time = creation_time.replace('T', ' ') if 'T' in creation_time else creation_time
+                    creation_time = creation_time.replace('Z', '') if 'Z' in creation_time else creation_time
                 if creation_time and '-' not in creation_time:
                     result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y:%m:%d %H:%M:%S').replace(
                         tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
                 elif creation_time:
-                    result['creationTime'] = creation_time
-                camera_make = getval_from_dict(metadata, ['EXIF:Make', 'QuickTime:Make'])
+                    result['creationTime'] = datetime.datetime.strptime(creation_time, '%Y-%m-%d %H:%M:%S').replace(
+                        tzinfo=datetime.timezone.utc).strftime('%Y-%m-%d %H:%M:%S') if creation_time else None
+                camera_make = getval_from_dict(metadata, ['EXIF:Make', 'XMP:Make', 'QuickTime:Make'])
                 result['cameraMake'] = camera_make.strip() if camera_make else None
-                camera_model = getval_from_dict(metadata, ['EXIF:Model', 'QuickTime:Model'])
+                camera_model = getval_from_dict(metadata, ['EXIF:Model', 'XMP:Model', 'QuickTime:Model'])
                 result['cameraModel'] = camera_model.strip() if camera_model else None
                 result['focalLength'] = getval_from_dict(metadata, ['EXIF:FocalLength'])
                 result['apertureFNumber'] = getval_from_dict(metadata, ['EXIF:FNumber'])
-                result['isoEquivalent'] = getval_from_dict(metadata, ['EXIF:ISO'])
+                result['isoEquivalent'] = getval_from_dict(metadata, ['EXIF:ISO', 'XMP:ISO'])
                 result['exposureTime'] = getval_from_dict(metadata, ['EXIF:ExposureTime'])
                 result['fps'] = getval_from_dict(metadata, ['QuickTime:VideoFrameRate'], return_type='float')
                 result['fps'] = str(round(result['fps'])) if result['fps'] is not None else None

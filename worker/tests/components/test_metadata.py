@@ -26,7 +26,7 @@ async def test_metadata_process_photo_success(_, __):
         del result['thumbnailPath']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'panorama', 'mimeType': 'image/jpeg', 'width': 14124, 
-                        'height': 3100, 'creationTime': None, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
+                        'height': 3100, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
                         'focalLength': '5.49', 'apertureFNumber': '1.8', 'isoEquivalent': '758', 'exposureTime': '1/20', 
                         'fps': None, 'latitude': 19.292902, 'longitude': 70.2822}
 
@@ -48,7 +48,7 @@ async def test_metadata_process_video_success(_, __):
         del result['thumbnailPath']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'live', 'mimeType': 'video/mpeg', 'width': 1080, 
-                        'height': 720, 'creationTime': None, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
+                        'height': 720, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
                         'focalLength': '5.49', 'apertureFNumber': '1.8', 'isoEquivalent': '758', 'exposureTime': '1/20', 
                         'fps': '60', 'latitude': 19.292902, 'longitude': 70.2822}
 
@@ -80,7 +80,7 @@ async def test_metadata_process_grpc_exception(_):
             del result['thumbnailPath']
             assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'screenshot', 'mimeType': 'image/jpeg', 'width': 4022, 
-                        'height': 3100, 'creationTime': None, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
+                        'height': 3100, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
                         'focalLength': '5.49', 'apertureFNumber': '1.8', 'isoEquivalent': '758', 'exposureTime': '1/20', 
                         'fps': None, 'latitude': 19.292902, 'longitude': 70.2822}
 

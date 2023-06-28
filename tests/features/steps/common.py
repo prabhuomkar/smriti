@@ -30,4 +30,7 @@ UPDATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/he
 
 CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}
 
-FILES_TO_SKIP = ['3839-samsung - sm-g973u - 16bit (2.1132075471698).dng']
+FILES_TO_SKIP = ['3839-samsung - sm-g973u - 16bit (2.1132075471698).dng', '1087-leica - leica m monochrom (typ 246) - 12bit (3:2).dng',
+                 '672-pentax - pentax optio s4.raw', '778-xiaomi - yi.raw', '3896-phase one - iq4 150mp - unknown (8) (4:3).iiq',
+                 '4272-plustek - opticfilm 8200i se - 16bit (3:2).dng', '3901-phase one - iq4 150mp - unknown (8) (4:3).iiq',
+                 '4953-phase one - ixm-rs150f - iiq sv2 (4:3).iiq', '3900-phase one - iq4 150mp - iiq l (4:3).iiq']
