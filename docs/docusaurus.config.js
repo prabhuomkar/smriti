@@ -1,5 +1,4 @@
-const lightCodeTheme = require("prism-react-renderer/themes/github");
-const darkCodeTheme = require("prism-react-renderer/themes/dracula");
+const prismRenderer = require("prism-react-renderer");
 
 const config = {
   title: "Smriti",
@@ -85,8 +84,8 @@ const config = {
         copyright: `Copyright © ${new Date().getFullYear()} Smriti. Built with ❤️ in India.`,
       },
       prism: {
-        theme: lightCodeTheme,
-        darkTheme: darkCodeTheme,
+        theme: prismRenderer.themes.github,
+        darkTheme: prismRenderer.themes.dracula,
       },
     }),
   stylesheets: [
