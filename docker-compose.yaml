@@ -21,6 +21,11 @@ services:
       SMRITI_STORAGE_SECRET_KEY: smritipass
     volumes:
       - ./storage:/storage:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '0.5'
+          memory: 512M
   worker:
     container_name: worker
     build: worker
@@ -35,6 +40,11 @@ services:
       SMRITI_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 2G
   # infra services
   database:
     container_name: database
