@@ -71,8 +71,8 @@ func getMediaItemFilters(ctx echo.Context) string {
 }
 
 func getAlbumSortOrder(ctx echo.Context) string {
-	if ctx.QueryParam("sort") == "updatedAt" {
-		return "updated_at desc"
+	if ctx.QueryParam("sort") == "name" {
+		return "name asc"
 	}
-	return "name asc"
+	return "updated_at desc"
 }
