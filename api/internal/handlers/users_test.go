@@ -183,7 +183,7 @@ func TestUpdateUser(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password",
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", sqlmock.AnyArg(),
 						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -210,7 +210,7 @@ func TestUpdateUser(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password",
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", sqlmock.AnyArg(),
 						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
@@ -422,7 +422,7 @@ func TestCreateUser(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "username", "password", "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
+					WithArgs(sqlmock.AnyArg(), "name", "username", sqlmock.AnyArg(), "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -448,7 +448,7 @@ func TestCreateUser(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "username", "password", "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
+					WithArgs(sqlmock.AnyArg(), "name", "username", sqlmock.AnyArg(), "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},

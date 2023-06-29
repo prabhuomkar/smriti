@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"api/internal/models"
+	"crypto/sha512"
 	"errors"
+	"fmt"
 	"log"
 	"net/http"
 	"reflect"
@@ -127,7 +129,7 @@ func getUser(ctx echo.Context) (*models.User, error) {
 		user.Username = *UserRequest.Username
 	}
 	if UserRequest.Password != nil {
-		user.Password = *UserRequest.Password
+		user.Password = getPasswordHash(*UserRequest.Password)
 	}
 	if UserRequest.Features != nil {
 		user.Features = *UserRequest.Features
@@ -136,4 +138,13 @@ func getUser(ctx echo.Context) (*models.User, error) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user")
 	}
 	return &user, nil
+}
+
+func getPasswordHash(password string) string {
+	passwordHash := sha512.New()
+	_, err := passwordHash.Write([]byte(password))
+	if err != nil {
+		log.Printf("error generating password hash: %v", err)
+	}
+	return fmt.Sprintf("%x", passwordHash.Sum(nil))
 }

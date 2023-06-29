@@ -34,7 +34,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 	}
 	user := models.User{}
 	result := h.DB.Model(&models.User{}).
-		Where("username=? AND password=?", &loginRequest.Username, &loginRequest.Password).
+		Where("username=? AND password=?", &loginRequest.Username, getPasswordHash(*loginRequest.Password)).
 		First(&user)
 	if result.Error != nil {
 		log.Printf("error getting user: %+v", result.Error)
