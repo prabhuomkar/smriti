@@ -36,6 +36,7 @@ type (
 		Description *string `json:"description"`
 		IsFavourite *bool   `json:"favourite"`
 		IsHidden    *bool   `json:"hidden"`
+		IsDeleted   *bool   `json:"deleted"`
 	}
 
 	// MediaItemResponse ...
@@ -342,6 +343,7 @@ func getMediaItem(ctx echo.Context) (*models.MediaItem, error) {
 		Description: mediaItemRequest.Description,
 		IsFavourite: mediaItemRequest.IsFavourite,
 		IsHidden:    mediaItemRequest.IsHidden,
+		IsDeleted:   mediaItemRequest.IsDeleted,
 	}
 	if reflect.DeepEqual(models.MediaItem{}, mediaItem) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem")

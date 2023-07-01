@@ -40,7 +40,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	album.ID = uid
 	album.UserID = userID
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&album).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&album).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_deleted=?", false)
 	if err != nil {
 		log.Printf("error getting album mediaitems: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
