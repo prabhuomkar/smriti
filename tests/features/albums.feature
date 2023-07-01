@@ -47,6 +47,10 @@ Feature: Albums
         Then album mediaitems are added
         When get album mediaitems with auth
         Then album mediaitems are present
+        When delete mediaitem with auth
+        Then mediaitem is deleted
+        When get album mediaitems with auth
+        Then album mediaitems are absent
         When get album with auth
         Then album is updated after add album mediaitems
         When remove album mediaitems without auth
