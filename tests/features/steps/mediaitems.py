@@ -89,6 +89,19 @@ def step_impl(context, type, condition, seconds):
     if condition == 'with':
         time.sleep(int(seconds))
 
+@when('upload {type} mediaitem with auth if does not exist and wait {seconds} seconds')
+def step_impl(context, type, seconds):
+    headers = {'Authorization': f'Bearer {context.access_token}'}
+    res = requests.get(API_URL+'/v1/mediaItems',
+                       headers={'Authorization': f'Bearer {context.access_token}'})
+    mediaitems = res.json()
+    if len(mediaitems) == 0:
+        files = {'file': open(f'data/{"IMG_0543.HEIC" if type == "photo" else "IMG_6470.MOV"}','rb')}
+        res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
+    context.response = res
+    context.mediaitem_type = type
+    time.sleep(int(seconds))
+
 @when('update mediaitem {condition} auth')
 def step_impl(context, condition):
     headers = None
@@ -112,6 +125,15 @@ def step_impl(context, condition):
 def step_impl(context):
     assert context.response.status_code == 201
     context.mediaitem_id = context.response.json()['id']
+    context.match_mediaitem = CREATED_MEDIAITEM[context.mediaitem_type]
+
+@then('mediaitem is uploaded or exists')
+def step_impl(context):
+    assert context.response.status_code in [200, 201]
+    if context.response.status_code == 201:
+        context.mediaitem_id = context.response.json()['id']
+    else:
+        context.mediaitem_id = context.response.json()[0]['id']
     context.match_mediaitem = CREATED_MEDIAITEM[context.mediaitem_type]
 
 @then('mediaitem is updated')
