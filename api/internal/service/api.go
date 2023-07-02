@@ -154,6 +154,41 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	log.Printf("saving mediaitem thing for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	thing := models.Thing{
+		UserID: userID,
+		Name:   req.Name,
+	}
+	result := s.DB.Where(models.Thing{UserID: userID, Name: thing.Name}).
+		Attrs(models.Thing{ID: uuid.NewV4()}).
+		Assign(models.Thing{CoverMediaItemID: &uid}).
+		FirstOrCreate(&thing)
+	if result.Error != nil {
+		log.Printf("error getting or creating thing: %+v", result.Error)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal,
+			"error getting or creating thing: %s", result.Error.Error())
+	}
+	mediaItem := models.MediaItem{ID: uid}
+	err = s.DB.Omit("MediaItems.*").Model(&thing).Association("MediaItems").Append(&mediaItem)
+	if err != nil {
+		log.Printf("error saving mediaitem thing: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
+	}
+	log.Printf("saved thing for mediaitem: %s", mediaItem.ID.String())
+	return &emptypb.Empty{}, nil
+}
+
 func getNameForPlace(place models.Place) string {
 	if place.City != nil {
 		return *place.City
