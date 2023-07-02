@@ -56,16 +56,17 @@ type (
 
 	// ML ...
 	ML struct {
-		Places              bool     `envconfig:"SMRITI_ML_PLACES" default:"true"`
-		Classification      bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
-		Faces               bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
-		OCR                 bool     `envconfig:"SMRITI_ML_OCR" default:"false"`
-		Speech              bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
-		PlacesProvider      string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
-		ClassificationFiles []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"things-v2023-07-31.pt"`
-		FacesFiles          []string `envconfig:"SMRITI_ML_FACES_FILES"`
-		OCRFiles            []string `envconfig:"SMRITI_ML_OCR_FILES"`
-		SpeechFiles         []string `envconfig:"SMRITI_ML_SPEECH_FILES"`
+		Places                 bool     `envconfig:"SMRITI_ML_PLACES" default:"true"`
+		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
+		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
+		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"false"`
+		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
+		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
+		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
+		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"things_v20230731.pt"`
+		FacesFiles             []string `envconfig:"SMRITI_ML_FACES_FILES"`
+		OCRFiles               []string `envconfig:"SMRITI_ML_OCR_FILES"`
+		SpeechFiles            []string `envconfig:"SMRITI_ML_SPEECH_FILES"`
 	}
 
 	// Feature ...

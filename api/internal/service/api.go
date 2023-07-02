@@ -38,7 +38,11 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
 	}
 	if s.Config.ML.Classification {
-		workerTasks = append(workerTasks, WorkerTask{Name: "classification", Files: s.Config.ClassificationFiles})
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "classification",
+			Source: s.Config.ClassificationProvider,
+			Files:  s.Config.ClassificationFiles,
+		})
 	}
 	if s.Config.ML.Faces {
 		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
