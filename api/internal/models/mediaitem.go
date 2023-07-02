@@ -32,6 +32,7 @@ type (
 		ID                uuid.UUID         `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`
 		UserID            uuid.UUID         `json:"userId" gorm:"column:user_id"`
 		Filename          string            `json:"filename"`
+		Hash              *string           `json:"hash,omitempty" gorm:"unique"`
 		Description       *string           `json:"description,omitempty"`
 		MimeType          string            `json:"mimeType"`
 		SourceURL         string            `json:"sourceUrl" gorm:"column:source_url"`

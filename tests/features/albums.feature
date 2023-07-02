@@ -4,8 +4,8 @@ Feature: Albums
         Given a user is created if does not exist
         When user logs in
         Then token is generated
-        When upload photo mediaitem with auth and wait 3 seconds
-        Then mediaitem is uploaded
+        When upload photo mediaitem with auth if does not exist and wait 3 seconds
+        Then mediaitem is uploaded or exists
 
     Scenario: Validate Create Album
         Given there are no albums
@@ -47,10 +47,14 @@ Feature: Albums
         Then album mediaitems are added
         When get album mediaitems with auth
         Then album mediaitems are present
-        When delete mediaitem with auth
-        Then mediaitem is deleted
+        When mark delete mediaitem with auth
+        Then mediaitem is marked as deleted
         When get album mediaitems with auth
         Then album mediaitems are absent
+        When unmark delete mediaitem with auth
+        Then mediaitem is unmarked as deleted
+        When get album mediaitems with auth
+        Then album mediaitems are present
         When get album with auth
         Then album is updated after add album mediaitems
         When remove album mediaitems without auth

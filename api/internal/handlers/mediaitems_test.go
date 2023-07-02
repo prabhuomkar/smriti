@@ -761,6 +761,7 @@ func TestUploadMediaItems(t *testing.T) {
 	sampleFile3, contentType3 := getMockedMediaItemFile(t)
 	sampleFile4, contentType4 := getMockedMediaItemFile(t)
 	sampleFile5, contentType5 := getMockedMediaItemFile(t)
+	sampleFile6, contentType6 := getMockedMediaItemFile(t)
 	tests := []Test{
 		{
 			"upload mediaitems with invalid command",
@@ -891,7 +892,7 @@ func TestUploadMediaItems(t *testing.T) {
 			"some db error",
 		},
 		{
-			"upload mediaitems with error sending file to worker due to error in mediaitem process",
+			"upload mediaitems with error saving hash in mediaitem process",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
@@ -904,6 +905,39 @@ func TestUploadMediaItems(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UploadMediaItems
+			},
+			http.StatusInternalServerError,
+			"some db error",
+		},
+		{
+			"upload mediaitems with error sending file to worker due to error in mediaitem process",
+			http.MethodPost,
+			"/v1/mediaItems",
+			"/v1/mediaItems",
+			[]string{},
+			[]string{},
+			map[string]string{
+				echo.HeaderContentType: contentType3,
+			},
+			sampleFile3,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -923,12 +957,16 @@ func TestUploadMediaItems(t *testing.T) {
 			[]string{},
 			[]string{},
 			map[string]string{
-				echo.HeaderContentType: contentType3,
+				echo.HeaderContentType: contentType4,
 			},
-			sampleFile3,
+			sampleFile4,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -952,12 +990,12 @@ func TestUploadMediaItems(t *testing.T) {
 				HeaderUploadCommand:      "finish",
 				HeaderUploadChunkOffset:  "100",
 				HeaderUploadChunkSession: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				echo.HeaderContentType:   contentType4,
+				echo.HeaderContentType:   contentType5,
 			},
-			sampleFile4,
+			sampleFile5,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -981,12 +1019,12 @@ func TestUploadMediaItems(t *testing.T) {
 				HeaderUploadCommand:      "finish",
 				HeaderUploadChunkOffset:  "100",
 				HeaderUploadChunkSession: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				echo.HeaderContentType:   contentType5,
+				echo.HeaderContentType:   contentType6,
 			},
-			sampleFile5,
+			sampleFile6,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},

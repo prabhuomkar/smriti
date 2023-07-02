@@ -4,6 +4,7 @@ import (
 	"api/internal/models"
 	"api/pkg/services/worker"
 	"context"
+	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
@@ -240,8 +241,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 
-		err = saveToDiskAndSendToWorker(h.Config.Storage.DiskRoot, userID.String(), mediaItem.ID.String(),
-			openedFile, strings.Contains(command, "finish"), h.Worker)
+		err = h.saveToDiskAndSendToWorker(userID.String(), mediaItem.ID.String(),
+			openedFile, strings.Contains(command, "finish"))
 		if err != nil {
 			return err
 		}
@@ -251,8 +252,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		})
 	}
 
-	err = saveToDiskAndSendToWorker(h.Config.Storage.DiskRoot, userID.String(), session,
-		openedFile, strings.Contains(command, "finish"), h.Worker)
+	err = h.saveToDiskAndSendToWorker(userID.String(), session,
+		openedFile, strings.Contains(command, "finish"))
 	if err != nil {
 		return err
 	}
@@ -260,10 +261,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func saveToDiskAndSendToWorker(root, userID, mediaItemID string, openedFile multipart.File,
-	sendToWorker bool, client worker.WorkerClient,
-) error {
-	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", root, mediaItemID), fileFlag, filePermission)
+func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFile multipart.File, sendToWorker bool) error { //nolint: lll
+	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", h.Config.Storage.DiskRoot, mediaItemID), fileFlag, filePermission)
 	if err != nil {
 		log.Printf("error opening file: %+v", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -276,15 +275,54 @@ func saveToDiskAndSendToWorker(root, userID, mediaItemID string, openedFile mult
 	}
 
 	if sendToWorker {
-		_, err = client.MediaItemProcess(context.Background(), &worker.MediaItemProcessRequest{
+		err = h.generateHashForDuplicates(userID, mediaItemID, dstFile.Name())
+		if err != nil {
+			if strings.Contains(err.Error(), "violates unique constraint") {
+				log.Printf("error due to duplicate mediaitem: %+v", err)
+				return echo.NewHTTPError(http.StatusConflict, err.Error())
+			}
+			log.Printf("error while generating hash for mediaitem: %+v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+
+		_, err = h.Worker.MediaItemProcess(context.Background(), &worker.MediaItemProcessRequest{
 			UserId:   userID,
 			Id:       mediaItemID,
-			FilePath: root,
+			FilePath: h.Config.Storage.DiskRoot,
 		})
 		if err != nil {
 			log.Printf("error sending mediaitem for processing: %+v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
+	}
+
+	return nil
+}
+
+func (h *Handler) generateHashForDuplicates(userID, mediaItemID, filePath string) error {
+	openedFile, err := os.Open(filePath)
+	if err != nil {
+		log.Printf("error opening file for generating hash: %+v", err)
+		return err
+	}
+	defer openedFile.Close()
+
+	fileHash := sha256.New()
+	if _, err := io.Copy(fileHash, openedFile); err != nil {
+		log.Printf("error copying file for generating hash: %+v", err)
+		return err
+	}
+
+	mediaItemHash := fmt.Sprintf("%x", fileHash.Sum(nil))
+
+	mediaItem := new(models.MediaItem)
+	mediaItem.ID = uuid.FromStringOrNil(mediaItemID)
+	mediaItem.UserID = uuid.FromStringOrNil(userID)
+	mediaItem.Hash = &mediaItemHash
+	result := h.DB.Model(&mediaItem).Updates(mediaItem)
+	if result.Error != nil {
+		log.Printf("error updating mediaitem hash: %+v", result.Error)
+		return result.Error
 	}
 
 	return nil
@@ -306,16 +344,16 @@ func validateChunk(ctx echo.Context) (string, string, error) {
 	offset, _ := strconv.Atoi(ctx.Request().Header.Get(HeaderUploadChunkOffset))
 
 	if len(command) == 0 {
-		log.Printf("error getting command for resumable upload")
+		log.Println("error getting command for resumable upload")
 		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid command for resumable upload")
 	}
 	if command != "start" && offset == 0 {
-		log.Printf("error getting chunk offset for resumable upload")
+		log.Println("error getting chunk offset for resumable upload")
 		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk offset for resumable upload")
 	}
 	session := ctx.Request().Header.Get(HeaderUploadChunkSession)
 	if command != "start" && len(session) == 0 {
-		log.Printf("error getting chunk session for resumable upload")
+		log.Println("error getting chunk session for resumable upload")
 		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk session for resumable upload")
 	}
 
