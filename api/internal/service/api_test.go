@@ -101,17 +101,15 @@ func TestGetWorkerConfig(t *testing.T) {
 			"get worker config with success with all config",
 			&config.Config{ML: config.ML{
 				Places: true, PlacesProvider: "openstreetmap",
-				Classification: true, ClassificationDownload: []string{"http://classification/model/link"},
-				Detection: true, DetectionDownload: []string{"http://detection/model/link"},
-				Faces: true, FacesDownload: []string{"http://faces/model/link"},
-				OCR: true, OCRDownload: []string{"http://ocr/model/link"},
-				Speech: true, SpeechDownload: []string{"http://speech/model/link"},
+				Classification: true, ClassificationFiles: []string{"model-file-name.pt"},
+				Faces: true, FacesFiles: []string{"http://faces/model/link"},
+				OCR: true, OCRFiles: []string{"ocr-v1-model.pt"},
+				Speech: true, SpeechFiles: []string{"speech-6khz.pt"},
 			}},
 			[]byte(`[{"name":"places","source":"openstreetmap"},{"name":"classification","` +
-				`download":["http://classification/model/link"]},{"name":"detection","download":[` +
-				`"http://detection/model/link"]},{"name":"faces","download":["http://faces/model/link"]},` +
-				`{"name":"ocr","download":["http://ocr/model/link"]},{"name":"speech",` +
-				`"download":["http://speech/model/link"]}]`),
+				`files":["model-file-name.pt"]},{"name":"faces","files"` +
+				`:["http://faces/model/link"]},{"name":"ocr","files":["ocr-v1-model.pt"]}` +
+				`,{"name":"speech","files":["speech-6khz.pt"]}]`),
 			nil,
 		},
 		{

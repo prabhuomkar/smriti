@@ -29,28 +29,25 @@ type Service struct {
 
 func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
 	type WorkerTask struct {
-		Name     string   `json:"name"`
-		Source   string   `json:"source,omitempty"`
-		Download []string `json:"download,omitempty"`
+		Name   string   `json:"name"`
+		Source string   `json:"source,omitempty"`
+		Files  []string `json:"files,omitempty"`
 	}
 	var workerTasks []WorkerTask
 	if s.Config.ML.Places {
 		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
 	}
 	if s.Config.ML.Classification {
-		workerTasks = append(workerTasks, WorkerTask{Name: "classification", Download: s.Config.ClassificationDownload})
-	}
-	if s.Config.ML.Detection {
-		workerTasks = append(workerTasks, WorkerTask{Name: "detection", Download: s.Config.DetectionDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "classification", Files: s.Config.ClassificationFiles})
 	}
 	if s.Config.ML.Faces {
-		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Download: s.Config.FacesDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
 	}
 	if s.Config.ML.OCR {
-		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Download: s.Config.OCRDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Files: s.Config.OCRFiles})
 	}
 	if s.Config.ML.Speech {
-		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Download: s.Config.SpeechDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Files: s.Config.SpeechFiles})
 	}
 	configBytes, err := json.Marshal(&workerTasks)
 	if err != nil {
