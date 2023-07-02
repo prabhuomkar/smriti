@@ -17,5 +17,5 @@ func TestGetLogLevel(t *testing.T) {
 func TestInit(t *testing.T) {
 	db, err := Init("WARNING", "host", 1000, "username", "password", "name")
 	assert.Nil(t, db)
-	assert.NotNil(t, err)
+	assert.Error(t, err)
 }

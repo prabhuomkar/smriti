@@ -425,6 +425,40 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			"some db error",
 		},
 		{
+			"remove album mediaitems with success and no cover mediaitem",
+			http.MethodDelete,
+			"/v1/albums/:id/mediaItems",
+			"/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "album_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows(mediaitemCols))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT count(*) FROM "mediaitems" JOIN "album_mediaitems"`)).
+					WillReturnRows(sqlmock.NewRows([]string{"count"}).AddRow("1"))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "albums"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveAlbumMediaItems
+			},
+			http.StatusNoContent,
+			"",
+		},
+		{
 			"remove album mediaitems with error getting cover mediaitem",
 			http.MethodDelete,
 			"/v1/albums/:id/mediaItems",
@@ -829,7 +863,7 @@ func TestGetAlbums(t *testing.T) {
 			"get albums with empty table",
 			http.MethodGet,
 			"/v1/albums",
-			"/v1/albums",
+			"/v1/albums?sort=name",
 			[]string{},
 			[]string{},
 			map[string]string{},
@@ -906,7 +940,7 @@ func TestCreateAlbum(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"bad":"request"}`),
+			strings.NewReader(`{"bad":"request}`),
 			nil,
 			nil,
 			nil,

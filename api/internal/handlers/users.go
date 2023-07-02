@@ -142,9 +142,6 @@ func getUser(ctx echo.Context) (*models.User, error) {
 
 func getPasswordHash(password string) string {
 	passwordHash := sha512.New()
-	_, err := passwordHash.Write([]byte(password))
-	if err != nil {
-		log.Printf("error generating password hash: %v", err)
-	}
+	passwordHash.Write([]byte(password))
 	return fmt.Sprintf("%x", passwordHash.Sum(nil))
 }

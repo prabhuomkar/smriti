@@ -54,12 +54,11 @@ func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string
 	}
 
 	userID, err := uuid.FromString(claims.ID)
-	if userID == uuid.Nil {
-		log.Printf("error getting user id from claims: %+v", err)
-		return "", "", errors.New("got nil user id")
-	}
-	if err != nil {
-		log.Printf("error converting user id from claims: %+v", err)
+	if err != nil || userID == uuid.Nil {
+		if err == nil {
+			err = errors.New("got nil user id")
+		}
+		log.Printf("error getting user id %+v from claims: %+v", userID, err)
 		return "", "", err
 	}
 

@@ -56,7 +56,7 @@ func TestGetTokens(t *testing.T) {
 			if test.WantErr {
 				assert.Empty(t, atoken)
 				assert.Empty(t, rtoken)
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 			} else {
 				assert.NotEmpty(t, atoken)
 				assert.NotEmpty(t, rtoken)
@@ -105,7 +105,7 @@ func TestRefreshTokens(t *testing.T) {
 			true,
 		},
 		{
-			"error converting user id from claims",
+			"error getting user id from claims",
 			func(cfg *config.Config, cache cache.Provider) string {
 				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("invalid-user-id"), Username: "username"})
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
@@ -130,7 +130,7 @@ func TestRefreshTokens(t *testing.T) {
 			if test.WantErr {
 				assert.Empty(t, atoken)
 				assert.Empty(t, rtoken)
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 			} else {
 				assert.NotEmpty(t, atoken)
 				assert.NotEmpty(t, rtoken)
@@ -181,7 +181,7 @@ func TestRemoveTokens(t *testing.T) {
 			oldAToken := test.Token(cfg, cache)
 			err := RemoveTokens(cache, oldAToken)
 			if test.WantErr {
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 			} else {
 				assert.Nil(t, err)
 			}
@@ -241,7 +241,7 @@ func TestVerifyToken(t *testing.T) {
 			claims, err := VerifyToken(cfg, cache, oldAToken)
 			if test.WantErr {
 				assert.Nil(t, claims)
-				assert.NotNil(t, err)
+				assert.Error(t, err)
 			} else {
 				assert.NotNil(t, claims)
 				assert.Nil(t, err)

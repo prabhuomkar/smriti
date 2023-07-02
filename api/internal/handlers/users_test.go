@@ -159,7 +159,7 @@ func TestUpdateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"bad":"request"}`),
+			strings.NewReader(`{"bad":"request}`),
 			nil,
 			nil,
 			nil,
