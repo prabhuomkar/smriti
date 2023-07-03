@@ -5,10 +5,10 @@ API_URL = os.getenv('API_URL', 'http://localhost:5001')
 ADMIN_USERNAME = 'smriti'
 ADMIN_PASSWORD = 'smritiT3st!'
 
-CREATED_USER = {'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!',
-                'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true}'}
-UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!',
-                'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true}'}
+CREATED_USER = {'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!','features':'{"albums":true,'+
+                '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true}'}
+UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!','features':'{"albums"'+
+                ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true}'}
 
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description', 'shared': True}
@@ -29,6 +29,8 @@ UPDATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/he
                      'description': None, 'favourite': False, 'hidden': False}}
 
 CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}
+
+CREATED_THING = {'name': 'Pizza'}
 
 FILES_TO_SKIP = ['3839-samsung - sm-g973u - 16bit (2.1132075471698).dng', '1087-leica - leica m monochrom (typ 246) - 12bit (3:2).dng',
                  '672-pentax - pentax optio s4.raw', '778-xiaomi - yi.raw', '3896-phase one - iq4 150mp - unknown (8) (4:3).iiq',
