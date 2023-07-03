@@ -19,6 +19,9 @@ class PyTorchModule:
         res = self.module.forward(input_tensor)
         logging.debug(f'thing for user {mediaitem_user_id} mediaitem {mediaitem_id}: {res}')
 
+        if len(res.items()) == 0:
+            return None
+
         return dict({
             'userId': mediaitem_user_id,
             'id': mediaitem_id,

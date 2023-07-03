@@ -40,7 +40,7 @@ class Things(Component):
             request = MediaItemThingRequest(
                 userId=result['userId'],
                 id=result['id'],
-                name=result['name'] if 'name' in result else None
+                name=result['name'].title() if 'name' in result else None
             )
             _ = self.api_stub.SaveMediaItemThing(request)
         except RpcError as rpc_exp:
