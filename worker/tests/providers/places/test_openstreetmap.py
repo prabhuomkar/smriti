@@ -17,13 +17,17 @@ def test_openstreetmap_success(requests_mock):
                       'postcode': '421201', 'country': 'India',
                       'state': 'Maharashtra', 'city': 'Dombivali', 'town': None}
 
-
 def test_openstreetmap_failed_empty_response(requests_mock):
     requests_mock.get(url=API_URL.format(
         lat=19.2195856, lon=73.1056888), json={})
     result = init_places('openstreetmap').reverse_geocode('mediaitem_user_id', 'mediaitem_id', [19.2195856, 73.1056888])
     assert result == None
 
+def test_openstreetmap_failed_empty_address_response(requests_mock):
+    requests_mock.get(url=API_URL.format(
+        lat=19.2195856, lon=73.1056888), json={'address': {}})
+    result = init_places('openstreetmap').reverse_geocode('mediaitem_user_id', 'mediaitem_id', [19.2195856, 73.1056888])
+    assert result == None
 
 def test_openstreetmap_failed_exception(requests_mock):
     requests_mock.get(url=API_URL.format(
