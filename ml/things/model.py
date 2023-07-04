@@ -13,17 +13,10 @@ class SmritiThingsModule(torch.nn.Module):
     """EfficientNet TorchScript Module"""
     def __init__(self) -> None:
         super(SmritiThingsModule, self).__init__()
-        
-        #transforms
         self.transforms = EfficientNet_V2_S_Weights.IMAGENET1K_V1.transforms()
-
-        # load the pretrained model
         self.model = efficientnet_v2_s(weights=EfficientNet_V2_S_Weights.IMAGENET1K_V1)
         self.model.eval()
-
-        # map imagenet classes to labels
-        self.categories = [s.strip() for s in \
-            open('labels.txt', encoding='utf-8').readlines()]
+        self.categories = EfficientNet_V2_S_Weights.IMAGENET1K_V1.meta['categories']
 
     def forward(self, img_tensor, topk: int=5):
         """Forward Pass"""
