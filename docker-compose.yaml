@@ -49,7 +49,7 @@ services:
   # infra services
   database:
     container_name: database
-    image: postgres:15
+    image: ankane/pgvector:v0.4.4
     restart: always
     environment:
       POSTGRES_USER: smritiuser
