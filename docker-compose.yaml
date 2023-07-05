@@ -40,6 +40,7 @@ services:
       SMRITI_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
+      - ./models:/models:rw
     deploy:
       resources:
         limits:

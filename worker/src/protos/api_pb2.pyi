@@ -74,3 +74,13 @@ class MediaItemPlaceRequest(_message.Message):
     town: str
     userId: str
     def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., postcode: _Optional[str] = ..., country: _Optional[str] = ..., state: _Optional[str] = ..., city: _Optional[str] = ..., town: _Optional[str] = ...) -> None: ...
+
+class MediaItemThingRequest(_message.Message):
+    __slots__ = ["id", "name", "userId"]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    NAME_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    name: str
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., name: _Optional[str] = ...) -> None: ...

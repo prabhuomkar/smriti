@@ -57,17 +57,16 @@ type (
 	// ML ...
 	ML struct {
 		Places                 bool     `envconfig:"SMRITI_ML_PLACES" default:"true"`
-		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"false"`
-		Detection              bool     `envconfig:"SMRITI_ML_DETECTION" default:"false"`
+		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
 		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
 		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"false"`
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
 		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
-		ClassificationDownload []string `envconfig:"SMRITI_ML_CLASSIFICATION_DOWNLOAD"`
-		DetectionDownload      []string `envconfig:"SMRITI_ML_DETECTION_DOWNLOAD"`
-		FacesDownload          []string `envconfig:"SMRITI_ML_FACES_DOWNLOAD"`
-		OCRDownload            []string `envconfig:"SMRITI_ML_OCR_DOWNLOAD"`
-		SpeechDownload         []string `envconfig:"SMRITI_ML_SPEECH_DOWNLOAD"`
+		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
+		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"things_v20230731.pt"`
+		FacesFiles             []string `envconfig:"SMRITI_ML_FACES_FILES"`
+		OCRFiles               []string `envconfig:"SMRITI_ML_OCR_FILES"`
+		SpeechFiles            []string `envconfig:"SMRITI_ML_SPEECH_FILES"`
 	}
 
 	// Feature ...
@@ -78,7 +77,7 @@ type (
 		Albums     bool `envconfig:"SMRITI_FEATURE_ALBUMS" default:"true"`
 		Explore    bool `envconfig:"SMRITI_FEATURE_EXPLORE" default:"true"`
 		Places     bool `envconfig:"SMRITI_FEATURE_PLACES" default:"true"`
-		Things     bool `envconfig:"SMRITI_FEATURE_THINGS" default:"false"`
+		Things     bool `envconfig:"SMRITI_FEATURE_THINGS" default:"true"`
 		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"false"`
 		Sharing    bool `envconfig:"SMRITI_FEATURE_SHARING" default:"false"`
 	}

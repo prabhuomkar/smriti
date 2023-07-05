@@ -29,28 +29,29 @@ type Service struct {
 
 func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
 	type WorkerTask struct {
-		Name     string   `json:"name"`
-		Source   string   `json:"source,omitempty"`
-		Download []string `json:"download,omitempty"`
+		Name   string   `json:"name"`
+		Source string   `json:"source,omitempty"`
+		Files  []string `json:"files,omitempty"`
 	}
 	var workerTasks []WorkerTask
 	if s.Config.ML.Places {
 		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
 	}
 	if s.Config.ML.Classification {
-		workerTasks = append(workerTasks, WorkerTask{Name: "classification", Download: s.Config.ClassificationDownload})
-	}
-	if s.Config.ML.Detection {
-		workerTasks = append(workerTasks, WorkerTask{Name: "detection", Download: s.Config.DetectionDownload})
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "classification",
+			Source: s.Config.ClassificationProvider,
+			Files:  s.Config.ClassificationFiles,
+		})
 	}
 	if s.Config.ML.Faces {
-		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Download: s.Config.FacesDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
 	}
 	if s.Config.ML.OCR {
-		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Download: s.Config.OCRDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Files: s.Config.OCRFiles})
 	}
 	if s.Config.ML.Speech {
-		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Download: s.Config.SpeechDownload})
+		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Files: s.Config.SpeechFiles})
 	}
 	configBytes, err := json.Marshal(&workerTasks)
 	if err != nil {
@@ -151,6 +152,41 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
 	}
 	log.Printf("saved place for mediaitem: %s", mediaItem.ID.String())
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	log.Printf("saving mediaitem thing for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	thing := models.Thing{
+		UserID: userID,
+		Name:   req.Name,
+	}
+	result := s.DB.Where(models.Thing{UserID: userID, Name: thing.Name}).
+		Attrs(models.Thing{ID: uuid.NewV4()}).
+		Assign(models.Thing{CoverMediaItemID: &uid}).
+		FirstOrCreate(&thing)
+	if result.Error != nil {
+		log.Printf("error getting or creating thing: %+v", result.Error)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal,
+			"error getting or creating thing: %s", result.Error.Error())
+	}
+	mediaItem := models.MediaItem{ID: uid}
+	err = s.DB.Omit("MediaItems.*").Model(&thing).Association("MediaItems").Append(&mediaItem)
+	if err != nil {
+		log.Printf("error saving mediaitem thing: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
+	}
+	log.Printf("saved thing for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 

@@ -279,7 +279,7 @@ func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFi
 		if err != nil {
 			if strings.Contains(err.Error(), "violates unique constraint") {
 				log.Printf("error due to duplicate mediaitem: %+v", err)
-				return echo.NewHTTPError(http.StatusConflict, err.Error())
+				return echo.NewHTTPError(http.StatusConflict, "mediaitem already exists")
 			}
 			log.Printf("error while generating hash for mediaitem: %+v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
