@@ -63,7 +63,7 @@ type (
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
 		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
 		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
-		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"things_v20230731.pt"`
+		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"classification_v20230731.pt"`
 		FacesFiles             []string `envconfig:"SMRITI_ML_FACES_FILES"`
 		OCRFiles               []string `envconfig:"SMRITI_ML_OCR_FILES"`
 		SpeechFiles            []string `envconfig:"SMRITI_ML_SPEECH_FILES"`

@@ -8,7 +8,7 @@ import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
-from src.components import Component, Metadata, Places, Things
+from src.components import Component, Metadata, Places, Classification
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
@@ -70,7 +70,7 @@ async def serve() -> None:
         if item['name'] == 'places':
             components.append(Places(api_stub=api_stub, source=item['source']))
         elif item['name'] == 'classification':
-            components.append(Things(api_stub=api_stub, source=item['source'], files=item['files']))
+            components.append(Classification(api_stub=api_stub, source=item['source'], files=item['files']))
 
     # initialize grpc server
     server = grpc.aio.server()

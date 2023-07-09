@@ -1,11 +1,11 @@
-"""Providers Things PyTorch Tests"""
+"""Providers Classification PyTorch Tests"""
 from unittest import mock
 import pytest
 
 import numpy as np
 import torch
 
-from src.providers.things.pytorch import PyTorchModule
+from src.providers.classification.pytorch import PyTorchModule
 
 
 @mock.patch('torch.jit.load', return_value=torch.jit.ScriptModule())

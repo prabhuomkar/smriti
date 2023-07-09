@@ -17,6 +17,10 @@ func Init(logLevel, host string, port int, username, password, name string) (*go
 	if err != nil {
 		return nil, err
 	}
+	result := dbConn.Exec("CREATE EXTENSION IF NOT EXISTS vector")
+	if result.Error != nil {
+		return nil, result.Error
+	}
 	return dbConn, nil
 }
 

@@ -7,12 +7,12 @@ from torchvision import transforms
 from torchvision.models.efficientnet import efficientnet_v2_s, EfficientNet_V2_S_Weights
 
 
-FILE_NAME = 'things_v20230731.pt'
+FILE_NAME = 'classification_v20230731.pt'
 
-class SmritiThingsModule(torch.nn.Module):
+class SmritiClassificationPyTorchModule(torch.nn.Module):
     """EfficientNet TorchScript Module"""
     def __init__(self) -> None:
-        super(SmritiThingsModule, self).__init__()
+        super(SmritiClassificationPyTorchModule, self).__init__()
         self.transforms = EfficientNet_V2_S_Weights.IMAGENET1K_V1.transforms()
         self.model = efficientnet_v2_s(weights=EfficientNet_V2_S_Weights.IMAGENET1K_V1)
         self.model.eval()
@@ -30,7 +30,7 @@ class SmritiThingsModule(torch.nn.Module):
 def script_and_save():
     """Initialize pytorch model with weights, script it and save the torchscript module"""
     print('scripting and saving torchscript module')
-    scripted_module = torch.jit.script(SmritiThingsModule())
+    scripted_module = torch.jit.script(SmritiClassificationPyTorchModule())
     scripted_module.save(FILE_NAME)
 
 def load_and_run(sample):
