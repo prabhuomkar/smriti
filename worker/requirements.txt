@@ -3,6 +3,8 @@ grpcio
 grpcio-tools
 minio
 moviepy
+paddlepaddle==2.4.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
+paddleocr
 Pillow
 prometheus-client
 PyExifTool

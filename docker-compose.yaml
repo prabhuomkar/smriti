@@ -38,6 +38,7 @@ services:
     environment:
       SMRITI_API_HOST: api
       SMRITI_LOG_LEVEL: DEBUG
+      PYTHONUNBUFFERED: '1'
     volumes:
       - ./storage:/storage:rw
       - ./models:/models:rw

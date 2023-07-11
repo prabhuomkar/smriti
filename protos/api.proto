@@ -48,9 +48,17 @@ message MediaItemThingRequest {
     string name = 3;
 }
 
+message MediaItemMLResultRequest {
+    string userId = 1;
+    string id = 2;
+    string name = 3;
+    repeated string value = 4;
+}
+
 service API {
     rpc GetWorkerConfig(google.protobuf.Empty) returns (ConfigResponse) {}
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemThing(MediaItemThingRequest) returns (google.protobuf.Empty) {}
+    rpc SaveMediaItemMLResult(MediaItemMLResultRequest) returns (google.protobuf.Empty) {}
 }

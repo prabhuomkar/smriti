@@ -44,11 +44,15 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 			Files:  s.Config.ClassificationFiles,
 		})
 	}
+	if s.Config.ML.OCR {
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "ocr",
+			Source: s.Config.OCRProvider,
+			Files:  s.Config.OCRFiles,
+		})
+	}
 	if s.Config.ML.Faces {
 		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
-	}
-	if s.Config.ML.OCR {
-		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Files: s.Config.OCRFiles})
 	}
 	if s.Config.ML.Speech {
 		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Files: s.Config.SpeechFiles})

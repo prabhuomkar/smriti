@@ -32,7 +32,7 @@ class SmritiClassificationPyTorchModule(torch.nn.Module):
 def script_and_save():
     """Initialize pytorch model with weights, script it and save the torchscript module"""
     print('scripting and saving torchscript module')
-    scripted_module = torch.jit.script(SmritiClassificationPyTorchModule(get_model(MODEL_NAME), get_model_weights(MODEL_NAME).DEFAULT))
+    scripted_module = torch.jit.script(SmritiClassificationPyTorchModule(get_model(MODEL_NAME, weights='DEFAULT'), get_model_weights(MODEL_NAME).DEFAULT))
     scripted_module.save(FILE_NAME)
 
 def load_and_run(sample):

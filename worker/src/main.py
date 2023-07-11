@@ -8,7 +8,7 @@ import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
-from src.components import Component, Metadata, Places, Classification
+from src.components import Component, Metadata, Places, Classification, OCR
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
@@ -71,6 +71,8 @@ async def serve() -> None:
             components.append(Places(api_stub=api_stub, source=item['source']))
         elif item['name'] == 'classification':
             components.append(Classification(api_stub=api_stub, source=item['source'], files=item['files']))
+        elif item['name'] == 'ocr':
+            components.append(OCR(api_stub=api_stub, source=item['source'], files=item['files']))
 
     # initialize grpc server
     server = grpc.aio.server()
