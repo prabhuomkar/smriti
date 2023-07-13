@@ -1,15 +1,19 @@
 """OCR: Paddle"""
+import os
 import logging
 
+from paddleocr import PaddleOCR
+
+
+logging.getLogger().setLevel(os.getenv('SMRITI_LOG_LEVEL', 'INFO'))
 
 class PaddleModule:
     """PaddleModule OCR"""
 
     def __init__(self, files: list[str]) -> None:
-        from paddleocr import PaddleOCR # pylint: disable=import-outside-toplevel
 
-        self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en', det_model_dir=files[0],
-                               rec_model_dir=files[1], cls_model_dir=files[2])
+        self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en', det_model_dir=f'/models/{files[0]}',
+                               rec_model_dir=f'/models/{files[1]}', cls_model_dir=f'/models/{files[2]}')
 
     def extract(self, mediaitem_user_id: str, mediaitem_id: str, input_file: str) -> dict:
         """Extract text from mediaitem"""

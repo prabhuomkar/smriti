@@ -194,6 +194,22 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) SaveMediaItemMLResult(_ context.Context, req *api.MediaItemMLResultRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	log.Printf("saving mediaitem ml result for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	log.Printf("saved ml result for user: %s mediaitem: %s name: %s value: %+v", userID.String(), uid.String(), req.Name, req.Value)
+	return &emptypb.Empty{}, nil
+}
+
 func getNameForPlace(place models.Place) string {
 	if place.City != nil {
 		return *place.City
