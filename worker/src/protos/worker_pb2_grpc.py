@@ -19,12 +19,23 @@ class WorkerStub(object):
                 request_serializer=src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.SerializeToString,
                 response_deserializer=src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.FromString,
                 )
+        self.GenerateEmbedding = channel.unary_unary(
+                '/Worker/GenerateEmbedding',
+                request_serializer=src_dot_protos_dot_worker__pb2.GenerateEmbeddingRequest.SerializeToString,
+                response_deserializer=src_dot_protos_dot_worker__pb2.GenerateEmbeddingResponse.FromString,
+                )
 
 
 class WorkerServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def MediaItemProcess(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GenerateEmbedding(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -37,6 +48,11 @@ def add_WorkerServicer_to_server(servicer, server):
                     servicer.MediaItemProcess,
                     request_deserializer=src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.FromString,
                     response_serializer=src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.SerializeToString,
+            ),
+            'GenerateEmbedding': grpc.unary_unary_rpc_method_handler(
+                    servicer.GenerateEmbedding,
+                    request_deserializer=src_dot_protos_dot_worker__pb2.GenerateEmbeddingRequest.FromString,
+                    response_serializer=src_dot_protos_dot_worker__pb2.GenerateEmbeddingResponse.SerializeToString,
             ),
     }
     generic_handler = grpc.method_handlers_generic_handler(
@@ -62,5 +78,22 @@ class Worker(object):
         return grpc.experimental.unary_unary(request, target, '/Worker/MediaItemProcess',
             src_dot_protos_dot_worker__pb2.MediaItemProcessRequest.SerializeToString,
             src_dot_protos_dot_worker__pb2.MediaItemProcessResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GenerateEmbedding(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/Worker/GenerateEmbedding',
+            src_dot_protos_dot_worker__pb2.GenerateEmbeddingRequest.SerializeToString,
+            src_dot_protos_dot_worker__pb2.GenerateEmbeddingResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

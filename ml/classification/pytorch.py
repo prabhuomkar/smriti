@@ -1,4 +1,4 @@
-"""PyTorch Serving Example Model"""
+"""ML Classification TorchVision Model"""
 import sys
 
 from PIL import Image

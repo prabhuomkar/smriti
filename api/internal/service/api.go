@@ -51,6 +51,13 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 			Files:  s.Config.OCRFiles,
 		})
 	}
+	if s.Config.ML.Search {
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "search",
+			Source: s.Config.SearchProvider,
+			Files:  s.Config.SearchFiles,
+		})
+	}
 	if s.Config.ML.Faces {
 		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
 	}

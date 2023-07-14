@@ -12,6 +12,15 @@ message MediaItemProcessResponse {
     bool ok = 1;
 }
 
+message GenerateEmbeddingRequest {
+    repeated string text = 1;
+}
+
+message GenerateEmbeddingResponse {
+    repeated float embedding = 1;
+}
+
 service Worker {
     rpc MediaItemProcess(MediaItemProcessRequest) returns (MediaItemProcessResponse) {}
+    rpc GenerateEmbedding(GenerateEmbeddingRequest) returns (GenerateEmbeddingResponse) {}
 }

@@ -10,7 +10,7 @@ from prometheus_client import start_http_server
 
 from src.components import Component, Metadata, Places, Classification, OCR
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
@@ -31,6 +31,12 @@ class WorkerService(WorkerServicer):
             loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id, mediaitem_file_path))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)
+    
+    # pylint: disable=invalid-overridden-method
+    async def GenerateEmbedding(self, request, context) -> GenerateEmbeddingResponse:
+        """Generate Embedding"""
+        text = request.text
+        return GenerateEmbeddingResponse(embedding=None)
 
 # pylint: disable=redefined-builtin,invalid-name
 async def process_mediaitem(components: list[Component], user_id: str, id: str, file_path: str) -> None:

@@ -13,7 +13,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17src/protos/worker.proto\"G\n\x17MediaItemProcessRequest\x12\x0e\n\x06userId\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x12\x10\n\x08\x66ilePath\x18\x03 \x01(\t\"&\n\x18MediaItemProcessResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\x32S\n\x06Worker\x12I\n\x10MediaItemProcess\x12\x18.MediaItemProcessRequest\x1a\x19.MediaItemProcessResponse\"\x00\x42\tZ\x07worker/b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x17src/protos/worker.proto\"G\n\x17MediaItemProcessRequest\x12\x0e\n\x06userId\x18\x01 \x01(\t\x12\n\n\x02id\x18\x02 \x01(\t\x12\x10\n\x08\x66ilePath\x18\x03 \x01(\t\"&\n\x18MediaItemProcessResponse\x12\n\n\x02ok\x18\x01 \x01(\x08\"(\n\x18GenerateEmbeddingRequest\x12\x0c\n\x04text\x18\x01 \x03(\t\".\n\x19GenerateEmbeddingResponse\x12\x11\n\tembedding\x18\x01 \x03(\x02\x32\xa1\x01\n\x06Worker\x12I\n\x10MediaItemProcess\x12\x18.MediaItemProcessRequest\x1a\x19.MediaItemProcessResponse\"\x00\x12L\n\x11GenerateEmbedding\x12\x19.GenerateEmbeddingRequest\x1a\x1a.GenerateEmbeddingResponse\"\x00\x42\tZ\x07worker/b\x06proto3')
 
 _builder.BuildMessageAndEnumDescriptors(DESCRIPTOR, globals())
 _builder.BuildTopDescriptorsAndMessages(DESCRIPTOR, 'src.protos.worker_pb2', globals())
@@ -25,6 +25,10 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _MEDIAITEMPROCESSREQUEST._serialized_end=98
   _MEDIAITEMPROCESSRESPONSE._serialized_start=100
   _MEDIAITEMPROCESSRESPONSE._serialized_end=138
-  _WORKER._serialized_start=140
-  _WORKER._serialized_end=223
+  _GENERATEEMBEDDINGREQUEST._serialized_start=140
+  _GENERATEEMBEDDINGREQUEST._serialized_end=180
+  _GENERATEEMBEDDINGRESPONSE._serialized_start=182
+  _GENERATEEMBEDDINGRESPONSE._serialized_end=228
+  _WORKER._serialized_start=231
+  _WORKER._serialized_end=392
 # @@protoc_insertion_point(module_scope)

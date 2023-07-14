@@ -59,6 +59,7 @@ type (
 		Places                 bool     `envconfig:"SMRITI_ML_PLACES" default:"true"`
 		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
 		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"true"`
+		Search                 bool     `envconfig:"SMRITI_ML_SEARCH" default:"true"`
 		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
 		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
@@ -66,6 +67,8 @@ type (
 		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"classification_v20230731.pt"`
 		OCRProvider            string   `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
 		OCRFiles               []string `envconfig:"SMRITI_ML_OCR_FILES" default:"det_infer,rec_infer,cls_infer"`
+		SearchProvider         string   `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
+		SearchFiles            []string `envconfig:"SMRITI_ML_SEARCH_FILES" default:"search_v20230731.pt"`
 		FacesFiles             []string `envconfig:"SMRITI_ML_FACES_FILES"`
 		SpeechFiles            []string `envconfig:"SMRITI_ML_SPEECH_FILES"`
 	}
