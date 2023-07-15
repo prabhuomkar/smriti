@@ -9,6 +9,7 @@ from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-modul
 from prometheus_client import start_http_server
 
 from src.components import Component, Metadata, Places, Classification, OCR
+from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
@@ -17,8 +18,9 @@ from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_ser
 class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
-    def __init__(self, components: list[Component]) -> None:
+    def __init__(self, components: list[Component], search_model: PyTorchModule) -> None:
         self.components = components
+        self.search_model = search_model
 
     # pylint: disable=invalid-overridden-method
     async def MediaItemProcess(self, request, context) -> MediaItemProcessResponse:
@@ -31,11 +33,14 @@ class WorkerService(WorkerServicer):
             loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id, mediaitem_file_path))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)
-    
+
     # pylint: disable=invalid-overridden-method
     async def GenerateEmbedding(self, request, context) -> GenerateEmbeddingResponse:
         """Generate Embedding"""
         text = request.text
+        if self.search_model:
+            result = self.search_model.generate_embedding(text)
+            return GenerateEmbeddingResponse(embedding=result)
         return GenerateEmbeddingResponse(embedding=None)
 
 # pylint: disable=redefined-builtin,invalid-name
@@ -72,6 +77,7 @@ async def serve() -> None:
 
     # initialize components
     components = [Metadata(api_stub=api_stub)]
+    search_model = None
     for item in cfg:
         if item['name'] == 'places':
             components.append(Places(api_stub=api_stub, source=item['source']))
@@ -79,10 +85,12 @@ async def serve() -> None:
             components.append(Classification(api_stub=api_stub, source=item['source'], files=item['files']))
         elif item['name'] == 'ocr':
             components.append(OCR(api_stub=api_stub, source=item['source'], files=item['files']))
+        elif item['name'] == 'search':
+            search_model = init_search(name=item['source'], files=item['files'])
 
     # initialize grpc server
     server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(components), server)
+    add_WorkerServicer_to_server(WorkerService(components, search_model), server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')

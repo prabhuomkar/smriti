@@ -5,13 +5,12 @@ import logging
 from paddleocr import PaddleOCR
 
 
-logging.getLogger().setLevel(os.getenv('SMRITI_LOG_LEVEL', 'INFO'))
+logging.getLogger().handlers = []
 
 class PaddleModule:
     """PaddleModule OCR"""
 
     def __init__(self, files: list[str]) -> None:
-
         self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en', det_model_dir=f'/models/{files[0]}',
                                rec_model_dir=f'/models/{files[1]}', cls_model_dir=f'/models/{files[2]}')
 
