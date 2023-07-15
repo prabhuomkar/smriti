@@ -11,9 +11,9 @@ from src.providers.ocr.utils import init_ocr
 
 class OCR(Component):
     """OCR Component"""
-    def __init__(self, api_stub: APIStub, source: str, files: list[str]) -> None:
+    def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
         super().__init__('ocr', api_stub)
-        self.model = init_ocr(source, files)
+        self.model = init_ocr(source, params)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process ocr from mediaitem"""

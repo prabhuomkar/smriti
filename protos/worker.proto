@@ -13,7 +13,7 @@ message MediaItemProcessResponse {
 }
 
 message GenerateEmbeddingRequest {
-    repeated string text = 1;
+    string text = 1;
 }
 
 message GenerateEmbeddingResponse {

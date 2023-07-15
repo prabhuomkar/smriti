@@ -31,7 +31,7 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	type WorkerTask struct {
 		Name   string   `json:"name"`
 		Source string   `json:"source,omitempty"`
-		Files  []string `json:"files,omitempty"`
+		Params []string `json:"params,omitempty"`
 	}
 	var workerTasks []WorkerTask
 	if s.Config.ML.Places {
@@ -41,28 +41,28 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 		workerTasks = append(workerTasks, WorkerTask{
 			Name:   "classification",
 			Source: s.Config.ClassificationProvider,
-			Files:  s.Config.ClassificationFiles,
+			Params: s.Config.ClassificationParams,
 		})
 	}
 	if s.Config.ML.OCR {
 		workerTasks = append(workerTasks, WorkerTask{
 			Name:   "ocr",
 			Source: s.Config.OCRProvider,
-			Files:  s.Config.OCRFiles,
+			Params: s.Config.OCRParams,
 		})
 	}
 	if s.Config.ML.Search {
 		workerTasks = append(workerTasks, WorkerTask{
 			Name:   "search",
 			Source: s.Config.SearchProvider,
-			Files:  s.Config.SearchFiles,
+			Params: s.Config.SearchParams,
 		})
 	}
 	if s.Config.ML.Faces {
-		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
+		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Params: s.Config.FacesParams})
 	}
 	if s.Config.ML.Speech {
-		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Files: s.Config.SpeechFiles})
+		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Params: s.Config.SpeechParams})
 	}
 	configBytes, err := json.Marshal(&workerTasks)
 	if err != nil {
@@ -213,7 +213,7 @@ func (s *Service) SaveMediaItemMLResult(_ context.Context, req *api.MediaItemMLR
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	log.Printf("saving mediaitem ml result for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
-	log.Printf("saved ml result for user: %s mediaitem: %s name: %s value: %+v", userID.String(), uid.String(), req.Name, req.Value)
+	log.Printf("saved ml result for user: %s mediaitem: %s name: %s value: %+v", userID.String(), uid.String(), req.Name, req.Value) //nolint: lll
 	return &emptypb.Empty{}, nil
 }
 

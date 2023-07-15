@@ -101,15 +101,17 @@ func TestGetWorkerConfig(t *testing.T) {
 			"get worker config with success with all config",
 			&config.Config{ML: config.ML{
 				Places: true, PlacesProvider: "openstreetmap",
-				Classification: true, ClassificationFiles: []string{"model-file-name.pt"},
-				Faces: true, FacesFiles: []string{"http://faces/model/link"},
-				OCR: true, OCRFiles: []string{"ocr-v1-model.pt"},
-				Speech: true, SpeechFiles: []string{"speech-6khz.pt"},
+				Classification: true, ClassificationProvider: "pytorch", ClassificationParams: []string{"model-file-name.pt"},
+				OCR: true, OCRProvider: "paddlepaddle", OCRParams: []string{"ocr-v1-model.pt"},
+				Search: true, SearchProvider: "pytorch", SearchParams: []string{"search-model.pt"},
+				Faces: true, FacesParams: []string{"http://faces/model/link"},
+				Speech: true, SpeechParams: []string{"speech-6khz.pt"},
 			}},
-			[]byte(`[{"name":"places","source":"openstreetmap"},{"name":"classification","` +
-				`files":["model-file-name.pt"]},{"name":"faces","files"` +
-				`:["http://faces/model/link"]},{"name":"ocr","files":["ocr-v1-model.pt"]}` +
-				`,{"name":"speech","files":["speech-6khz.pt"]}]`),
+			[]byte(`[{"name":"places","source":"openstreetmap"},{"name":"classification","source":"pytorch",` +
+				`"params":["model-file-name.pt"]},{"name":"ocr","source":"paddlepaddle","params":["ocr-v1-model.pt"]}` +
+				`,{"name":"search","source":"pytorch","params":["search-model.pt"]}` +
+				`,{"name":"faces","params":["http://faces/model/link"]}` +
+				`,{"name":"speech","params":["speech-6khz.pt"]}]`),
 			nil,
 		},
 		{
@@ -145,7 +147,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		Name        string
 		Request     *api.MediaItemMetadataRequest
 		MockDB      func(mock sqlmock.Sqlmock)
-		MockFiles   func(string) (string, string, string, func(), error)
+		MockParams  func(string) (string, string, string, func(), error)
 		ExpectedErr error
 	}{
 		{
@@ -323,9 +325,9 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				DB:      mockGDB,
 				Storage: &storage.Disk{Root: tmpRoot},
 			}
-			// mock tmp files
-			if test.MockFiles != nil {
-				originalPath, previewPath, thumbnailPath, clear, err := test.MockFiles(tmpRoot)
+			// mock tmp params
+			if test.MockParams != nil {
+				originalPath, previewPath, thumbnailPath, clear, err := test.MockParams(tmpRoot)
 				assert.NoError(t, err)
 				test.Request.SourcePath = originalPath
 				test.Request.PreviewPath = &previewPath

@@ -7,9 +7,9 @@ from transformers import AutoTokenizer
 class PyTorchModule:
     """PyTorchModule Search"""
 
-    def __init__(self, files: list[str]) -> None:
-        self.module = torch.jit.load(f'/models/{files[0]}')
-        self.model_name = files[1]
+    def __init__(self, params: list[str]) -> None:
+        self.module = torch.jit.load(f'/models/{params[0]}')
+        self.model_name = params[1]
 
     def generate_embedding(self, text: str):
         """Generate text embedding from text"""

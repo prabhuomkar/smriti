@@ -8,8 +8,8 @@ from PIL import Image
 class PyTorchModule:
     """PyTorchModule Classification"""
 
-    def __init__(self, files: list[str]) -> None:
-        self.module = torch.jit.load(f'/models/{files[0]}')
+    def __init__(self, params: list[str]) -> None:
+        self.module = torch.jit.load(f'/models/{params[0]}')
 
     def classify(self, mediaitem_user_id: str, mediaitem_id: str, input_file: str) -> dict:
         """Classify categories for mediaitem"""

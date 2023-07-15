@@ -82,11 +82,11 @@ async def serve() -> None:
         if item['name'] == 'places':
             components.append(Places(api_stub=api_stub, source=item['source']))
         elif item['name'] == 'classification':
-            components.append(Classification(api_stub=api_stub, source=item['source'], files=item['files']))
+            components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'ocr':
-            components.append(OCR(api_stub=api_stub, source=item['source'], files=item['files']))
+            components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'search':
-            search_model = init_search(name=item['source'], files=item['files'])
+            search_model = init_search(name=item['source'], params=item['params'])
 
     # initialize grpc server
     server = grpc.aio.server()

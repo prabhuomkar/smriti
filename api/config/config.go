@@ -64,13 +64,13 @@ type (
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
 		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
 		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
-		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"classification_v20230731.pt"`
+		ClassificationParams   []string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS" default:"classification_v20230731.pt"`
 		OCRProvider            string   `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
-		OCRFiles               []string `envconfig:"SMRITI_ML_OCR_FILES" default:"det_infer,rec_infer,cls_infer"`
+		OCRParams              []string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"det_infer,rec_infer,cls_infer"`
 		SearchProvider         string   `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
-		SearchFiles            []string `envconfig:"SMRITI_ML_SEARCH_FILES" default:"search_v20230731.pt,openai/clip-vit-base-patch32"`
-		FacesFiles             []string `envconfig:"SMRITI_ML_FACES_FILES"`
-		SpeechFiles            []string `envconfig:"SMRITI_ML_SPEECH_FILES"`
+		SearchParams           []string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"search_v20230731.pt,openai/clip-vit-base-patch32"` //nolint: lll
+		FacesParams            []string `envconfig:"SMRITI_ML_FACES_PARAMS"`
+		SpeechParams           []string `envconfig:"SMRITI_ML_SPEECH_PARAMS"`
 	}
 
 	// Feature ...

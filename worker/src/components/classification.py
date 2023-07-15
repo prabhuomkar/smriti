@@ -11,9 +11,9 @@ from src.providers.classification.utils import init_classification
 
 class Classification(Component):
     """Classification Component"""
-    def __init__(self, api_stub: APIStub, source: str, files: list[str]) -> None:
+    def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
         super().__init__('classification', api_stub)
-        self.model = init_classification(source, files)
+        self.model = init_classification(source, params)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process classification from mediaitem"""

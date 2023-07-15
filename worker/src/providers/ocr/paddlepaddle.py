@@ -1,5 +1,4 @@
 """OCR: Paddle"""
-import os
 import logging
 
 from paddleocr import PaddleOCR
@@ -10,9 +9,9 @@ logging.getLogger().handlers = []
 class PaddleModule:
     """PaddleModule OCR"""
 
-    def __init__(self, files: list[str]) -> None:
-        self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en', det_model_dir=f'/models/{files[0]}',
-                               rec_model_dir=f'/models/{files[1]}', cls_model_dir=f'/models/{files[2]}')
+    def __init__(self, params: list[str]) -> None:
+        self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en', det_model_dir=f'/models/{params[0]}',
+                               rec_model_dir=f'/models/{params[1]}', cls_model_dir=f'/models/{params[2]}')
 
     def extract(self, mediaitem_user_id: str, mediaitem_id: str, input_file: str) -> dict:
         """Extract text from mediaitem"""
