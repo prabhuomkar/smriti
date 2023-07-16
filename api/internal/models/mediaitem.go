@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -56,6 +57,8 @@ type (
 		Latitude          *float64          `json:"latitude,omitempty"`
 		Longitude         *float64          `json:"longitude,omitempty"`
 		FPS               *string           `json:"fps,omitempty"`
+		Keywords          *string           `json:"-"`
+		Embedding         *pgvector.Vector  `json:"-" gorm:"type:vector"`
 		CreatedAt         time.Time         `json:"createdAt"`
 		UpdatedAt         time.Time         `json:"updatedAt"`
 		Albums            []*Album          `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:AlbumID"`

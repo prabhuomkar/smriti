@@ -9,7 +9,7 @@ class PyTorchModule:
     """PyTorchModule Classification"""
 
     def __init__(self, params: list[str]) -> None:
-        self.module = torch.jit.load(f'/models/{params[0]}')
+        self.module = torch.jit.load(f'/models/classification/{params[0]}')
 
     def classify(self, mediaitem_user_id: str, mediaitem_id: str, input_file: str) -> dict:
         """Classify categories for mediaitem"""

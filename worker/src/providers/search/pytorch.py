@@ -8,7 +8,7 @@ class PyTorchModule:
     """PyTorchModule Search"""
 
     def __init__(self, params: list[str]) -> None:
-        self.module = torch.jit.load(f'/models/{params[0]}')
+        self.module = torch.jit.load(f'/models/search/{params[0]}')
         self.tokenizer = AutoTokenizer.from_pretrained(params[1])
 
     def generate_embedding(self, text: str):
