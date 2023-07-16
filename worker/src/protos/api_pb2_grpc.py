@@ -35,14 +35,9 @@ class APIStub(object):
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemThingRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
-        self.SaveMediaItemMLResult = channel.unary_unary(
-                '/API/SaveMediaItemMLResult',
-                request_serializer=src_dot_protos_dot_api__pb2.MediaItemMLResultRequest.SerializeToString,
-                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-                )
-        self.FinalSaveMediaItem = channel.unary_unary(
-                '/API/FinalSaveMediaItem',
-                request_serializer=src_dot_protos_dot_api__pb2.FinalSaveMediaItemRequest.SerializeToString,
+        self.SaveMediaItemFinalResult = channel.unary_unary(
+                '/API/SaveMediaItemFinalResult',
+                request_serializer=src_dot_protos_dot_api__pb2.MediaItemFinalResultRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
 
@@ -74,13 +69,7 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
-    def SaveMediaItemMLResult(self, request, context):
-        """Missing associated documentation comment in .proto file."""
-        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
-        context.set_details('Method not implemented!')
-        raise NotImplementedError('Method not implemented!')
-
-    def FinalSaveMediaItem(self, request, context):
+    def SaveMediaItemFinalResult(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -109,14 +98,9 @@ def add_APIServicer_to_server(servicer, server):
                     request_deserializer=src_dot_protos_dot_api__pb2.MediaItemThingRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
-            'SaveMediaItemMLResult': grpc.unary_unary_rpc_method_handler(
-                    servicer.SaveMediaItemMLResult,
-                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemMLResultRequest.FromString,
-                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
-            ),
-            'FinalSaveMediaItem': grpc.unary_unary_rpc_method_handler(
-                    servicer.FinalSaveMediaItem,
-                    request_deserializer=src_dot_protos_dot_api__pb2.FinalSaveMediaItemRequest.FromString,
+            'SaveMediaItemFinalResult': grpc.unary_unary_rpc_method_handler(
+                    servicer.SaveMediaItemFinalResult,
+                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemFinalResultRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
     }
@@ -198,7 +182,7 @@ class API(object):
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
     @staticmethod
-    def SaveMediaItemMLResult(request,
+    def SaveMediaItemFinalResult(request,
             target,
             options=(),
             channel_credentials=None,
@@ -208,25 +192,8 @@ class API(object):
             wait_for_ready=None,
             timeout=None,
             metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemMLResult',
-            src_dot_protos_dot_api__pb2.MediaItemMLResultRequest.SerializeToString,
-            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
-            options, channel_credentials,
-            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
-
-    @staticmethod
-    def FinalSaveMediaItem(request,
-            target,
-            options=(),
-            channel_credentials=None,
-            call_credentials=None,
-            insecure=False,
-            compression=None,
-            wait_for_ready=None,
-            timeout=None,
-            metadata=None):
-        return grpc.experimental.unary_unary(request, target, '/API/FinalSaveMediaItem',
-            src_dot_protos_dot_api__pb2.FinalSaveMediaItemRequest.SerializeToString,
+        return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemFinalResult',
+            src_dot_protos_dot_api__pb2.MediaItemFinalResultRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

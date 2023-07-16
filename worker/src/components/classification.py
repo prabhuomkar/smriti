@@ -18,22 +18,19 @@ class Classification(Component):
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process classification from mediaitem"""
         if metadata is None or 'previewPath' not in metadata or ('type' in metadata and metadata['type'] == 'video'):
-            return None
+            return metadata
         try:
             result = self.model.classify(mediaitem_user_id, mediaitem_id, metadata['previewPath'])
-
             logging.debug(f'extracted classification for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
-
-            if 'keywords' not in metadata or metadata['keywords'] == '':
-                metadata['keywords'] = result['name'].lower()
-            else:
-                metadata['keywords'] += (' ' + result['name'].lower())
-            metadata['keywords'] = metadata['keywords'].strip()
-
             if result is not None:
+                if 'keywords' not in metadata or metadata['keywords'] == '':
+                    metadata['keywords'] = result['name'].lower()
+                else:
+                    metadata['keywords'] += (' ' + result['name'].lower())
+                metadata['keywords'] = metadata['keywords'].strip()
                 self._grpc_save_mediaitem_thing(result)
         except Exception as exp:
-            logging.error(f'error getting thing response for user {mediaitem_user_id} '+
+            logging.error(f'error getting classification response for user {mediaitem_user_id} '+
                           f'mediaitem {mediaitem_id}: {str(exp)}')
         logging.info(f'processed classification for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return metadata

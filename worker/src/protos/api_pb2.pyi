@@ -12,7 +12,7 @@ class ConfigResponse(_message.Message):
     config: bytes
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
-class FinalSaveMediaItemRequest(_message.Message):
+class MediaItemFinalResultRequest(_message.Message):
     __slots__ = ["embedding", "id", "keywords", "userId"]
     EMBEDDING_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
@@ -23,18 +23,6 @@ class FinalSaveMediaItemRequest(_message.Message):
     keywords: str
     userId: str
     def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., keywords: _Optional[str] = ..., embedding: _Optional[_Iterable[float]] = ...) -> None: ...
-
-class MediaItemMLResultRequest(_message.Message):
-    __slots__ = ["id", "name", "userId", "value"]
-    ID_FIELD_NUMBER: _ClassVar[int]
-    NAME_FIELD_NUMBER: _ClassVar[int]
-    USERID_FIELD_NUMBER: _ClassVar[int]
-    VALUE_FIELD_NUMBER: _ClassVar[int]
-    id: str
-    name: str
-    userId: str
-    value: _containers.RepeatedScalarFieldContainer[str]
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., name: _Optional[str] = ..., value: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class MediaItemMetadataRequest(_message.Message):
     __slots__ = ["apertureFNumber", "cameraMake", "cameraModel", "category", "creationTime", "exposureTime", "focalLength", "fps", "height", "id", "isoEquivalent", "latitude", "longitude", "mimeType", "previewPath", "sourcePath", "status", "thumbnailPath", "type", "userId", "width"]

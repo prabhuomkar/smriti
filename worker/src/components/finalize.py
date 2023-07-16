@@ -4,7 +4,7 @@ import logging
 from grpc import RpcError
 
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.api_pb2 import FinalSaveMediaItemRequest  # pylint: disable=no-name-in-module
+from src.protos.api_pb2 import MediaItemFinalResultRequest  # pylint: disable=no-name-in-module
 from src.components.component import Component
 
 
@@ -29,11 +29,13 @@ class Finalize(Component):
     def _grpc_final_save_mediaitem(self, result: dict):
         """gRPC call for final save of mediaitem"""
         try:
-            request = FinalSaveMediaItemRequest(
+            request = MediaItemFinalResultRequest(
                 userId=result['userId'],
                 id=result['id'],
+                keywords=result['keywords'],
+                embedding=result['embedding']
             )
-            _ = self.api_stub.FinalSaveMediaItem(request)
+            _ = self.api_stub.SaveMediaItemFinalResult(request)
         except RpcError as rpc_exp:
             logging.error(
                 f'error finalizing save for mediaitem {request.id}: {str(rpc_exp)}')

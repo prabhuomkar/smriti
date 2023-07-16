@@ -45,7 +45,7 @@ class WorkerService(WorkerServicer):
         return GenerateEmbeddingResponse(embedding=None)
 
 # pylint: disable=redefined-builtin,invalid-name
-async def process_mediaitem(components: list[Component], search_model, user_id: str, id: str, file_path: str) -> None:
+async def process_mediaitem(components: list[Component], search_model: PyTorchModule, user_id: str, id: str, file_path: str) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
     metadata = await components[0].process(user_id, id, file_path, None)
@@ -54,7 +54,7 @@ async def process_mediaitem(components: list[Component], search_model, user_id: 
         loop = asyncio.get_event_loop()
         task = loop.create_task(components[i].process(user_id, id, file_path, result))
         result = await task
-    if search_model:
+    if search_model and 'keywords' in result:
         result['embedding'] = search_model.generate_embedding(result['keywords'])
     await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
