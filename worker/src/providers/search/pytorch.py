@@ -20,4 +20,4 @@ class PyTorchModule:
 
         logging.debug(f'generated embedding: {res}')
 
-        return res[0]
+        return res

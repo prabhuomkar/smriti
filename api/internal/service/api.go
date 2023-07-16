@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/services/api"
+	"api/pkg/services/worker"
 	"api/pkg/storage"
 	"context"
 	"encoding/json"
@@ -13,6 +14,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -26,6 +28,7 @@ type Service struct {
 	Config  *config.Config
 	DB      *gorm.DB
 	Storage storage.Provider
+	Worker  worker.WorkerClient
 }
 
 func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
@@ -127,7 +130,7 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -164,7 +167,7 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
 	}
 	placeKeywords := getKeywordsForPlace(place)
-	err = s.saveKeywordsAndEmbedding(uid.String(), mediaItem, strings.ToLower(placeKeywords))
+	err = s.saveKeywords(ctx, uid.String(), mediaItem, strings.ToLower(placeKeywords))
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
@@ -172,7 +175,7 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -203,7 +206,7 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 		log.Printf("error saving mediaitem thing: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
 	}
-	err = s.saveKeywordsAndEmbedding(uid.String(), mediaItem, strings.ToLower(req.Name))
+	err = s.saveKeywords(ctx, uid.String(), mediaItem, strings.ToLower(req.Name))
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
@@ -211,7 +214,7 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemMLResult(_ context.Context, req *api.MediaItemMLResultRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemMLResult(ctx context.Context, req *api.MediaItemMLResultRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -229,7 +232,7 @@ func (s *Service) SaveMediaItemMLResult(_ context.Context, req *api.MediaItemMLR
 		keywords += strings.ToLower(value) + " "
 	}
 	keywords = strings.TrimSpace(keywords)
-	err = s.saveKeywordsAndEmbedding(uid.String(), mediaItem, strings.ToLower(keywords))
+	err = s.saveKeywords(ctx, uid.String(), mediaItem, strings.ToLower(keywords))
 	if err != nil {
 		return &emptypb.Empty{}, err
 	}
@@ -237,7 +240,52 @@ func (s *Service) SaveMediaItemMLResult(_ context.Context, req *api.MediaItemMLR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) saveKeywordsAndEmbedding(uid string, mediaItem models.MediaItem, appendKeywords string) error {
+func (s *Service) FinalSaveMediaItem(ctx context.Context, req *api.FinalSaveMediaItemRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	log.Printf("final mediaitem result saving for user: %s mediaitem: %s", req.UserId, req.Id)
+
+	go func() {
+		if !s.Config.ML.Search {
+			return
+		}
+		mediaItem := models.MediaItem{UserID: userID, ID: uid}
+		result := s.DB.Model(&models.MediaItem{}).Where("id=?", uid).First(&mediaItem)
+		if result.Error != nil {
+			log.Printf("error getting mediaitem: %+v", result.Error)
+			return
+		}
+		if mediaItem.Keywords == nil {
+			log.Printf("no keywords for mediaitem")
+			return
+		}
+		keywordsEmbedding, err := s.Worker.GenerateEmbedding(ctx, &worker.GenerateEmbeddingRequest{
+			Text: *mediaItem.Keywords,
+		})
+		if err != nil {
+			log.Printf("error generating mediaitem embedding: %+v", err)
+			return
+		}
+		result = s.DB.Model(&mediaItem).UpdateColumn("embedding", pgvector.NewVector(keywordsEmbedding.Embedding))
+		if result.Error != nil {
+			log.Printf("error saving mediaitem embedding: %+v", result.Error)
+			return
+		}
+
+		log.Printf("final mediaitem result saved for user: %s mediaitem: %s", userID.String(), uid.String())
+	}()
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) saveKeywords(_ context.Context, uid string, mediaItem models.MediaItem, appendKeywords string) error { //nolint: lll
 	result := s.DB.Model(&models.MediaItem{}).Where("id=?", uid).First(&mediaItem)
 	if result.Error != nil {
 		log.Printf("error getting mediaitem: %+v", result.Error)

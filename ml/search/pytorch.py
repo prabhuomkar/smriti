@@ -19,7 +19,7 @@ class SmritiSearchPyTorchModule(torch.nn.Module):
     def forward(self, input_ids: torch.tensor, attention_mask: torch.tensor):
         """Forward Pass"""
         output = self.model(input_ids, attention_mask)
-        return output['text_embeds']
+        return output['text_embeds'][0]
 
 def script_and_save():
     """Initialize pytorch model with weights, script it and save the torchscript module"""

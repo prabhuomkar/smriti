@@ -28,6 +28,7 @@ type APIClient interface {
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemMLResult(ctx context.Context, in *MediaItemMLResultRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	FinalSaveMediaItem(ctx context.Context, in *FinalSaveMediaItemRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type aPIClient struct {
@@ -83,6 +84,15 @@ func (c *aPIClient) SaveMediaItemMLResult(ctx context.Context, in *MediaItemMLRe
 	return out, nil
 }
 
+func (c *aPIClient) FinalSaveMediaItem(ctx context.Context, in *FinalSaveMediaItemRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/API/FinalSaveMediaItem", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // APIServer is the server API for API service.
 // All implementations must embed UnimplementedAPIServer
 // for forward compatibility
@@ -92,6 +102,7 @@ type APIServer interface {
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error)
 	SaveMediaItemMLResult(context.Context, *MediaItemMLResultRequest) (*empty.Empty, error)
+	FinalSaveMediaItem(context.Context, *FinalSaveMediaItemRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAPIServer()
 }
 
@@ -113,6 +124,9 @@ func (UnimplementedAPIServer) SaveMediaItemThing(context.Context, *MediaItemThin
 }
 func (UnimplementedAPIServer) SaveMediaItemMLResult(context.Context, *MediaItemMLResultRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMLResult not implemented")
+}
+func (UnimplementedAPIServer) FinalSaveMediaItem(context.Context, *FinalSaveMediaItemRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method FinalSaveMediaItem not implemented")
 }
 func (UnimplementedAPIServer) mustEmbedUnimplementedAPIServer() {}
 
@@ -217,6 +231,24 @@ func _API_SaveMediaItemMLResult_Handler(srv interface{}, ctx context.Context, de
 	return interceptor(ctx, in, info, handler)
 }
 
+func _API_FinalSaveMediaItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(FinalSaveMediaItemRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).FinalSaveMediaItem(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/FinalSaveMediaItem",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).FinalSaveMediaItem(ctx, req.(*FinalSaveMediaItemRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // API_ServiceDesc is the grpc.ServiceDesc for API service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -243,6 +275,10 @@ var API_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveMediaItemMLResult",
 			Handler:    _API_SaveMediaItemMLResult_Handler,
+		},
+		{
+			MethodName: "FinalSaveMediaItem",
+			Handler:    _API_FinalSaveMediaItem_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

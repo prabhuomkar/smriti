@@ -8,7 +8,7 @@ import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
-from src.components import Component, Metadata, Places, Classification, OCR
+from src.components import Component, Metadata, Places, Classification, OCR, Finalize
 from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
@@ -87,6 +87,7 @@ async def serve() -> None:
             components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'search':
             search_model = init_search(name=item['source'], params=item['params'])
+    components.append(Finalize(api_stub=api_stub))
 
     # initialize grpc server
     server = grpc.aio.server()

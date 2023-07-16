@@ -12,6 +12,14 @@ class ConfigResponse(_message.Message):
     config: bytes
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
+class FinalSaveMediaItemRequest(_message.Message):
+    __slots__ = ["id", "userId"]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    id: str
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ...) -> None: ...
+
 class MediaItemMLResultRequest(_message.Message):
     __slots__ = ["id", "name", "userId", "value"]
     ID_FIELD_NUMBER: _ClassVar[int]
