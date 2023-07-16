@@ -35,6 +35,7 @@ var (
 	creationtime                = "2022-09-22 11:22:33"
 	width                 int32 = 1080
 	height                int32 = 720
+	existingPlaceKeywords       = "placecity placepostcode"
 	mediaItemReultRequest       = api.MediaItemMetadataRequest{
 		UserId:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:           "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -74,6 +75,12 @@ var (
 		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Name:   "Pizza",
 	}
+	mediaItemMLResultRequest = api.MediaItemMLResultRequest{
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Name:   "ocr",
+		Value:  []string{"some", "w0rds", "In", "IMAGE"},
+	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
 	placeCols     = []string{
 		"id", "name", "postcode", "town", "city", "state",
@@ -81,6 +88,12 @@ var (
 	}
 	thingCols = []string{
 		"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
+	}
+	mediaitemCols = []string{
+		"id", "user_id", "filename", "description", "mime_type", "keywords", "source_url", "preview_url",
+		"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
+		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
+		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
 	}
 )
 
@@ -383,6 +396,12 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(nil))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 			},
 			nil,
 		},
@@ -402,6 +421,12 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(nil))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 			},
 			nil,
 		},
@@ -419,6 +444,12 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(nil))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -449,6 +480,52 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			status.Error(codes.Internal, "error saving mediaitem place: some db error"),
+		},
+		{
+			"save mediaitem place with error getting mediaitem for saving keywords",
+			&mediaItemPlaceStateRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			status.Error(codes.Internal, "error getting mediaitem: some db error"),
+		},
+		{
+			"save mediaitem place with error saving keywords",
+			&mediaItemPlaceStateRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
+					WillReturnRows(getMockedPlaceRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "places"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "place_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(nil))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem keywords: some db error"),
 		},
 	}
 	for _, test := range tests {
@@ -523,6 +600,12 @@ func TestSaveMediaItemThing(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "thing_mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 			},
 			nil,
 		},
@@ -551,6 +634,52 @@ func TestSaveMediaItemThing(t *testing.T) {
 				mock.ExpectRollback()
 			},
 			status.Error(codes.Internal, "error saving mediaitem thing: some db error"),
+		},
+		{
+			"save mediaitem thing with error getting mediaitem for saving keywords",
+			&mediaItemThingRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnRows(getMockedThingRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "things"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "things"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "thing_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			status.Error(codes.Internal, "error getting mediaitem: some db error"),
+		},
+		{
+			"save mediaitem thing with error saving keywords",
+			&mediaItemThingRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
+					WillReturnRows(getMockedThingRow())
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "things"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "things"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "thing_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem keywords: some db error"),
 		},
 	}
 	for _, test := range tests {
@@ -590,6 +719,98 @@ func TestSaveMediaItemThing(t *testing.T) {
 	}
 }
 
+func TestSaveMediaItemMLResult(t *testing.T) {
+	tests := []struct {
+		Name        string
+		Request     *api.MediaItemMLResultRequest
+		MockDB      func(mock sqlmock.Sqlmock)
+		ExpectedErr error
+	}{
+		{
+			"save mediaitem ml result with invalid mediaitem user id",
+			&api.MediaItemMLResultRequest{UserId: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+		},
+		{
+			"save mediaitem ml result with invalid mediaitem id",
+			&api.MediaItemMLResultRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
+		},
+		{
+			"save mediaitem ml result with success",
+			&mediaItemMLResultRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem ml result with error getting mediaitem for saving keywords",
+			&mediaItemMLResultRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			status.Error(codes.Internal, "error getting mediaitem: some db error"),
+		},
+		{
+			"save mediaitem ml result with error saving keywords",
+			&mediaItemMLResultRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem keywords: some db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer mockDB.Close()
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Error),
+			})
+			assert.NoError(t, err)
+			if test.MockDB != nil {
+				test.MockDB(mock)
+			}
+			// service
+			service := &Service{
+				Config: &config.Config{},
+				DB:     mockGDB,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			_, err = client.SaveMediaItemMLResult(ctx, test.Request)
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+		})
+	}
+}
+
 func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 	listener := bufconn.Listen(1024 * 1024)
 	server := grpc.NewServer()
@@ -614,4 +835,13 @@ func getMockedThingRow() *sqlmock.Rows {
 	return sqlmock.NewRows(thingCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name",
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
+}
+
+func getMockedMediaItemRow(existingKeyword *string) *sqlmock.Rows {
+	return sqlmock.NewRows(mediaitemCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename", "description", "mime_type", existingKeyword, "source_url", "preview_url",
+			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
+			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
 }

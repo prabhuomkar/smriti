@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"log"
+	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -162,6 +163,11 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		log.Printf("error saving mediaitem place: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
 	}
+	placeKeywords := getKeywordsForPlace(place)
+	err = s.saveKeywordsAndEmbedding(uid.String(), mediaItem, strings.ToLower(placeKeywords))
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
 	log.Printf("saved place for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
@@ -197,6 +203,10 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 		log.Printf("error saving mediaitem thing: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
 	}
+	err = s.saveKeywordsAndEmbedding(uid.String(), mediaItem, strings.ToLower(req.Name))
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
 	log.Printf("saved thing for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
@@ -213,8 +223,41 @@ func (s *Service) SaveMediaItemMLResult(_ context.Context, req *api.MediaItemMLR
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	log.Printf("saving mediaitem ml result for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	mediaItem := models.MediaItem{ID: uid}
+	keywords := ""
+	for _, value := range req.Value {
+		keywords += strings.ToLower(value) + " "
+	}
+	keywords = strings.TrimSpace(keywords)
+	err = s.saveKeywordsAndEmbedding(uid.String(), mediaItem, strings.ToLower(keywords))
+	if err != nil {
+		return &emptypb.Empty{}, err
+	}
 	log.Printf("saved ml result for user: %s mediaitem: %s name: %s value: %+v", userID.String(), uid.String(), req.Name, req.Value) //nolint: lll
 	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) saveKeywordsAndEmbedding(uid string, mediaItem models.MediaItem, appendKeywords string) error {
+	result := s.DB.Model(&models.MediaItem{}).Where("id=?", uid).First(&mediaItem)
+	if result.Error != nil {
+		log.Printf("error getting mediaitem: %+v", result.Error)
+		return status.Errorf(codes.Internal, "error getting mediaitem: %s", result.Error.Error())
+	}
+
+	if mediaItem.Keywords == nil {
+		mediaItem.Keywords = &appendKeywords
+	} else {
+		additionalKeywords := (*mediaItem.Keywords + " " + appendKeywords)
+		mediaItem.Keywords = &additionalKeywords
+	}
+
+	result = s.DB.Model(&mediaItem).UpdateColumn("keywords", mediaItem.Keywords)
+	if result.Error != nil {
+		log.Printf("error saving mediaitem keywords: %+v", result.Error)
+		return status.Errorf(codes.Internal, "error saving mediaitem keywords: %s", result.Error.Error())
+	}
+
+	return nil
 }
 
 func getNameForPlace(place models.Place) string {
@@ -225,6 +268,26 @@ func getNameForPlace(place models.Place) string {
 		return *place.Town
 	}
 	return *place.State
+}
+
+func getKeywordsForPlace(place models.Place) string {
+	placeKeywords := ""
+	if place.Postcode != nil {
+		placeKeywords += (*place.Postcode + " ")
+	}
+	if place.Town != nil {
+		placeKeywords += (*place.Town + " ")
+	}
+	if place.City != nil {
+		placeKeywords += (*place.City + " ")
+	}
+	if place.State != nil {
+		placeKeywords += (*place.State + " ")
+	}
+	if place.Country != nil {
+		placeKeywords += (*place.Country + " ")
+	}
+	return strings.TrimSpace(placeKeywords)
 }
 
 func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {
