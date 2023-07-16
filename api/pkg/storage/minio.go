@@ -38,7 +38,9 @@ func (m *Minio) Upload(filePath, fileType, fileID string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error uploading file to minio: %w", err)
 	}
-	defer os.Remove(filePath)
+	if fileType != "previews" {
+		defer os.Remove(filePath)
+	}
 	return fmt.Sprintf("/%s/%s", fileType, fileID), nil
 }
 

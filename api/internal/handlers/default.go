@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"api/internal/models"
+	"api/pkg/services/worker"
+	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
@@ -35,4 +37,22 @@ func (h *Handler) GetFeatures(ctx echo.Context) error {
 func (h *Handler) GetDisk(ctx echo.Context) error {
 	disk := models.GetDisk(h.Config)
 	return ctx.JSON(http.StatusOK, disk)
+}
+
+// Search ...
+func (h *Handler) Search(ctx echo.Context) error {
+	searchQuery := ctx.QueryParam("q")
+	if len(searchQuery) < 3 {
+		return echo.NewHTTPError(http.StatusBadRequest, "invalid search query")
+	}
+	if h.Config.ML.Search {
+		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
+		if err != nil {
+			log.Printf("error getting search query embedding: %+v", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		log.Println(searchEmbedding.Embedding)
+	}
+	mediaItems := []models.MediaItem{}
+	return ctx.JSON(http.StatusOK, mediaItems)
 }
