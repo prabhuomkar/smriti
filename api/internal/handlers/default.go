@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+const minSearchQueryLen = 3
+
 // GetVersion ...
 func (h *Handler) GetVersion(ctx echo.Context) error {
 	version := models.GetVersion()
@@ -42,11 +44,11 @@ func (h *Handler) GetDisk(ctx echo.Context) error {
 // Search ...
 func (h *Handler) Search(ctx echo.Context) error {
 	searchQuery := ctx.QueryParam("q")
-	if len(searchQuery) < 3 {
+	if len(searchQuery) < minSearchQueryLen {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid search query")
 	}
 	if h.Config.ML.Search {
-		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
+		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery}) //nolint: lll
 		if err != nil {
 			log.Printf("error getting search query embedding: %+v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
