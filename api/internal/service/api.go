@@ -4,13 +4,11 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/services/api"
-	"api/pkg/services/worker"
 	"api/pkg/storage"
 	"context"
 	"encoding/json"
 	"errors"
 	"log"
-	"strings"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
@@ -28,7 +26,6 @@ type Service struct {
 	Config  *config.Config
 	DB      *gorm.DB
 	Storage storage.Provider
-	Worker  worker.WorkerClient
 }
 
 func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
@@ -77,7 +74,7 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop,lll
+func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -130,7 +127,7 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -166,16 +163,11 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 		log.Printf("error saving mediaitem place: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
 	}
-	placeKeywords := getKeywordsForPlace(place)
-	err = s.saveKeywords(ctx, uid.String(), mediaItem, strings.ToLower(placeKeywords))
-	if err != nil {
-		return &emptypb.Empty{}, err
-	}
 	log.Printf("saved place for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -206,41 +198,11 @@ func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThin
 		log.Printf("error saving mediaitem thing: %+v", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
 	}
-	err = s.saveKeywords(ctx, uid.String(), mediaItem, strings.ToLower(req.Name))
-	if err != nil {
-		return &emptypb.Empty{}, err
-	}
 	log.Printf("saved thing for mediaitem: %s", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemMLResult(ctx context.Context, req *api.MediaItemMLResultRequest) (*empty.Empty, error) {
-	userID, err := uuid.FromString(req.UserId)
-	if err != nil {
-		log.Printf("error getting mediaitem user id: %+v", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
-	}
-	uid, err := uuid.FromString(req.Id)
-	if err != nil {
-		log.Printf("error getting mediaitem id: %+v", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
-	}
-	log.Printf("saving mediaitem ml result for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
-	mediaItem := models.MediaItem{ID: uid}
-	keywords := ""
-	for _, value := range req.Value {
-		keywords += strings.ToLower(value) + " "
-	}
-	keywords = strings.TrimSpace(keywords)
-	err = s.saveKeywords(ctx, uid.String(), mediaItem, strings.ToLower(keywords))
-	if err != nil {
-		return &emptypb.Empty{}, err
-	}
-	log.Printf("saved ml result for user: %s mediaitem: %s name: %s value: %+v", userID.String(), uid.String(), req.Name, req.Value) //nolint: lll
-	return &emptypb.Empty{}, nil
-}
-
-func (s *Service) FinalSaveMediaItem(ctx context.Context, req *api.FinalSaveMediaItemRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -253,59 +215,16 @@ func (s *Service) FinalSaveMediaItem(ctx context.Context, req *api.FinalSaveMedi
 	}
 	log.Printf("final mediaitem result saving for user: %s mediaitem: %s", req.UserId, req.Id)
 
-	go func() {
-		if !s.Config.ML.Search {
-			return
-		}
-		mediaItem := models.MediaItem{UserID: userID, ID: uid}
-		result := s.DB.Model(&models.MediaItem{}).Where("id=?", uid).First(&mediaItem)
-		if result.Error != nil {
-			log.Printf("error getting mediaitem: %+v", result.Error)
-			return
-		}
-		if mediaItem.Keywords == nil {
-			log.Printf("no keywords for mediaitem")
-			return
-		}
-		keywordsEmbedding, err := s.Worker.GenerateEmbedding(ctx, &worker.GenerateEmbeddingRequest{
-			Text: *mediaItem.Keywords,
-		})
-		if err != nil {
-			log.Printf("error generating mediaitem embedding: %+v", err)
-			return
-		}
-		result = s.DB.Model(&mediaItem).UpdateColumn("embedding", pgvector.NewVector(keywordsEmbedding.Embedding))
-		if result.Error != nil {
-			log.Printf("error saving mediaitem embedding: %+v", result.Error)
-			return
-		}
+	mediaItem := models.MediaItem{UserID: userID, ID: uid}
+	mediaItemEmbedding := pgvector.NewVector(req.Embedding)
+	result := s.DB.Model(&mediaItem).UpdateColumns(models.MediaItem{Keywords: &req.Keywords, Embedding: &mediaItemEmbedding})
+	if result.Error != nil {
+		log.Printf("error saving mediaitem embedding: %+v", result.Error)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
+	}
 
-		log.Printf("final mediaitem result saved for user: %s mediaitem: %s", userID.String(), uid.String())
-	}()
+	log.Printf("final mediaitem result saved for user: %s mediaitem: %s", userID.String(), uid.String())
 	return &emptypb.Empty{}, nil
-}
-
-func (s *Service) saveKeywords(_ context.Context, uid string, mediaItem models.MediaItem, appendKeywords string) error { //nolint: lll
-	result := s.DB.Model(&models.MediaItem{}).Where("id=?", uid).First(&mediaItem)
-	if result.Error != nil {
-		log.Printf("error getting mediaitem: %+v", result.Error)
-		return status.Errorf(codes.Internal, "error getting mediaitem: %s", result.Error.Error())
-	}
-
-	if mediaItem.Keywords == nil {
-		mediaItem.Keywords = &appendKeywords
-	} else {
-		additionalKeywords := (*mediaItem.Keywords + " " + appendKeywords)
-		mediaItem.Keywords = &additionalKeywords
-	}
-
-	result = s.DB.Model(&mediaItem).UpdateColumn("keywords", mediaItem.Keywords)
-	if result.Error != nil {
-		log.Printf("error saving mediaitem keywords: %+v", result.Error)
-		return status.Errorf(codes.Internal, "error saving mediaitem keywords: %s", result.Error.Error())
-	}
-
-	return nil
 }
 
 func getNameForPlace(place models.Place) string {
@@ -316,26 +235,6 @@ func getNameForPlace(place models.Place) string {
 		return *place.Town
 	}
 	return *place.State
-}
-
-func getKeywordsForPlace(place models.Place) string {
-	placeKeywords := ""
-	if place.Postcode != nil {
-		placeKeywords += (*place.Postcode + " ")
-	}
-	if place.Town != nil {
-		placeKeywords += (*place.Town + " ")
-	}
-	if place.City != nil {
-		placeKeywords += (*place.City + " ")
-	}
-	if place.State != nil {
-		placeKeywords += (*place.State + " ")
-	}
-	if place.Country != nil {
-		placeKeywords += (*place.Country + " ")
-	}
-	return strings.TrimSpace(placeKeywords)
 }
 
 func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {

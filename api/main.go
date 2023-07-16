@@ -20,7 +20,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-func main() { //nolint: funlen
+func main() {
 	cfg, err := config.Init()
 	if err != nil {
 		panic(err)
@@ -73,7 +73,6 @@ func main() { //nolint: funlen
 	if err != nil {
 		panic(err)
 	}
-	service.Worker = worker.NewWorkerClient(conn)
 	handler.Worker = worker.NewWorkerClient(conn)
 
 	// graceful shutdown

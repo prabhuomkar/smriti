@@ -24,15 +24,19 @@ class Classification(Component):
 
             logging.debug(f'extracted classification for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
 
+            if 'keywords' not in metadata or metadata['keywords'] == '':
+                metadata['keywords'] = result['name'].lower()
+            else:
+                metadata['keywords'] += (' ' + result['name'].lower())
+            metadata['keywords'] = metadata['keywords'].strip()
+
             if result is not None:
                 self._grpc_save_mediaitem_thing(result)
         except Exception as exp:
             logging.error(f'error getting thing response for user {mediaitem_user_id} '+
                           f'mediaitem {mediaitem_id}: {str(exp)}')
-
         logging.info(f'processed classification for user {mediaitem_user_id} mediaitem {mediaitem_id}')
-        return None
-
+        return metadata
 
     def _grpc_save_mediaitem_thing(self, result: dict):
         """gRPC call for saving mediaitem thing"""

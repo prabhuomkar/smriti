@@ -13,12 +13,16 @@ class ConfigResponse(_message.Message):
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
 class FinalSaveMediaItemRequest(_message.Message):
-    __slots__ = ["id", "userId"]
+    __slots__ = ["embedding", "id", "keywords", "userId"]
+    EMBEDDING_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
+    KEYWORDS_FIELD_NUMBER: _ClassVar[int]
     USERID_FIELD_NUMBER: _ClassVar[int]
+    embedding: _containers.RepeatedScalarFieldContainer[float]
     id: str
+    keywords: str
     userId: str
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ...) -> None: ...
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., keywords: _Optional[str] = ..., embedding: _Optional[_Iterable[float]] = ...) -> None: ...
 
 class MediaItemMLResultRequest(_message.Message):
     __slots__ = ["id", "name", "userId", "value"]

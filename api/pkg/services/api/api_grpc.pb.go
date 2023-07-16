@@ -27,8 +27,7 @@ type APIClient interface {
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	SaveMediaItemMLResult(ctx context.Context, in *MediaItemMLResultRequest, opts ...grpc.CallOption) (*empty.Empty, error)
-	FinalSaveMediaItem(ctx context.Context, in *FinalSaveMediaItemRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	SaveMediaItemFinalResult(ctx context.Context, in *MediaItemFinalResultRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
 type aPIClient struct {
@@ -75,18 +74,9 @@ func (c *aPIClient) SaveMediaItemThing(ctx context.Context, in *MediaItemThingRe
 	return out, nil
 }
 
-func (c *aPIClient) SaveMediaItemMLResult(ctx context.Context, in *MediaItemMLResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+func (c *aPIClient) SaveMediaItemFinalResult(ctx context.Context, in *MediaItemFinalResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/API/SaveMediaItemMLResult", in, out, opts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
-func (c *aPIClient) FinalSaveMediaItem(ctx context.Context, in *FinalSaveMediaItemRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
-	out := new(empty.Empty)
-	err := c.cc.Invoke(ctx, "/API/FinalSaveMediaItem", in, out, opts...)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemFinalResult", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -101,8 +91,7 @@ type APIServer interface {
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error)
-	SaveMediaItemMLResult(context.Context, *MediaItemMLResultRequest) (*empty.Empty, error)
-	FinalSaveMediaItem(context.Context, *FinalSaveMediaItemRequest) (*empty.Empty, error)
+	SaveMediaItemFinalResult(context.Context, *MediaItemFinalResultRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAPIServer()
 }
 
@@ -122,11 +111,8 @@ func (UnimplementedAPIServer) SaveMediaItemPlace(context.Context, *MediaItemPlac
 func (UnimplementedAPIServer) SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemThing not implemented")
 }
-func (UnimplementedAPIServer) SaveMediaItemMLResult(context.Context, *MediaItemMLResultRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMLResult not implemented")
-}
-func (UnimplementedAPIServer) FinalSaveMediaItem(context.Context, *FinalSaveMediaItemRequest) (*empty.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method FinalSaveMediaItem not implemented")
+func (UnimplementedAPIServer) SaveMediaItemFinalResult(context.Context, *MediaItemFinalResultRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemFinalResult not implemented")
 }
 func (UnimplementedAPIServer) mustEmbedUnimplementedAPIServer() {}
 
@@ -213,38 +199,20 @@ func _API_SaveMediaItemThing_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _API_SaveMediaItemMLResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MediaItemMLResultRequest)
+func _API_SaveMediaItemFinalResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemFinalResultRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(APIServer).SaveMediaItemMLResult(ctx, in)
+		return srv.(APIServer).SaveMediaItemFinalResult(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: "/API/SaveMediaItemMLResult",
+		FullMethod: "/API/SaveMediaItemFinalResult",
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServer).SaveMediaItemMLResult(ctx, req.(*MediaItemMLResultRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
-func _API_FinalSaveMediaItem_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(FinalSaveMediaItemRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(APIServer).FinalSaveMediaItem(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: "/API/FinalSaveMediaItem",
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServer).FinalSaveMediaItem(ctx, req.(*FinalSaveMediaItemRequest))
+		return srv.(APIServer).SaveMediaItemFinalResult(ctx, req.(*MediaItemFinalResultRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -273,12 +241,8 @@ var API_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _API_SaveMediaItemThing_Handler,
 		},
 		{
-			MethodName: "SaveMediaItemMLResult",
-			Handler:    _API_SaveMediaItemMLResult_Handler,
-		},
-		{
-			MethodName: "FinalSaveMediaItem",
-			Handler:    _API_FinalSaveMediaItem_Handler,
+			MethodName: "SaveMediaItemFinalResult",
+			Handler:    _API_SaveMediaItemFinalResult_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

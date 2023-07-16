@@ -14,12 +14,14 @@ class Finalize(Component):
     def __init__(self, api_stub: APIStub) -> None:
         super().__init__('finalize', api_stub)
 
-    async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, __: dict) -> dict:
+    async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> dict:
         """Process finalizing mediaitem"""
         logging.debug(f'finalizing mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         result = {}
         result['userId'] = mediaitem_user_id
         result['id'] = mediaitem_id
+        result['keywords'] = metadata['keywords']
+        result['embedding'] = metadata['embedding']
         self._grpc_final_save_mediaitem(result)
         logging.debug(f'finalized mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return None

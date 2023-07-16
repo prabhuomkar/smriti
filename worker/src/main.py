@@ -30,7 +30,8 @@ class WorkerService(WorkerServicer):
         mediaitem_file_path = request.filePath
         if mediaitem_id is not None and mediaitem_user_id is not None and mediaitem_file_path is not None:
             loop = asyncio.get_event_loop()
-            loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id, mediaitem_file_path))
+            loop.create_task(process_mediaitem(self.components, self.search_model,
+                                               mediaitem_user_id, mediaitem_id, mediaitem_file_path))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)
 
@@ -44,13 +45,18 @@ class WorkerService(WorkerServicer):
         return GenerateEmbeddingResponse(embedding=None)
 
 # pylint: disable=redefined-builtin,invalid-name
-async def process_mediaitem(components: list[Component], user_id: str, id: str, file_path: str) -> None:
+async def process_mediaitem(components: list[Component], search_model, user_id: str, id: str, file_path: str) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
     metadata = await components[0].process(user_id, id, file_path, None)
-    for i in range(1, len(components)):
+    result = metadata
+    for i in range(1, len(components)-1):
         loop = asyncio.get_event_loop()
-        loop.create_task(components[i].process(user_id, id, file_path, metadata))
+        task = loop.create_task(components[i].process(user_id, id, file_path, result))
+        result = await task
+    if search_model:
+        result['embedding'] = search_model.generate_embedding(result['keywords'])
+    await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
 async def serve() -> None:

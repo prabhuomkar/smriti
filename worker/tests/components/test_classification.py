@@ -17,7 +17,7 @@ async def test_classification_process_success(_, __):
     classification.model.classify.return_value = dict({'userId':'userId','id':'id','name':'name'})
     result = await classification.process('mediaitem_user_id', 'mediaitem_id', None,
                     {'previewPath': 'location/to-preview-file'})
-    assert result == None
+    assert result == {'keywords':'name','previewPath':'location/to-preview-file'}
 
 @mock.patch('torch.jit.load', return_value=None)
 @pytest.mark.asyncio
@@ -34,7 +34,7 @@ async def test_classification_process_failed_process_exception(_, __):
     classification.model.classify.side_effect = Exception('some exception')
     result = await classification.process('mediaitem_user_id', 'mediaitem_id', None,
                     {'previewPath': 'location/to-preview-file'})
-    assert result == None
+    assert result == {'previewPath':'location/to-preview-file'}
 
 @mock.patch('torch.jit.load', return_value=None)
 @pytest.mark.asyncio
@@ -47,4 +47,4 @@ async def test_classification_process_grpc_exception(_):
     with mock.patch('src.protos.API.SaveMediaItemThing', grpc_mock):
         result = await classification.process('mediaitem_user_id', 'mediaitem_id', 
                         None, {'previewPath': 'location/to-preview-file'})
-        assert result == None
+        assert result == {'keywords':'name','previewPath':'location/to-preview-file'}

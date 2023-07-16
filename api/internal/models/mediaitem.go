@@ -28,7 +28,7 @@ type (
 	MediaItemCategory string
 
 	// MediaItem ...
-	//nolint: lll
+
 	MediaItem struct {
 		ID                uuid.UUID         `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`
 		UserID            uuid.UUID         `json:"userId" gorm:"column:user_id"`
@@ -115,7 +115,7 @@ func (m *MediaItemURLPlugin) TransformMediaItemURL(gormDB *gorm.DB) {
 	}
 }
 
-func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *gorm.DB, fieldName string) { //nolint: gocognit, cyclop, lll
+func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *gorm.DB, fieldName string) { //nolint: gocognit,cyclop
 	defer wg.Done()
 	field := gormDB.Statement.Schema.LookUpField(fieldName)
 	if field != nil { //nolint: nestif

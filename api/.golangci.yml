@@ -16,3 +16,6 @@ linters:
     - tagalign
     - depguard
     - interfacer
+linters-settings:
+  lll:
+    line-length: 180
