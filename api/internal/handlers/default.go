@@ -7,6 +7,7 @@ import (
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/pgvector/pgvector-go"
 )
 
 const minSearchQueryLen = 3
@@ -53,7 +54,15 @@ func (h *Handler) Search(ctx echo.Context) error {
 			log.Printf("error getting search query embedding: %+v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-		log.Println(searchEmbedding.Embedding)
+
+		mediaItems := []models.MediaItem{}
+		result := h.DB.Raw("SELECT * from mediaitems ORDER BY embedding <-> ?", pgvector.NewVector(searchEmbedding.Embedding)).
+			Find(&mediaItems)
+		if result.Error != nil {
+			log.Printf("error searching mediaitems: %+v", result.Error)
+			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+		}
+		return ctx.JSON(http.StatusOK, mediaItems)
 	}
 	mediaItems := []models.MediaItem{}
 	return ctx.JSON(http.StatusOK, mediaItems)
