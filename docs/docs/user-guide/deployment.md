@@ -1,10 +1,7 @@
 # Deployment
 
-## Fly.io
+## Amazon Web Services (AWS)
 Coming Soon!
 
-## Digital Ocean
-Coming Soon!
-
-## AWS
+## Oracle Cloud Infrastructure (OCI)
 Coming Soon!
