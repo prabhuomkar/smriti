@@ -48,14 +48,13 @@ func (h *Handler) Search(ctx echo.Context) error {
 	if len(searchQuery) < minSearchQueryLen {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid search query")
 	}
+	mediaItems := []models.MediaItem{}
 	if h.Config.ML.Search {
 		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
 		if err != nil {
 			log.Printf("error getting search query embedding: %+v", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-
-		mediaItems := []models.MediaItem{}
 		result := h.DB.Raw("SELECT * from mediaitems ORDER BY embedding <-> ?", pgvector.NewVector(searchEmbedding.Embedding)).
 			Find(&mediaItems)
 		if result.Error != nil {
@@ -64,6 +63,11 @@ func (h *Handler) Search(ctx echo.Context) error {
 		}
 		return ctx.JSON(http.StatusOK, mediaItems)
 	}
-	mediaItems := []models.MediaItem{}
+	result := h.DB.Raw("SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', ?)", searchQuery).
+		Find(&mediaItems)
+	if result.Error != nil {
+		log.Printf("error searching mediaitems: %+v", result.Error)
+		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
