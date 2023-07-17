@@ -9,7 +9,7 @@ class PyTorchModule:
 
     def __init__(self, params: list[str]) -> None:
         self.module = torch.jit.load(f'/models/search/{params[0]}')
-        self.tokenizer = AutoTokenizer.from_pretrained(params[1])
+        self.tokenizer = AutoTokenizer.from_pretrained(f'/models/search/{params[1]}')
 
     def generate_embedding(self, text: str):
         """Generate text embedding from text"""

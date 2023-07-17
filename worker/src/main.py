@@ -45,7 +45,8 @@ class WorkerService(WorkerServicer):
         return GenerateEmbeddingResponse(embedding=None)
 
 # pylint: disable=redefined-builtin,invalid-name
-async def process_mediaitem(components: list[Component], search_model: PyTorchModule, user_id: str, id: str, file_path: str) -> None:
+async def process_mediaitem(components: list[Component], search_model: PyTorchModule,
+                            user_id: str, id: str, file_path: str) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
     metadata = await components[0].process(user_id, id, file_path, None)

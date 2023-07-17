@@ -7,6 +7,7 @@ from transformers import AutoTokenizer, CLIPTextModelWithProjection
 
 VERSION='20230731'
 FILE_NAME = f'search_v{VERSION}.pt'
+TOKENIZER_DIR_NAME = 'search_tokenizer'
 MODEL_NAME = 'openai/clip-vit-base-patch32' # can be any huggingface model
 
 class SmritiSearchPyTorchModule(torch.nn.Module):
@@ -25,6 +26,7 @@ def script_and_save():
     """Initialize pytorch model with weights, script it and save the torchscript module"""
     print('scripting and saving torchscript module')
     tokenizer = AutoTokenizer.from_pretrained(MODEL_NAME)
+    tokenizer.save_pretrained(TOKENIZER_DIR_NAME)
     inputs = tokenizer(["a photo of a cat"], padding=True, return_tensors="pt")
     traced_module = torch.jit.trace(SmritiSearchPyTorchModule(CLIPTextModelWithProjection.from_pretrained(MODEL_NAME)), (inputs['input_ids'], inputs['attention_mask']))
     traced_module.save(FILE_NAME)

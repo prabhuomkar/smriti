@@ -68,7 +68,7 @@ type (
 		OCRProvider            string   `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
 		OCRParams              []string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"det_infer,rec_infer,cls_infer"`
 		SearchProvider         string   `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
-		SearchParams           []string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"search_v20230731.pt,openai/clip-vit-base-patch32"`
+		SearchParams           []string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"search_v20230731.pt,search_tokenizer"`
 		FacesParams            []string `envconfig:"SMRITI_ML_FACES_PARAMS"`
 		SpeechParams           []string `envconfig:"SMRITI_ML_SPEECH_PARAMS"`
 	}

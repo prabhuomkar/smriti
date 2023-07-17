@@ -20,10 +20,11 @@ class OCR(Component):
             result = self.model.extract(mediaitem_user_id, mediaitem_id, metadata['previewPath'])
             logging.debug(f'extracted ocr for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
             if result:
+                ocr_keywords = ' '.join(result['words'] if 'words' in result and result['words'] else '').lower()
                 if 'keywords' not in metadata or metadata['keywords'] == '':
-                    metadata['keywords'] = ' '.join(result['words'] if 'words' in result and result['words'] else '').lower()
+                    metadata['keywords'] = ocr_keywords
                 else:
-                    metadata['keywords'] += (' ' + ' '.join(result['words'] if 'words' in result and result['words'] else '').lower())
+                    metadata['keywords'] += (' ' + ocr_keywords)
                 metadata['keywords'] = metadata['keywords'].strip()
         except Exception as exp:
             logging.error(f'error getting ocr response for user {mediaitem_user_id} '+

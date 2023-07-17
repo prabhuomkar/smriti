@@ -15,7 +15,7 @@ API_URL = 'https://nominatim.openstreetmap.org/reverse.php?zoom=18&format=jsonv2
 async def test_places_process_success():
     result = await Places(None, 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', None,
                     {'latitude': 19.2195856, 'longitude': 73.1056888})
-    assert result == {'latitude': 19.2195856, 'longitude': 73.1056888}
+    assert result == {'keywords': '421201 kalyan-dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
 
 @pytest.mark.asyncio
 async def test_places_process_success_no_metadata():
@@ -37,4 +37,4 @@ async def test_places_process_grpc_exception():
     with mock.patch('src.protos.API.SaveMediaItemPlace', grpc_mock):
         result = await Places(APIStub(channel=grpc.insecure_channel('')), 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', 
                         None, {'latitude': 19.2195856, 'longitude': 73.1056888})
-        assert result == {'latitude': 19.2195856, 'longitude': 73.1056888}
+        assert result == {'keywords': '421201 kalyan-dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
