@@ -11,11 +11,23 @@ from src.protos.api_pb2_grpc import APIStub
 
 API_URL = 'https://nominatim.openstreetmap.org/reverse.php?zoom=18&format=jsonv2&lat={lat}&lon={lon}'
 
+COMMON_RESULT = {'city': 'Dombivli', 'town': 'Dombivli', 'state': 'Maharashtra', 'postcode': '421201', 'country': 'India'}
+
+@mock.patch('src.providers.places.OpenStreetMap.reverse_geocode', return_value=COMMON_RESULT)
+@mock.patch('src.components.Places._grpc_save_mediaitem_place', return_value=None)
 @pytest.mark.asyncio
-async def test_places_process_success():
+async def test_places_process_success(_, __):
     result = await Places(None, 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', None,
                     {'latitude': 19.2195856, 'longitude': 73.1056888})
-    assert result == {'keywords': '421201 kalyan-dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
+    assert result == {'keywords': '421201 dombivli dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
+
+@mock.patch('src.providers.places.OpenStreetMap.reverse_geocode', return_value=COMMON_RESULT)
+@mock.patch('src.components.Places._grpc_save_mediaitem_place', return_value=None)
+@pytest.mark.asyncio
+async def test_places_process_success_with_keywords(_, __):
+    result = await Places(None, 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', None,
+                    {'latitude': 19.2195856, 'longitude': 73.1056888, 'keywords': 'exists'})
+    assert result == {'keywords': 'exists 421201 dombivli dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
 
 @pytest.mark.asyncio
 async def test_places_process_success_no_metadata():

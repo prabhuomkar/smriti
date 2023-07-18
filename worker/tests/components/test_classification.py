@@ -20,6 +20,17 @@ async def test_classification_process_success(_, __):
     assert result == {'keywords':'name','previewPath':'location/to-preview-file'}
 
 @mock.patch('torch.jit.load', return_value=None)
+@mock.patch('src.components.Classification._grpc_save_mediaitem_thing', return_value=None)
+@pytest.mark.asyncio
+async def test_classification_process_success_with_keywords(_, __):
+    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', ['model_name.pt'])
+    classification.model = mock.MagicMock()
+    classification.model.classify.return_value = dict({'userId':'userId','id':'id','name':'name'})
+    result = await classification.process('mediaitem_user_id', 'mediaitem_id', None,
+                    {'previewPath': 'location/to-preview-file','keywords':'exists'})
+    assert result == {'keywords':'exists name','previewPath':'location/to-preview-file'}
+
+@mock.patch('torch.jit.load', return_value=None)
 @pytest.mark.asyncio
 async def test_classification_process_success_no_metadata(_):
     result = await Classification(None, 'pytorch', ['model_name.pt']).process('mediaitem_user_id', 'mediaitem_id', None, None)

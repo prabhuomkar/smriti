@@ -16,7 +16,8 @@ class PyTorchModule:
         input_tensor = self.tokenizer(text, padding=True, return_tensors='pt')
 
         res = self.module.forward(**input_tensor)
-        res = res.tolist()
+        if res is not None:
+            res = res.tolist()
 
         logging.debug(f'generated embedding: {res}')
 
