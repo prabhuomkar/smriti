@@ -3,11 +3,11 @@ package handlers
 import (
 	"api/internal/models"
 	"api/pkg/services/worker"
-	"log"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pgvector/pgvector-go"
+	"golang.org/x/exp/slog"
 )
 
 const minSearchQueryLen = 3
@@ -52,13 +52,13 @@ func (h *Handler) Search(ctx echo.Context) error {
 	if h.Config.ML.Search {
 		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
 		if err != nil {
-			log.Printf("error getting search query embedding: %+v", err)
+			slog.Error("error getting search query embedding", slog.Any("error", err))
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		result := h.DB.Raw("SELECT * from mediaitems ORDER BY embedding <-> ?", pgvector.NewVector(searchEmbedding.Embedding)).
 			Find(&mediaItems)
 		if result.Error != nil {
-			log.Printf("error searching mediaitems: %+v", result.Error)
+			slog.Error("error searching mediaitems", slog.Any("error", result.Error))
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 		return ctx.JSON(http.StatusOK, mediaItems)
@@ -66,7 +66,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 	result := h.DB.Raw("SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', ?)", searchQuery).
 		Find(&mediaItems)
 	if result.Error != nil {
-		log.Printf("error searching mediaitems: %+v", result.Error)
+		slog.Error("error searching mediaitems", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)

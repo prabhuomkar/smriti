@@ -2,8 +2,9 @@ package models
 
 import (
 	"api/config"
-	"log"
 	"syscall"
+
+	"golang.org/x/exp/slog"
 )
 
 type (
@@ -21,7 +22,7 @@ func GetDisk(cfg *config.Config) *Disk {
 	diskStat := syscall.Statfs_t{}
 	err := syscall.Statfs(cfg.Storage.DiskRoot, &diskStat)
 	if err != nil {
-		log.Printf("error getting disk stats: %+v", err)
+		slog.Error("error getting disk stats", slog.Any("error", err))
 		return nil
 	}
 	disk := &Disk{

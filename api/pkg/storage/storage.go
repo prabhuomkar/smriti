@@ -2,11 +2,11 @@ package storage
 
 import (
 	"fmt"
-	"log"
 	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"golang.org/x/exp/slog"
 )
 
 const (
@@ -42,7 +42,7 @@ func Init(cfg *Config) Provider { //nolint: ireturn
 			Secure: false,
 		})
 		if err != nil {
-			log.Printf("error creating storage client: %+v", err)
+			slog.Error("error creating storage client", slog.Any("error", err))
 		}
 		return &Minio{
 			Client: minioClient,
@@ -50,15 +50,15 @@ func Init(cfg *Config) Provider { //nolint: ireturn
 	}
 	err := os.Mkdir(fmt.Sprintf("%s/originals", cfg.Root), dirPermission)
 	if err != nil {
-		log.Printf("error creating storage originals directory: %+v", err)
+		slog.Error("error creating storage originals directory", slog.Any("error", err))
 	}
 	err = os.Mkdir(fmt.Sprintf("%s/previews", cfg.Root), dirPermission)
 	if err != nil {
-		log.Printf("error creating storage previews directory: %+v", err)
+		slog.Error("error creating storage previews directory", slog.Any("error", err))
 	}
 	err = os.Mkdir(fmt.Sprintf("%s/thumbnails", cfg.Root), dirPermission)
 	if err != nil {
-		log.Printf("error creating storage thumbnails directory: %+v", err)
+		slog.Error("error creating storage thumbnails directory", slog.Any("error", err))
 	}
 	return &Disk{Root: cfg.Root}
 }

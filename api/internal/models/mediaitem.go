@@ -4,7 +4,6 @@ import (
 	"api/pkg/cache"
 	"api/pkg/storage"
 	"fmt"
-	"log"
 	"reflect"
 	"strings"
 	"sync"
@@ -12,6 +11,7 @@ import (
 
 	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/exp/slog"
 	"gorm.io/gorm"
 )
 
@@ -127,7 +127,7 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *g
 						err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue.Index(i),
 							m.getMediaItemURL(fieldName, val))
 						if err != nil {
-							log.Printf("error setting %s value for %s: %+v", fieldName, val, err)
+							slog.Error("error setting %s value for %s: %+v", fieldName, val, err)
 						}
 					}
 				}
@@ -138,7 +138,7 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *g
 					err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue,
 						m.getMediaItemURL(fieldName, val))
 					if err != nil {
-						log.Printf("error setting %s value for %s: %+v", fieldName, val, err)
+						slog.Error("error setting %s value for %s: %+v", fieldName, val, err)
 					}
 				}
 			}
@@ -155,7 +155,7 @@ func (m *MediaItemURLPlugin) getMediaItemURL(fieldName, filePath string) string 
 		}
 	}
 
-	log.Printf("error getting mediaitem url from cache: %+v", err)
+	slog.Error("error getting mediaitem url from cache", slog.Any("error", err))
 
 	// generate from storage provider and add to cache
 	fileType := getFileType(fieldName)
@@ -163,13 +163,13 @@ func (m *MediaItemURLPlugin) getMediaItemURL(fieldName, filePath string) string 
 
 	fetchedURL, err := m.Storage.Get(fileType, fileID)
 	if err != nil {
-		log.Printf("error getting mediaitem url from storage: %+v", err)
+		slog.Error("error getting mediaitem url from storage", slog.Any("error", err))
 		return ""
 	}
 
 	err = m.Cache.SetWithExpire(filePath, fetchedURL, preFetchTime*time.Hour)
 	if err != nil {
-		log.Printf("error caching mediaitem url from storage: %+v", err)
+		slog.Error("error caching mediaitem url from storage", slog.Any("error", err))
 	}
 
 	return fetchedURL
