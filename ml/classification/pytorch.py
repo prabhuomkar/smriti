@@ -1,22 +1,24 @@
-"""PyTorch Serving Example Model"""
+"""ML Classification TorchVision Model"""
 import sys
 
 from PIL import Image
 import torch
 from torchvision import transforms
-from torchvision.models.efficientnet import efficientnet_v2_s, EfficientNet_V2_S_Weights
+from torchvision.models import get_model, get_model_weights
 
 
-FILE_NAME = 'things_v20230731.pt'
+VERSION='20230731'
+FILE_NAME = f'classification_v{VERSION}.pt'
+MODEL_NAME = 'efficientnet_v2_s' # can be any torchvision classification model
 
-class SmritiThingsModule(torch.nn.Module):
+class SmritiClassificationPyTorchModule(torch.nn.Module):
     """EfficientNet TorchScript Module"""
-    def __init__(self) -> None:
-        super(SmritiThingsModule, self).__init__()
-        self.transforms = EfficientNet_V2_S_Weights.IMAGENET1K_V1.transforms()
-        self.model = efficientnet_v2_s(weights=EfficientNet_V2_S_Weights.IMAGENET1K_V1)
+    def __init__(self, model, weights) -> None:
+        super(SmritiClassificationPyTorchModule, self).__init__()
+        self.model = model
         self.model.eval()
-        self.categories = EfficientNet_V2_S_Weights.IMAGENET1K_V1.meta['categories']
+        self.transforms = weights.transforms()
+        self.categories = weights.meta['categories']
 
     def forward(self, img_tensor, topk: int=5):
         """Forward Pass"""
@@ -30,7 +32,7 @@ class SmritiThingsModule(torch.nn.Module):
 def script_and_save():
     """Initialize pytorch model with weights, script it and save the torchscript module"""
     print('scripting and saving torchscript module')
-    scripted_module = torch.jit.script(SmritiThingsModule())
+    scripted_module = torch.jit.script(SmritiClassificationPyTorchModule(get_model(MODEL_NAME, weights='DEFAULT'), get_model_weights(MODEL_NAME).DEFAULT))
     scripted_module.save(FILE_NAME)
 
 def load_and_run(sample):

@@ -48,9 +48,17 @@ message MediaItemThingRequest {
     string name = 3;
 }
 
+message MediaItemFinalResultRequest {
+    string userId = 1;
+    string id = 2;
+    string keywords = 3;
+    repeated float embedding = 4;
+}
+
 service API {
     rpc GetWorkerConfig(google.protobuf.Empty) returns (ConfigResponse) {}
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemThing(MediaItemThingRequest) returns (google.protobuf.Empty) {}
+    rpc SaveMediaItemFinalResult(MediaItemFinalResultRequest) returns (google.protobuf.Empty) {}
 }

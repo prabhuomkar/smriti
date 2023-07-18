@@ -1,7 +1,8 @@
 from google.protobuf import empty_pb2 as _empty_pb2
+from google.protobuf.internal import containers as _containers
 from google.protobuf import descriptor as _descriptor
 from google.protobuf import message as _message
-from typing import ClassVar as _ClassVar, Optional as _Optional
+from typing import ClassVar as _ClassVar, Iterable as _Iterable, Optional as _Optional
 
 DESCRIPTOR: _descriptor.FileDescriptor
 
@@ -10,6 +11,18 @@ class ConfigResponse(_message.Message):
     CONFIG_FIELD_NUMBER: _ClassVar[int]
     config: bytes
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
+
+class MediaItemFinalResultRequest(_message.Message):
+    __slots__ = ["embedding", "id", "keywords", "userId"]
+    EMBEDDING_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    KEYWORDS_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    embedding: _containers.RepeatedScalarFieldContainer[float]
+    id: str
+    keywords: str
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., keywords: _Optional[str] = ..., embedding: _Optional[_Iterable[float]] = ...) -> None: ...
 
 class MediaItemMetadataRequest(_message.Message):
     __slots__ = ["apertureFNumber", "cameraMake", "cameraModel", "category", "creationTime", "exposureTime", "focalLength", "fps", "height", "id", "isoEquivalent", "latitude", "longitude", "mimeType", "previewPath", "sourcePath", "status", "thumbnailPath", "type", "userId", "width"]

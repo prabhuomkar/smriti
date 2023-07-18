@@ -23,6 +23,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type WorkerClient interface {
 	MediaItemProcess(ctx context.Context, in *MediaItemProcessRequest, opts ...grpc.CallOption) (*MediaItemProcessResponse, error)
+	GenerateEmbedding(ctx context.Context, in *GenerateEmbeddingRequest, opts ...grpc.CallOption) (*GenerateEmbeddingResponse, error)
 }
 
 type workerClient struct {
@@ -42,11 +43,21 @@ func (c *workerClient) MediaItemProcess(ctx context.Context, in *MediaItemProces
 	return out, nil
 }
 
+func (c *workerClient) GenerateEmbedding(ctx context.Context, in *GenerateEmbeddingRequest, opts ...grpc.CallOption) (*GenerateEmbeddingResponse, error) {
+	out := new(GenerateEmbeddingResponse)
+	err := c.cc.Invoke(ctx, "/Worker/GenerateEmbedding", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // WorkerServer is the server API for Worker service.
 // All implementations must embed UnimplementedWorkerServer
 // for forward compatibility
 type WorkerServer interface {
 	MediaItemProcess(context.Context, *MediaItemProcessRequest) (*MediaItemProcessResponse, error)
+	GenerateEmbedding(context.Context, *GenerateEmbeddingRequest) (*GenerateEmbeddingResponse, error)
 	mustEmbedUnimplementedWorkerServer()
 }
 
@@ -56,6 +67,9 @@ type UnimplementedWorkerServer struct {
 
 func (UnimplementedWorkerServer) MediaItemProcess(context.Context, *MediaItemProcessRequest) (*MediaItemProcessResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method MediaItemProcess not implemented")
+}
+func (UnimplementedWorkerServer) GenerateEmbedding(context.Context, *GenerateEmbeddingRequest) (*GenerateEmbeddingResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GenerateEmbedding not implemented")
 }
 func (UnimplementedWorkerServer) mustEmbedUnimplementedWorkerServer() {}
 
@@ -88,6 +102,24 @@ func _Worker_MediaItemProcess_Handler(srv interface{}, ctx context.Context, dec 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _Worker_GenerateEmbedding_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GenerateEmbeddingRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(WorkerServer).GenerateEmbedding(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/Worker/GenerateEmbedding",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(WorkerServer).GenerateEmbedding(ctx, req.(*GenerateEmbeddingRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // Worker_ServiceDesc is the grpc.ServiceDesc for Worker service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -98,6 +130,10 @@ var Worker_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MediaItemProcess",
 			Handler:    _Worker_MediaItemProcess_Handler,
+		},
+		{
+			MethodName: "GenerateEmbedding",
+			Handler:    _Worker_GenerateEmbedding_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

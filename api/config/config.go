@@ -58,15 +58,19 @@ type (
 	ML struct {
 		Places                 bool     `envconfig:"SMRITI_ML_PLACES" default:"true"`
 		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
+		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"true"`
+		Search                 bool     `envconfig:"SMRITI_ML_SEARCH" default:"true"`
 		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
-		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"false"`
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
 		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
 		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
-		ClassificationFiles    []string `envconfig:"SMRITI_ML_CLASSIFICATION_FILES" default:"things_v20230731.pt"`
-		FacesFiles             []string `envconfig:"SMRITI_ML_FACES_FILES"`
-		OCRFiles               []string `envconfig:"SMRITI_ML_OCR_FILES"`
-		SpeechFiles            []string `envconfig:"SMRITI_ML_SPEECH_FILES"`
+		ClassificationParams   []string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS" default:"classification_v20230731.pt"`
+		OCRProvider            string   `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
+		OCRParams              []string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"det_infer,rec_infer,cls_infer"`
+		SearchProvider         string   `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
+		SearchParams           []string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"search_v20230731.pt,search_tokenizer"`
+		FacesParams            []string `envconfig:"SMRITI_ML_FACES_PARAMS"`
+		SpeechParams           []string `envconfig:"SMRITI_ML_SPEECH_PARAMS"`
 	}
 
 	// Feature ...

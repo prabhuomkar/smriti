@@ -136,3 +136,10 @@ func (mwc *mockWorkerGRPCClient) MediaItemProcess(ctx context.Context, request *
 	}
 	return &worker.MediaItemProcessResponse{Ok: mwc.wantOk}, nil
 }
+
+func (mwc *mockWorkerGRPCClient) GenerateEmbedding(ctx context.Context, request *worker.GenerateEmbeddingRequest, opts ...grpc.CallOption) (*worker.GenerateEmbeddingResponse, error) {
+	if mwc.wantErr {
+		return nil, errors.New("some grpc error")
+	}
+	return &worker.GenerateEmbeddingResponse{Embedding: make([]float32, 0)}, nil
+}

@@ -12,6 +12,7 @@ import (
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
+	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
@@ -31,7 +32,7 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	type WorkerTask struct {
 		Name   string   `json:"name"`
 		Source string   `json:"source,omitempty"`
-		Files  []string `json:"files,omitempty"`
+		Params []string `json:"params,omitempty"`
 	}
 	var workerTasks []WorkerTask
 	if s.Config.ML.Places {
@@ -41,17 +42,28 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 		workerTasks = append(workerTasks, WorkerTask{
 			Name:   "classification",
 			Source: s.Config.ClassificationProvider,
-			Files:  s.Config.ClassificationFiles,
+			Params: s.Config.ClassificationParams,
+		})
+	}
+	if s.Config.ML.OCR {
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "ocr",
+			Source: s.Config.OCRProvider,
+			Params: s.Config.OCRParams,
+		})
+	}
+	if s.Config.ML.Search {
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "search",
+			Source: s.Config.SearchProvider,
+			Params: s.Config.SearchParams,
 		})
 	}
 	if s.Config.ML.Faces {
-		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Files: s.Config.FacesFiles})
-	}
-	if s.Config.ML.OCR {
-		workerTasks = append(workerTasks, WorkerTask{Name: "ocr", Files: s.Config.OCRFiles})
+		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Params: s.Config.FacesParams})
 	}
 	if s.Config.ML.Speech {
-		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Files: s.Config.SpeechFiles})
+		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Params: s.Config.SpeechParams})
 	}
 	configBytes, err := json.Marshal(&workerTasks)
 	if err != nil {
@@ -62,7 +74,7 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop,lll
+func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		log.Printf("error getting mediaitem user id: %+v", err)
@@ -187,6 +199,31 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
 	}
 	log.Printf("saved thing for mediaitem: %s", mediaItem.ID.String())
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		log.Printf("error getting mediaitem user id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		log.Printf("error getting mediaitem id: %+v", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	log.Printf("final mediaitem result saving for user: %s mediaitem: %s", req.UserId, req.Id)
+
+	mediaItem := models.MediaItem{UserID: userID, ID: uid}
+	mediaItemEmbedding := pgvector.NewVector(req.Embedding)
+	result := s.DB.Model(&mediaItem).UpdateColumns(models.MediaItem{Keywords: &req.Keywords, Embedding: &mediaItemEmbedding})
+	if result.Error != nil {
+		log.Printf("error saving mediaitem embedding: %+v", result.Error)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
+	}
+
+	log.Printf("final mediaitem result saved for user: %s mediaitem: %s", userID.String(), uid.String())
 	return &emptypb.Empty{}, nil
 }
 

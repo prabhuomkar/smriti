@@ -1,9 +1,12 @@
 package handlers
 
 import (
+	"errors"
 	"net/http"
+	"regexp"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
 )
 
@@ -94,6 +97,93 @@ func TestGetDisk(t *testing.T) {
 			},
 			http.StatusOK,
 			``,
+		},
+	}
+	executeTests(t, tests)
+}
+
+func TestSearch(t *testing.T) {
+	tests := []Test{
+		{
+			"search mediaitems with bad request",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			nil,
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusBadRequest,
+			"invalid search query",
+		},
+		{
+			"search mediaitems with no results",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WillReturnRows(sqlmock.NewRows(mediaitemCols))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusOK,
+			"[]",
+		},
+		{
+			"search mediaitems with 2 rows",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WillReturnRows(getMockedMediaItemRows())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusOK,
+			mediaitemsResponseBody,
+		},
+		{
+			"search mediaitems with error",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusInternalServerError,
+			"some db error",
 		},
 	}
 	executeTests(t, tests)

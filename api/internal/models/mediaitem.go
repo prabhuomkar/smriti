@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
 	"gorm.io/gorm"
 )
@@ -27,7 +28,7 @@ type (
 	MediaItemCategory string
 
 	// MediaItem ...
-	//nolint: lll
+
 	MediaItem struct {
 		ID                uuid.UUID         `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`
 		UserID            uuid.UUID         `json:"userId" gorm:"column:user_id"`
@@ -56,6 +57,8 @@ type (
 		Latitude          *float64          `json:"latitude,omitempty"`
 		Longitude         *float64          `json:"longitude,omitempty"`
 		FPS               *string           `json:"fps,omitempty"`
+		Keywords          *string           `json:"-"`
+		Embedding         *pgvector.Vector  `json:"-" gorm:"type:vector"`
 		CreatedAt         time.Time         `json:"createdAt"`
 		UpdatedAt         time.Time         `json:"updatedAt"`
 		Albums            []*Album          `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:AlbumID"`
@@ -112,7 +115,7 @@ func (m *MediaItemURLPlugin) TransformMediaItemURL(gormDB *gorm.DB) {
 	}
 }
 
-func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *gorm.DB, fieldName string) { //nolint: gocognit, cyclop, lll
+func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *gorm.DB, fieldName string) { //nolint: gocognit,cyclop
 	defer wg.Done()
 	field := gormDB.Statement.Schema.LookUpField(fieldName)
 	if field != nil { //nolint: nestif

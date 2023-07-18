@@ -23,18 +23,30 @@ class Places(Component):
         coordinates = [metadata['latitude'], metadata['longitude']]
         try:
             result = self.source.reverse_geocode(mediaitem_user_id, mediaitem_id, coordinates)
-
             logging.debug(f'extracted place for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
-
             if result is not None:
+                place_keywords = ''
+                if result['postcode']:
+                    place_keywords += (result['postcode']+' ')
+                if result['city']:
+                    place_keywords += (result['city']+' ')
+                if result['town']:
+                    place_keywords += (result['town']+' ')
+                if result['state']:
+                    place_keywords += (result['state']+' ')
+                if result['country']:
+                    place_keywords += (result['country']+' ')
+                if 'keywords' not in metadata or metadata['keywords'] == '':
+                    metadata['keywords'] = place_keywords
+                else:
+                    metadata['keywords'] += (' ' + place_keywords)
+                metadata['keywords'] = metadata['keywords'].strip().lower()
                 self._grpc_save_mediaitem_place(result)
         except Exception as exp:
             logging.error(f'error getting place response for user {mediaitem_user_id} '+
                           f'mediaitem {mediaitem_id}: {str(exp)}')
-
         logging.info(f'processed place for user {mediaitem_user_id} mediaitem {mediaitem_id}')
-        return None
-
+        return metadata
 
     def _grpc_save_mediaitem_place(self, result: dict):
         """gRPC call for saving mediaitem place"""

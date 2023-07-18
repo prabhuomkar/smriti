@@ -48,6 +48,8 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	srvHandler.GET("/disk", handler.GetDisk)
 	version1 := srvHandler.Group("/v1")
 	version1.GET("/features", handler.GetFeatures, getMiddlewareFuncs(handler.Config, handler.Cache)...)
+	// search
+	version1.GET("/search", handler.Search, getMiddlewareFuncs(handler.Config, handler.Cache)...)
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
 	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces,

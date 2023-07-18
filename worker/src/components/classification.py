@@ -1,4 +1,4 @@
-"""Things Component"""
+"""Classification Component"""
 import logging
 
 from grpc import RpcError
@@ -6,33 +6,34 @@ from grpc import RpcError
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import MediaItemThingRequest  # pylint: disable=no-name-in-module
 from src.components.component import Component
-from src.providers.things.utils import init_things
+from src.providers.classification.utils import init_classification
 
 
-class Things(Component):
-    """Things Component"""
-    def __init__(self, api_stub: APIStub, source: str, files: list[str]) -> None:
-        super().__init__('things', api_stub)
-        self.model = init_things(source, files)
+class Classification(Component):
+    """Classification Component"""
+    def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
+        super().__init__('classification', api_stub)
+        self.model = init_classification(source, params)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
-        """Process things from mediaitem"""
+        """Process classification from mediaitem"""
         if metadata is None or 'previewPath' not in metadata or ('type' in metadata and metadata['type'] == 'video'):
-            return None
+            return metadata
         try:
             result = self.model.classify(mediaitem_user_id, mediaitem_id, metadata['previewPath'])
-
-            logging.debug(f'extracted thing for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
-
+            logging.debug(f'extracted classification for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
             if result is not None:
+                if 'keywords' not in metadata or metadata['keywords'] == '':
+                    metadata['keywords'] = result['name'].lower()
+                else:
+                    metadata['keywords'] += (' ' + result['name'].lower())
+                metadata['keywords'] = metadata['keywords'].strip()
                 self._grpc_save_mediaitem_thing(result)
         except Exception as exp:
-            logging.error(f'error getting thing response for user {mediaitem_user_id} '+
+            logging.error(f'error getting classification response for user {mediaitem_user_id} '+
                           f'mediaitem {mediaitem_id}: {str(exp)}')
-
-        logging.info(f'processed thing for user {mediaitem_user_id} mediaitem {mediaitem_id}')
-        return None
-
+        logging.info(f'processed classification for user {mediaitem_user_id} mediaitem {mediaitem_id}')
+        return metadata
 
     def _grpc_save_mediaitem_thing(self, result: dict):
         """gRPC call for saving mediaitem thing"""

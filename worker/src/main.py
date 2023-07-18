@@ -8,17 +8,19 @@ import grpc
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
-from src.components import Component, Metadata, Places, Things
+from src.components import Component, Metadata, Places, Classification, OCR, Finalize
+from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.worker_pb2 import MediaItemProcessResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
 class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
-    def __init__(self, components: list[Component]) -> None:
+    def __init__(self, components: list[Component], search_model: PyTorchModule) -> None:
         self.components = components
+        self.search_model = search_model
 
     # pylint: disable=invalid-overridden-method
     async def MediaItemProcess(self, request, context) -> MediaItemProcessResponse:
@@ -28,18 +30,34 @@ class WorkerService(WorkerServicer):
         mediaitem_file_path = request.filePath
         if mediaitem_id is not None and mediaitem_user_id is not None and mediaitem_file_path is not None:
             loop = asyncio.get_event_loop()
-            loop.create_task(process_mediaitem(self.components, mediaitem_user_id, mediaitem_id, mediaitem_file_path))
+            loop.create_task(process_mediaitem(self.components, self.search_model,
+                                               mediaitem_user_id, mediaitem_id, mediaitem_file_path))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)
 
+    # pylint: disable=invalid-overridden-method
+    async def GenerateEmbedding(self, request, context) -> GenerateEmbeddingResponse:
+        """Generate Embedding"""
+        text = request.text
+        if self.search_model:
+            result = self.search_model.generate_embedding(text)
+            return GenerateEmbeddingResponse(embedding=result)
+        return GenerateEmbeddingResponse(embedding=None)
+
 # pylint: disable=redefined-builtin,invalid-name
-async def process_mediaitem(components: list[Component], user_id: str, id: str, file_path: str) -> None:
+async def process_mediaitem(components: list[Component], search_model: PyTorchModule,
+                            user_id: str, id: str, file_path: str) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
     metadata = await components[0].process(user_id, id, file_path, None)
-    for i in range(1, len(components)):
+    result = metadata
+    for i in range(1, len(components)-1):
         loop = asyncio.get_event_loop()
-        loop.create_task(components[i].process(user_id, id, file_path, metadata))
+        task = loop.create_task(components[i].process(user_id, id, file_path, result))
+        result = await task
+    if search_model and 'keywords' in result:
+        result['embedding'] = search_model.generate_embedding(result['keywords'])
+    await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
 async def serve() -> None:
@@ -66,15 +84,21 @@ async def serve() -> None:
 
     # initialize components
     components = [Metadata(api_stub=api_stub)]
+    search_model = None
     for item in cfg:
         if item['name'] == 'places':
             components.append(Places(api_stub=api_stub, source=item['source']))
         elif item['name'] == 'classification':
-            components.append(Things(api_stub=api_stub, source=item['source'], files=item['files']))
+            components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))
+        elif item['name'] == 'ocr':
+            components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
+        elif item['name'] == 'search':
+            search_model = init_search(name=item['source'], params=item['params'])
+    components.append(Finalize(api_stub=api_stub))
 
     # initialize grpc server
     server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(components), server)
+    add_WorkerServicer_to_server(WorkerService(components, search_model), server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')
@@ -82,6 +106,5 @@ async def serve() -> None:
     await server.wait_for_termination()
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.getLevelName(
-        os.getenv('SMRITI_LOG_LEVEL', 'INFO')))
+    logging.basicConfig(level=logging.getLevelName(os.getenv('SMRITI_LOG_LEVEL', 'INFO')))
     asyncio.run(serve())
