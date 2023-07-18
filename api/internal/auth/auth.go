@@ -5,11 +5,11 @@ import (
 	"api/internal/models"
 	"api/pkg/cache"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/golang-jwt/jwt/v4"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/exp/slog"
 )
 
 type (
@@ -28,12 +28,12 @@ func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (stri
 
 	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
 	if setRefreshErr != nil {
-		log.Printf("error caching refresh token: %+v", setRefreshErr)
+		slog.Error("error caching refresh token", slog.Any("error", setRefreshErr))
 		return "", "", setRefreshErr
 	}
 	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.Auth.AccessTTL)*time.Second)
 	if setAccessErr != nil {
-		log.Printf("error caching refresh token: %+v", setAccessErr)
+		slog.Error("error caching refresh token", slog.Any("error", setAccessErr))
 		return "", "", setAccessErr
 	}
 
@@ -43,13 +43,13 @@ func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (stri
 // RefreshTokens ...
 func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string) (string, string, error) {
 	if _, err := cache.Get(refreshToken); err != nil {
-		log.Printf("error getting refresh token from cache: %+v", err)
+		slog.Error("error getting refresh token from cache", slog.Any("error", err))
 		return "", "", err
 	}
 
 	claims, err := getClaimsFromToken(cfg, refreshToken)
 	if err != nil {
-		log.Printf("error getting claims from token: %+v", err)
+		slog.Error("error getting claims from token", slog.Any("error", err))
 		return "", "", err
 	}
 
@@ -58,7 +58,7 @@ func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string
 		if err == nil {
 			err = errors.New("got nil user id")
 		}
-		log.Printf("error getting user id %+v from claims: %+v", userID, err)
+		slog.Error("error getting user id from claims", slog.Any("userId", userID), slog.Any("err", err))
 		return "", "", err
 	}
 
@@ -69,7 +69,7 @@ func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string
 func RemoveTokens(cache cache.Provider, accessToken string) error {
 	refreshToken, err := cache.Get(accessToken)
 	if err != nil {
-		log.Printf("error getting access token from cache: %+v", err)
+		slog.Error("error getting access token from cache", slog.Any("error", err))
 		return err
 	}
 
@@ -83,13 +83,13 @@ func RemoveTokens(cache cache.Provider, accessToken string) error {
 // VerifyToken ...
 func VerifyToken(cfg *config.Config, cache cache.Provider, accessToken string) (*TokenClaims, error) {
 	if _, err := cache.Get(accessToken); err != nil {
-		log.Printf("error getting access token from cache: %+v", err)
+		slog.Error("error getting access token from cache", slog.Any("error", err))
 		return nil, err
 	}
 
 	claims, err := getClaimsFromToken(cfg, accessToken)
 	if err != nil {
-		log.Printf("error getting claims from token: %+v", err)
+		slog.Error("error getting claims from token", slog.Any("error", err))
 		return nil, err
 	}
 
@@ -105,13 +105,13 @@ func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) 
 		return []byte(cfg.Auth.Secret), nil
 	})
 	if err != nil || !parsedToken.Valid {
-		log.Printf("error parsing claims from token: %+v", err)
+		slog.Error("error parsing claims from token", slog.Any("error", err))
 		return nil, err
 	}
 
 	claims, ok := parsedToken.Claims.(*TokenClaims)
 	if !ok {
-		log.Printf("error getting claims from token: %+v", err)
+		slog.Error("error getting claims from token", slog.Any("error", err))
 		return nil, err
 	}
 

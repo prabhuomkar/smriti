@@ -5,11 +5,11 @@ import (
 	"api/internal/service"
 	"api/pkg/services/api"
 	"fmt"
-	"log"
 	"net"
 
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
 )
 
@@ -35,7 +35,7 @@ func StartGRPCServer(cfg *config.Config, service *service.Service) *grpc.Server 
 	api.RegisterAPIServer(grpcServer, service)
 
 	go func() {
-		log.Printf("starting grpc server on: %d", cfg.GRPC.Port)
+		slog.Info(fmt.Sprintf("starting grpc server on: %d", cfg.GRPC.Port))
 		if err := grpcServer.Serve(listener); err != nil {
 			panic(err)
 		}
@@ -46,6 +46,6 @@ func StartGRPCServer(cfg *config.Config, service *service.Service) *grpc.Server 
 
 // StopGRPCServer ...
 func StopGRPCServer(grpcServer *grpc.Server) {
-	log.Println("stopping grpc server")
+	slog.Info("stopping grpc server")
 	grpcServer.GracefulStop()
 }

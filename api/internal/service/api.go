@@ -8,12 +8,12 @@ import (
 	"context"
 	"encoding/json"
 	"errors"
-	"log"
 	"time"
 
 	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
+	"golang.org/x/exp/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -77,20 +77,20 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
-		log.Printf("error getting mediaitem user id: %+v", err)
+		slog.Error("error getting mediaitem user id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
-		log.Printf("error getting mediaitem id: %+v", err)
+		slog.Error("error getting mediaitem id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
-	log.Printf("saving mediaitem metadata for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	slog.Info("saving mediaitem metadata", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id), slog.Any("body", req.String()))
 	creationTime := time.Now()
 	if req.CreationTime != nil {
 		creationTime, err = time.Parse("2006-01-02 15:04:05", *req.CreationTime)
 		if err != nil {
-			log.Printf("error getting mediaitem creation time: %+v", err)
+			slog.Error("error getting mediaitem creation time", slog.Any("error", err))
 			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time")
 		}
 	}
@@ -101,44 +101,44 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 	parseMediaItem(&mediaItem, req)
 	mediaItem.SourceURL, err = uploadFile(s.Storage, req.SourcePath, "originals", req.Id)
 	if err != nil {
-		log.Printf("error uploading original file for mediaitem %s: %+v", req.Id, err)
+		slog.Error("error uploading original file for mediaitem %s: %+v", req.Id, err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
 	}
 	if req.PreviewPath != nil {
 		mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
 		if err != nil {
-			log.Printf("error uploading preview file for mediaitem %s: %+v", req.Id, err)
+			slog.Error("error uploading preview file for mediaitem %s: %+v", req.Id, err)
 			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
 		}
 	}
 	if req.ThumbnailPath != nil {
 		mediaItem.ThumbnailURL, err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
 		if err != nil {
-			log.Printf("error uploading thumbnail file for mediaitem %s: %+v", req.Id, err)
+			slog.Error("error uploading thumbnail file for mediaitem %s: %+v", req.Id, err)
 			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
 		}
 	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil {
-		log.Printf("error updating mediaitem result: %+v", result.Error)
+		slog.Error("error updating mediaitem result", slog.Any("error", result.Error))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
 	}
-	log.Printf("saved metadata for mediaitem: %s", mediaItem.ID.String())
+	slog.Info("saved metadata for mediaitem", slog.Any("mediaitem", mediaItem.ID.String()))
 	return &emptypb.Empty{}, nil
 }
 
 func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
-		log.Printf("error getting mediaitem user id: %+v", err)
+		slog.Error("error getting mediaitem user id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
-		log.Printf("error getting mediaitem id: %+v", err)
+		slog.Error("error getting mediaitem id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
-	log.Printf("saving mediaitem place for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	slog.Info("saving mediaitem place", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id), slog.Any("body", req.String()))
 	place := models.Place{
 		UserID:   userID,
 		Postcode: req.Postcode,
@@ -153,32 +153,32 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 		Assign(models.Place{CoverMediaItemID: &uid}).
 		FirstOrCreate(&place)
 	if result.Error != nil {
-		log.Printf("error getting or creating place: %+v", result.Error)
+		slog.Error("error getting or creating place", slog.Any("error", result.Error))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal,
 			"error getting or creating place: %s", result.Error.Error())
 	}
 	mediaItem := models.MediaItem{ID: uid}
 	err = s.DB.Omit("MediaItems.*").Model(&place).Association("MediaItems").Append(&mediaItem)
 	if err != nil {
-		log.Printf("error saving mediaitem place: %+v", err)
+		slog.Error("error saving mediaitem place", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
 	}
-	log.Printf("saved place for mediaitem: %s", mediaItem.ID.String())
+	slog.Info("saved place for mediaitem", slog.Any("mediaitem", mediaItem.ID.String()))
 	return &emptypb.Empty{}, nil
 }
 
 func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
-		log.Printf("error getting mediaitem user id: %+v", err)
+		slog.Error("error getting mediaitem user id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
-		log.Printf("error getting mediaitem id: %+v", err)
+		slog.Error("error getting mediaitem id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
-	log.Printf("saving mediaitem thing for user: %s mediaitem: %s body: %s", req.UserId, req.Id, req.String())
+	slog.Info("saving mediaitem thing", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id), slog.Any("body", req.String()))
 	thing := models.Thing{
 		UserID: userID,
 		Name:   req.Name,
@@ -188,42 +188,42 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 		Assign(models.Thing{CoverMediaItemID: &uid}).
 		FirstOrCreate(&thing)
 	if result.Error != nil {
-		log.Printf("error getting or creating thing: %+v", result.Error)
+		slog.Error("error getting or creating thing", slog.Any("error", result.Error))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal,
 			"error getting or creating thing: %s", result.Error.Error())
 	}
 	mediaItem := models.MediaItem{ID: uid}
 	err = s.DB.Omit("MediaItems.*").Model(&thing).Association("MediaItems").Append(&mediaItem)
 	if err != nil {
-		log.Printf("error saving mediaitem thing: %+v", err)
+		slog.Error("error saving mediaitem thing", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
 	}
-	log.Printf("saved thing for mediaitem: %s", mediaItem.ID.String())
+	slog.Info("saved thing for mediaitem", slog.Any("mediaitem", mediaItem.ID.String()))
 	return &emptypb.Empty{}, nil
 }
 
 func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
-		log.Printf("error getting mediaitem user id: %+v", err)
+		slog.Error("error getting mediaitem user id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
-		log.Printf("error getting mediaitem id: %+v", err)
+		slog.Error("error getting mediaitem id", slog.Any("error", err))
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
-	log.Printf("final mediaitem result saving for user: %s mediaitem: %s", req.UserId, req.Id)
+	slog.Info("saving final mediaitem result", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id))
 
 	mediaItem := models.MediaItem{UserID: userID, ID: uid}
 	mediaItemEmbedding := pgvector.NewVector(req.Embedding)
 	result := s.DB.Model(&mediaItem).UpdateColumns(models.MediaItem{Keywords: &req.Keywords, Embedding: &mediaItemEmbedding})
 	if result.Error != nil {
-		log.Printf("error saving mediaitem embedding: %+v", result.Error)
+		slog.Error("error saving mediaitem embedding", slog.Any("error", result.Error))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
 	}
 
-	log.Printf("final mediaitem result saved for user: %s mediaitem: %s", userID.String(), uid.String())
+	slog.Info("saved final mediaitem result", slog.Any("userId", userID.String()), slog.Any("mediaitem", uid.String()))
 	return &emptypb.Empty{}, nil
 }
 

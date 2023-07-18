@@ -4,11 +4,11 @@ import (
 	"api/internal/auth"
 	"api/internal/models"
 	"errors"
-	"log"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/exp/slog"
 	"gorm.io/gorm"
 )
 
@@ -37,7 +37,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 		Where("username=? AND password=?", &loginRequest.Username, getPasswordHash(*loginRequest.Password)).
 		First(&user)
 	if result.Error != nil {
-		log.Printf("error getting user: %+v", result.Error)
+		slog.Error("error getting user", slog.Any("error", result.Error))
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "incorrect username or password")
 		}
@@ -45,7 +45,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 	}
 	accessToken, refreshToken, err := auth.GetTokens(h.Config, h.Cache, user)
 	if err != nil {
-		log.Printf("error getting tokens: %+v", err)
+		slog.Error("error getting tokens", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, "error getting tokens")
 	}
 	authResponse := AuthResponse{
@@ -61,7 +61,7 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 	refreshToken = strings.ReplaceAll(refreshToken, "Bearer ", "")
 	newAccessToken, newRefreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
 	if err != nil {
-		log.Printf("error refreshing tokens: %+v", err)
+		slog.Error("error refreshing tokens", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, "error refreshing tokens")
 	}
 	authResponse := AuthResponse{
@@ -83,11 +83,11 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 	loginRequest := new(LoginRequest)
 	err := ctx.Bind(loginRequest)
 	if err != nil {
-		log.Printf("error getting username and password: %+v", err)
+		slog.Error("error getting username and password", slog.Any("error", err))
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 	if loginRequest.Username == nil || loginRequest.Password == nil {
-		log.Printf("error getting username and password: %+v", err)
+		slog.Error("error getting username and password", slog.Any("error", err))
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 	return loginRequest, nil

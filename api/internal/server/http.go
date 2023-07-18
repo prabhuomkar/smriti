@@ -8,7 +8,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 	"net/http"
 	"strings"
 	"time"
@@ -16,6 +15,7 @@ import (
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
 	"github.com/prometheus/client_golang/prometheus"
+	"golang.org/x/exp/slog"
 )
 
 const httpTimeout = 10
@@ -40,7 +40,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	// file server
 	if handler.Config.Storage.Provider == "disk" {
 		fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
-		log.Printf("starting file server on: %s", fileRoute)
+		slog.Info(fmt.Sprintf("starting file server on: %s", fileRoute))
 		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
 	}
 	// routes
@@ -132,7 +132,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	users.POST("", handler.CreateUser)
 
 	go func() {
-		log.Printf("starting http api server on: %d", handler.Config.API.Port)
+		slog.Info(fmt.Sprintf("starting http api server on: %d", handler.Config.API.Port))
 		if err := httpServer.ListenAndServe(); !errors.Is(err, http.ErrServerClosed) {
 			panic(err)
 		}
@@ -143,7 +143,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 
 // StartHTTPServer ...
 func StopHTTPServer(httpServer *http.Server) {
-	log.Println("stopping http api server")
+	slog.Info("stopping http api server")
 	ctx, cancel := context.WithTimeout(context.Background(), httpTimeout*time.Second)
 	defer cancel()
 	if err := httpServer.Shutdown(ctx); err != nil {
