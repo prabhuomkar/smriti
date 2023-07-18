@@ -1,6 +1,7 @@
 # Contributing Guide
 
 ## Development
+
 Here are some best practices we expect developers to follow:
 - Write code that is easy to read and modify.
 - Use consistent coding standards for naming and formatting.
@@ -8,6 +9,17 @@ Here are some best practices we expect developers to follow:
 - Use automated testing to catch bugs early.
 - Be responsive to community feedback and engage with users.
 - Continuously improve the project with new features and bug fixes.
+
+## Pull Request Checklist
+
+- Followed the style guidelines of this project
+- Performed self-review of my code
+- Commented the code, particularly in hard-to-understand areas
+- Made corresponding changes to the documentation
+- New changes generate no new warnings
+- Added tests that prove your fix is effective or that the feature works
+- New and existing unit tests pass locally with your changes
+- Any dependent changes have been merged and published in downstream modules
 
 ## Testing
 
