@@ -1,6 +1,6 @@
 # Developer Notes
 
-- [ ] ML models should be agnostic and configurable
+- [x] ML models should be agnostic and configurable
 - [x] Each action should be configurable from the environment config e.g. Face grouping, Place Identification, File Size Limits
 - [x] API-first techniques and then build Web UI & Mobile Apps
 - [x] Demos can include: deployment on Fly, Heroku, other SaaS, hosting on Raspberry Pis and dockerized deployment on Cloud
@@ -25,9 +25,9 @@
 | EXIF Data | ✅  |
 | Photo Discovery | 🚧 |
 | Object/Face Recognition | 🚧 |
-| Photo Search | 🚧 |
-| LivePhotos Support | 🚧 |
-| Video Support | ❌ |
+| Photo Search | ✅ |
+| LivePhotos Support | ✅ |
+| Video Support | ✅ |
 | Automatic Mobile Upload | 🚧 |
 | Timeline | 🚧 |
 | Web App | 🚧 |

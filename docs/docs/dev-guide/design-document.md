@@ -92,48 +92,35 @@ interface {
 
 ### Machine Learning Inference
 - Toggles for using CPU and GPU for inference
-- Model registration from API on startup:
+- Worker configuration sent to worker on startup request:
 ```yaml
-tasks:
 - name: places
-  service: openstreetmap # google-maps, geojson, paid services, etc.
+  source: openstreetmap # google-maps, geojson, paid services, etc.
 - name: classification
-  download: 
-    - s3://model-download-link
-  model: convnext
-- name: detection
-  download: 
-    - s3://model-download-link
-    - s3://model-labels-link
-  model: yolo
+  source: convnext
+  params: 
+    - threshold
+  source: yolo
 - name: ocr
-  download: 
-    - s3://model-download-link
-    - s3://model-labels-link
-  model: tbd
+  source: paddlepaddle
+  params: 
+    - threshold
 - name: faces
-  download: 
-    - s3://model-download-link
-    - s3://model-labels-link
-  model: tbd
-  params:
-    - face_size: 224
-    - similarity_threshold: 90
+  source: tbd
+  params: 
+    - face_size
+    - threshold
 - name: speech
-  download: 
-    - s3://model-download-link
-    - s3://model-labels-link
-  model: tbd
+  source: tbd
   params:
-    - token_size: 10
+    - tbd
 ```
 - Default Models:
-  - Classification - [EfficientNet](https://github.com)
-  - Detection - [YOLOv8](https://github.com)
-  - Face Detection - [TBD](https://github.com)
-  - OCR - [TBD](https://github.com)
+  - Classification - [EfficientNet](https://github.com/pytorch/vision/blob/main/torchvision/models/efficientnet.py)
+  - OCR - [PaddleOCR Models](https://github.com/PaddlePaddle/PaddleOCR)
+  - Search Embeddings - [CLIP](https://huggingface.co/openai/clip-vit-base-patch32)
   - Speech - [TBD](https://github.com)
-  - Search Embeddings - [TBD](https://github.com)
+  - Face Detection - [TBD](https://github.com)
 
 ## Performance
 - Benchmarking with several parallel uploads and system configuration
