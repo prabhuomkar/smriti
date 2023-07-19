@@ -10,7 +10,10 @@ import (
 	"golang.org/x/exp/slog"
 )
 
-const minSearchQueryLen = 3
+const (
+	minSearchQueryLen  = 3
+	searchDefaultLimit = 50
+)
 
 // GetVersion ...
 func (h *Handler) GetVersion(ctx echo.Context) error {
@@ -56,7 +59,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		result := h.DB.Raw("SELECT * from mediaitems ORDER BY embedding <-> ?", pgvector.NewVector(searchEmbedding.Embedding)).
-			Find(&mediaItems)
+			Find(&mediaItems).Limit(searchDefaultLimit)
 		if result.Error != nil {
 			slog.Error("error searching mediaitems", slog.Any("error", result.Error))
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -64,7 +67,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, mediaItems)
 	}
 	result := h.DB.Raw("SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', ?)", searchQuery).
-		Find(&mediaItems)
+		Find(&mediaItems).Limit(searchDefaultLimit)
 	if result.Error != nil {
 		slog.Error("error searching mediaitems", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())

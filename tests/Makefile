@@ -27,7 +27,7 @@ test-sharing:
 	behave -i sharing.feature
 test-search:
 	@echo "testing feature: search"
-	@echo "feature not developed yet!"
+	behave -i search.feature
 test-raw:
 	@echo "testing feature: raw mediaitems"
 	behave -i raw.feature
