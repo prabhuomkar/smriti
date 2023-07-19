@@ -188,10 +188,7 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 func (h *Handler) GetAlbums(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
-	shared := ctx.QueryParam("shared")
-	if shared == "" {
-		shared = "false"
-	}
+	shared := getAlbumShared(ctx)
 	order := getAlbumSortOrder(ctx)
 	albums := []models.Album{}
 	result := h.DB.Model(&models.Album{}).

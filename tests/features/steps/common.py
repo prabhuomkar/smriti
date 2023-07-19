@@ -12,7 +12,7 @@ UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'passwo
 
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 CREATED_SHARED_ALBUM = {'name': 'Album Name', 'description': 'Album Description', 'shared': True}
-UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description', 'shared': True}
+UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description'}
 
 CREATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
                      'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2', 'apertureFNumber': '1.6', 'isoEquivalent': '640',

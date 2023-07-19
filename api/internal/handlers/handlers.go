@@ -6,6 +6,7 @@ import (
 	"api/pkg/services/worker"
 	"fmt"
 	"strconv"
+	"strings"
 
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
@@ -75,4 +76,12 @@ func getAlbumSortOrder(ctx echo.Context) string {
 		return "name asc"
 	}
 	return "updated_at desc"
+}
+
+func getAlbumShared(ctx echo.Context) bool {
+	queryParam := ctx.QueryParam("shared")
+	if queryParam == "" || strings.ToLower(queryParam) == "false" || strings.ToLower(queryParam) != "true" {
+		return false
+	}
+	return true
 }
