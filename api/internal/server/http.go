@@ -47,68 +47,68 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	srvHandler.GET("/version", handler.GetVersion)
 	srvHandler.GET("/disk", handler.GetDisk)
 	version1 := srvHandler.Group("/v1")
-	version1.GET("/features", handler.GetFeatures, getMiddlewareFuncs(handler.Config, handler.Cache)...)
+	version1.GET("/features", handler.GetFeatures, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	// search
-	version1.GET("/search", handler.Search, getMiddlewareFuncs(handler.Config, handler.Cache)...)
+	version1.GET("/search", handler.Search, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
 	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "places")...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true, "places")...)
 	mediaItems.GET("/:id/things", handler.GetMediaItemThings,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "things")...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true, "things")...)
 	mediaItems.GET("/:id/people", handler.GetMediaItemPeople,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "people")...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true, "people")...)
 	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums,
-		getMiddlewareFuncs(handler.Config, handler.Cache, "albums")...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true, "albums")...)
 	mediaItems.GET("/:id", handler.GetMediaItem,
-		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	mediaItems.PUT("/:id", handler.UpdateMediaItem,
-		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	mediaItems.DELETE("/:id", handler.DeleteMediaItem,
-		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	mediaItems.GET("", handler.GetMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	mediaItems.POST("", handler.UploadMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache)...)
+		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	// library
 	favourites := version1.Group("/favourites")
-	favourites.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "favourites")...)
+	favourites.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "favourites")...)
 	favourites.GET("", handler.GetFavouriteMediaItems)
 	favourites.POST("", handler.AddFavouriteMediaItems)
 	favourites.DELETE("", handler.RemoveFavouriteMediaItems)
 	hidden := version1.Group("/hidden")
-	hidden.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "hidden")...)
+	hidden.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "hidden")...)
 	hidden.GET("", handler.GetHiddenMediaItems)
 	hidden.POST("", handler.AddHiddenMediaItems)
 	hidden.DELETE("", handler.RemoveHiddenMediaItems)
 	trash := version1.Group("/trash")
-	trash.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "trash")...)
+	trash.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "trash")...)
 	trash.GET("", handler.GetDeletedMediaItems)
 	trash.POST("", handler.AddDeletedMediaItems)
 	trash.DELETE("", handler.RemoveDeletedMediaItems)
 	// explore
 	explore := version1.Group("/explore")
-	explore.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "explore")...)
+	explore.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "explore")...)
 	explore.GET("/yearsAgo/:monthDate/mediaItems", handler.GetYearsAgoMediaItems)
 	places := explore.Group("/places")
-	places.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "places")...)
+	places.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "places")...)
 	places.GET("/:id/mediaItems", handler.GetPlaceMediaItems)
 	places.GET("/:id", handler.GetPlace)
 	places.GET("", handler.GetPlaces)
 	things := explore.Group("/things")
-	things.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "things")...)
+	things.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "things")...)
 	things.GET("/:id/mediaItems", handler.GetThingMediaItems)
 	things.GET("/:id", handler.GetThing)
 	things.GET("", handler.GetThings)
 	people := explore.Group("/people")
-	people.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "people")...)
+	people.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "people")...)
 	people.GET("/:id/mediaItems", handler.GetPeopleMediaItems)
 	people.GET("/:id", handler.GetPerson)
 	people.PUT("/:id", handler.UpdatePerson)
 	people.GET("", handler.GetPeople)
 	// albums
 	albums := version1.Group("/albums")
-	albums.Use(getMiddlewareFuncs(handler.Config, handler.Cache, "albums")...)
+	albums.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "albums")...)
 	albums.GET("/:id/mediaItems", handler.GetAlbumMediaItems)
 	albums.POST("/:id/mediaItems", handler.AddAlbumMediaItems)
 	albums.DELETE("/:id/mediaItems", handler.RemoveAlbumMediaItems)
@@ -117,6 +117,11 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	albums.DELETE("/:id", handler.DeleteAlbum)
 	albums.GET("", handler.GetAlbums)
 	albums.POST("", handler.CreateAlbum)
+	// sharing
+	sharing := version1.Group("/sharing")
+	sharing.Use(getMiddlewareFuncs(handler.Config, handler.Cache, false, "sharing")...)
+	sharing.GET("/:id/mediaItems", handler.GetSharedAlbumMediaItems)
+	sharing.GET("/:id", handler.GetSharedAlbum)
 	// authentication
 	auth := version1.Group("/auth")
 	auth.POST("/login", handler.Login)
@@ -151,9 +156,10 @@ func StopHTTPServer(httpServer *http.Server) {
 	}
 }
 
-func getMiddlewareFuncs(cfg *config.Config, cache cache.Provider, features ...string) []echo.MiddlewareFunc {
-	middlewareFuncs := []echo.MiddlewareFunc{
-		middlewares.JWTCheck(cfg, cache),
+func getMiddlewareFuncs(cfg *config.Config, cache cache.Provider, jwtCheck bool, features ...string) []echo.MiddlewareFunc {
+	middlewareFuncs := []echo.MiddlewareFunc{}
+	if jwtCheck {
+		middlewareFuncs = append(middlewareFuncs, middlewares.JWTCheck(cfg, cache))
 	}
 	for _, feature := range features {
 		middlewareFuncs = append(middlewareFuncs, middlewares.FeatureCheck(cfg, feature))

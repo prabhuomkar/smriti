@@ -188,10 +188,14 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 func (h *Handler) GetAlbums(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
+	shared := ctx.QueryParam("shared")
+	if shared == "" {
+		shared = "false"
+	}
 	order := getAlbumSortOrder(ctx)
 	albums := []models.Album{}
 	result := h.DB.Model(&models.Album{}).
-		Where("is_hidden=false AND user_id=?", userID).
+		Where("is_hidden=false AND is_shared=? AND user_id=?", shared, userID).
 		Preload("CoverMediaItem").
 		Order(order).
 		Find(&albums).

@@ -18,6 +18,8 @@ tags:
     description: Authentication for your application
   - name: User Management
     description: User Management for your application
+  - name: Sharing
+    description: Sharing Albums or MediaItems
 paths:
   /version:
     get:
@@ -48,6 +50,8 @@ paths:
       summary: Get list of enabled features
       description: Get list of enabled features
       operationId: getFeatures
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -69,6 +73,8 @@ paths:
       summary: Get all mediaItems which are N years ago from given month & date
       description: Get all mediaItems which are N years ago from given month & date
       operationId: getYearsAgoMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -82,6 +88,33 @@ paths:
           description: Unauthenticated
         '404':
           description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/search:
+    get:
+      parameters:
+        - name: q
+          in: query
+          description: Search Query
+          schema:
+            type: string
+            example: pizza
+      summary: Search existing mediaItems
+      description: Search existing mediaItems
+      operationId: searchMediaItems
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
         '500':
           description: Internal Server Error
   /v1/mediaItems:
@@ -111,10 +144,13 @@ paths:
           in: query
           description: MediaItem Category
           schema:
-            type: live
+            type: string
+            example: live
       summary: Get all existing mediaItems
       description: Get all existing mediaItems
       operationId: getMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -134,6 +170,8 @@ paths:
       summary: Upload a new mediaItem
       description: Upload a new mediaItem
       operationId: uploadMediaItem
+      security:
+        - bearerAuth: []
       responses:
         '201':
           description: Created
@@ -158,6 +196,8 @@ paths:
       summary: Get an existing mediaItem
       description: Get an existing mediaItem
       operationId: getMediaItem
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -187,6 +227,8 @@ paths:
       summary: Update an existing mediaItem
       description: Update an existing mediaItem
       operationId: updateMediaItem
+      security:
+        - bearerAuth: []
       requestBody:
         description: MediaItem request body
         required: true
@@ -219,6 +261,8 @@ paths:
       summary: Delete an existing mediaItem
       description: Delete an existing mediaItem
       operationId: deleteMediaItem
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
@@ -245,6 +289,8 @@ paths:
       summary: Get places from an existing mediaItem
       description: Get places from an existing mediaItem
       operationId: getMediaItemPlaces
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -275,6 +321,8 @@ paths:
       summary: Get things from an existing mediaItem
       description: Get things from an existing mediaItem
       operationId: getMediaItemThings
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -305,6 +353,8 @@ paths:
       summary: Get people from an existing mediaItem
       description: Get people from an existing mediaItem
       operationId: getMediaItemPeople
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -335,6 +385,8 @@ paths:
       summary: Get albums from an existing mediaItem
       description: Get albums from an existing mediaItem
       operationId: getMediaItemAlbums
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -357,6 +409,8 @@ paths:
       summary: Get all favourite mediaItems
       description: Get all favourite mediaItems
       operationId: getFavouriteMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -376,6 +430,8 @@ paths:
       summary: Add favourite mediaItems
       description: Add favourite mediaItems
       operationId: addFavouriteMediaItems
+      security:
+        - bearerAuth: []
       requestBody:
         description: List of mediaitems request
         required: true
@@ -398,6 +454,8 @@ paths:
       summary: Remove favourite mediaItems
       description: Remove favourite mediaItems
       operationId: removeFavouriteMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
@@ -414,6 +472,8 @@ paths:
       summary: Get all hidden mediaItems
       description: Get all hidden mediaItems
       operationId: getHiddenMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -433,6 +493,8 @@ paths:
       summary: Add hidden mediaItems
       description: Add hidden mediaItems
       operationId: addHiddenMediaItems
+      security:
+        - bearerAuth: []
       requestBody:
         description: List of mediaitems request
         required: true
@@ -455,6 +517,8 @@ paths:
       summary: Remove hidden mediaItems
       description: Remove hidden mediaItems
       operationId: removeHiddenMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
@@ -471,6 +535,8 @@ paths:
       summary: Get all deleted mediaItems
       description: Get all deleted mediaItems
       operationId: getDeletedMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -490,6 +556,8 @@ paths:
       summary: Add deleted mediaItems
       description: Add deleted mediaItems
       operationId: addDeletedMediaItems
+      security:
+        - bearerAuth: []
       requestBody:
         description: List of mediaitems request
         required: true
@@ -512,6 +580,8 @@ paths:
       summary: Remove deleted mediaItems
       description: Remove deleted mediaItems
       operationId: removeDeletedMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
@@ -528,6 +598,8 @@ paths:
       summary: Get all place entities
       description: Get all place entities
       operationId: getPlaces
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -556,6 +628,8 @@ paths:
       summary: Get mediaItems of a place entity
       description: Get mediaItems of a place entity
       operationId: getPlaceMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -576,6 +650,8 @@ paths:
       summary: Get all thing entities
       description: Get all thing entities
       operationId: getThings
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -604,6 +680,8 @@ paths:
       summary: Get mediaItems of a thing entity
       description: Get mediaItems of a thing entity
       operationId: getThingMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -624,6 +702,8 @@ paths:
       summary: Get all people entities
       description: Get all people entities
       operationId: getPeople
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -652,6 +732,8 @@ paths:
       summary: Update a people entity
       description: Update a people entity
       operationId: updatePeople
+      security:
+        - bearerAuth: []
       requestBody:
         description: People request body
         required: true
@@ -685,6 +767,8 @@ paths:
       summary: Get mediaItems of a people entity
       description: Get mediaItems of a people entity
       operationId: getPeopleMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -722,9 +806,17 @@ paths:
           schema:
             type: number
             default: 15
+        - name: shared
+          in: query
+          description: Shared
+          schema:
+            type: boolean
+            example: false
       summary: Get all existing albums
       description: Get all existing albums
       operationId: getAlbums
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -744,6 +836,8 @@ paths:
       summary: Create a new album
       description: Create a new album
       operationId: createAlbum
+      security:
+        - bearerAuth: []
       requestBody:
         description: Album request body
         required: true
@@ -775,6 +869,8 @@ paths:
       summary: Get an existing album
       description: Get an existing album
       operationId: getAlbum
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -804,6 +900,8 @@ paths:
       summary: Update an existing album
       description: Update an existing album
       operationId: updateAlbum
+      security:
+        - bearerAuth: []
       requestBody:
         description: Album request body
         required: true
@@ -836,6 +934,8 @@ paths:
       summary: Delete an existing album
       description: Delete an existing album
       operationId: deleteAlbum
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
@@ -862,6 +962,8 @@ paths:
       summary: Get mediaItems of an existing album
       description: Get mediaItems of an existing album
       operationId: getAlbumMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '200':
           description: Success
@@ -891,6 +993,8 @@ paths:
       summary: Add mediaItems to an existing album
       description: Add mediaItems to an existing album
       operationId: addAlbumMediaItems
+      security:
+        - bearerAuth: []
       requestBody:
         description: List of mediaitems request
         required: true
@@ -923,9 +1027,71 @@ paths:
       summary: Remove mediaItems from an existing album
       description: Remove mediaItems from an existing album
       operationId: removeAlbumMediaItems
+      security:
+        - bearerAuth: []
       responses:
         '204':
           description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/sharing/{id}:
+    get:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get an existing shared album
+      description: Get an existing shared album
+      operationId: getSharedAlbum
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Album'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+  /v1/sharing/{id}/mediaItems:
+    get:
+      tags:
+        - Sharing
+      parameters:
+        - name: id
+          in: path
+          description: ID of shared album
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get mediaItems of an existing shared album
+      description: Get mediaItems of an existing shared album
+      operationId: getSharedAlbumMediaItems
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MediaItems'
         '400':
           description: Bad Request
         '401':
@@ -1010,6 +1176,8 @@ paths:
       summary: Get all existing users
       description: Get all existing users
       operationId: getUsers
+      security:
+        - basicAuth: []
       responses:
         '200':
           description: Success
@@ -1029,6 +1197,8 @@ paths:
       summary: Create a new user
       description: Create a new user
       operationId: createUser
+      security:
+        - basicAuth: []
       requestBody:
         description: User request body
         required: true
@@ -1060,6 +1230,8 @@ paths:
       summary: Get an existing user
       description: Get an existing user
       operationId: getUser
+      security:
+        - basicAuth: []
       responses:
         '200':
           description: Success
@@ -1089,6 +1261,8 @@ paths:
       summary: Update an existing user
       description: Update an existing user
       operationId: updateUser
+      security:
+        - basicAuth: []
       requestBody:
         description: User request body
         required: true
@@ -1121,6 +1295,8 @@ paths:
       summary: Delete an existing user
       description: Delete an existing user
       operationId: deleteUser
+      security:
+        - basicAuth: []
       responses:
         '204':
           description: No Content
@@ -1133,6 +1309,14 @@ paths:
         '500':
           description: Internal Server Error
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    basicAuth:
+      type: http
+      scheme: basic
   schemas:
     Version:
       type: object

@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"database/sql/driver"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -142,4 +143,11 @@ func (mwc *mockWorkerGRPCClient) GenerateEmbedding(ctx context.Context, request 
 		return nil, errors.New("some grpc error")
 	}
 	return &worker.GenerateEmbeddingResponse{Embedding: make([]float32, 0)}, nil
+}
+
+type AnyID struct{}
+
+func (a AnyID) Match(v driver.Value) bool {
+	_, ok := v.(string)
+	return ok
 }

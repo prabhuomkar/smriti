@@ -106,5 +106,7 @@ async def serve() -> None:
     await server.wait_for_termination()
 
 if __name__ == '__main__':
-    logging.basicConfig(level=logging.getLevelName(os.getenv('SMRITI_LOG_LEVEL', 'INFO')))
+    logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
+                        datefmt='%Y/%m/%d %H:%M:%S',
+                        level=logging.getLevelName(os.getenv('SMRITI_LOG_LEVEL', 'INFO')))
     asyncio.run(serve())
