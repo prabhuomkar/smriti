@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"database/sql/driver"
 	"errors"
 	"net/http"
 	"regexp"
@@ -863,7 +862,7 @@ func TestGetAlbums(t *testing.T) {
 			"get albums with empty table",
 			http.MethodGet,
 			"/v1/albums",
-			"/v1/albums?sort=name",
+			"/v1/albums?sort=name&shared=true",
 			[]string{},
 			[]string{},
 			map[string]string{},
@@ -1059,11 +1058,4 @@ func getMockedAlbumRows() *sqlmock.Rows {
 			"true", "false", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "12", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "description",
 			"false", "true", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "24", sampleTime, sampleTime)
-}
-
-type AnyID struct{}
-
-func (a AnyID) Match(v driver.Value) bool {
-	_, ok := v.(string)
-	return ok
 }
