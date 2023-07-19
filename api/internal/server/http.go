@@ -119,7 +119,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	albums.POST("", handler.CreateAlbum)
 	// sharing
 	sharing := version1.Group("/sharing")
-	albums.Use(getMiddlewareFuncs(handler.Config, handler.Cache, false, "albums", "sharing")...)
+	sharing.Use(getMiddlewareFuncs(handler.Config, handler.Cache, false, "sharing")...)
 	sharing.GET("/:id/mediaItems", handler.GetSharedAlbumMediaItems)
 	sharing.GET("/:id", handler.GetSharedAlbum)
 	// authentication

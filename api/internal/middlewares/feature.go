@@ -5,6 +5,7 @@ import (
 	"api/internal/models"
 
 	"github.com/labstack/echo/v4"
+	"golang.org/x/exp/slog"
 )
 
 // FeatureCheck ...
@@ -22,9 +23,10 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "places" && cfg.Feature.Places && features.Places) ||
 				(feature == "things" && cfg.Feature.Things && features.Things) ||
 				(feature == "people" && cfg.Feature.People && features.People) ||
-				(feature == "sharing" && cfg.Feature.Sharing && features.Sharing) {
+				(feature == "sharing" && cfg.Feature.Sharing) {
 				return next(ctx)
 			}
+			slog.Error("feature disabled or not accessible", slog.Any("config", cfg.Feature), slog.Any("features", features))
 			return echo.ErrForbidden
 		}
 	}
