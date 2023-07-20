@@ -275,6 +275,8 @@ class Metadata(Component):
                 return 'slow'
             if 'QuickTime:LivePhotoAuto' in metadata:
                 return 'live'
+            if 'QuickTime:CaptureMode' in metadata and metadata['QuickTime:CaptureMode'].lower() == 'time-lapse':
+                return 'timelapse'
         return 'default'
 
     def _is_raw(self, metadata: dict) -> bool:

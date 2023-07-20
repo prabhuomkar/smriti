@@ -84,6 +84,7 @@ const (
 	Slow       MediaItemCategory = "slow"
 	Motion     MediaItemCategory = "motion"
 	Live       MediaItemCategory = "live"
+	Timelapse  MediaItemCategory = "timelapse"
 
 	preFetchTime = 24
 )
