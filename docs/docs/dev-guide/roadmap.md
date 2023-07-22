@@ -11,7 +11,7 @@
 - [x] Get Machine Learning Powered Things & its Collection (v2022.07.31)
 - [x] Get Machine Learning Powered Search (v2022.07.31)
 - [x] Sharing Collections of Photos & Videos (v2023.07.31)
-- [x] Open up for contributions to build Mobile & Web Application (v2023.07.31)
 - [ ] Get Machine Learning Powered Faces & People Collection (v2022.08.30)
+- [ ] Open up for contributions to build Mobile & Web Application (v2023.08.30)
 - [ ] Enhance Image & Video Support (TBD)
 - [ ] Planning recurrent upgrades of third party libraries (TBD)
