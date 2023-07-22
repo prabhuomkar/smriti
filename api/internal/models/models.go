@@ -9,5 +9,6 @@ func GetModels() []interface{} {
 		Thing{},
 		People{},
 		MediaItem{},
+		MediaitemEmbedding{},
 	}
 }

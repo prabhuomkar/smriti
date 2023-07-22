@@ -215,11 +215,14 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 	}
 	slog.Info("saving final mediaitem result", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id))
 
-	mediaItem := models.MediaItem{UserID: userID, ID: uid}
-	mediaItemEmbedding := pgvector.NewVector(req.Embedding)
-	result := s.DB.Model(&mediaItem).UpdateColumns(models.MediaItem{Keywords: &req.Keywords, Embedding: &mediaItemEmbedding})
+	mediaItemEmbeddings := make([]models.MediaitemEmbedding, len(req.GetEmbeddings()))
+	for idx, reqEmbedding := range req.GetEmbeddings() {
+		mediaItemEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
+		mediaItemEmbeddings[idx] = models.MediaitemEmbedding{MediaitemID: uid, Embedding: &mediaItemEmbedding}
+	}
+	result := s.DB.Create(mediaItemEmbeddings)
 	if result.Error != nil {
-		slog.Error("error saving mediaitem embedding", slog.Any("error", result.Error))
+		slog.Error("error saving mediaitem embeddings", slog.Any("error", result.Error))
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
 	}
 

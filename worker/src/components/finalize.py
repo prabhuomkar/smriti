@@ -4,7 +4,7 @@ import logging
 from grpc import RpcError
 
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.api_pb2 import MediaItemFinalResultRequest  # pylint: disable=no-name-in-module
+from src.protos.api_pb2 import MediaItemEmbedding, MediaItemFinalResultRequest  # pylint: disable=no-name-in-module
 from src.components.component import Component
 
 
@@ -21,7 +21,7 @@ class Finalize(Component):
         result['userId'] = mediaitem_user_id
         result['id'] = mediaitem_id
         result['keywords'] = metadata['keywords']
-        result['embedding'] = metadata['embedding']
+        result['embeddings'] = metadata['embeddings']
         self._grpc_final_save_mediaitem(result)
         logging.debug(f'finalized mediaitem for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return None
@@ -33,7 +33,7 @@ class Finalize(Component):
                 userId=result['userId'],
                 id=result['id'],
                 keywords=result['keywords'],
-                embedding=result['embedding']
+                embeddings=[MediaItemEmbedding(embedding=embedding) for embedding in result['embeddings']]
             )
             _ = self.api_stub.SaveMediaItemFinalResult(request)
         except RpcError as rpc_exp:

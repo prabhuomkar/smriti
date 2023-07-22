@@ -6,7 +6,7 @@
 - [x] Demos can include: deployment on Fly, Heroku, other SaaS, hosting on Raspberry Pis and dockerized deployment on Cloud
 - [x] Logging to make sure consistency across several components
 - [x] Give a comparison of supported file formats between Google Photos and Smriti
-- [ ] Send email on failures to owner or some metric of daily upload success/failed
+- [x] Send email on failures to owner or some metric of daily upload success/failed
 - [x] Release Workflow in GitHub Actions, to deploy Docker images to Docker Hub Registry
 - [x] Infra Cases: graceful shutdown of api & worker, database reconnects & grpc retry/reconnect
 - [ ] i18n support for languages incrementally: English, Chinese, Japanese, German, French, etc.

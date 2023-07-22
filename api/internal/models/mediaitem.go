@@ -27,44 +27,49 @@ type (
 	// MediaItemCategory ...
 	MediaItemCategory string
 
-	// MediaItem ...
+	// MediaitemEmbedding ...
+	MediaitemEmbedding struct {
+		MediaitemID uuid.UUID        `json:"-" gorm:"type:uuid"`
+		Embedding   *pgvector.Vector `json:"-" gorm:"type:vector"`
+	}
 
+	// MediaItem ...
 	MediaItem struct {
-		ID                uuid.UUID         `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`
-		UserID            uuid.UUID         `json:"userId" gorm:"column:user_id"`
-		Filename          string            `json:"filename"`
-		Hash              *string           `json:"hash,omitempty" gorm:"unique"`
-		Description       *string           `json:"description,omitempty"`
-		MimeType          string            `json:"mimeType"`
-		SourceURL         string            `json:"sourceUrl" gorm:"column:source_url"`
-		PreviewURL        string            `json:"previewUrl" gorm:"column:preview_url"`
-		ThumbnailURL      string            `json:"thumbnailUrl" gorm:"column:thumbnail_url"`
-		IsFavourite       *bool             `json:"favourite" gorm:"column:is_favourite;default:false"`
-		IsHidden          *bool             `json:"hidden" gorm:"column:is_hidden;default:false"`
-		IsDeleted         *bool             `json:"deleted" gorm:"column:is_deleted;default:false"`
-		Status            MediaItemStatus   `json:"status"`
-		MediaItemType     MediaItemType     `json:"mediaItemType" gorm:"column:mediaitem_type"`
-		MediaItemCategory MediaItemCategory `json:"mediaItemCategory" gorm:"column:mediaitem_category"`
-		Width             int               `json:"width"`
-		Height            int               `json:"height"`
-		CreationTime      time.Time         `json:"creationTime"`
-		CameraMake        *string           `json:"cameraMake,omitempty"`
-		CameraModel       *string           `json:"cameraModel,omitempty"`
-		FocalLength       *string           `json:"focalLength,omitempty"`
-		ApertureFnumber   *string           `json:"apertureFNumber,omitempty" gorm:"column:aperture_fnumber"`
-		IsoEquivalent     *string           `json:"isoEquivalent,omitempty"`
-		ExposureTime      *string           `json:"exposureTime,omitempty"`
-		Latitude          *float64          `json:"latitude,omitempty"`
-		Longitude         *float64          `json:"longitude,omitempty"`
-		FPS               *string           `json:"fps,omitempty"`
-		Keywords          *string           `json:"-"`
-		Embedding         *pgvector.Vector  `json:"-" gorm:"type:vector"`
-		CreatedAt         time.Time         `json:"createdAt"`
-		UpdatedAt         time.Time         `json:"updatedAt"`
-		Albums            []*Album          `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:AlbumID"`
-		Places            []*Place          `json:"-" gorm:"many2many:place_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:PlaceID"`
-		Things            []*Thing          `json:"-" gorm:"many2many:thing_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:ThingID"`
-		People            []*People         `json:"-" gorm:"many2many:people_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:PeopleID"`
+		ID                uuid.UUID             `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`
+		UserID            uuid.UUID             `json:"userId" gorm:"column:user_id"`
+		Filename          string                `json:"filename"`
+		Hash              *string               `json:"hash,omitempty" gorm:"unique"`
+		Description       *string               `json:"description,omitempty"`
+		MimeType          string                `json:"mimeType"`
+		SourceURL         string                `json:"sourceUrl" gorm:"column:source_url"`
+		PreviewURL        string                `json:"previewUrl" gorm:"column:preview_url"`
+		ThumbnailURL      string                `json:"thumbnailUrl" gorm:"column:thumbnail_url"`
+		IsFavourite       *bool                 `json:"favourite" gorm:"column:is_favourite;default:false"`
+		IsHidden          *bool                 `json:"hidden" gorm:"column:is_hidden;default:false"`
+		IsDeleted         *bool                 `json:"deleted" gorm:"column:is_deleted;default:false"`
+		Status            MediaItemStatus       `json:"status"`
+		MediaItemType     MediaItemType         `json:"mediaItemType" gorm:"column:mediaitem_type"`
+		MediaItemCategory MediaItemCategory     `json:"mediaItemCategory" gorm:"column:mediaitem_category"`
+		Width             int                   `json:"width"`
+		Height            int                   `json:"height"`
+		CreationTime      time.Time             `json:"creationTime"`
+		CameraMake        *string               `json:"cameraMake,omitempty"`
+		CameraModel       *string               `json:"cameraModel,omitempty"`
+		FocalLength       *string               `json:"focalLength,omitempty"`
+		ApertureFnumber   *string               `json:"apertureFNumber,omitempty" gorm:"column:aperture_fnumber"`
+		IsoEquivalent     *string               `json:"isoEquivalent,omitempty"`
+		ExposureTime      *string               `json:"exposureTime,omitempty"`
+		Latitude          *float64              `json:"latitude,omitempty"`
+		Longitude         *float64              `json:"longitude,omitempty"`
+		FPS               *string               `json:"fps,omitempty"`
+		Keywords          *string               `json:"-"`
+		CreatedAt         time.Time             `json:"createdAt"`
+		UpdatedAt         time.Time             `json:"updatedAt"`
+		Embeddings        []*MediaitemEmbedding `json:"-" gorm:"foreignKey:MediaitemID;references:ID"`
+		Albums            []*Album              `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:AlbumID"`
+		Places            []*Place              `json:"-" gorm:"many2many:place_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:PlaceID"`
+		Things            []*Thing              `json:"-" gorm:"many2many:thing_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:ThingID"`
+		People            []*People             `json:"-" gorm:"many2many:people_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:PeopleID"`
 	}
 )
 

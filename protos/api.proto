@@ -48,11 +48,15 @@ message MediaItemThingRequest {
     string name = 3;
 }
 
+message MediaItemEmbedding {
+    repeated float embedding = 1;
+}
+
 message MediaItemFinalResultRequest {
     string userId = 1;
     string id = 2;
     string keywords = 3;
-    repeated float embedding = 4;
+    repeated MediaItemEmbedding embeddings = 4;
 }
 
 service API {

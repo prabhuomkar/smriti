@@ -40,7 +40,7 @@ class WorkerService(WorkerServicer):
         """Generate Embedding"""
         text = request.text
         if self.search_model:
-            result = self.search_model.generate_embedding(text)
+            result = self.search_model.generate_embedding('text', text)
             return GenerateEmbeddingResponse(embedding=result)
         return GenerateEmbeddingResponse(embedding=None)
 
@@ -55,8 +55,10 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
         loop = asyncio.get_event_loop()
         task = loop.create_task(components[i].process(user_id, id, file_path, result))
         result = await task
-    if search_model and 'keywords' in result:
-        result['embedding'] = search_model.generate_embedding(result['keywords'])
+    if search_model:
+        result['embeddings'] = search_model.generate_embedding('file', result)
+        if 'keywords' in result:
+            result['embeddings'] += [search_model.generate_embedding('text', result['keywords'])]
     await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
