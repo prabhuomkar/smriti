@@ -75,11 +75,12 @@ var (
 		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Name:   "Pizza",
 	}
+	mediaItemEmbedding          = api.MediaItemEmbedding{Embedding: []float32{0.0, 0.42, 0.111}}
 	mediaItemFinalResultRequest = api.MediaItemFinalResultRequest{
-		UserId:    "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Id:        "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Keywords:  "some keywords",
-		Embedding: []float32{0.0, 0.42, 0.111},
+		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Id:         "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Keywords:   "some keywords",
+		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
 	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
 	placeCols     = []string{
@@ -651,7 +652,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			&mediaItemFinalResultRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_embeddings"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -662,7 +663,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			&mediaItemFinalResultRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_embeddings"`)).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},

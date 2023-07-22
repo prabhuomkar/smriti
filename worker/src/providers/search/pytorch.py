@@ -1,24 +1,49 @@
 """Search: PyTorch"""
 import logging
+
+from PIL import Image
 import torch
-from transformers import AutoTokenizer
+from moviepy.editor import VideoFileClip
+from transformers import AutoTokenizer, AutoImageProcessor
 
 
 class PyTorchModule:
     """PyTorchModule Search"""
 
     def __init__(self, params: list[str]) -> None:
-        self.module = torch.jit.load(f'/models/search/{params[0]}')
-        self.tokenizer = AutoTokenizer.from_pretrained(f'/models/search/{params[1]}')
+        self.tokenizer = AutoTokenizer.from_pretrained(f'/models/search/{params[0]}')
+        self.processor = AutoImageProcessor.from_pretrained(f'/models/search/{params[1]}')
+        self.text_module = torch.jit.load(f'/models/search/{params[2]}')
+        self.vision_module = torch.jit.load(f'/models/search/{params[3]}')
 
-    def generate_embedding(self, text: str):
+    def generate_embedding(self, input_type: str, data: any):
         """Generate text embedding from text"""
-        input_tensor = self.tokenizer(text, padding=True, return_tensors='pt')
-
-        res = self.module.forward(**input_tensor)
-        if res is not None:
-            res = res.tolist()
-
-        logging.debug(f'generated embedding: {res}')
-
-        return res
+        if input_type == 'text':
+            input_tensor = self.tokenizer(data, padding=True, return_tensors='pt')
+            res = self.text_module.forward(**input_tensor)
+            if res is not None:
+                res = res.tolist()
+                logging.debug(f'generated text embedding: {res}')
+                return res
+            return None
+        if data['type'] == 'photo':
+            input_tensor = self.processor(Image.open(data['previewPath']), return_tensors='pt')
+            res = self.vision_module.forward(**input_tensor)
+            if res is not None:
+                res = res.tolist()
+                logging.debug(f'generated photo embedding: {res}')
+                return [res]
+            return []
+        if data['type'] == 'video':
+            result = []
+            video_clip = VideoFileClip(data['previewPath'])
+            for frame in video_clip.iter_frames(fps=video_clip.fps):
+                input_tensor = self.processor(Image.open(frame), return_tensors='pt')
+                res = self.vision_module.forward(**input_tensor)
+                if res is not None:
+                    res = res.tolist()
+                    result += [res]
+            video_clip.reader.close()
+            logging.debug(f'generated video embedding: {result}')
+            return result
+        return []

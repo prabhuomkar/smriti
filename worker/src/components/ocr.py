@@ -14,10 +14,12 @@ class OCR(Component):
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process ocr from mediaitem"""
-        if metadata is None or 'previewPath' not in metadata or ('type' in metadata and metadata['type'] == 'video'):
+        if metadata is None or 'previewPath' not in metadata:
             return metadata
         try:
-            result = self.model.extract(mediaitem_user_id, mediaitem_id, metadata['previewPath'])
+            result = self.model.extract(mediaitem_user_id, mediaitem_id,
+                                        metadata['type'] if 'type' in metadata else 'photo',
+                                        metadata['previewPath'])
             logging.debug(f'extracted ocr for user {mediaitem_user_id} mediaitem {mediaitem_id}: {result}')
             if result:
                 ocr_keywords = ' '.join(result['words'] if 'words' in result and result['words'] else '').lower()

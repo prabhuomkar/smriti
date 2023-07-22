@@ -11,16 +11,16 @@ from src.protos.api_pb2_grpc import APIStub
 
 @mock.patch('src.components.Finalize._grpc_final_save_mediaitem', return_value=None)
 @pytest.mark.asyncio
-async def test_places_process_success(_):
+async def test_finalize_process_success(_):
     result = await Finalize(None).process('mediaitem_user_id', 'mediaitem_id', None,
-                    {'keywords': '', 'embedding': []})
+                    {'keywords': '', 'embeddings': []})
     assert result == None
 
 @pytest.mark.asyncio
-async def test_places_process_grpc_exception():
+async def test_finalize_process_grpc_exception():
     grpc_mock = mock.MagicMock()
     grpc_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('src.protos.API.SaveMediaItemFinalResult', grpc_mock):
         result = await Finalize(APIStub(channel=grpc.insecure_channel(''))).process('mediaitem_user_id', 'mediaitem_id', 
-                        None, {'keywords': '', 'embedding': []})
+                        None, {'keywords': '', 'embeddings': []})
         assert result == None

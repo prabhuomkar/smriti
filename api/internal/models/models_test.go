@@ -8,7 +8,7 @@ import (
 
 func TestGetModels(t *testing.T) {
 	models := GetModels()
-	assert.Len(t, models, 6)
+	assert.Len(t, models, 7)
 	assert.Equal(t, []interface{}{
 		User{},
 		Album{},
@@ -16,5 +16,6 @@ func TestGetModels(t *testing.T) {
 		Thing{},
 		People{},
 		MediaItem{},
+		MediaitemEmbedding{},
 	}, models)
 }
