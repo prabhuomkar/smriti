@@ -66,7 +66,7 @@ func TestDiskUpload(t *testing.T) {
 				assert.Contains(t, err.Error(), test.ErrContains)
 			} else {
 				assert.NoError(t, err)
-				assert.Equal(t, "/tmp/originals/fileID", res)
+				assert.Equal(t, fmt.Sprintf("%s/originals/fileID", os.TempDir()), res)
 			}
 		})
 	}
