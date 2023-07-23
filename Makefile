@@ -10,7 +10,8 @@ setup-api:
 setup-worker:
 	@cd worker; \
 		echo "[setup-worker]: Installing requirements"; \
-		make insall; \
+		make install; \
+		make test-install; \
 		echo "[setup-worker]: Running linter..."; \
 		make lint; \
 		echo "[setup-worker]: Running unit tests..."; \
