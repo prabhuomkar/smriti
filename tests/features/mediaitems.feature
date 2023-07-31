@@ -54,7 +54,7 @@ Feature: MediaItems
         Given there are no mediaitems
         When upload video mediaitem without auth and wait 0 seconds
         Then auth error is found
-        When upload video mediaitem with auth and wait 21 seconds
+        When upload video mediaitem with auth and wait 24 seconds
         Then mediaitem is uploaded
         When get mediaitem without auth
         Then auth error is found
