@@ -32,7 +32,7 @@ jobs:
         run: make install
       - name: Run Lint
         run: |
-          pip install pylint
+          pip install pylint==2.17.5
           make lint
       - name: Run Test & Cover
         run: |
