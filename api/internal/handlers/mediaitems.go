@@ -186,6 +186,8 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 		slog.Error("error updating mediaItem", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
+	// work(omkar): update albums, things, people and places to choose another cover mediaitem
+	// where this mediaitem is a cover mediaitem
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 

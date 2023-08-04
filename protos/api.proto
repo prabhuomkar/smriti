@@ -48,14 +48,14 @@ message MediaItemThingRequest {
     string name = 3;
 }
 
-message MediaItemPeopleRequest {
-    string userId = 1;
-    string id = 2;
-    string name = 3;
-}
-
 message MediaItemEmbedding {
     repeated float embedding = 1;
+}
+
+message MediaItemFacesRequest {
+    string userId = 1;
+    string id = 2;
+    repeated MediaItemEmbedding embeddings = 3;
 }
 
 message MediaItemFinalResultRequest {
@@ -70,6 +70,6 @@ service API {
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemThing(MediaItemThingRequest) returns (google.protobuf.Empty) {}
-    rpc SaveMediaItemPeople(MediaItemPeopleRequest) returns (google.protobuf.Empty) {}
+    rpc SaveMediaItemFaces(MediaItemFacesRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemFinalResult(MediaItemFinalResultRequest) returns (google.protobuf.Empty) {}
 }

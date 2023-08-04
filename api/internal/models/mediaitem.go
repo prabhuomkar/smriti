@@ -33,6 +33,13 @@ type (
 		Embedding   *pgvector.Vector `json:"-" gorm:"type:vector"`
 	}
 
+	// MediaitemFace ...
+	MediaitemFace struct {
+		MediaitemID uuid.UUID        `json:"-" gorm:"type:uuid"`
+		PeopleID    uuid.UUID        `json:"-" gorm:"type:uuid"`
+		Embedding   *pgvector.Vector `json:"-" gorm:"type:vector"`
+	}
+
 	// MediaItem ...
 	MediaItem struct {
 		ID                uuid.UUID             `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`

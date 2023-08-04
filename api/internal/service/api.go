@@ -202,6 +202,34 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 	return &emptypb.Empty{}, nil
 }
 
+func (s *Service) SaveMediaItemFaces(_ context.Context, req *api.MediaItemFacesRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		slog.Error("error getting mediaitem user id", slog.Any("error", err))
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		slog.Error("error getting mediaitem id", slog.Any("error", err))
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	slog.Info("saving mediaitem faces", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id))
+
+	mediaItemFaces := make([]models.MediaitemFace, len(req.GetEmbeddings()))
+	for idx, reqEmbedding := range req.GetEmbeddings() {
+		faceEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
+		mediaItemFaces[idx] = models.MediaitemFace{MediaitemID: uid, Embedding: &faceEmbedding}
+	}
+	result := s.DB.Create(mediaItemFaces)
+	if result.Error != nil {
+		slog.Error("error saving mediaitem faces", slog.Any("error", result.Error))
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem faces: %s", result.Error.Error())
+	}
+
+	slog.Info("saved faces for mediaitem", slog.Any("userId", userID.String()), slog.Any("mediaitem", uid.String()))
+	return &emptypb.Empty{}, nil
+}
+
 func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*empty.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
