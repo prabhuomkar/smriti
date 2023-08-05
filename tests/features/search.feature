@@ -4,7 +4,7 @@ Feature: Search
         Given a user is created if does not exist
         When user logs in
         Then token is generated
-        When upload photo mediaitem with auth if does not exist and wait 6 seconds
+        When upload default photo mediaitem with auth if does not exist and wait 10 seconds
         Then mediaitem is uploaded or exists
 
     Scenario: Search MediaItems

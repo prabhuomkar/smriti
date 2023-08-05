@@ -19,9 +19,15 @@ test-albums:
 test-library:
 	@echo "testing feature: library"
 	behave -i library.feature
-test-explore:
-	@echo "testing feature: explore"
-	behave -i explore.feature
+test-places:
+	@echo "testing feature: places"
+	behave -i places.feature
+test-things:
+	@echo "testing feature: things"
+	behave -i things.features
+test-people:
+	@echo "testing feature: people"
+	behave -i people.feature
 test-sharing:
 	@echo "testing feature: sharing"
 	behave -i sharing.feature

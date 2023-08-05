@@ -4,7 +4,7 @@ import logging
 from grpc import RpcError
 
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.api_pb2 import MediaItemFacesRequest  # pylint: disable=no-name-in-module
+from src.protos.api_pb2 import MediaItemFacesRequest, MediaItemEmbedding  # pylint: disable=no-name-in-module
 from src.components.component import Component
 from src.providers.faces.utils import init_faces
 
@@ -36,7 +36,7 @@ class Faces(Component):
             request = MediaItemFacesRequest(
                 userId=result['userId'],
                 id=result['id'],
-                embeddings=result['embeddings']
+                embeddings=[MediaItemEmbedding(embedding=embedding) for embedding in result['embeddings']]
             )
             _ = self.api_stub.SaveMediaItemFaces(request)
         except RpcError as rpc_exp:
