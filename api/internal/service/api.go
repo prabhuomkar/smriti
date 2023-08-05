@@ -60,7 +60,11 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 		})
 	}
 	if s.Config.ML.Faces {
-		workerTasks = append(workerTasks, WorkerTask{Name: "faces", Params: s.Config.FacesParams})
+		workerTasks = append(workerTasks, WorkerTask{
+			Name:   "faces",
+			Source: s.Config.FacesProvider,
+			Params: s.Config.FacesParams,
+		})
 	}
 	if s.Config.ML.Speech {
 		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Params: s.Config.SpeechParams})

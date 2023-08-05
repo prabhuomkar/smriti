@@ -1,6 +1,7 @@
 asyncio
 grpcio
 grpcio-tools
+facenet-pytorch
 minio
 moviepy
 paddlepaddle==2.4.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
@@ -12,5 +13,5 @@ rawpy
 requests
 Wand
 https://download.pytorch.org/whl/cpu/torch-2.0.1%2Bcpu-cp310-cp310-linux_x86_64.whl
-torchvision
+https://download.pytorch.org/whl/cpu/torchvision-0.15.2%2Bcpu-cp310-cp310-linux_x86_64.whl
 transformers
