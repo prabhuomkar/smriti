@@ -36,6 +36,7 @@ type (
 	// MediaitemFace ...
 	MediaitemFace struct {
 		MediaitemID uuid.UUID        `json:"-" gorm:"type:uuid"`
+		FaceID      uuid.UUID        `json:"-" gorm:"type:uuid"`
 		PeopleID    uuid.UUID        `json:"-" gorm:"type:uuid"`
 		Embedding   *pgvector.Vector `json:"-" gorm:"type:vector"`
 	}

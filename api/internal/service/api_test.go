@@ -51,6 +51,7 @@ var (
 	town                  = "town"
 	city                  = "city"
 	postcode              = "postcode"
+	mediaItemEmbedding    = api.MediaItemEmbedding{Embedding: []float32{0.0, 0.42, 0.111}}
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
 		UserId:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -75,7 +76,11 @@ var (
 		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Name:   "Pizza",
 	}
-	mediaItemEmbedding          = api.MediaItemEmbedding{Embedding: []float32{0.0, 0.42, 0.111}}
+	mediaItemFacesRequest = api.MediaItemFacesRequest{
+		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Id:         "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
+	}
 	mediaItemFinalResultRequest = api.MediaItemFinalResultRequest{
 		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:         "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -622,6 +627,85 @@ func TestSaveMediaItemThing(t *testing.T) {
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
 			_, err = client.SaveMediaItemThing(ctx, test.Request)
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+		})
+	}
+}
+
+func TestSaveMediaItemFaces(t *testing.T) {
+	tests := []struct {
+		Name        string
+		Request     *api.MediaItemFacesRequest
+		MockDB      func(mock sqlmock.Sqlmock)
+		ExpectedErr error
+	}{
+		{
+			"save mediaitem faces with invalid mediaitem user id",
+			&api.MediaItemFacesRequest{UserId: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+		},
+		{
+			"save mediaitem faces with invalid mediaitem id",
+			&api.MediaItemFacesRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
+		},
+		{
+			"save mediaitem faces with success",
+			&mediaItemFacesRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem faces with error",
+			&mediaItemFacesRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_faces"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem faces: some db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer mockDB.Close()
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Error),
+			})
+			assert.NoError(t, err)
+			if test.MockDB != nil {
+				test.MockDB(mock)
+			}
+			// service
+			service := &Service{
+				Config: &config.Config{},
+				DB:     mockGDB,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			_, err = client.SaveMediaItemFaces(ctx, test.Request)
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
 		})

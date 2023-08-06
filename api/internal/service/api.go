@@ -222,7 +222,7 @@ func (s *Service) SaveMediaItemFaces(_ context.Context, req *api.MediaItemFacesR
 	mediaItemFaces := make([]models.MediaitemFace, len(req.GetEmbeddings()))
 	for idx, reqEmbedding := range req.GetEmbeddings() {
 		faceEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
-		mediaItemFaces[idx] = models.MediaitemFace{MediaitemID: uid, Embedding: &faceEmbedding}
+		mediaItemFaces[idx] = models.MediaitemFace{MediaitemID: uid, FaceID: uuid.NewV4(), Embedding: &faceEmbedding}
 	}
 	result := s.DB.Create(mediaItemFaces)
 	if result.Error != nil {
@@ -231,6 +231,39 @@ func (s *Service) SaveMediaItemFaces(_ context.Context, req *api.MediaItemFacesR
 	}
 
 	slog.Info("saved faces for mediaitem", slog.Any("userId", userID.String()), slog.Any("mediaitem", uid.String()))
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopleRequest) (*empty.Empty, error) {
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		slog.Error("error getting mediaitem user id", slog.Any("error", err))
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	slog.Info("saving mediaitem people", slog.Any("userId", req.UserId), slog.Any("facePeople", req.GetFacePeople()))
+
+	mediaItemFaces := []models.MediaitemFace{}
+	for reqFaceID, reqPeopleID := range req.GetFacePeople() {
+		faceID, err := uuid.FromString(reqFaceID)
+		if err != nil {
+			slog.Error("error getting face id", slog.Any("error", err))
+			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid face id")
+		}
+		peopleID, err := uuid.FromString(reqPeopleID)
+		if err != nil {
+			slog.Error("error getting people id", slog.Any("error", err))
+			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid people id")
+		}
+		mediaItemFaces = append(mediaItemFaces, models.MediaitemFace{FaceID: faceID, PeopleID: peopleID})
+	}
+
+	result := s.DB.Model(&mediaItemFaces).Updates(mediaItemFaces)
+	if result.Error != nil {
+		slog.Error("error saving mediaitem people", slog.Any("error", result.Error))
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem people: %s", result.Error.Error())
+	}
+
+	slog.Info("saved people for mediaitem", slog.Any("userId", userID.String()))
 	return &emptypb.Empty{}, nil
 }
 
