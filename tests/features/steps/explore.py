@@ -66,6 +66,32 @@ def step_impl(context, type):
     elif type == 'thing':
         assert context.thing['name'] == context.match_thing['name']
 
+@when('get all mediaitems for {type} {condition} auth')
+def step_impl(context, type, condition):
+    headers = None
+    if condition == 'with':
+        headers = {'Authorization': f'Bearer {context.access_token}'}
+    type_id = context.place_id if type == 'place' else context.thing_id if type == 'thing' else None
+    res = requests.get(API_URL+'/v1/explore/'+get_plural(type)+'/'+type_id+'/mediaItems', headers=headers)
+    context.response = res
+    if type == 'place':
+        context.place_mediaitems = res.json()
+    elif type == 'thing':
+        context.thing_mediaitems = res.json()
+
+@then('mediaitem with {type} is present in list')
+def step_impl(context, type):
+    if type == 'place':
+        assert len(context.place_mediaitems) == 1
+        for field in context.match_mediaitem:
+            if context.match_mediaitem[field] != None:
+                assert context.place_mediaitems[0][field] == context.match_mediaitem[field]
+    elif type == 'thing':
+        assert len(context.thing_mediaitems) == 1
+        for field in context.match_mediaitem:
+            if context.match_mediaitem[field] != None:
+                assert context.thing_mediaitems[0][field] == context.match_mediaitem[field]
+
 @given('a mediaitem exists with {type}')
 def step_impl(context, type):
     res = requests.get(API_URL+'/v1/mediaItems',

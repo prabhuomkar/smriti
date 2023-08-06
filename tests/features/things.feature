@@ -21,3 +21,7 @@ Feature: Things
         Then auth error is found
         When get all explored things with auth
         Then explored thing is present in list
+        When get all mediaitems for thing without auth
+        Then auth error is found
+        When get all mediaitems for thing with auth
+        Then mediaitem with thing is present in list 

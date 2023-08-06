@@ -21,3 +21,7 @@ Feature: Places
         Then auth error is found
         When get all explored places with auth
         Then explored place is present in list
+        When get all mediaitems for place without auth
+        Then auth error is found
+        When get all mediaitems for place with auth
+        Then mediaitem with place is present in list 
