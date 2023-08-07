@@ -81,6 +81,13 @@ var (
 		Id:         "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
 	}
+	mediaItemPeopleRequest = api.MediaItemPeopleRequest{
+		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+	}
+	mediaItemFaceEmbeddingsRequest = api.MediaItemFaceEmbeddingsRequest{
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+	}
 	mediaItemFinalResultRequest = api.MediaItemFinalResultRequest{
 		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:         "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -706,6 +713,162 @@ func TestSaveMediaItemFaces(t *testing.T) {
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
 			_, err = client.SaveMediaItemFaces(ctx, test.Request)
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+		})
+	}
+}
+
+func TestGetMediaItemFaceEmbeddings(t *testing.T) {
+	tests := []struct {
+		Name        string
+		Request     *api.MediaItemFaceEmbeddingsRequest
+		MockDB      func(mock sqlmock.Sqlmock)
+		ExpectedErr error
+	}{
+		{
+			"get mediaitem face embeddings with invalid mediaitem user id",
+			&api.MediaItemFaceEmbeddingsRequest{UserId: "bad-mediaitem-user-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+		},
+		{
+			"get mediaitem face embeddings with success",
+			&mediaItemFaceEmbeddingsRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitem_faces"`)).
+					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+			},
+			nil,
+		},
+		{
+			"get mediaitem face embeddings with error",
+			&mediaItemFaceEmbeddingsRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			status.Error(codes.Internal, "error getting mediaitem face embeddings: some db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer mockDB.Close()
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Error),
+			})
+			assert.NoError(t, err)
+			if test.MockDB != nil {
+				test.MockDB(mock)
+			}
+			// service
+			service := &Service{
+				Config: &config.Config{},
+				DB:     mockGDB,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			_, err = client.GetMediaItemFaceEmbeddings(ctx, test.Request)
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+		})
+	}
+}
+
+func TestSaveMediaItemPeople(t *testing.T) {
+	tests := []struct {
+		Name        string
+		Request     *api.MediaItemPeopleRequest
+		MockDB      func(mock sqlmock.Sqlmock)
+		ExpectedErr error
+	}{
+		{
+			"save mediaitem people with invalid mediaitem user id",
+			&api.MediaItemPeopleRequest{UserId: "bad-mediaitem-id"},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+		},
+		{
+			"save mediaitem people with invalid face id",
+			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", FacePeople: map[string]string{"bad-face-id": ""}},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid face id"),
+		},
+		{
+			"save mediaitem people with invalid people id",
+			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "bad-people-id"}},
+			nil,
+			status.Errorf(codes.InvalidArgument, "invalid people id"),
+		},
+		{
+			"save mediaitem people with success",
+			&mediaItemPeopleRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+			},
+			nil,
+		},
+		{
+			"save mediaitem people with error",
+			&mediaItemPeopleRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem people: some db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer mockDB.Close()
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Error),
+			})
+			assert.NoError(t, err)
+			if test.MockDB != nil {
+				test.MockDB(mock)
+			}
+			// service
+			service := &Service{
+				Config: &config.Config{},
+				DB:     mockGDB,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			_, err = client.SaveMediaItemPeople(ctx, test.Request)
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
 		})

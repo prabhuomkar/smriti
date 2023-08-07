@@ -18,6 +18,30 @@ class MediaItemEmbedding(_message.Message):
     embedding: _containers.RepeatedScalarFieldContainer[float]
     def __init__(self, embedding: _Optional[_Iterable[float]] = ...) -> None: ...
 
+class MediaItemFaceEmbedding(_message.Message):
+    __slots__ = ["embedding", "id", "mediaItemId", "peopleId"]
+    EMBEDDING_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    MEDIAITEMID_FIELD_NUMBER: _ClassVar[int]
+    PEOPLEID_FIELD_NUMBER: _ClassVar[int]
+    embedding: MediaItemEmbedding
+    id: str
+    mediaItemId: str
+    peopleId: str
+    def __init__(self, id: _Optional[str] = ..., mediaItemId: _Optional[str] = ..., peopleId: _Optional[str] = ..., embedding: _Optional[_Union[MediaItemEmbedding, _Mapping]] = ...) -> None: ...
+
+class MediaItemFaceEmbeddingsRequest(_message.Message):
+    __slots__ = ["userId"]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    userId: str
+    def __init__(self, userId: _Optional[str] = ...) -> None: ...
+
+class MediaItemFaceEmbeddingsResponse(_message.Message):
+    __slots__ = ["mediaItemFaceEmbeddings"]
+    MEDIAITEMFACEEMBEDDINGS_FIELD_NUMBER: _ClassVar[int]
+    mediaItemFaceEmbeddings: _containers.RepeatedCompositeFieldContainer[MediaItemFaceEmbedding]
+    def __init__(self, mediaItemFaceEmbeddings: _Optional[_Iterable[_Union[MediaItemFaceEmbedding, _Mapping]]] = ...) -> None: ...
+
 class MediaItemFacesRequest(_message.Message):
     __slots__ = ["embeddings", "id", "userId"]
     EMBEDDINGS_FIELD_NUMBER: _ClassVar[int]

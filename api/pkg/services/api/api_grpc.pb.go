@@ -24,6 +24,7 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type APIClient interface {
 	GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
+	GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error)
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*empty.Empty, error)
@@ -43,6 +44,15 @@ func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
 func (c *aPIClient) GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error) {
 	out := new(ConfigResponse)
 	err := c.cc.Invoke(ctx, "/API/GetWorkerConfig", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error) {
+	out := new(MediaItemFaceEmbeddingsResponse)
+	err := c.cc.Invoke(ctx, "/API/GetMediaItemFaceEmbeddings", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -108,6 +118,7 @@ func (c *aPIClient) SaveMediaItemFinalResult(ctx context.Context, in *MediaItemF
 // for forward compatibility
 type APIServer interface {
 	GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error)
+	GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error)
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error)
@@ -123,6 +134,9 @@ type UnimplementedAPIServer struct {
 
 func (UnimplementedAPIServer) GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkerConfig not implemented")
+}
+func (UnimplementedAPIServer) GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMediaItemFaceEmbeddings not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMetadata not implemented")
@@ -169,6 +183,24 @@ func _API_GetWorkerConfig_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).GetWorkerConfig(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_GetMediaItemFaceEmbeddings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemFaceEmbeddingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetMediaItemFaceEmbeddings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/GetMediaItemFaceEmbeddings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetMediaItemFaceEmbeddings(ctx, req.(*MediaItemFaceEmbeddingsRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -291,6 +323,10 @@ var API_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetWorkerConfig",
 			Handler:    _API_GetWorkerConfig_Handler,
+		},
+		{
+			MethodName: "GetMediaItemFaceEmbeddings",
+			Handler:    _API_GetMediaItemFaceEmbeddings_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemMetadata",

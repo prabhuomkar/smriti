@@ -70,8 +70,25 @@ message MediaItemFinalResultRequest {
     repeated MediaItemEmbedding embeddings = 4;
 }
 
+message MediaItemFaceEmbeddingsRequest {
+    string userId = 1;
+}
+
+message MediaItemFaceEmbedding {
+    string id = 1;
+    string mediaItemId = 2;
+    string peopleId = 3;
+    MediaItemEmbedding embedding = 4;
+}
+
+message MediaItemFaceEmbeddingsResponse {
+    repeated MediaItemFaceEmbedding mediaItemFaceEmbeddings = 1;
+}
+
+
 service API {
     rpc GetWorkerConfig(google.protobuf.Empty) returns (ConfigResponse) {}
+    rpc GetMediaItemFaceEmbeddings(MediaItemFaceEmbeddingsRequest) returns (MediaItemFaceEmbeddingsResponse) {}
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemThing(MediaItemThingRequest) returns (google.protobuf.Empty) {}

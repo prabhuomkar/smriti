@@ -21,7 +21,7 @@ def load_and_run(sample='example.jpg'):
     except:
         pass
     det_model = MTCNN(keep_all=True)
-    rec_model = InceptionResnetV1(pretrained='vggface2', classify=True).eval()
+    rec_model = InceptionResnetV1(pretrained='vggface2', classify=False).eval()
     faces, probs = det_model(Image.open(sample), return_prob=True)
     result = rec_model(faces)
     for res, prob in zip(result, probs):
