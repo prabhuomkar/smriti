@@ -173,6 +173,75 @@ func TestGetWorkerConfig(t *testing.T) {
 	}
 }
 
+func TestGetUsers(t *testing.T) {
+	tests := []struct {
+		Name           string
+		MockDB         func(mock sqlmock.Sqlmock)
+		ExpectedResult *api.GetUsersResponse
+		ExpectedErr    error
+	}{
+		{
+			"get users with success",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "id" FROM "users"`)).
+					WillReturnRows(getMockedUserIDRows())
+			},
+			&api.GetUsersResponse{
+				Users: []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180"},
+			},
+			nil,
+		},
+		{
+			"get users with error",
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "id" FROM "users"`)).
+					WillReturnError(errors.New("some db error"))
+			},
+			nil,
+			status.Error(codes.Internal, "error getting users: some db error"),
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, mock, err := sqlmock.New()
+			assert.NoError(t, err)
+			defer mockDB.Close()
+			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
+				DSN:                  "sqlmock",
+				DriverName:           "postgres",
+				Conn:                 mockDB,
+				PreferSimpleProtocol: true,
+			}), &gorm.Config{
+				Logger: logger.Default.LogMode(logger.Error),
+			})
+			assert.NoError(t, err)
+			if test.MockDB != nil {
+				test.MockDB(mock)
+			}
+			// service
+			service := &Service{
+				Config: &config.Config{},
+				DB:     mockGDB,
+			}
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			res, err := client.GetUsers(ctx, &emptypb.Empty{})
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+			if test.ExpectedResult != nil {
+				assert.Equal(t, test.ExpectedResult.Users, res.Users)
+			} else {
+				assert.Equal(t, test.ExpectedResult, res)
+			}
+		})
+	}
+}
 func TestSaveMediaItemMetadata(t *testing.T) {
 	tests := []struct {
 		Name        string
@@ -746,7 +815,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitem_faces"`)).
-					WillReturnRows(getMockedMediaItemFaceEmbeddingRow())
+					WillReturnRows(getMockedMediaItemFaceEmbeddingRows())
 			},
 			&api.MediaItemFaceEmbeddingsResponse{
 				MediaItemFaceEmbeddings: []*api.MediaItemFaceEmbedding{
@@ -1013,8 +1082,16 @@ func getMockedMediaItemRow(existingKeyword *string) *sqlmock.Rows {
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
 }
 
-func getMockedMediaItemFaceEmbeddingRow() *sqlmock.Rows {
+func getMockedMediaItemFaceEmbeddingRows() *sqlmock.Rows {
 	return sqlmock.NewRows(mediaitemFaceCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			nil, embedding)
+			nil, embedding).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", embedding)
+}
+
+func getMockedUserIDRows() *sqlmock.Rows {
+	return sqlmock.NewRows([]string{"id"}).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180")
 }

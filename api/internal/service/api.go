@@ -28,7 +28,7 @@ type Service struct {
 	Storage storage.Provider
 }
 
-func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigResponse, error) {
+func (s *Service) GetWorkerConfig(_ context.Context, _ *empty.Empty) (*api.ConfigResponse, error) {
 	type WorkerTask struct {
 		Name   string   `json:"name"`
 		Source string   `json:"source,omitempty"`
@@ -75,6 +75,24 @@ func (s *Service) GetWorkerConfig(context.Context, *empty.Empty) (*api.ConfigRes
 	}
 	return &api.ConfigResponse{
 		Config: configBytes,
+	}, nil
+}
+
+func (s *Service) GetUsers(_ context.Context, _ *empty.Empty) (*api.GetUsersResponse, error) {
+	var userUUIDs []uuid.UUID
+	result := s.DB.Model(&models.User{}).Pluck("id", &userUUIDs)
+	if result.Error != nil {
+		slog.Error("error getting users", slog.Any("error", result.Error))
+		return nil, status.Errorf(codes.Internal, "error getting users: %s", result.Error.Error())
+	}
+
+	users := []string{}
+	for _, userUUID := range userUUIDs {
+		users = append(users, userUUID.String())
+	}
+
+	return &api.GetUsersResponse{
+		Users: users,
 	}, nil
 }
 

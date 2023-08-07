@@ -85,10 +85,14 @@ message MediaItemFaceEmbeddingsResponse {
     repeated MediaItemFaceEmbedding mediaItemFaceEmbeddings = 1;
 }
 
+message GetUsersResponse {
+    repeated string users = 1;
+}
 
 service API {
     rpc GetWorkerConfig(google.protobuf.Empty) returns (ConfigResponse) {}
     rpc GetMediaItemFaceEmbeddings(MediaItemFaceEmbeddingsRequest) returns (MediaItemFaceEmbeddingsResponse) {}
+    rpc GetUsers(google.protobuf.Empty) returns (GetUsersResponse) {}
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemThing(MediaItemThingRequest) returns (google.protobuf.Empty) {}

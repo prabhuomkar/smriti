@@ -12,6 +12,12 @@ class ConfigResponse(_message.Message):
     config: bytes
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
+class GetUsersResponse(_message.Message):
+    __slots__ = ["users"]
+    USERS_FIELD_NUMBER: _ClassVar[int]
+    users: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, users: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class MediaItemEmbedding(_message.Message):
     __slots__ = ["embedding"]
     EMBEDDING_FIELD_NUMBER: _ClassVar[int]

@@ -25,6 +25,7 @@ const _ = grpc.SupportPackageIsVersion7
 type APIClient interface {
 	GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
 	GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error)
+	GetUsers(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*empty.Empty, error)
@@ -53,6 +54,15 @@ func (c *aPIClient) GetWorkerConfig(ctx context.Context, in *empty.Empty, opts .
 func (c *aPIClient) GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error) {
 	out := new(MediaItemFaceEmbeddingsResponse)
 	err := c.cc.Invoke(ctx, "/API/GetMediaItemFaceEmbeddings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) GetUsers(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+	out := new(GetUsersResponse)
+	err := c.cc.Invoke(ctx, "/API/GetUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -119,6 +129,7 @@ func (c *aPIClient) SaveMediaItemFinalResult(ctx context.Context, in *MediaItemF
 type APIServer interface {
 	GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error)
 	GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error)
+	GetUsers(context.Context, *empty.Empty) (*GetUsersResponse, error)
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error)
@@ -137,6 +148,9 @@ func (UnimplementedAPIServer) GetWorkerConfig(context.Context, *empty.Empty) (*C
 }
 func (UnimplementedAPIServer) GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMediaItemFaceEmbeddings not implemented")
+}
+func (UnimplementedAPIServer) GetUsers(context.Context, *empty.Empty) (*GetUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMetadata not implemented")
@@ -201,6 +215,24 @@ func _API_GetMediaItemFaceEmbeddings_Handler(srv interface{}, ctx context.Contex
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).GetMediaItemFaceEmbeddings(ctx, req.(*MediaItemFaceEmbeddingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/GetUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetUsers(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -327,6 +359,10 @@ var API_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetMediaItemFaceEmbeddings",
 			Handler:    _API_GetMediaItemFaceEmbeddings_Handler,
+		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _API_GetUsers_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemMetadata",

@@ -25,6 +25,11 @@ class APIStub(object):
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsRequest.SerializeToString,
                 response_deserializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsResponse.FromString,
                 )
+        self.GetUsers = channel.unary_unary(
+                '/API/GetUsers',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=src_dot_protos_dot_api__pb2.GetUsersResponse.FromString,
+                )
         self.SaveMediaItemMetadata = channel.unary_unary(
                 '/API/SaveMediaItemMetadata',
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.SerializeToString,
@@ -67,6 +72,12 @@ class APIServicer(object):
         raise NotImplementedError('Method not implemented!')
 
     def GetMediaItemFaceEmbeddings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetUsers(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -120,6 +131,11 @@ def add_APIServicer_to_server(servicer, server):
                     servicer.GetMediaItemFaceEmbeddings,
                     request_deserializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsRequest.FromString,
                     response_serializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsResponse.SerializeToString,
+            ),
+            'GetUsers': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUsers,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=src_dot_protos_dot_api__pb2.GetUsersResponse.SerializeToString,
             ),
             'SaveMediaItemMetadata': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMediaItemMetadata,
@@ -192,6 +208,23 @@ class API(object):
         return grpc.experimental.unary_unary(request, target, '/API/GetMediaItemFaceEmbeddings',
             src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsRequest.SerializeToString,
             src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetUsers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/API/GetUsers',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            src_dot_protos_dot_api__pb2.GetUsersResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
