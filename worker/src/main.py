@@ -3,8 +3,10 @@ import asyncio
 import logging
 import os
 import json
+import time
 
 import grpc
+import schedule
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
@@ -67,7 +69,7 @@ async def serve() -> None:
     # start metrics
     start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
 
-    # initialize grpc client
+    # initialize api grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('SMRITI_API_PORT', '15001'))
     api_channel = grpc.insecure_channel(f'{api_host}:{api_port}')
@@ -100,14 +102,16 @@ async def serve() -> None:
             search_model = init_search(name=item['source'], params=item['params'])
     components.append(Finalize(api_stub=api_stub))
 
-    # initialize grpc server
+    # initialize worker grpc server
     server = grpc.aio.server()
     add_WorkerServicer_to_server(WorkerService(components, search_model), server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')
     await server.start()
-    await server.wait_for_termination()
+    while True:
+        schedule.run_pending()
+        asyncio.sleep(1)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
