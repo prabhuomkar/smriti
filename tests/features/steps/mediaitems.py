@@ -96,9 +96,9 @@ def step_impl(context, name, type, seconds):
     if len(mediaitems) == 0:
         files = {'file': open(f'data/{"IMG_0543.HEIC" if name == "default" and type == "photo" else "IMG_6470.MOV" if name == "default" and type =="video" else name}','rb')}
         res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
+        time.sleep(int(seconds))
     context.response = res
     context.mediaitem_type = type
-    time.sleep(int(seconds))
 
 @when('update mediaitem {condition} auth')
 def step_impl(context, condition):

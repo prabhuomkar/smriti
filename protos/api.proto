@@ -58,11 +58,6 @@ message MediaItemFacesRequest {
     repeated MediaItemEmbedding embeddings = 3;
 }
 
-message MediaItemPeopleRequest {
-    string userId = 1;
-    map<string, string> facePeople = 2;
-}
-
 message MediaItemFinalResultRequest {
     string userId = 1;
     string id = 2;
@@ -87,6 +82,15 @@ message MediaItemFaceEmbeddingsResponse {
 
 message GetUsersResponse {
     repeated string users = 1;
+}
+
+message MediaItemFacePeople {
+    map<string, string> facePeople = 1;
+}
+
+message MediaItemPeopleRequest {
+    string userId = 1;
+    map<string, MediaItemFacePeople> mediaItemFacePeople = 2;
 }
 
 service API {

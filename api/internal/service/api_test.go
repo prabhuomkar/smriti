@@ -84,8 +84,21 @@ var (
 		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
 	}
 	mediaItemPeopleRequest = api.MediaItemPeopleRequest{
-		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
+				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			},
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567180": {
+				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567180": "4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			},
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567181": {
+				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567181": "1"},
+			},
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567182": {
+				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567182": "1"},
+			},
+		},
 	}
 	mediaItemFaceEmbeddingsRequest = api.MediaItemFaceEmbeddingsRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -897,16 +910,18 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
 		{
-			"save mediaitem people with invalid face id",
-			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", FacePeople: map[string]string{"bad-face-id": ""}},
+			"save mediaitem people with invalid mediaitem id",
+			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{"bad-mediaitem-id": nil}},
 			nil,
-			status.Errorf(codes.InvalidArgument, "invalid face id"),
+			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
-			"save mediaitem people with invalid people id",
-			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "bad-people-id"}},
+			"save mediaitem people with invalid face id",
+			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": &api.MediaItemFacePeople{
+				FacePeople: map[string]string{"bad-face-id": "bad-people-id"},
+			}}},
 			nil,
-			status.Errorf(codes.InvalidArgument, "invalid people id"),
+			status.Errorf(codes.InvalidArgument, "invalid face id"),
 		},
 		{
 			"save mediaitem people with success",
@@ -914,6 +929,23 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people_mediaitems"`)).
+					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -928,7 +960,26 @@ func TestSaveMediaItemPeople(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
-			status.Error(codes.Internal, "error saving mediaitem people: some db error"),
+			status.Error(codes.Internal, "error saving mediaitem faces people: some db error"),
+		},
+		{
+			"save mediaitem people with error while saving people mediaitem",
+			&mediaItemPeopleRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving people mediaitems: some db error"),
 		},
 	}
 	for _, test := range tests {

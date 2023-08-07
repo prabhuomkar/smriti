@@ -83,7 +83,7 @@ type (
 		Explore    bool `envconfig:"SMRITI_FEATURE_EXPLORE" default:"true"`
 		Places     bool `envconfig:"SMRITI_FEATURE_PLACES" default:"true"`
 		Things     bool `envconfig:"SMRITI_FEATURE_THINGS" default:"true"`
-		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"false"`
+		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"true"`
 		Sharing    bool `envconfig:"SMRITI_FEATURE_SHARING" default:"true"`
 	}
 
