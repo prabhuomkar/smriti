@@ -74,7 +74,7 @@ type (
 		CreatedAt         time.Time             `json:"createdAt"`
 		UpdatedAt         time.Time             `json:"updatedAt"`
 		Embeddings        []*MediaitemEmbedding `json:"-" gorm:"foreignKey:MediaitemID;references:ID"`
-		Faces             []*MediaitemFace      `json:"-" gorm:"many2many:mediaitem_faces;references:ID;joinReferences:MediaitemID"`
+		Faces             []*MediaitemFace      `json:"-" gorm:"foreignKey:MediaitemID;references:ID"`
 		Albums            []*Album              `json:"-" gorm:"many2many:album_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:AlbumID"`
 		Places            []*Place              `json:"-" gorm:"many2many:place_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:PlaceID"`
 		Things            []*Thing              `json:"-" gorm:"many2many:thing_mediaitems;foreignKey:ID;joinForeignKey:MediaitemID;references:ID;joinReferences:ThingID"`

@@ -15,6 +15,7 @@ import (
 	"api/pkg/storage"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/pgvector/pgvector-go"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/codes"
@@ -51,6 +52,7 @@ var (
 	town                  = "town"
 	city                  = "city"
 	postcode              = "postcode"
+	embedding             = pgvector.NewVector([]float32{0.0, 0.42, 0.111})
 	mediaItemEmbedding    = api.MediaItemEmbedding{Embedding: []float32{0.0, 0.42, 0.111}}
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
 		UserId:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -107,6 +109,9 @@ var (
 		"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
 		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
+	}
+	mediaitemFaceCols = []string{
+		"id", "mediaitem_id", "people_id", "embedding",
 	}
 )
 
@@ -721,14 +726,16 @@ func TestSaveMediaItemFaces(t *testing.T) {
 
 func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 	tests := []struct {
-		Name        string
-		Request     *api.MediaItemFaceEmbeddingsRequest
-		MockDB      func(mock sqlmock.Sqlmock)
-		ExpectedErr error
+		Name           string
+		Request        *api.MediaItemFaceEmbeddingsRequest
+		MockDB         func(mock sqlmock.Sqlmock)
+		ExpectedResult *api.MediaItemFaceEmbeddingsResponse
+		ExpectedErr    error
 	}{
 		{
 			"get mediaitem face embeddings with invalid mediaitem user id",
 			&api.MediaItemFaceEmbeddingsRequest{UserId: "bad-mediaitem-user-id"},
+			nil,
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
@@ -739,7 +746,15 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitem_faces"`)).
-					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
+					WillReturnRows(getMockedMediaItemFaceEmbeddingRow())
+			},
+			&api.MediaItemFaceEmbeddingsResponse{
+				MediaItemFaceEmbeddings: []*api.MediaItemFaceEmbedding{
+					{
+						MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						Embedding:   &mediaItemEmbedding,
+					},
+				},
 			},
 			nil,
 		},
@@ -750,6 +765,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
+			nil,
 			status.Error(codes.Internal, "error getting mediaitem face embeddings: some db error"),
 		},
 	}
@@ -783,9 +799,17 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
-			_, err = client.GetMediaItemFaceEmbeddings(ctx, test.Request)
+			res, err := client.GetMediaItemFaceEmbeddings(ctx, test.Request)
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
+			if test.ExpectedResult != nil {
+				for idx, mediaItemFaceEmbedding := range test.ExpectedResult.MediaItemFaceEmbeddings {
+					assert.Equal(t, mediaItemFaceEmbedding.Embedding.Embedding, res.MediaItemFaceEmbeddings[idx].Embedding.Embedding)
+					assert.Equal(t, mediaItemFaceEmbedding.MediaItemId, res.MediaItemFaceEmbeddings[idx].MediaItemId)
+				}
+			} else {
+				assert.Equal(t, test.ExpectedResult, res)
+			}
 		})
 	}
 }
@@ -987,4 +1011,10 @@ func getMockedMediaItemRow(existingKeyword *string) *sqlmock.Rows {
 			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
+}
+
+func getMockedMediaItemFaceEmbeddingRow() *sqlmock.Rows {
+	return sqlmock.NewRows(mediaitemFaceCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			nil, embedding)
 }
