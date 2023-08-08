@@ -37,6 +37,7 @@ class Faces(Component):
         logging.info(f'processed faces for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return metadata
 
+    # pylint: disable=too-many-locals,too-many-branches
     def cluster(self) -> None:
         """Get users, get all mediaitems for each user and cluster them"""
         logging.debug('getting all users for clustering mediaitem face embeddings')
@@ -75,15 +76,16 @@ class Faces(Component):
                             mediaitems_to_cluster[idx] = mediaitems_to_cluster[nn_idx]
                     else:
                         mediaitems_to_cluster[idx] = mediaitem_face_embeddings[nn_idx].peopleId
-                mediaItemFacePeople = {}
-                for idx in mediaitems_to_cluster:
-                    if mediaitem_face_embeddings[idx].mediaItemId not in mediaItemFacePeople:
-                        mediaItemFacePeople[mediaitem_face_embeddings[idx].mediaItemId] = {}
-                    mediaItemFacePeople[mediaitem_face_embeddings[idx].mediaItemId][mediaitem_face_embeddings[idx].id] = mediaitems_to_cluster[idx]
-                logging.debug(f'clustered faces for user {user}: {mediaItemFacePeople}')
+                mediaitem_face_people = {}
+                for idx, face_embed in mediaitems_to_cluster.items():
+                    mf_embedding = mediaitem_face_embeddings[idx]
+                    if mf_embedding.mediaItemId not in mediaitem_face_people:
+                        mediaitem_face_people[mf_embedding.mediaItemId] = {}
+                    mediaitem_face_people[mf_embedding.mediaItemId][mf_embedding.id] = face_embed
+                logging.debug(f'clustered faces for user {user}: {mediaitem_face_people}')
                 self._grpc_save_mediaitem_people(dict({
                     'userId': user,
-                    'mediaItemFacePeople': mediaItemFacePeople,
+                    'mediaitem_face_people': mediaitem_face_people,
                 }))
             except Exception as exp:
                 logging.error(f'error clustering mediaitem face embeddings for user {user}: {str(exp)}')
@@ -108,7 +110,8 @@ class Faces(Component):
             request = MediaItemPeopleRequest(
                 userId=result['userId'],
                 mediaItemFacePeople={
-                    key: MediaItemFacePeople(facePeople=result['mediaItemFacePeople'][key]) for key in result['mediaItemFacePeople']},
+                    key: MediaItemFacePeople(facePeople=result['mediaitem_face_people'][key]) \
+                        for key in result['mediaitem_face_people']},
             )
             _ = self.api_stub.SaveMediaItemPeople(request)
         except RpcError as rpc_exp:

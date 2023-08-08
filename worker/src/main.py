@@ -64,6 +64,7 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
 async def run_pending() -> None:
+    """Run scheduled jobs in background"""
     while True:
         schedule.run_pending()
         await asyncio.sleep(1)
@@ -105,7 +106,7 @@ async def serve() -> None:
         elif item['name'] == 'search':
             search_model = init_search(name=item['source'], params=item['params'])
     components.append(Finalize(api_stub=api_stub))
-    
+
     # initialize worker grpc server
     server = grpc.aio.server()
     add_WorkerServicer_to_server(WorkerService(components, search_model), server)
