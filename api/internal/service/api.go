@@ -35,6 +35,9 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *empty.Empty) (*api.Confi
 		Params []string `json:"params,omitempty"`
 	}
 	var workerTasks []WorkerTask
+	if len(s.Config.ML.MetadataParams) > 0 {
+		workerTasks = append(workerTasks, WorkerTask{Name: "metadata", Params: s.Config.MetadataParams})
+	}
 	if s.Config.ML.Places {
 		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
 	}
@@ -65,9 +68,6 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *empty.Empty) (*api.Confi
 			Source: s.Config.FacesProvider,
 			Params: s.Config.FacesParams,
 		})
-	}
-	if s.Config.ML.Speech {
-		workerTasks = append(workerTasks, WorkerTask{Name: "speech", Params: s.Config.SpeechParams})
 	}
 	configBytes, err := json.Marshal(&workerTasks)
 	if err != nil {

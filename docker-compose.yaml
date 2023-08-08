@@ -40,7 +40,6 @@ services:
     environment:
       SMRITI_API_HOST: api
       SMRITI_LOG_LEVEL: DEBUG
-      SMRITI_WORKER_FACES_TIME: 1
       PYTHONUNBUFFERED: '1'
     volumes:
       - ./storage:/storage:rw

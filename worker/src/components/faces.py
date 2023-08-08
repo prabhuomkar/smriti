@@ -1,5 +1,4 @@
 """Faces Component"""
-import os
 import logging
 
 from grpc import RpcError
@@ -20,7 +19,7 @@ class Faces(Component):
     def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
         super().__init__('faces', api_stub)
         self.source = init_faces(source, params)
-        schedule.every(int(os.getenv('SMRITI_WORKER_FACES_TIME', '60'))).minutes.do(self.cluster)
+        schedule.every(int(params[0])).minutes.do(self.cluster)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process faces detection for mediaitem"""
