@@ -339,6 +339,33 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 		}
 	}
 
+	for _, peopleID := range peopleIdxUUIDs {
+		mediaItems := []*models.MediaItem{}
+		for _, mediaItemID := range peopleWithMediaItems[peopleID] {
+			mediaItems = append(mediaItems, &models.MediaItem{ID: mediaItemID})
+		}
+		defaultPeopleVisibility := false
+		defaultCoverMediaItemID := mediaItems[0].ID
+		people := models.People{
+			IsHidden:         &defaultPeopleVisibility,
+			Name:             "",
+			CoverMediaItemID: &defaultCoverMediaItemID,
+		}
+		result := s.DB.Where(models.People{UserID: userID, ID: peopleID}).
+			Attrs(models.Thing{ID: peopleID}).
+			Assign(models.People{CoverMediaItemID: &defaultCoverMediaItemID}).
+			FirstOrCreate(&people)
+		if result.Error != nil {
+			slog.Error("error saving people", slog.Any("error", result.Error))
+			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving people: %s", result.Error.Error())
+		}
+		err = s.DB.Omit("MediaItems.*").Model(&people).Association("MediaItems").Append(mediaItems)
+		if err != nil {
+			slog.Error("error saving people mediaitems", slog.Any("error", err))
+			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving people mediaitems: %s", err.Error())
+		}
+	}
+
 	for peopleID, faces := range peopleWithFaces {
 		result := s.DB.Model(&models.MediaitemFace{}).Where("id IN ?", faces).Updates(map[string]interface{}{
 			"PeopleID": peopleID,
@@ -346,17 +373,6 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 		if result.Error != nil {
 			slog.Error("error saving mediaitem faces people", slog.Any("error", result.Error), slog.Any("peopleId", peopleID), slog.Any("faces", faces))
 			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem faces people: %s", result.Error.Error())
-		}
-	}
-
-	for peopleID, mediaItemIDs := range peopleWithMediaItems {
-		people := new(models.People)
-		people.ID = peopleID
-		people.UserID = userID
-		err = s.DB.Omit("MediaItems.*").Model(&people).Association("MediaItems").Append(mediaItemIDs)
-		if err != nil {
-			slog.Error("error saving people mediaitems", slog.Any("error", err))
-			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving people mediaitems: %s", err.Error())
 		}
 	}
 

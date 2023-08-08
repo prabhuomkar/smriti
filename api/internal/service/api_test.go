@@ -117,6 +117,9 @@ var (
 	thingCols = []string{
 		"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
 	}
+	peopleCols = []string{
+		"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
+	}
 	mediaitemCols = []string{
 		"id", "user_id", "filename", "description", "mime_type", "keywords", "source_url", "preview_url",
 		"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
@@ -927,59 +930,83 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			"save mediaitem people with success",
 			&mediaItemPeopleRequest,
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(sqlmock.NewRows(peopleCols))
 				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people_mediaitems"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
 			nil,
 		},
 		{
-			"save mediaitem people with error",
+			"save mediaitem people with error saving people",
 			&mediaItemPeopleRequest,
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(sqlmock.NewRows(peopleCols))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving people: some db error"),
+		},
+		{
+			"save mediaitem people with error saving people mediaitems",
+			&mediaItemPeopleRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(sqlmock.NewRows(peopleCols))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people_mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving people mediaitems: some db error"),
+		},
+		{
+			"save mediaitem people with error saving mediaitem faces people",
+			&mediaItemPeopleRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
+					WillReturnRows(sqlmock.NewRows(peopleCols))
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people_mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
 			status.Error(codes.Internal, "error saving mediaitem faces people: some db error"),
-		},
-		{
-			"save mediaitem people with error while saving people mediaitem",
-			&mediaItemPeopleRequest,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitem_faces"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "people"`)).
-					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			status.Error(codes.Internal, "error saving people mediaitems: some db error"),
 		},
 	}
 	for _, test := range tests {
