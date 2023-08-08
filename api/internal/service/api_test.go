@@ -152,13 +152,13 @@ func TestGetWorkerConfig(t *testing.T) {
 				OCR: true, OCRProvider: "paddlepaddle", OCRParams: []string{"ocr-v1-model.pt"},
 				Search: true, SearchProvider: "pytorch", SearchParams: []string{"search-model.pt"},
 				Faces: true, FacesParams: []string{"http://faces/model/link"},
-				Speech: true, SpeechParams: []string{"speech-6khz.pt"},
+				MetadataParams: []string{"512"},
 			}},
-			[]byte(`[{"name":"places","source":"openstreetmap"},{"name":"classification","source":"pytorch",` +
+			[]byte(`[{"name":"metadata","params":["512"]},` +
+				`{"name":"places","source":"openstreetmap"},{"name":"classification","source":"pytorch",` +
 				`"params":["model-file-name.pt"]},{"name":"ocr","source":"paddlepaddle","params":["ocr-v1-model.pt"]}` +
 				`,{"name":"search","source":"pytorch","params":["search-model.pt"]}` +
-				`,{"name":"faces","params":["http://faces/model/link"]}` +
-				`,{"name":"speech","params":["speech-6khz.pt"]}]`),
+				`,{"name":"faces","params":["http://faces/model/link"]}]`),
 			nil,
 		},
 		{

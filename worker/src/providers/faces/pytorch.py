@@ -15,9 +15,9 @@ class PyTorchModule:
             os.symlink('/models/faces/', '/checkpoints')
         except Exception as exp:
             logging.error(f'error creating symlink: {str(exp)}')
-        self.prob_threshold = float(params[0])
+        self.prob_threshold = float(params[1])
         self.det_model = MTCNN(keep_all=True)
-        self.rec_model = InceptionResnetV1(pretrained=params[1], classify=False)
+        self.rec_model = InceptionResnetV1(pretrained=params[2], classify=False)
         if self.rec_model:
             self.rec_model.eval()
 

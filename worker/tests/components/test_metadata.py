@@ -20,7 +20,7 @@ async def test_metadata_process_photo_success(_, __):
         'EXIF:GPSLongitudeRef': 'E', 'EXIF:GPSLongitude': '70.2822',
     }
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
-        result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
+        result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
         del result['previewPath']
         del result['thumbnailPath']
@@ -42,7 +42,7 @@ async def test_metadata_process_video_success(_, __):
         'EXIF:GPSLongitudeRef': 'E', 'EXIF:GPSLongitude': '70.2822', 'QuickTime:VideoFrameRate': '60', 'EXIF:ExposureTime': '1/20',
     }
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
-        result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
+        result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
         del result['previewPath']
         del result['thumbnailPath']
@@ -58,7 +58,7 @@ async def test_metadata_process_failed_process_exception(_):
     exiftool_mock = mock.MagicMock()
     exiftool_mock.return_value.__getitem__.return_value = None
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
-        result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
+        result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         assert result == None
 
 @mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail', return_value=(bytes(), bytes()))
@@ -74,7 +74,7 @@ async def test_metadata_process_grpc_exception(_):
     grpc_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         with mock.patch('src.protos.API.SaveMediaItemMetadata', grpc_mock):
-            result = await Metadata(APIStub(channel=grpc.insecure_channel(''))).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
+            result = await Metadata(APIStub(channel=grpc.insecure_channel('')), params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
             del result['sourcePath']
             del result['previewPath']
             del result['thumbnailPath']
@@ -97,7 +97,7 @@ async def test_metadata_process_photo_preview_thumbnail_exception(_):
     preview_thumbnail_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         with mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail', preview_thumbnail_mock):
-            result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
+            result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
             assert result == None
 
 @mock.patch('src.components.Metadata._grpc_save_mediaitem_metadata', return_value=None)
@@ -114,5 +114,5 @@ async def test_metadata_process_video_preview_thumbnail_exception(_):
     preview_thumbnail_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         with mock.patch('src.components.Metadata._generate_video_preview_and_thumbnail', preview_thumbnail_mock):
-            result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
+            result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
             assert result == None

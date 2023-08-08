@@ -92,10 +92,12 @@ async def serve() -> None:
     logging.info(f'got worker configuration: {cfg}')
 
     # initialize components
-    components = [Metadata(api_stub=api_stub)]
+    components = []
     search_model = None
     for item in cfg:
-        if item['name'] == 'places':
+        if item['name'] == 'metadata':
+            components.append(Metadata(api_stub=api_stub, params=item['params']))
+        elif item['name'] == 'places':
             components.append(Places(api_stub=api_stub, source=item['source']))
         elif item['name'] == 'classification':
             components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))

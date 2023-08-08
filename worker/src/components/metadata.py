@@ -35,8 +35,9 @@ class Metadata(Component):
         'video/webm', 'video/3gpp', 'video/3gpp2',
     ]
 
-    def __init__(self, api_stub: APIStub) -> None:
+    def __init__(self, api_stub: APIStub, params: list[str]) -> None:
         super().__init__('metadata', api_stub)
+        self.thumbnail_size = int(params[0])
 
     # pylint: disable=too-many-statements,too-many-branches
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, mediaitem_file_path: str, _: dict) -> dict:
@@ -203,13 +204,12 @@ class Metadata(Component):
     def _generate_photo_thumbnail(self, original_file_path: str, preview_file_path: str):
         """Generate thumbnail image from photo"""
         thumbnail_path = f'{original_file_path}-thumbnail'
-        # work(omkar): thumbnail size should be configurable through UI
         with WandImage(filename=preview_file_path) as img:
             lidx = 0 if img.size[0] > img.size[1] else 1
             sidx = 1 if lidx == 0 else 0
-            percent = 512/float(img.size[lidx])
+            percent = self.thumbnail_size/float(img.size[lidx])
             size = int((float(img.size[sidx])*float(percent)))
-            img.resize(512, size)
+            img.resize(self.thumbnail_size, size)
             with img.convert('jpeg') as converted:
                 converted.save(filename=thumbnail_path)
         return thumbnail_path
@@ -248,10 +248,17 @@ class Metadata(Component):
 
     def _generate_video_thumbnail(self, preview_video_path: str):
         """Generate thumbnail image from video"""
-        # work(omkar): thumbnail size should be configurable through UI
         clip = VideoFileClip(preview_video_path)
         video_thumbnail_path = f'{preview_video_path}_thumbnail.jpeg'
         clip.save_frame(video_thumbnail_path, t=random.uniform(0.1, clip.duration))
+        with WandImage(filename=video_thumbnail_path) as img:
+            lidx = 0 if img.size[0] > img.size[1] else 1
+            sidx = 1 if lidx == 0 else 0
+            percent = self.thumbnail_size/float(img.size[lidx])
+            size = int((float(img.size[sidx])*float(percent)))
+            img.resize(self.thumbnail_size, size)
+            with img.convert('jpeg') as converted:
+                converted.save(filename=video_thumbnail_path)
         return video_thumbnail_path
 
     def _generate_video_preview_and_thumbnail(self, original_file_path: str):
