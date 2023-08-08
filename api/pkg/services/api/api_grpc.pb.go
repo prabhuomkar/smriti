@@ -24,9 +24,13 @@ const _ = grpc.SupportPackageIsVersion7
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type APIClient interface {
 	GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
+	GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error)
+	GetUsers(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	SaveMediaItemFaces(ctx context.Context, in *MediaItemFacesRequest, opts ...grpc.CallOption) (*empty.Empty, error)
+	SaveMediaItemPeople(ctx context.Context, in *MediaItemPeopleRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 	SaveMediaItemFinalResult(ctx context.Context, in *MediaItemFinalResultRequest, opts ...grpc.CallOption) (*empty.Empty, error)
 }
 
@@ -41,6 +45,24 @@ func NewAPIClient(cc grpc.ClientConnInterface) APIClient {
 func (c *aPIClient) GetWorkerConfig(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*ConfigResponse, error) {
 	out := new(ConfigResponse)
 	err := c.cc.Invoke(ctx, "/API/GetWorkerConfig", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error) {
+	out := new(MediaItemFaceEmbeddingsResponse)
+	err := c.cc.Invoke(ctx, "/API/GetMediaItemFaceEmbeddings", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) GetUsers(ctx context.Context, in *empty.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+	out := new(GetUsersResponse)
+	err := c.cc.Invoke(ctx, "/API/GetUsers", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -74,6 +96,24 @@ func (c *aPIClient) SaveMediaItemThing(ctx context.Context, in *MediaItemThingRe
 	return out, nil
 }
 
+func (c *aPIClient) SaveMediaItemFaces(ctx context.Context, in *MediaItemFacesRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemFaces", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) SaveMediaItemPeople(ctx context.Context, in *MediaItemPeopleRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
+	out := new(empty.Empty)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemPeople", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aPIClient) SaveMediaItemFinalResult(ctx context.Context, in *MediaItemFinalResultRequest, opts ...grpc.CallOption) (*empty.Empty, error) {
 	out := new(empty.Empty)
 	err := c.cc.Invoke(ctx, "/API/SaveMediaItemFinalResult", in, out, opts...)
@@ -88,9 +128,13 @@ func (c *aPIClient) SaveMediaItemFinalResult(ctx context.Context, in *MediaItemF
 // for forward compatibility
 type APIServer interface {
 	GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error)
+	GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error)
+	GetUsers(context.Context, *empty.Empty) (*GetUsersResponse, error)
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*empty.Empty, error)
 	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error)
+	SaveMediaItemFaces(context.Context, *MediaItemFacesRequest) (*empty.Empty, error)
+	SaveMediaItemPeople(context.Context, *MediaItemPeopleRequest) (*empty.Empty, error)
 	SaveMediaItemFinalResult(context.Context, *MediaItemFinalResultRequest) (*empty.Empty, error)
 	mustEmbedUnimplementedAPIServer()
 }
@@ -102,6 +146,12 @@ type UnimplementedAPIServer struct {
 func (UnimplementedAPIServer) GetWorkerConfig(context.Context, *empty.Empty) (*ConfigResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetWorkerConfig not implemented")
 }
+func (UnimplementedAPIServer) GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetMediaItemFaceEmbeddings not implemented")
+}
+func (UnimplementedAPIServer) GetUsers(context.Context, *empty.Empty) (*GetUsersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
+}
 func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMetadata not implemented")
 }
@@ -110,6 +160,12 @@ func (UnimplementedAPIServer) SaveMediaItemPlace(context.Context, *MediaItemPlac
 }
 func (UnimplementedAPIServer) SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemThing not implemented")
+}
+func (UnimplementedAPIServer) SaveMediaItemFaces(context.Context, *MediaItemFacesRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemFaces not implemented")
+}
+func (UnimplementedAPIServer) SaveMediaItemPeople(context.Context, *MediaItemPeopleRequest) (*empty.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemPeople not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemFinalResult(context.Context, *MediaItemFinalResultRequest) (*empty.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemFinalResult not implemented")
@@ -141,6 +197,42 @@ func _API_GetWorkerConfig_Handler(srv interface{}, ctx context.Context, dec func
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).GetWorkerConfig(ctx, req.(*empty.Empty))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_GetMediaItemFaceEmbeddings_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemFaceEmbeddingsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetMediaItemFaceEmbeddings(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/GetMediaItemFaceEmbeddings",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetMediaItemFaceEmbeddings(ctx, req.(*MediaItemFaceEmbeddingsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_GetUsers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(empty.Empty)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).GetUsers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/GetUsers",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).GetUsers(ctx, req.(*empty.Empty))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -199,6 +291,42 @@ func _API_SaveMediaItemThing_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
+func _API_SaveMediaItemFaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemFacesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).SaveMediaItemFaces(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/SaveMediaItemFaces",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).SaveMediaItemFaces(ctx, req.(*MediaItemFacesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_SaveMediaItemPeople_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemPeopleRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).SaveMediaItemPeople(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/SaveMediaItemPeople",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).SaveMediaItemPeople(ctx, req.(*MediaItemPeopleRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _API_SaveMediaItemFinalResult_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MediaItemFinalResultRequest)
 	if err := dec(in); err != nil {
@@ -229,6 +357,14 @@ var API_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _API_GetWorkerConfig_Handler,
 		},
 		{
+			MethodName: "GetMediaItemFaceEmbeddings",
+			Handler:    _API_GetMediaItemFaceEmbeddings_Handler,
+		},
+		{
+			MethodName: "GetUsers",
+			Handler:    _API_GetUsers_Handler,
+		},
+		{
 			MethodName: "SaveMediaItemMetadata",
 			Handler:    _API_SaveMediaItemMetadata_Handler,
 		},
@@ -239,6 +375,14 @@ var API_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveMediaItemThing",
 			Handler:    _API_SaveMediaItemThing_Handler,
+		},
+		{
+			MethodName: "SaveMediaItemFaces",
+			Handler:    _API_SaveMediaItemFaces_Handler,
+		},
+		{
+			MethodName: "SaveMediaItemPeople",
+			Handler:    _API_SaveMediaItemPeople_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemFinalResult",

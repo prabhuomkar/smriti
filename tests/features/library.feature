@@ -4,7 +4,7 @@ Feature: Library
         Given a user is created if does not exist
         When user logs in
         Then token is generated
-        When upload photo mediaitem with auth if does not exist and wait 3 seconds
+        When upload default photo mediaitem with auth if does not exist and wait 10 seconds
         Then mediaitem is uploaded or exists
         When get mediaitem with auth
         Then mediaitem is present

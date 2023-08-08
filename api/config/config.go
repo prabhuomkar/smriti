@@ -60,7 +60,7 @@ type (
 		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
 		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"true"`
 		Search                 bool     `envconfig:"SMRITI_ML_SEARCH" default:"true"`
-		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"false"`
+		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"true"`
 		Speech                 bool     `envconfig:"SMRITI_ML_SPEECH" default:"false"`
 		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
 		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
@@ -69,7 +69,8 @@ type (
 		OCRParams              []string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"det_infer,rec_infer,cls_infer"`
 		SearchProvider         string   `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
 		SearchParams           []string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"search_tokenizer,search_processor,search_text_v20230731.pt,search_vision_v20230731.pt"`
-		FacesParams            []string `envconfig:"SMRITI_ML_FACES_PARAMS"`
+		FacesProvider          string   `envconfig:"SMRITI_ML_FACES_PROVIDER" default:"pytorch"`
+		FacesParams            []string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"0.9,vggface2"`
 		SpeechParams           []string `envconfig:"SMRITI_ML_SPEECH_PARAMS"`
 	}
 
@@ -82,7 +83,7 @@ type (
 		Explore    bool `envconfig:"SMRITI_FEATURE_EXPLORE" default:"true"`
 		Places     bool `envconfig:"SMRITI_FEATURE_PLACES" default:"true"`
 		Things     bool `envconfig:"SMRITI_FEATURE_THINGS" default:"true"`
-		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"false"`
+		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"true"`
 		Sharing    bool `envconfig:"SMRITI_FEATURE_SHARING" default:"true"`
 	}
 

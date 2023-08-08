@@ -5,10 +5,11 @@ import os
 import json
 
 import grpc
+import schedule
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
-from src.components import Component, Metadata, Places, Classification, OCR, Finalize
+from src.components import Component, Metadata, Places, Classification, OCR, Faces, Finalize
 from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
@@ -62,12 +63,18 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
     await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
+async def run_pending() -> None:
+    """Run scheduled jobs in background"""
+    while True:
+        schedule.run_pending()
+        await asyncio.sleep(1)
+
 async def serve() -> None:
     """Main serve function"""
     # start metrics
     start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
 
-    # initialize grpc client
+    # initialize api grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
     api_port = int(os.getenv('SMRITI_API_PORT', '15001'))
     api_channel = grpc.insecure_channel(f'{api_host}:{api_port}')
@@ -94,18 +101,26 @@ async def serve() -> None:
             components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'ocr':
             components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
+        elif item['name'] == 'faces':
+            components.append(Faces(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'search':
             search_model = init_search(name=item['source'], params=item['params'])
     components.append(Finalize(api_stub=api_stub))
 
-    # initialize grpc server
+    # initialize worker grpc server
     server = grpc.aio.server()
     add_WorkerServicer_to_server(WorkerService(components, search_model), server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     server.add_insecure_port(f'[::]:{port}')
     logging.info(f'starting grpc server on: {port}')
     await server.start()
-    await server.wait_for_termination()
+    periodic_task = asyncio.create_task(run_pending())
+    try:
+        await server.wait_for_termination()
+    finally:
+        periodic_task.cancel()
+        logging.info('stopping grpc server')
+        await server.stop(10)
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',

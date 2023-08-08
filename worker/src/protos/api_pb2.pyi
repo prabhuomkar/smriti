@@ -12,11 +12,64 @@ class ConfigResponse(_message.Message):
     config: bytes
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
+class GetUsersResponse(_message.Message):
+    __slots__ = ["users"]
+    USERS_FIELD_NUMBER: _ClassVar[int]
+    users: _containers.RepeatedScalarFieldContainer[str]
+    def __init__(self, users: _Optional[_Iterable[str]] = ...) -> None: ...
+
 class MediaItemEmbedding(_message.Message):
     __slots__ = ["embedding"]
     EMBEDDING_FIELD_NUMBER: _ClassVar[int]
     embedding: _containers.RepeatedScalarFieldContainer[float]
     def __init__(self, embedding: _Optional[_Iterable[float]] = ...) -> None: ...
+
+class MediaItemFaceEmbedding(_message.Message):
+    __slots__ = ["embedding", "id", "mediaItemId", "peopleId"]
+    EMBEDDING_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    MEDIAITEMID_FIELD_NUMBER: _ClassVar[int]
+    PEOPLEID_FIELD_NUMBER: _ClassVar[int]
+    embedding: MediaItemEmbedding
+    id: str
+    mediaItemId: str
+    peopleId: str
+    def __init__(self, id: _Optional[str] = ..., mediaItemId: _Optional[str] = ..., peopleId: _Optional[str] = ..., embedding: _Optional[_Union[MediaItemEmbedding, _Mapping]] = ...) -> None: ...
+
+class MediaItemFaceEmbeddingsRequest(_message.Message):
+    __slots__ = ["userId"]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    userId: str
+    def __init__(self, userId: _Optional[str] = ...) -> None: ...
+
+class MediaItemFaceEmbeddingsResponse(_message.Message):
+    __slots__ = ["mediaItemFaceEmbeddings"]
+    MEDIAITEMFACEEMBEDDINGS_FIELD_NUMBER: _ClassVar[int]
+    mediaItemFaceEmbeddings: _containers.RepeatedCompositeFieldContainer[MediaItemFaceEmbedding]
+    def __init__(self, mediaItemFaceEmbeddings: _Optional[_Iterable[_Union[MediaItemFaceEmbedding, _Mapping]]] = ...) -> None: ...
+
+class MediaItemFacePeople(_message.Message):
+    __slots__ = ["facePeople"]
+    class FacePeopleEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: str
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[str] = ...) -> None: ...
+    FACEPEOPLE_FIELD_NUMBER: _ClassVar[int]
+    facePeople: _containers.ScalarMap[str, str]
+    def __init__(self, facePeople: _Optional[_Mapping[str, str]] = ...) -> None: ...
+
+class MediaItemFacesRequest(_message.Message):
+    __slots__ = ["embeddings", "id", "userId"]
+    EMBEDDINGS_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    embeddings: _containers.RepeatedCompositeFieldContainer[MediaItemEmbedding]
+    id: str
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., embeddings: _Optional[_Iterable[_Union[MediaItemEmbedding, _Mapping]]] = ...) -> None: ...
 
 class MediaItemFinalResultRequest(_message.Message):
     __slots__ = ["embeddings", "id", "keywords", "userId"]
@@ -75,6 +128,21 @@ class MediaItemMetadataRequest(_message.Message):
     userId: str
     width: int
     def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., sourcePath: _Optional[str] = ..., previewPath: _Optional[str] = ..., thumbnailPath: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
+
+class MediaItemPeopleRequest(_message.Message):
+    __slots__ = ["mediaItemFacePeople", "userId"]
+    class MediaItemFacePeopleEntry(_message.Message):
+        __slots__ = ["key", "value"]
+        KEY_FIELD_NUMBER: _ClassVar[int]
+        VALUE_FIELD_NUMBER: _ClassVar[int]
+        key: str
+        value: MediaItemFacePeople
+        def __init__(self, key: _Optional[str] = ..., value: _Optional[_Union[MediaItemFacePeople, _Mapping]] = ...) -> None: ...
+    MEDIAITEMFACEPEOPLE_FIELD_NUMBER: _ClassVar[int]
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    mediaItemFacePeople: _containers.MessageMap[str, MediaItemFacePeople]
+    userId: str
+    def __init__(self, userId: _Optional[str] = ..., mediaItemFacePeople: _Optional[_Mapping[str, MediaItemFacePeople]] = ...) -> None: ...
 
 class MediaItemPlaceRequest(_message.Message):
     __slots__ = ["city", "country", "id", "postcode", "state", "town", "userId"]

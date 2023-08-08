@@ -20,6 +20,16 @@ class APIStub(object):
                 request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
                 response_deserializer=src_dot_protos_dot_api__pb2.ConfigResponse.FromString,
                 )
+        self.GetMediaItemFaceEmbeddings = channel.unary_unary(
+                '/API/GetMediaItemFaceEmbeddings',
+                request_serializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsRequest.SerializeToString,
+                response_deserializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsResponse.FromString,
+                )
+        self.GetUsers = channel.unary_unary(
+                '/API/GetUsers',
+                request_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+                response_deserializer=src_dot_protos_dot_api__pb2.GetUsersResponse.FromString,
+                )
         self.SaveMediaItemMetadata = channel.unary_unary(
                 '/API/SaveMediaItemMetadata',
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.SerializeToString,
@@ -35,6 +45,16 @@ class APIStub(object):
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemThingRequest.SerializeToString,
                 response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                 )
+        self.SaveMediaItemFaces = channel.unary_unary(
+                '/API/SaveMediaItemFaces',
+                request_serializer=src_dot_protos_dot_api__pb2.MediaItemFacesRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
+        self.SaveMediaItemPeople = channel.unary_unary(
+                '/API/SaveMediaItemPeople',
+                request_serializer=src_dot_protos_dot_api__pb2.MediaItemPeopleRequest.SerializeToString,
+                response_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                )
         self.SaveMediaItemFinalResult = channel.unary_unary(
                 '/API/SaveMediaItemFinalResult',
                 request_serializer=src_dot_protos_dot_api__pb2.MediaItemFinalResultRequest.SerializeToString,
@@ -46,6 +66,18 @@ class APIServicer(object):
     """Missing associated documentation comment in .proto file."""
 
     def GetWorkerConfig(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetMediaItemFaceEmbeddings(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def GetUsers(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
         context.set_details('Method not implemented!')
@@ -69,6 +101,18 @@ class APIServicer(object):
         context.set_details('Method not implemented!')
         raise NotImplementedError('Method not implemented!')
 
+    def SaveMediaItemFaces(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
+    def SaveMediaItemPeople(self, request, context):
+        """Missing associated documentation comment in .proto file."""
+        context.set_code(grpc.StatusCode.UNIMPLEMENTED)
+        context.set_details('Method not implemented!')
+        raise NotImplementedError('Method not implemented!')
+
     def SaveMediaItemFinalResult(self, request, context):
         """Missing associated documentation comment in .proto file."""
         context.set_code(grpc.StatusCode.UNIMPLEMENTED)
@@ -83,6 +127,16 @@ def add_APIServicer_to_server(servicer, server):
                     request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
                     response_serializer=src_dot_protos_dot_api__pb2.ConfigResponse.SerializeToString,
             ),
+            'GetMediaItemFaceEmbeddings': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetMediaItemFaceEmbeddings,
+                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsRequest.FromString,
+                    response_serializer=src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsResponse.SerializeToString,
+            ),
+            'GetUsers': grpc.unary_unary_rpc_method_handler(
+                    servicer.GetUsers,
+                    request_deserializer=google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+                    response_serializer=src_dot_protos_dot_api__pb2.GetUsersResponse.SerializeToString,
+            ),
             'SaveMediaItemMetadata': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMediaItemMetadata,
                     request_deserializer=src_dot_protos_dot_api__pb2.MediaItemMetadataRequest.FromString,
@@ -96,6 +150,16 @@ def add_APIServicer_to_server(servicer, server):
             'SaveMediaItemThing': grpc.unary_unary_rpc_method_handler(
                     servicer.SaveMediaItemThing,
                     request_deserializer=src_dot_protos_dot_api__pb2.MediaItemThingRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'SaveMediaItemFaces': grpc.unary_unary_rpc_method_handler(
+                    servicer.SaveMediaItemFaces,
+                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemFacesRequest.FromString,
+                    response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            ),
+            'SaveMediaItemPeople': grpc.unary_unary_rpc_method_handler(
+                    servicer.SaveMediaItemPeople,
+                    request_deserializer=src_dot_protos_dot_api__pb2.MediaItemPeopleRequest.FromString,
                     response_serializer=google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             ),
             'SaveMediaItemFinalResult': grpc.unary_unary_rpc_method_handler(
@@ -127,6 +191,40 @@ class API(object):
         return grpc.experimental.unary_unary(request, target, '/API/GetWorkerConfig',
             google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
             src_dot_protos_dot_api__pb2.ConfigResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetMediaItemFaceEmbeddings(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/API/GetMediaItemFaceEmbeddings',
+            src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsRequest.SerializeToString,
+            src_dot_protos_dot_api__pb2.MediaItemFaceEmbeddingsResponse.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def GetUsers(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/API/GetUsers',
+            google_dot_protobuf_dot_empty__pb2.Empty.SerializeToString,
+            src_dot_protos_dot_api__pb2.GetUsersResponse.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
 
@@ -177,6 +275,40 @@ class API(object):
             metadata=None):
         return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemThing',
             src_dot_protos_dot_api__pb2.MediaItemThingRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SaveMediaItemFaces(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemFaces',
+            src_dot_protos_dot_api__pb2.MediaItemFacesRequest.SerializeToString,
+            google_dot_protobuf_dot_empty__pb2.Empty.FromString,
+            options, channel_credentials,
+            insecure, call_credentials, compression, wait_for_ready, timeout, metadata)
+
+    @staticmethod
+    def SaveMediaItemPeople(request,
+            target,
+            options=(),
+            channel_credentials=None,
+            call_credentials=None,
+            insecure=False,
+            compression=None,
+            wait_for_ready=None,
+            timeout=None,
+            metadata=None):
+        return grpc.experimental.unary_unary(request, target, '/API/SaveMediaItemPeople',
+            src_dot_protos_dot_api__pb2.MediaItemPeopleRequest.SerializeToString,
             google_dot_protobuf_dot_empty__pb2.Empty.FromString,
             options, channel_credentials,
             insecure, call_credentials, compression, wait_for_ready, timeout, metadata)

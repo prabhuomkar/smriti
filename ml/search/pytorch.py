@@ -56,7 +56,7 @@ def script_and_save():
                                            (vision_inputs['pixel_values']))
     traced_vision_module.save(VISION_FILE_NAME)
 
-def load_and_run(sample):
+def load_and_run(sample='example.jpg'):
     """Loads the saved torchscript module and runs sample image"""
     print('loading and running torchscript module')
     # text
@@ -79,6 +79,9 @@ if __name__ == '__main__':
             script_and_save()
             exit(0)
         if args[1] == 'run':
-            load_and_run(args[2])
+            if len(args)  == 3:
+                load_and_run(args[2])
+            else:
+                load_and_run()
             exit(0)
     print('provide a valid arg: save OR run')

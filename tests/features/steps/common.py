@@ -6,9 +6,11 @@ ADMIN_USERNAME = 'smriti'
 ADMIN_PASSWORD = 'smritiT3st!'
 
 CREATED_USER = {'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!','features':'{"albums":true,'+
-                '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,"sharing":true}'}
+                '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
+                '"people":true,"sharing":true}'}
 UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!','features':'{"albums"'+
-                ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,"sharing":true}'}
+                ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
+                '"people":true,"sharing":true}'}
 
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 CREATED_SHARED_ALBUM = {'name': 'Album Name', 'description': 'Album Description', 'shared': True}

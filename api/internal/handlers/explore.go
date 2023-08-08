@@ -104,7 +104,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	place.ID = uid
 	place.UserID = userID
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&place).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&place).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_hidden=? AND is_deleted=?", false, false)
 	if err != nil {
 		slog.Error("error getting place mediaitems", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -168,7 +168,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	thing.ID = uid
 	thing.UserID = userID
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&thing).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&thing).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_hidden=? AND is_deleted=?", false, false)
 	if err != nil {
 		slog.Error("error getting thing mediaitems", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -255,7 +255,7 @@ func (h *Handler) GetPeopleMediaItems(ctx echo.Context) error {
 	person.ID = uid
 	person.UserID = userID
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&person).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems)
+	err = h.DB.Model(&person).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_hidden=? AND is_deleted=?", false, false)
 	if err != nil {
 		slog.Error("error getting people mediaitems", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
