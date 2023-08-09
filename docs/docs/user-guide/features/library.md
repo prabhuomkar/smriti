@@ -1,4 +1,4 @@
-# MediaItems
+# Library
 
 ## Favourites
 Enable this feature using API Configuration:
