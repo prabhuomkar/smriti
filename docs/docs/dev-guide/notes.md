@@ -1,5 +1,4 @@
 # Developer Notes
-
 - [x] ML models should be agnostic and configurable
 - [x] Each action should be configurable from the environment config e.g. Face grouping, Place Identification, File Size Limits
 - [x] API-first techniques and then build Web UI & Mobile Apps
@@ -13,7 +12,6 @@
 - [x] Try to achieve best ratings incrementally as on: https://github.com/meichthys/foss_photo_libraries
 
 ## Features
-
 | Feature | Support |
 | - | - |
 | Demo | ✅ |
@@ -23,8 +21,8 @@
 | Photo Map | ✅ |
 | Multiple User Support | ✅ |
 | EXIF Data | ✅  |
-| Photo Discovery | 🚧 |
-| Object/Face Recognition | 🚧 |
+| Photo Discovery | ✅ |
+| Object/Face Recognition | ✅ |
 | Photo Search | ✅ |
 | LivePhotos Support | ✅ |
 | Video Support | ✅ |

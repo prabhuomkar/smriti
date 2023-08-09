@@ -5,7 +5,6 @@
 ### Components
 
 #### API
-
 - Service written in Golang
   - REST API: [echo](https://echo.labstack.com/)
   - RPC: [gRPC + protobuf](https://grpc.io/)
@@ -16,7 +15,6 @@
 - Will exchange protobuf with Worker: [api.proto](https://github.com/prabhuomkar/smriti/blob/master/protos/api.proto)
 
 #### Database
-
 - [Schema](https://github.com/prabhuomkar/smriti/blob/master/infra/database/schema.sql)
 - Total number of tables: 10
 - **Entities**:
@@ -26,7 +24,6 @@
   - User Management: `users`
 
 #### Worker
-
 - Service written in Python
   - RPC: [gRPC + protobuf](https://grpc.io/)
   - Linting: [pylint](https://pypi.org/project/pylint/)
@@ -37,16 +34,13 @@
 ### Image & Video Processing
 
 #### Parsing Metadata 
-
 - [ExifTool](https://www.exiftool.org/) - Getting EXIF and XMP data
 
 #### Extracting Thumbnail
-
 - [LibRaw](https://www.libraw.org/) - Processing and extracting RAW images
 - [ImageMagick](https://imagemagick.org/index.php) - General purpose extraction
 
 #### Supported File Formats
-
 | Type | Extension | Support |
 | ---- | --------- | ------- |
 | Photo | .BMP | ✅ |
@@ -82,7 +76,6 @@
 | Video | WMV | ❓ |
 
 ### File Storage & Retrieval
-
 - Support for several file storage systems behind a common interface:
 ```
 interface {
@@ -98,7 +91,6 @@ interface {
 - Best practices for security and other similar aspects for connecting to storage will be decided later
 
 ### Machine Learning Inference
-
 - Toggles for using CPU and GPU for inference
 - Worker configuration sent to worker on startup request:
 ```yaml
@@ -131,21 +123,17 @@ interface {
   - Face Detection - [TBD](https://github.com)
 
 ## Performance
-
 - Benchmarking with several parallel uploads and system configuration
 - Results of benchmarks and some graphs
 
 ## Testing
-
 - E2E Automation Testing using `behave`
 
 ## Security
-
 - Authentication mechanisms; Basic Auth & JWT
 - Accessing CDN files using hash keys
 
 ## Deployment
-
 - Docker Deployment 
 - Volumes and Other Concerns
 - Working with HTTPS

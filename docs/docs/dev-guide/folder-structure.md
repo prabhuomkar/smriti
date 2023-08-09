@@ -1,5 +1,4 @@
 # Folder Structure
-
 - `/`: 
   - `Makefile`: Helpful commands for interacting with project
   - `docker-compose.yaml`: Containerized services for local integration tests

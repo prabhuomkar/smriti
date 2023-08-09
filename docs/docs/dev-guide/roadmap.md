@@ -1,5 +1,4 @@
 # Roadmap
-
 - [x] Album Creation & Its CRUD (v2022.09.30)
 - [x] Library APIs with Favourites, Hidden & Trash (v2022.09.30)
 - [x] Get All Places from Photos & its Collection (v2022.10.31)
