@@ -16,7 +16,7 @@ Feature: Things
         When get explored thing without auth
         Then auth error is found
         When get explored thing with auth
-        Then explored thing is present
+        Then explored thing is present with cover mediaitem
         When get all explored things without auth
         Then auth error is found
         When get all explored things with auth
@@ -24,4 +24,8 @@ Feature: Things
         When get all mediaitems for thing without auth
         Then auth error is found
         When get all mediaitems for thing with auth
-        Then mediaitem with thing is present in list 
+        Then mediaitem with thing is present in list
+        When delete mediaitem with auth
+        Then mediaitem is deleted
+        When get explored thing with auth
+        Then explored thing is present without cover mediaitem

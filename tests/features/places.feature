@@ -16,7 +16,7 @@ Feature: Places
         When get explored place without auth
         Then auth error is found
         When get explored place with auth
-        Then explored place is present
+        Then explored place is present with cover mediaitem
         When get all explored places without auth
         Then auth error is found
         When get all explored places with auth
@@ -24,4 +24,8 @@ Feature: Places
         When get all mediaitems for place without auth
         Then auth error is found
         When get all mediaitems for place with auth
-        Then mediaitem with place is present in list 
+        Then mediaitem with place is present in list
+        When delete mediaitem with auth
+        Then mediaitem is deleted
+        When get explored place with auth
+        Then explored place is present without cover mediaitem

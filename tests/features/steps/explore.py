@@ -64,18 +64,33 @@ def step_impl(context, type):
         assert len(context.people) >= 1
         assert context.person_id in [person['id'] for person in context.people]
 
-@then('explored {type} is present')
-def step_impl(context, type):
+@then('explored {type} is present {condition} cover mediaitem')
+def step_impl(context, type, condition):
     if type == 'place':
         assert context.place['name'] == context.match_place['name']
         assert context.place['city'] == context.match_place['city']
         assert context.place['state'] == context.match_place['state']
         assert context.place['country'] == context.match_place['country']
         assert context.place['postcode'] == context.match_place['postcode']
+        if condition == 'with':
+            assert len(context.place['coverMediaItem'].items()) > 0
+            assert 'id' in context.place['coverMediaItem'].keys()
+        else:
+            assert 'coverMediaItem' not in context.place.items()
     elif type == 'thing':
         assert context.thing['name'] == context.match_thing['name']
+        if condition == 'with':
+            assert len(context.thing['coverMediaItem'].items()) > 0
+            assert 'id' in context.thing['coverMediaItem'].keys()
+        else:
+            assert 'coverMediaItem' not in context.thing.items()
     elif type == 'person':
         assert context.person['id'] == context.person_id
+        if condition == 'with':
+            assert len(context.person['coverMediaItem'].items()) > 0
+            assert 'id' in context.person['coverMediaItem'].keys()
+        else:
+            assert 'coverMediaItem' not in context.person.items()
 
 @when('get all mediaitems for {type} {condition} auth')
 def step_impl(context, type, condition):
