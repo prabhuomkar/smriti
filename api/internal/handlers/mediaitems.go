@@ -4,10 +4,12 @@ import (
 	"api/internal/models"
 	"api/pkg/services/worker"
 	"context"
+	"crypto/rand"
 	"crypto/sha256"
 	"errors"
 	"fmt"
 	"io"
+	"math/big"
 	"mime/multipart"
 	"net/http"
 	"os"
@@ -186,9 +188,95 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 		slog.Error("error updating mediaItem", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
-	// work(omkar): update albums, things, people and places to choose another cover mediaitem
-	// where this mediaitem is a cover mediaitem
+	// album
+	err = h.updateCoverMediaItems(uid)
+	if err != nil {
+		slog.Error("error updating associated cover mediaitems", slog.Any("error", err))
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
 	return ctx.JSON(http.StatusNoContent, nil)
+}
+
+func (h *Handler) updateCoverMediaItems(mediaItemID uuid.UUID) error { //nolint: funlen,cyclop
+	var (
+		albumsToUpdate []models.Album
+		placesToUpdate []models.Place
+		thingsToUpdate []models.Thing
+		peopleToUpdate []models.People
+	)
+	result := h.DB.Model(&models.Album{}).Preload("MediaItems").Where("cover_mediaitem_id = ?", mediaItemID).Find(&albumsToUpdate)
+	if result.Error != nil {
+		return fmt.Errorf("error getting albums: %w", result.Error)
+	}
+	for _, album := range albumsToUpdate {
+		randomIndex, _ := rand.Int(rand.Reader, big.NewInt(int64(len(album.MediaItems))))
+		var newCoverMediaItemID *uuid.UUID
+		newCoverMediaItemID = &album.MediaItems[randomIndex.Int64()].ID
+		if len(album.MediaItems) == 1 {
+			newCoverMediaItemID = nil
+		}
+		result := h.DB.Model(&models.Album{UserID: album.UserID, ID: album.ID}).Omit("MediaItems").Updates(map[string]interface{}{
+			"CoverMediaItemID": newCoverMediaItemID,
+		})
+		if result.Error != nil {
+			return fmt.Errorf("error updating album cover mediaitem: %w", result.Error)
+		}
+	}
+	result = h.DB.Model(&models.Place{}).Preload("MediaItems").Where("cover_mediaitem_id = ?", mediaItemID).Find(&placesToUpdate)
+	if result.Error != nil {
+		return fmt.Errorf("error getting places: %w", result.Error)
+	}
+	for _, place := range placesToUpdate {
+		randomIndex, _ := rand.Int(rand.Reader, big.NewInt(int64(len(place.MediaItems))))
+		var newCoverMediaItemID *uuid.UUID
+		newCoverMediaItemID = &place.MediaItems[randomIndex.Int64()].ID
+		if len(place.MediaItems) == 1 {
+			newCoverMediaItemID = nil
+		}
+		result := h.DB.Model(&models.Place{UserID: place.UserID, ID: place.ID}).Omit("MediaItems").Updates(map[string]interface{}{
+			"CoverMediaItemID": newCoverMediaItemID,
+		})
+		if result.Error != nil {
+			return fmt.Errorf("error updating place cover mediaitem: %w", result.Error)
+		}
+	}
+	result = h.DB.Model(&models.Thing{}).Preload("MediaItems").Where("cover_mediaitem_id = ?", mediaItemID).Find(&thingsToUpdate)
+	if result.Error != nil {
+		return fmt.Errorf("error getting things: %w", result.Error)
+	}
+	for _, thing := range thingsToUpdate {
+		randomIndex, _ := rand.Int(rand.Reader, big.NewInt(int64(len(thing.MediaItems))))
+		var newCoverMediaItemID *uuid.UUID
+		newCoverMediaItemID = &thing.MediaItems[randomIndex.Int64()].ID
+		if len(thing.MediaItems) == 1 {
+			newCoverMediaItemID = nil
+		}
+		result := h.DB.Model(&models.Thing{UserID: thing.UserID, ID: thing.ID}).Omit("MediaItems").Updates(map[string]interface{}{
+			"CoverMediaItemID": newCoverMediaItemID,
+		})
+		if result.Error != nil {
+			return fmt.Errorf("error updating thing cover mediaitem: %w", result.Error)
+		}
+	}
+	result = h.DB.Model(&models.People{}).Preload("MediaItems").Where("cover_mediaitem_id = ?", mediaItemID).Find(&peopleToUpdate)
+	if result.Error != nil {
+		return fmt.Errorf("error getting people: %w", result.Error)
+	}
+	for _, person := range peopleToUpdate {
+		randomIndex, _ := rand.Int(rand.Reader, big.NewInt(int64(len(person.MediaItems))))
+		var newCoverMediaItemID *uuid.UUID
+		newCoverMediaItemID = &person.MediaItems[randomIndex.Int64()].ID
+		if len(person.MediaItems) == 1 {
+			newCoverMediaItemID = nil
+		}
+		result := h.DB.Model(&models.People{UserID: person.UserID, ID: person.ID}).Omit("MediaItems").Updates(map[string]interface{}{
+			"CoverMediaItemID": newCoverMediaItemID,
+		})
+		if result.Error != nil {
+			return fmt.Errorf("error updating people cover mediaitem: %w", result.Error)
+		}
+	}
+	return nil
 }
 
 // GetMediaItems ...

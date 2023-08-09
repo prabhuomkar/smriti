@@ -16,8 +16,12 @@ Feature: People
         When get explored person without auth
         Then auth error is found
         When get explored person with auth
-        Then explored person is present
+        Then explored person is present with cover mediaitem
         When get all explored people without auth
         Then auth error is found
         When get all explored people with auth
         Then explored person is present in list
+        When delete mediaitem with auth
+        Then mediaitem is deleted
+        When get explored person with auth
+        Then explored person is present without cover mediaitem
