@@ -88,7 +88,7 @@ var (
 		coverFaceResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","coverMediaItemFaceId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30","coverMediaItemFace":null}]`
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` + coverFaceResponseBody + `}]`
 )
 
 func TestGetYearsAgoMediaItems(t *testing.T) {

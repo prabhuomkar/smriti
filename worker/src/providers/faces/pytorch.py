@@ -37,8 +37,8 @@ class PyTorchModule:
         for idx, (res, prob) in enumerate(zip(result, probs)):
             if prob > self.prob_threshold:
                 embeddings.append(res.tolist())
-                thumbnails.append(base64.b64encode(
-                    Image.open(f'{mediaitem_id}.jpg' if idx == 0 else f'{mediaitem_id}_{idx + 1}.jpg').tobytes()).decode('utf-8'))
+                thumbnails.append(base64.b64encode(Image.open(
+                    f'{mediaitem_id}.jpg' if idx == 0 else f'{mediaitem_id}_{idx + 1}.jpg').tobytes()).decode('utf-8'))
         for filename in os.listdir('.'):
             if filename.startswith(mediaitem_id) and filename.endswith('.jpg'):
                 file_path = os.path.join('.', filename)
