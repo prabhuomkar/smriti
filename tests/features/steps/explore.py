@@ -87,10 +87,10 @@ def step_impl(context, type, condition):
     elif type == 'person':
         assert context.person['id'] == context.person_id
         if condition == 'with':
-            assert len(context.person['coverMediaItem'].items()) > 0
-            assert 'id' in context.person['coverMediaItem'].keys()
+            assert len(context.person['coverMediaItemFace'].items()) > 0
+            assert 'thumbnail' in context.person['coverMediaItemFace'].keys()
         else:
-            assert 'coverMediaItem' not in context.person.items()
+            assert 'coverMediaItemFace' not in context.person.items()
 
 @when('get all mediaitems for {type} {condition} auth')
 def step_impl(context, type, condition):
