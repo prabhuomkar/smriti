@@ -17,6 +17,8 @@ def test_pytorch_success(_, __):
     pytorch_module.rec_model = mock.MagicMock()
     pytorch_module.rec_model.forward.return_value = torch.tensor([[0.302,0.92,0.38]])
     result = pytorch_module.detect('mediaitem_user_id', 'mediaitem_id', 'previews/file_name')
+    assert len(result['thumbnails']) == 1
+    del result['thumbnails']
     assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'embeddings': torch.tensor([[0.302,0.92,0.38]]).tolist()}
 
 @mock.patch('facenet_pytorch.MTCNN.__init__', return_value=None)

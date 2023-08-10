@@ -206,7 +206,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 	people := []models.People{}
 	result := h.DB.Model(&models.People{}).
 		Where("user_id=? AND is_hidden=false", userID).
-		Preload("CoverMediaItem").
+		Preload("CoverMediaItemFace").
 		Find(&people).
 		Offset(offset).
 		Limit(limit)
@@ -229,7 +229,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 	person := models.People{}
 	result := h.DB.Model(&models.People{}).
 		Where("id=? AND user_id=?", uid, userID).
-		Preload("CoverMediaItem").
+		Preload("CoverMediaItemFace").
 		First(&person)
 	if result.Error != nil {
 		slog.Error("error getting person", slog.Any("error", result.Error))

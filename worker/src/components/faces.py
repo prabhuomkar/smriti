@@ -96,7 +96,8 @@ class Faces(Component):
             request = MediaItemFacesRequest(
                 userId=result['userId'],
                 id=result['id'],
-                embeddings=[MediaItemEmbedding(embedding=embedding) for embedding in result['embeddings']]
+                embeddings=[MediaItemEmbedding(embedding=embedding) for embedding in result['embeddings']],
+                thumbnails=result['thumbnails']
             )
             _ = self.api_stub.SaveMediaItemFaces(request)
         except RpcError as rpc_exp:

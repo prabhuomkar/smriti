@@ -39,6 +39,7 @@ type (
 		MediaitemID uuid.UUID        `json:"-" gorm:"type:uuid"`
 		PeopleID    *uuid.UUID       `json:"-" gorm:"type:uuid"`
 		Embedding   *pgvector.Vector `json:"-" gorm:"type:vector"`
+		Thumbnail   string           `json:"thumbnail" gorm:"column:thumbnail"`
 	}
 
 	// MediaItem ...

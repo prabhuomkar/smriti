@@ -62,14 +62,16 @@ class MediaItemFacePeople(_message.Message):
     def __init__(self, facePeople: _Optional[_Mapping[str, str]] = ...) -> None: ...
 
 class MediaItemFacesRequest(_message.Message):
-    __slots__ = ["embeddings", "id", "userId"]
+    __slots__ = ["embeddings", "id", "thumbnails", "userId"]
     EMBEDDINGS_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
+    THUMBNAILS_FIELD_NUMBER: _ClassVar[int]
     USERID_FIELD_NUMBER: _ClassVar[int]
     embeddings: _containers.RepeatedCompositeFieldContainer[MediaItemEmbedding]
     id: str
+    thumbnails: _containers.RepeatedScalarFieldContainer[str]
     userId: str
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., embeddings: _Optional[_Iterable[_Union[MediaItemEmbedding, _Mapping]]] = ...) -> None: ...
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., embeddings: _Optional[_Iterable[_Union[MediaItemEmbedding, _Mapping]]] = ..., thumbnails: _Optional[_Iterable[str]] = ...) -> None: ...
 
 class MediaItemFinalResultRequest(_message.Message):
     __slots__ = ["embeddings", "id", "keywords", "userId"]

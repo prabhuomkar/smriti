@@ -57,6 +57,7 @@ message MediaItemFacesRequest {
     string userId = 1;
     string id = 2;
     repeated MediaItemEmbedding embeddings = 3;
+    repeated string thumbnails = 4;
 }
 
 message MediaItemFinalResultRequest {

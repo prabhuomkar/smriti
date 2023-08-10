@@ -4,8 +4,7 @@ import psycopg2
 ALL_TABLES = ['thing_mediaitems', 'place_mediaitems',
               'people_mediaitems', 'album_mediaitems',
               'things', 'places', 'people', 'albums',
-              'mediaitem_embeddings', 'mediaitem_faces',
-              'mediaitems', 'users']
+              'mediaitem_embeddings', 'mediaitem_faces', 'mediaitems', 'users']
 
 def before_feature(context, feature):
     cleanup_tables()
