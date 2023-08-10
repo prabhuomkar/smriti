@@ -82,6 +82,7 @@ var (
 		UserId:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:         "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
+		Thumbnails: []string{"thumbnail"},
 	}
 	mediaItemPeopleRequest = api.MediaItemPeopleRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",

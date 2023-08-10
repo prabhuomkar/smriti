@@ -17,7 +17,7 @@ var (
 		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
 	}
 	thingCols                    = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
-	peopleCols                   = []string{"id", "user_id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at"}
+	peopleCols                   = []string{"id", "user_id", "name", "cover_mediaitem_id", "cover_mediaitem_face_id", "is_hidden", "created_at", "updated_at"}
 	memoryMediaItemCols          = append(mediaitemCols, "creation_year")
 	memoryMediaItemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
@@ -45,7 +45,8 @@ var (
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	placeResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+	coverFaceResponseBody = `"coverMediaItemFace":{"thumbnail":"thumbnail"}`
+	placeResponseBody     = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"name":"name","postcode":"postcode",` +
 		`"town":"town","city":"city",` +
 		`"state":"state","country":"country","hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
@@ -77,17 +78,17 @@ var (
 		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
 	personResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
-		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","coverMediaItemFaceId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		coverMediaItemResponseBody + `}`
+		coverFaceResponseBody + `}`
 	peopleResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
-		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"hidden":true,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","coverMediaItemFaceId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		coverMediaItemResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
+		coverFaceResponseBody + `},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
-		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30",` + coverMediaItemResponseBody + `}]`
+		`"hidden":false,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","coverMediaItemFaceId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30","coverMediaItemFace":null}]`
 )
 
 func TestGetYearsAgoMediaItems(t *testing.T) {
@@ -842,8 +843,8 @@ func TestGetPeople(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(getMockedPeopleRows())
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitem_faces"`)).
+					WillReturnRows(getMockedMediaItemFaceRow())
 			},
 			nil,
 			nil,
@@ -931,8 +932,8 @@ func TestGetPerson(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
 					WillReturnRows(getMockedPeopleRow())
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitem_faces"`)).
+					WillReturnRows(getMockedMediaItemFaceRow())
 			},
 			nil,
 			nil,
@@ -1088,15 +1089,15 @@ func getMockedThingRows() *sqlmock.Rows {
 func getMockedPeopleRow() *sqlmock.Rows {
 	return sqlmock.NewRows(peopleCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
 func getMockedPeopleRows() *sqlmock.Rows {
 	return sqlmock.NewRows(peopleCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
+			"name", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "false", sampleTime, sampleTime)
 }
 
 func getMockedMemoryMediaItemRows() *sqlmock.Rows {

@@ -241,9 +241,14 @@ func (s *Service) SaveMediaItemFaces(_ context.Context, req *api.MediaItemFacesR
 	slog.Info("saving mediaitem faces", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id))
 
 	mediaItemFaces := make([]models.MediaitemFace, len(req.GetEmbeddings()))
+	faceThumbnails := req.GetThumbnails()
 	for idx, reqEmbedding := range req.GetEmbeddings() {
 		faceEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
-		mediaItemFaces[idx] = models.MediaitemFace{MediaitemID: uid, ID: uuid.NewV4(), Embedding: &faceEmbedding}
+		mediaItemFaces[idx] = models.MediaitemFace{
+			MediaitemID: uid, ID: uuid.NewV4(),
+			Embedding: &faceEmbedding,
+			Thumbnail: faceThumbnails[idx],
+		}
 	}
 	result := s.DB.Create(mediaItemFaces)
 	if result.Error != nil {
@@ -349,13 +354,15 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 		}
 		defaultPeopleVisibility := false
 		defaultCoverMediaItemID := mediaItems[0].ID
+		defaultCoverMediaItemFaceID := peopleWithFaces[peopleID][0]
 		people := models.People{
-			IsHidden:         &defaultPeopleVisibility,
-			Name:             "",
-			CoverMediaItemID: &defaultCoverMediaItemID,
+			IsHidden:             &defaultPeopleVisibility,
+			Name:                 "",
+			CoverMediaItemID:     &defaultCoverMediaItemID,
+			CoverMediaItemFaceID: &defaultCoverMediaItemFaceID,
 		}
 		result := s.DB.Where(models.People{UserID: userID, ID: peopleID}).
-			Attrs(models.Thing{ID: peopleID}).
+			Attrs(models.People{ID: peopleID}).
 			Assign(models.People{CoverMediaItemID: &defaultCoverMediaItemID}).
 			FirstOrCreate(&people)
 		if result.Error != nil {

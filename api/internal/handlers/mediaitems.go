@@ -103,7 +103,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	mediaItem.ID = uid
 	mediaItem.UserID = userID
 	people := []models.People{}
-	err = h.DB.Model(&mediaItem).Preload("CoverMediaItem").Association("People").Find(&people)
+	err = h.DB.Model(&mediaItem).Preload("CoverMediaItemFace").Association("People").Find(&people)
 	if err != nil {
 		slog.Error("error getting mediaitem people", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

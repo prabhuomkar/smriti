@@ -25,6 +25,7 @@ var (
 		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
 	}
+	mediaitemFaceCols     = []string{"id", "mediaitem_id", "people_id", "thumbnail"}
 	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
@@ -284,8 +285,8 @@ func TestGetMediaItemPeople(t *testing.T) {
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "people_mediaitems"`)).
 					WillReturnRows(getMockedPeopleRows())
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRow())
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "mediaitem_faces"`)).
+					WillReturnRows(getMockedMediaItemFaceRow())
 			},
 			nil,
 			nil,
@@ -1469,6 +1470,12 @@ func getMockedMediaItemRows() *sqlmock.Rows {
 			"thumbnail_url", "placeholder", "false", "true", "true", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
+}
+
+func getMockedMediaItemFaceRow() *sqlmock.Rows {
+	return sqlmock.NewRows(mediaitemFaceCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "thumbnail")
 }
 
 func getMockedMediaItemFile(t *testing.T) (*io.PipeReader, string) {
