@@ -52,6 +52,7 @@ type (
 		SourceURL         string                `json:"sourceUrl" gorm:"column:source_url"`
 		PreviewURL        string                `json:"previewUrl" gorm:"column:preview_url"`
 		ThumbnailURL      string                `json:"thumbnailUrl" gorm:"column:thumbnail_url"`
+		Placeholder       string                `json:"placeholder" gorm:"column:placeholder"`
 		IsFavourite       *bool                 `json:"favourite" gorm:"column:is_favourite;default:false"`
 		IsHidden          *bool                 `json:"hidden" gorm:"column:is_hidden;default:false"`
 		IsDeleted         *bool                 `json:"deleted" gorm:"column:is_deleted;default:false"`

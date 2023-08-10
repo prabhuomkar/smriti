@@ -9,7 +9,7 @@ from src.protos.api_pb2_grpc import APIStub
 
 
 @mock.patch('src.components.Metadata._grpc_save_mediaitem_metadata', return_value=None)
-@mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail', return_value=(bytes(), bytes()))
+@mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail_and_placeholder', return_value=(bytes(), bytes(), bytes()))
 @pytest.mark.asyncio
 async def test_metadata_process_photo_success(_, __):
     exiftool_mock = mock.MagicMock()
@@ -24,6 +24,7 @@ async def test_metadata_process_photo_success(_, __):
         del result['sourcePath']
         del result['previewPath']
         del result['thumbnailPath']
+        del result['placeholder']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'panorama', 'mimeType': 'image/jpeg', 'width': 14124, 
                         'height': 3100, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -31,7 +32,7 @@ async def test_metadata_process_photo_success(_, __):
                         'fps': None, 'latitude': 19.292902, 'longitude': 70.2822}
 
 @mock.patch('src.components.Metadata._grpc_save_mediaitem_metadata', return_value=None)
-@mock.patch('src.components.Metadata._generate_video_preview_and_thumbnail', return_value=(bytes(), bytes()))
+@mock.patch('src.components.Metadata._generate_video_preview_and_thumbnail_and_placeholder', return_value=(bytes(), bytes(), bytes()))
 @pytest.mark.asyncio
 async def test_metadata_process_video_success(_, __):
     exiftool_mock = mock.MagicMock()
@@ -46,6 +47,7 @@ async def test_metadata_process_video_success(_, __):
         del result['sourcePath']
         del result['previewPath']
         del result['thumbnailPath']
+        del result['placeholder']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'live', 'mimeType': 'video/mpeg', 'width': 1080, 
                         'height': 720, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -61,7 +63,7 @@ async def test_metadata_process_failed_process_exception(_):
         result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         assert result == None
 
-@mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail', return_value=(bytes(), bytes()))
+@mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail_and_placeholder', return_value=(bytes(), bytes(), bytes()))
 @pytest.mark.asyncio
 async def test_metadata_process_grpc_exception(_):
     exiftool_mock = mock.MagicMock()
@@ -78,6 +80,7 @@ async def test_metadata_process_grpc_exception(_):
             del result['sourcePath']
             del result['previewPath']
             del result['thumbnailPath']
+            del result['placeholder']
             assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'screenshot', 'mimeType': 'image/jpeg', 'width': 4022, 
                         'height': 3100, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -96,7 +99,7 @@ async def test_metadata_process_photo_preview_thumbnail_exception(_):
     preview_thumbnail_mock = mock.MagicMock()
     preview_thumbnail_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
-        with mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail', preview_thumbnail_mock):
+        with mock.patch('src.components.Metadata._generate_photo_preview_and_thumbnail_and_placeholder', preview_thumbnail_mock):
             result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
             assert result == None
 
@@ -113,6 +116,6 @@ async def test_metadata_process_video_preview_thumbnail_exception(_):
     preview_thumbnail_mock = mock.MagicMock()
     preview_thumbnail_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
-        with mock.patch('src.components.Metadata._generate_video_preview_and_thumbnail', preview_thumbnail_mock):
+        with mock.patch('src.components.Metadata._generate_video_preview_and_thumbnail_and_placeholder', preview_thumbnail_mock):
             result = await Metadata(None, params=['512']).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
             assert result == None

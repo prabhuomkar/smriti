@@ -1403,6 +1403,10 @@ components:
           readOnly: true
           type: string
           example: image/jpeg
+        placeholder:
+          readOnly: true
+          type: string
+          example: base64 placeholder image
         sourceUrl:
           readOnly: true
           type: string
