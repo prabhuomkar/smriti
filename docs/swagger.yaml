@@ -1378,6 +1378,13 @@ components:
         hidden:
           type: boolean
           example: false
+    MediaItemFace:
+      type: object
+      properties:
+        thumbnail:
+          readOnly: true
+          type: string
+          example: base-64-thumbnail-image
     MediaItem:
       type: object
       properties:
@@ -1406,7 +1413,7 @@ components:
         placeholder:
           readOnly: true
           type: string
-          example: base64 placeholder image
+          example: base-64-placeholder-image
         sourceUrl:
           readOnly: true
           type: string
@@ -1664,6 +1671,10 @@ components:
           type: string
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
+        coverMediaItemFaceId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
         createdAt:
           type: string
           format: date-time
@@ -1672,8 +1683,8 @@ components:
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
-        coverMediaItem:
-          $ref: '#/components/schemas/MediaItem'
+        coverMediaItemFace:
+          $ref: '#/components/schemas/MediaItemFace'
     UserRequest:
       type: object
       properties:
