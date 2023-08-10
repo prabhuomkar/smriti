@@ -3,6 +3,7 @@ import logging
 import datetime
 import random
 import re
+import base64
 
 import exiftool
 import rawpy
@@ -136,14 +137,13 @@ class Metadata(Component):
         if result['type'] == 'photo':
             # generate preview and thumbnail for a photo
             try:
-                preview_path, thumbnail_path = self._generate_photo_preview_and_thumbnail(
+                result['previewPath'], result['thumbnailPath'], \
+                    result['placeholder'] = self._generate_photo_preview_and_thumbnail_and_placeholder(
                     file_path, result['mimeType'], metadata)
-                result['previewPath'] = preview_path
-                result['thumbnailPath'] = thumbnail_path
-                logging.debug(f'extracted preview and thumbnail for \
+                logging.debug(f'extracted preview and thumbnail and placeholder for \
                             user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
-                logging.error(f'error generating preview and thumbnail for \
+                logging.error(f'error generating preview and thumbnail and placeholder for \
                               user {mediaitem_user_id} photo mediaitem {mediaitem_id}: {str(exp)}')
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
@@ -151,13 +151,12 @@ class Metadata(Component):
         elif result['type'] == 'video':
             # generate preview and thumbnail for a video
             try:
-                preview_path, thumbnail_path = self._generate_video_preview_and_thumbnail(file_path)
-                result['previewPath'] = preview_path
-                result['thumbnailPath'] = thumbnail_path
-                logging.debug(f'extracted preview and thumbnail for \
+                result['previewPath'], result['thumbnailPath'], \
+                    result['placeholder'] = self._generate_video_preview_and_thumbnail_and_placeholder(file_path)
+                logging.debug(f'extracted preview and thumbnail and placeholder for \
                             user {mediaitem_user_id} video mediaitem {mediaitem_id}')
             except Exception as exp:
-                logging.error(f'error generating preview and thumbnail for \
+                logging.error(f'error generating preview and thumbnail and placeholder for \
                               user {mediaitem_user_id} video mediaitem {mediaitem_id}: {str(exp)}')
                 result['status'] = 'FAILED'
                 self._grpc_save_mediaitem_metadata(result)
@@ -181,6 +180,7 @@ class Metadata(Component):
                 sourcePath=result['sourcePath'] if 'sourcePath' in result else None,
                 previewPath=result['previewPath'] if 'previewPath' in result else None,
                 thumbnailPath=result['thumbnailPath'] if 'thumbnailPath' in result else None,
+                placeholder=result['placeholder'] if 'placeholder' in result else None,
                 type=result['type'] if 'type' in result else None,
                 category=result['category'] if 'category' in result else None,
                 width=result['width'] if 'width' in result else None,
@@ -201,20 +201,34 @@ class Metadata(Component):
             logging.error(
                 f'error sending metadata for mediaitem {request.id}: {str(rpc_exp)}')
 
-    def _generate_photo_thumbnail(self, original_file_path: str, preview_file_path: str):
+    def _generate_photo_thumbnail_and_placeholder(self, original_file_path: str, preview_file_path: str):
         """Generate thumbnail image from photo"""
-        thumbnail_path = f'{original_file_path}-thumbnail'
-        with WandImage(filename=preview_file_path) as img:
-            lidx = 0 if img.size[0] > img.size[1] else 1
-            sidx = 1 if lidx == 0 else 0
-            percent = self.thumbnail_size/float(img.size[lidx])
-            size = int((float(img.size[sidx])*float(percent)))
-            img.resize(self.thumbnail_size, size)
-            with img.convert('jpeg') as converted:
-                converted.save(filename=thumbnail_path)
-        return thumbnail_path
+        try:
+            thumbnail_path = f'{original_file_path}-thumbnail'
+            placeholder = ''
+            with WandImage(filename=preview_file_path) as img:
+                lidx = 0 if img.size[0] > img.size[1] else 1
+                sidx = 1 if lidx == 0 else 0
+                percent = self.thumbnail_size/float(img.size[lidx])
+                size = int((float(img.size[sidx])*float(percent)))
+                img.resize(self.thumbnail_size, size)
+                with img.convert('jpeg') as converted:
+                    converted.save(filename=thumbnail_path)
+                lidx = 0 if img.size[0] > img.size[1] else 1
+                sidx = 1 if lidx == 0 else 0
+                percent = 8/float(img.size[lidx])
+                size = int((float(img.size[sidx])*float(percent)))
+                img.resize(8, size)
+                placeholder_bytes = img.make_blob()
+                placeholder = base64.b64encode(placeholder_bytes).decode('utf-8')
+            return thumbnail_path, str(placeholder)
+        except Exception as exp:
+            logging.error(f'error generating photo thumbnail and \
+                          placeholder for {original_file_path} {preview_file_path}: {str(exp)}')
+            return None, None
 
-    def _generate_photo_preview_and_thumbnail(self, original_file_path: str, mime_type: str, metadata: dict):
+    def _generate_photo_preview_and_thumbnail_and_placeholder(self, original_file_path: str, mime_type: str,
+                                                              metadata: dict):
         """Generate preview and thumbnail image for a photo"""
         preview_path = f'{original_file_path}-preview'
         if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES and not self._is_raw(metadata):
@@ -223,51 +237,72 @@ class Metadata(Component):
                     with WandImage(file=file_reader) as original:
                         with original.convert('jpeg') as converted:
                             converted.save(filename=preview_path)
-                return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
+                thumbnail_path, placeholder = self._generate_photo_thumbnail_and_placeholder(
+                    original_file_path, preview_path)
+                return preview_path, thumbnail_path, placeholder
             except Exception:
                 logging.warning(f'error generating preview for default photo mediaitem: {original_file_path}')
                 with rawpy.imread(original_file_path) as raw:
                     rgb = raw.postprocess(use_camera_wb=True)
                     img = PILImage.fromarray(rgb)
                     img.save(preview_path, format='JPEG')
-                return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
+                thumbnail_path, placeholder = self._generate_photo_thumbnail_and_placeholder(
+                    original_file_path, preview_path)
+                return preview_path, thumbnail_path, placeholder
         else:
             try:
                 with rawpy.imread(original_file_path) as raw:
                     rgb = raw.postprocess(use_camera_wb=True)
                     img = PILImage.fromarray(rgb)
                     img.save(preview_path, format='JPEG')
-                return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
+                thumbnail_path, placeholder = self._generate_photo_thumbnail_and_placeholder(
+                    original_file_path, preview_path)
+                return preview_path, thumbnail_path, placeholder
             except Exception:
                 logging.warning(f'error generating preview for raw photo mediaitem: {original_file_path}')
         with open(original_file_path, 'rb') as file_reader:
             with WandImage(file=file_reader) as original:
                 with original.convert('jpeg') as converted:
                     converted.save(filename=preview_path)
-        return preview_path, self._generate_photo_thumbnail(original_file_path, preview_path)
+                thumbnail_path, placeholder = self._generate_photo_thumbnail_and_placeholder(
+                    original_file_path, preview_path)
+        return preview_path, thumbnail_path, placeholder
 
-    def _generate_video_thumbnail(self, preview_video_path: str):
+    def _generate_video_thumbnail_and_placeholder(self, preview_video_path: str):
         """Generate thumbnail image from video"""
-        clip = VideoFileClip(preview_video_path)
-        video_thumbnail_path = f'{preview_video_path}_thumbnail.jpeg'
-        clip.save_frame(video_thumbnail_path, t=random.uniform(0.1, clip.duration))
-        with WandImage(filename=video_thumbnail_path) as img:
-            lidx = 0 if img.size[0] > img.size[1] else 1
-            sidx = 1 if lidx == 0 else 0
-            percent = self.thumbnail_size/float(img.size[lidx])
-            size = int((float(img.size[sidx])*float(percent)))
-            img.resize(self.thumbnail_size, size)
-            with img.convert('jpeg') as converted:
-                converted.save(filename=video_thumbnail_path)
-        return video_thumbnail_path
+        try:
+            clip = VideoFileClip(preview_video_path)
+            video_thumbnail_path = f'{preview_video_path}_thumbnail.jpeg'
+            clip.save_frame(video_thumbnail_path, t=random.uniform(0.1, clip.duration))
+            placeholder = ''
+            with WandImage(filename=video_thumbnail_path) as img:
+                lidx = 0 if img.size[0] > img.size[1] else 1
+                sidx = 1 if lidx == 0 else 0
+                percent = self.thumbnail_size/float(img.size[lidx])
+                size = int((float(img.size[sidx])*float(percent)))
+                img.resize(self.thumbnail_size, size)
+                with img.convert('jpeg') as converted:
+                    converted.save(filename=video_thumbnail_path)
+                lidx = 0 if img.size[0] > img.size[1] else 1
+                sidx = 1 if lidx == 0 else 0
+                percent = 8/float(img.size[lidx])
+                size = int((float(img.size[sidx])*float(percent)))
+                img.resize(8, size)
+                placeholder_bytes = img.make_blob()
+                placeholder = base64.b64encode(placeholder_bytes).decode('utf-8')
+            return video_thumbnail_path, str(placeholder)
+        except Exception as exp:
+            logging.error(f'error generating video thumbnail and \
+                          placeholder for {preview_video_path}: {str(exp)}')
+            return None, None
 
-    def _generate_video_preview_and_thumbnail(self, original_file_path: str):
+    def _generate_video_preview_and_thumbnail_and_placeholder(self, original_file_path: str):
         """Generate preview and thumbnail image for a video"""
         video = VideoFileClip(original_file_path)
         video_preview_path = f'{original_file_path}-preview.mp4'
         video.write_videofile(video_preview_path, codec='libx264', logger=None, verbose=False)
-        video_thumbnail_path = self._generate_video_thumbnail(video_preview_path)
-        return video_preview_path, video_thumbnail_path
+        video_thumbnail_path, placeholder = self._generate_video_thumbnail_and_placeholder(video_preview_path)
+        return video_preview_path, video_thumbnail_path, placeholder
 
     def _get_mediaitem_category(self, metadata: dict, result: dict) -> str:
         """Get mediaitem category from metadata"""

@@ -126,6 +126,9 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		slog.Error("error uploading original file for mediaitem %s: %+v", req.Id, err)
 		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
 	}
+	if req.Placeholder != nil {
+		mediaItem.Placeholder = *req.Placeholder
+	}
 	if req.PreviewPath != nil {
 		mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
 		if err != nil {

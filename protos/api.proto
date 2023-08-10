@@ -14,22 +14,23 @@ message MediaItemMetadataRequest {
     string status = 3;
     optional string mimeType = 4;
     string sourcePath = 5;
-    optional string previewPath = 6;
-    optional string thumbnailPath = 7;
-    string type = 8;
-    string category = 9;
-    optional int32 width = 10;
-    optional int32 height = 11;
-    optional string creationTime = 12;
-    optional string cameraMake = 13;
-    optional string cameraModel = 14;
-    optional string focalLength = 15;
-    optional string apertureFNumber = 16;
-    optional string isoEquivalent = 17;
-    optional string exposureTime = 18;
-    optional string fps = 19;
-    optional double latitude = 20;
-    optional double longitude = 21;
+    optional string placeholder = 6;
+    optional string previewPath = 7;
+    optional string thumbnailPath = 8;
+    string type = 9;
+    string category = 10;
+    optional int32 width = 11;
+    optional int32 height = 12;
+    optional string creationTime = 13;
+    optional string cameraMake = 14;
+    optional string cameraModel = 15;
+    optional string focalLength = 16;
+    optional string apertureFNumber = 17;
+    optional string isoEquivalent = 18;
+    optional string exposureTime = 19;
+    optional string fps = 20;
+    optional double latitude = 21;
+    optional double longitude = 22;
 }
 
 message MediaItemPlaceRequest {
