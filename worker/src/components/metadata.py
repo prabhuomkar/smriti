@@ -36,9 +36,9 @@ class Metadata(Component):
         'video/webm', 'video/3gpp', 'video/3gpp2',
     ]
 
-    def __init__(self, api_stub: APIStub, params: list[str]) -> None:
+    def __init__(self, api_stub: APIStub, params: dict) -> None:
         super().__init__('metadata', api_stub)
-        self.thumbnail_size = int(params[0])
+        self.thumbnail_size = int(params['thumbnail_size'])
 
     # pylint: disable=too-many-statements,too-many-branches
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, mediaitem_file_path: str, _: dict) -> dict:

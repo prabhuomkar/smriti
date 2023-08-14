@@ -8,7 +8,7 @@ from src.providers.ocr.utils import init_ocr
 
 class OCR(Component):
     """OCR Component"""
-    def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
+    def __init__(self, api_stub: APIStub, source: str, params: dict) -> None:
         super().__init__('ocr', api_stub)
         self.model = init_ocr(source, params)
 

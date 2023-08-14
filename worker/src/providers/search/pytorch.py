@@ -10,11 +10,11 @@ from transformers import AutoTokenizer, AutoImageProcessor
 class PyTorchModule:
     """PyTorchModule Search"""
 
-    def __init__(self, params: list[str]) -> None:
-        self.tokenizer = AutoTokenizer.from_pretrained(f'/models/search/{params[0]}')
-        self.processor = AutoImageProcessor.from_pretrained(f'/models/search/{params[1]}')
-        self.text_module = torch.jit.load(f'/models/search/{params[2]}')
-        self.vision_module = torch.jit.load(f'/models/search/{params[3]}')
+    def __init__(self, params: dict) -> None:
+        self.tokenizer = AutoTokenizer.from_pretrained(f'/models/search/{params["tokenizer_dir"]}')
+        self.processor = AutoImageProcessor.from_pretrained(f'/models/search/{params["processor_dir"]}')
+        self.text_module = torch.jit.load(f'/models/search/{params["text_file"]}')
+        self.vision_module = torch.jit.load(f'/models/search/{params["vision_file"]}')
 
     def generate_embedding(self, input_type: str, data: any):
         """Generate text embedding from text"""

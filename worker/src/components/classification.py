@@ -11,7 +11,7 @@ from src.providers.classification.utils import init_classification
 
 class Classification(Component):
     """Classification Component"""
-    def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
+    def __init__(self, api_stub: APIStub, source: str, params: dict) -> None:
         super().__init__('classification', api_stub)
         self.model = init_classification(source, params)
 

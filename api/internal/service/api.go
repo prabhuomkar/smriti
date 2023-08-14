@@ -30,9 +30,9 @@ type Service struct {
 
 func (s *Service) GetWorkerConfig(_ context.Context, _ *empty.Empty) (*api.ConfigResponse, error) {
 	type WorkerTask struct {
-		Name   string   `json:"name"`
-		Source string   `json:"source,omitempty"`
-		Params []string `json:"params,omitempty"`
+		Name   string `json:"name"`
+		Source string `json:"source,omitempty"`
+		Params string `json:"params,omitempty"`
 	}
 	var workerTasks []WorkerTask
 	if len(s.Config.ML.MetadataParams) > 0 {

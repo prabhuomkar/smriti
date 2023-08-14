@@ -10,15 +10,15 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 class PyTorchModule:
     """PyTorchModule Faces"""
 
-    def __init__(self, params: list[str]) -> None:
+    def __init__(self, params: dict) -> None:
         os.environ['TORCH_HOME'] = '/'
         try:
             os.symlink('/models/faces/', '/checkpoints')
         except Exception as exp:
             logging.error(f'error creating symlink: {str(exp)}')
-        self.prob_threshold = float(params[1])
+        self.prob_threshold = float(params['face_threshold'])
         self.det_model = MTCNN(keep_all=True)
-        self.rec_model = InceptionResnetV1(pretrained=params[2], classify=False)
+        self.rec_model = InceptionResnetV1(pretrained=params['model'], classify=False)
         if self.rec_model:
             self.rec_model.eval()
 

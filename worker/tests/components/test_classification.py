@@ -12,7 +12,7 @@ from src.protos.api_pb2_grpc import APIStub
 @mock.patch('src.components.Classification._grpc_save_mediaitem_thing', return_value=None)
 @pytest.mark.asyncio
 async def test_classification_process_success(_, __):
-    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', ['model_name.pt'])
+    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', {'file':'model_name.pt'})
     classification.model = mock.MagicMock()
     classification.model.classify.return_value = dict({'userId':'userId','id':'id','name':'name'})
     result = await classification.process('mediaitem_user_id', 'mediaitem_id', None,
@@ -23,7 +23,7 @@ async def test_classification_process_success(_, __):
 @mock.patch('src.components.Classification._grpc_save_mediaitem_thing', return_value=None)
 @pytest.mark.asyncio
 async def test_classification_process_success_with_keywords(_, __):
-    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', ['model_name.pt'])
+    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', {'file':'model_name.pt'})
     classification.model = mock.MagicMock()
     classification.model.classify.return_value = dict({'userId':'userId','id':'id','name':'name'})
     result = await classification.process('mediaitem_user_id', 'mediaitem_id', None,
@@ -33,14 +33,14 @@ async def test_classification_process_success_with_keywords(_, __):
 @mock.patch('torch.jit.load', return_value=None)
 @pytest.mark.asyncio
 async def test_classification_process_success_no_metadata(_):
-    result = await Classification(None, 'pytorch', ['model_name.pt']).process('mediaitem_user_id', 'mediaitem_id', None, None)
+    result = await Classification(None, 'pytorch', {'file':'model_name.pt'}).process('mediaitem_user_id', 'mediaitem_id', None, None)
     assert result == None
 
 @mock.patch('torch.jit.load', return_value=None)
 @mock.patch('src.components.Classification._grpc_save_mediaitem_thing', return_value=None)
 @pytest.mark.asyncio
 async def test_classification_process_failed_process_exception(_, __):
-    classification = Classification(None, 'pytorch', ['model_name.pt'])
+    classification = Classification(None, 'pytorch', {'file':'model_name.pt'})
     classification.model = mock.MagicMock()
     classification.model.classify.side_effect = Exception('some exception')
     result = await classification.process('mediaitem_user_id', 'mediaitem_id', None,
@@ -50,7 +50,7 @@ async def test_classification_process_failed_process_exception(_, __):
 @mock.patch('torch.jit.load', return_value=None)
 @pytest.mark.asyncio
 async def test_classification_process_grpc_exception(_):
-    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', ['model_name.pt'])
+    classification = Classification(APIStub(channel=grpc.insecure_channel('')), 'pytorch', {'file':'model_name.pt'})
     classification.model = mock.MagicMock()
     classification.model.classify.return_value = dict({'userId':'userId','id':'id','name':'name'})
     grpc_mock = mock.MagicMock()

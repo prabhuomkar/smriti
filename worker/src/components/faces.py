@@ -16,10 +16,10 @@ from src.providers.faces.utils import init_faces
 
 class Faces(Component):
     """Faces Component"""
-    def __init__(self, api_stub: APIStub, source: str, params: list[str]) -> None:
+    def __init__(self, api_stub: APIStub, source: str, params: dict) -> None:
         super().__init__('faces', api_stub)
         self.source = init_faces(source, params)
-        schedule.every(int(params[0])).minutes.do(self.cluster)
+        schedule.every(int(params['minutes'])).minutes.do(self.cluster)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
         """Process faces detection for mediaitem"""

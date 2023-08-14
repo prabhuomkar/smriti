@@ -12,7 +12,7 @@ from src.providers.search.pytorch import PyTorchModule
 @mock.patch('transformers.AutoTokenizer.from_pretrained', return_value=None)
 @mock.patch('transformers.AutoImageProcessor.from_pretrained', return_value=None)
 def test_pytorch_text_success(_, __, ___):
-    pytorch_module = PyTorchModule(['tokenizer_path', 'processor_path', 'text_model.pt', 'vision_model.pt'])
+    pytorch_module = PyTorchModule({'tokenizer_dir':'tokenizer_path','processor_dir':'processor_path','text_file':'text_model.pt','vision_file':'vision_model.pt'})
     pytorch_module.text_module = mock.MagicMock()
     pytorch_module.text_module.forward.return_value = torch.tensor([0.302,0.92,0.38])
     pytorch_module.vision_module = mock.MagicMock()
@@ -29,7 +29,7 @@ def test_pytorch_text_success(_, __, ___):
 @mock.patch('transformers.AutoImageProcessor.from_pretrained', return_value=None)
 @mock.patch('PIL.Image.open', return_value=np.ndarray((1, 1)))
 def test_pytorch_photo_success(_, __, ___, ____):
-    pytorch_module = PyTorchModule(['tokenizer_path', 'processor_path', 'text_model.pt', 'vision_model.pt'])
+    pytorch_module = PyTorchModule({'tokenizer_dir':'tokenizer_path','processor_dir':'processor_path','text_file':'text_model.pt','vision_file':'vision_model.pt'})
     pytorch_module.text_module = mock.MagicMock()
     pytorch_module.text_module.forward.return_value = torch.tensor([0.302,0.92,0.38])
     pytorch_module.vision_module = mock.MagicMock()
@@ -45,7 +45,7 @@ def test_pytorch_photo_success(_, __, ___, ____):
 @mock.patch('transformers.AutoTokenizer.from_pretrained', return_value=None)
 @mock.patch('transformers.AutoImageProcessor.from_pretrained', return_value=None)
 def test_pytorch_failed_empty_response(_, __, ___):
-    pytorch_module = PyTorchModule(['tokenizer_path', 'processor_path', 'text_model.pt', 'vision_model.pt'])
+    pytorch_module = PyTorchModule({'tokenizer_dir':'tokenizer_path','processor_dir':'processor_path','text_file':'text_model.pt','vision_file':'vision_model.pt'})
     pytorch_module.text_module = mock.MagicMock()
     pytorch_module.text_module.forward.return_value = None
     pytorch_module.vision_module = mock.MagicMock()
@@ -61,7 +61,7 @@ def test_pytorch_failed_empty_response(_, __, ___):
 @mock.patch('transformers.AutoTokenizer.from_pretrained', return_value=None)
 @mock.patch('transformers.AutoImageProcessor.from_pretrained', return_value=None)
 def test_pytorch_failed_exception(_, __, ___):
-    pytorch_module = PyTorchModule(['tokenizer_path', 'processor_path', 'text_model.pt', 'vision_model.pt'])
+    pytorch_module = PyTorchModule({'tokenizer_dir':'tokenizer_path','processor_dir':'processor_path','text_file':'text_model.pt','vision_file':'vision_model.pt'})
     pytorch_module.text_module = mock.MagicMock()
     pytorch_module.text_module.forward.side_effect = Exception('some error')
     pytorch_module.vision_module = mock.MagicMock()

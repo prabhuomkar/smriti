@@ -149,17 +149,16 @@ func TestGetWorkerConfig(t *testing.T) {
 			"get worker config with success with all config",
 			&config.Config{ML: config.ML{
 				Places: true, PlacesProvider: "openstreetmap",
-				Classification: true, ClassificationProvider: "pytorch", ClassificationParams: []string{"model-file-name.pt"},
-				OCR: true, OCRProvider: "paddlepaddle", OCRParams: []string{"ocr-v1-model.pt"},
-				Search: true, SearchProvider: "pytorch", SearchParams: []string{"search-model.pt"},
-				Faces: true, FacesParams: []string{"http://faces/model/link"},
-				MetadataParams: []string{"512"},
+				Classification: true, ClassificationProvider: "pytorch", ClassificationParams: `{"file":"model-file-name.pt"}`,
+				OCR: true, OCRProvider: "paddlepaddle", OCRParams: `{"det_model_dir":"/det_infer"}`,
+				Search: true, SearchProvider: "pytorch", SearchParams: `{"tokenizer_dir":"/tokenizer"}`,
+				Faces: true, FacesParams: `{"face_threshold":"0.9"}`,
+				MetadataParams: `{"thumbnail_size":"512"}`,
 			}},
-			[]byte(`[{"name":"metadata","params":["512"]},` +
-				`{"name":"places","source":"openstreetmap"},{"name":"classification","source":"pytorch",` +
-				`"params":["model-file-name.pt"]},{"name":"ocr","source":"paddlepaddle","params":["ocr-v1-model.pt"]}` +
-				`,{"name":"search","source":"pytorch","params":["search-model.pt"]}` +
-				`,{"name":"faces","params":["http://faces/model/link"]}]`),
+			[]byte(`[{"name":"metadata","params":"{\"thumbnail_size\":\"512\"}"},{"name":"places","source":"openstreetmap"},` +
+				`{"name":"classification","source":"pytorch","params":"{\"file\":\"model-file-name.pt\"}"},{"name":"ocr","source":"paddlepaddle",` +
+				`"params":"{\"det_model_dir\":\"/det_infer\"}"},{"name":"search","source":"pytorch","params":"{\"tokenizer_dir\":\"/tokenizer\"}"},` +
+				`{"name":"faces","params":"{\"face_threshold\":\"0.9\"}"}]`),
 			nil,
 		},
 		{
