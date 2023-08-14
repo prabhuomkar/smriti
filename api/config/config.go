@@ -56,21 +56,21 @@ type (
 
 	// ML ...
 	ML struct {
-		Places                 bool     `envconfig:"SMRITI_ML_PLACES" default:"true"`
-		Classification         bool     `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
-		OCR                    bool     `envconfig:"SMRITI_ML_OCR" default:"true"`
-		Search                 bool     `envconfig:"SMRITI_ML_SEARCH" default:"true"`
-		Faces                  bool     `envconfig:"SMRITI_ML_FACES" default:"true"`
-		PlacesProvider         string   `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
-		ClassificationProvider string   `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
-		ClassificationParams   []string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS" default:"classification_v20230731.pt"`
-		OCRProvider            string   `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
-		OCRParams              []string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"det_infer,rec_infer,cls_infer"`
-		SearchProvider         string   `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
-		SearchParams           []string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"search_tokenizer,search_processor,search_text_v20230731.pt,search_vision_v20230731.pt"`
-		FacesProvider          string   `envconfig:"SMRITI_ML_FACES_PROVIDER" default:"pytorch"`
-		FacesParams            []string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"1,0.9,vggface2"`
-		MetadataParams         []string `envconfig:"SMRITI_ML_METADATA_PARAMS" default:"512"`
+		Places                 bool   `envconfig:"SMRITI_ML_PLACES" default:"true"`
+		Classification         bool   `envconfig:"SMRITI_ML_CLASSIFICATION" default:"true"`
+		OCR                    bool   `envconfig:"SMRITI_ML_OCR" default:"true"`
+		Search                 bool   `envconfig:"SMRITI_ML_SEARCH" default:"true"`
+		Faces                  bool   `envconfig:"SMRITI_ML_FACES" default:"true"`
+		PlacesProvider         string `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
+		ClassificationProvider string `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
+		ClassificationParams   string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS" default:"{\"file\":\"classification_v20230731.pt\"}"`
+		OCRProvider            string `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
+		OCRParams              string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"{\"det_model_dir\":\"det_infer\",\"rec_model_dir\":\"rec_infer\",\"cls_model_dir\":\"cls_infer\"}"`
+		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
+		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v20230731.pt\",\"vision_file\":\"search_vision_v20230731.pt\"}"` //nolint:lll
+		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER" default:"pytorch"`
+		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"{\"minutes\":\"1\",\"face_threshold\":\"0.9\",\"model\":\"vggface2\"}"`
+		MetadataParams         string `envconfig:"SMRITI_ML_METADATA_PARAMS" default:"{\"thumbnail_size\":\"512\"}"`
 	}
 
 	// Feature ...

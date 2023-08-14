@@ -95,6 +95,8 @@ async def serve() -> None:
     components = []
     search_model = None
     for item in cfg:
+        if 'params' in item:
+            item['params'] = json.loads(item['params'])
         if item['name'] == 'metadata':
             components.append(Metadata(api_stub=api_stub, params=item['params']))
         elif item['name'] == 'places':

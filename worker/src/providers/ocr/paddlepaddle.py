@@ -10,9 +10,11 @@ logging.getLogger().handlers = []
 class PaddleModule:
     """PaddleModule OCR"""
 
-    def __init__(self, params: list[str]) -> None:
-        self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en', det_model_dir=f'/models/ocr/{params[0]}',
-                               rec_model_dir=f'/models/ocr/{params[1]}', cls_model_dir=f'/models/ocr/{params[2]}')
+    def __init__(self, params: dict) -> None:
+        self.model = PaddleOCR(show_log=False, use_angle_cls=True, lang='en',
+                               det_model_dir=f'/models/ocr/{params["det_model_dir"]}',
+                               rec_model_dir=f'/models/ocr/{params["rec_model_dir"]}',
+                               cls_model_dir=f'/models/ocr/{params["cls_model_dir"]}')
 
     def extract(self, mediaitem_user_id: str, mediaitem_id: str, mediaitem_type: str, input_file: str) -> dict:
         """Extract text from mediaitem"""
