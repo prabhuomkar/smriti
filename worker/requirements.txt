@@ -5,6 +5,7 @@ grpcio-tools
 facenet-pytorch
 minio
 moviepy
+ngt
 paddlepaddle==2.4.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
 paddleocr
 Pillow

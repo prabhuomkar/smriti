@@ -69,7 +69,7 @@ type (
 		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
 		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v20230731.pt\",\"vision_file\":\"search_vision_v20230731.pt\"}"` //nolint:lll
 		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER" default:"pytorch"`
-		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"{\"minutes\":\"1\",\"face_threshold\":\"0.9\",\"model\":\"vggface2\"}"`
+		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"{\"minutes\":\"1\",\"face_threshold\":\"0.9\",\"model\":\"vggface2\",\"clustering\":\"ngt\"}"`
 		MetadataParams         string `envconfig:"SMRITI_ML_METADATA_PARAMS" default:"{\"thumbnail_size\":\"512\"}"`
 	}
 

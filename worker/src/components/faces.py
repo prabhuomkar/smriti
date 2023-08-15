@@ -5,11 +5,12 @@ from grpc import RpcError
 import schedule
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from annoy import AnnoyIndex
+import ngtpy
 
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import (  # pylint: disable=no-name-in-module
     MediaItemFacesRequest, MediaItemEmbedding, MediaItemFacePeople,
-    MediaItemPeopleRequest, MediaItemFaceEmbeddingsRequest )
+    MediaItemPeopleRequest, MediaItemFaceEmbeddingsRequest, MediaItemFaceEmbedding)
 from src.components.component import Component
 from src.providers.faces.utils import init_faces
 
@@ -19,6 +20,8 @@ class Faces(Component):
     def __init__(self, api_stub: APIStub, source: str, params: dict) -> None:
         super().__init__('faces', api_stub)
         self.source = init_faces(source, params)
+        self.clustering_framework = params['clustering']
+        self.data = None
         schedule.every(int(params['minutes'])).minutes.do(self.cluster)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:
@@ -50,19 +53,20 @@ class Faces(Component):
                 logging.debug(f'clustering total {len(mediaitem_face_embeddings)} faces for user {user}')
                 if len(mediaitem_face_embeddings) == 0:
                     continue
-                # build tree
-                tree = AnnoyIndex(len(mediaitem_face_embeddings[0].embedding.embedding), 'euclidean')
+                # build tree/index
+                if self.clustering_framework == 'annoy':
+                    self._build_annoy(mediaitem_face_embeddings)
+                elif self.clustering_framework == 'ngt':
+                    self._build_ngt(mediaitem_face_embeddings)
+                # select items which need to be clustered
                 mediaitems_to_cluster = {}
                 new_cluster_idx = -1
                 for i, mediaitem_face_embedding in enumerate(mediaitem_face_embeddings):
                     if mediaitem_face_embedding.peopleId is not None and len(mediaitem_face_embedding.peopleId) == 0:
                         mediaitems_to_cluster[i] = None
-                    tree.add_item(i, mediaitem_face_embedding.embedding.embedding)
-                tree.build(len(mediaitem_face_embeddings))
                 # assign and get people for new mediaitems
                 for idx in mediaitems_to_cluster:
-                    nn_idx, nn_dist = tree.get_nns_by_item(idx, n=2, include_distances=True)
-                    nn_idx, nn_dist = nn_idx[1], nn_dist[1]
+                    nn_idx, nn_dist = self._get_nn_for_mediaitem(idx)
                     if nn_dist > 0.9:
                         new_cluster_idx += 1
                         mediaitems_to_cluster[idx] = f'{new_cluster_idx}'
@@ -117,3 +121,31 @@ class Faces(Component):
         except RpcError as rpc_exp:
             logging.error(
                 f'error sending people for mediaitem {request.id}: {str(rpc_exp)}')
+
+    def _build_annoy(self, mediaitem_face_embeddings: list[MediaItemFaceEmbedding]):
+        """Cluster faces using Annoy library"""
+        # build tree
+        self.data = AnnoyIndex(len(mediaitem_face_embeddings[0].embedding.embedding), 'euclidean')
+        for i, mediaitem_face_embedding in enumerate(mediaitem_face_embeddings):
+            self.data.add_item(i, mediaitem_face_embedding.embedding.embedding)
+        self.data.build(len(mediaitem_face_embeddings))
+
+    def _build_ngt(self, mediaitem_face_embeddings: list[MediaItemFaceEmbedding]):
+        """Cluster faces using NGT library"""
+        # build index
+        ngtpy.create(b'index', len(mediaitem_face_embeddings[0].embedding.embedding))
+        self.data = ngtpy.Index(b'index')
+        for _, mediaitem_face_embedding in enumerate(mediaitem_face_embeddings):
+            self.data.insert(mediaitem_face_embedding.embedding.embedding)
+        self.data.build_index()
+        self.data.save()
+
+    def _get_nn_for_mediaitem(self, mediaitem_idx: int):
+        """Get nearest neighbour index for mediaitem"""
+        if self.clustering_framework == 'annoy':
+            nn_idx, nn_dist = self.data.get_nns_by_item(mediaitem_idx, n=2, include_distances=True)
+            return (nn_idx[1], nn_dist[1])
+        if self.clustering_framework == 'ngt':
+            results = self.data.search(self.data.get_object(mediaitem_idx), size=2)
+            return results[1]
+        return None
