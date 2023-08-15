@@ -12,7 +12,7 @@ from src.protos.api_pb2 import GetUsersResponse, MediaItemFaceEmbeddingsResponse
 @mock.patch('src.providers.faces.PyTorchModule.__init__', return_value=None)
 @pytest.mark.asyncio
 async def test_faces_process_success(_):
-    faces = Faces(APIStub(channel=grpc.insecure_channel('')), 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'})
+    faces = Faces(APIStub(channel=grpc.insecure_channel('')), 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.source = mock.MagicMock()
     faces.source.detect.return_value = dict({'userId':'userId','id':'id','embeddings':[[0.4,0.2]]})
     result = await faces.process('mediaitem_user_id', 'mediaitem_id', None,
@@ -22,13 +22,13 @@ async def test_faces_process_success(_):
 @mock.patch('src.providers.faces.PyTorchModule.__init__', return_value=None)
 @pytest.mark.asyncio
 async def test_faces_process_success_no_result(_):
-    result = await Faces(None, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'}).process('mediaitem_user_id', 'mediaitem_id', None, None)
+    result = await Faces(None, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'}).process('mediaitem_user_id', 'mediaitem_id', None, None)
     assert result == None
 
 @mock.patch('src.providers.faces.PyTorchModule.__init__', return_value=None)
 @pytest.mark.asyncio
 async def test_faces_process_failed_process_exception(_):
-    faces = Faces(None, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'})
+    faces = Faces(None, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.source = mock.MagicMock()
     faces.source.detect.side_effect = Exception('some exception')
     result = await faces.process('mediaitem_user_id', 'mediaitem_id', None,
@@ -51,7 +51,7 @@ async def test_faces_cluster_success(_, __):
             MediaItemFaceEmbedding(id='face-id-5', mediaItemId='mediaitem-id-5', peopleId='', embedding=MediaItemEmbedding(embedding=[33.42,41.24])),
         ]
     )
-    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'})
+    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.cluster()
 
 @mock.patch('src.providers.faces.PyTorchModule.__init__', return_value=None)
@@ -61,7 +61,7 @@ async def test_faces_cluster_success_no_embeddings(_, __):
     api_stub_mock = mock.MagicMock()
     api_stub_mock.GetUsers.return_value = GetUsersResponse(users=['user-id'])
     api_stub_mock.GetMediaItemFaceEmbeddings.return_value = MediaItemFaceEmbeddingsResponse(mediaItemFaceEmbeddings=[])
-    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'})
+    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.cluster()
 
 @mock.patch('src.providers.faces.PyTorchModule.__init__', return_value=None)
@@ -70,7 +70,7 @@ async def test_faces_cluster_failed_cluster_exception(_):
     api_stub_mock = mock.MagicMock()
     api_stub_mock.GetUsers.return_value = GetUsersResponse(users=['user-id'])
     api_stub_mock.GetMediaItemFaceEmbeddings.side_effect = grpc.RpcError(Exception('some error'))
-    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'})
+    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.cluster()
 
 @mock.patch('src.providers.faces.PyTorchModule.__init__', return_value=None)
@@ -85,5 +85,5 @@ async def test_faces_cluster_failed_grpc_exception(_):
         ]
     )
     api_stub_mock.SaveMediaItemPeople.side_effect = grpc.RpcError(Exception('some error'))
-    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2'})
+    faces = Faces(api_stub_mock, 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.cluster()

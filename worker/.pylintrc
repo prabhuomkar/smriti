@@ -2,5 +2,6 @@
 ignore=tests
 ignore-patterns=.*_pb2.py,.*_grpc.py,.*.txt,.*file,.*.toml,.*.xml,.*.md
 disable=too-few-public-methods,logging-fstring-interpolation,broad-except
+extension-pkg-allow-list=ngtpy
 [FORMAT]
 max-line-length=120
