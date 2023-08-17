@@ -24,7 +24,10 @@ setup-tests:
 	@cd tests; \
 		echo "[setup-tests]: Installing dependencies"; \
 		make setup
-start:
+setup-models:
+	@echo "Setting up models..."; \
+		python3 scripts/setup_models.py
+start: setup-models
 	@echo "Starting smriti services..."; \
 		docker compose up -d
 stop:
@@ -33,6 +36,3 @@ stop:
 gen-test-data: start
 	@echo "Generating test data"; \
 		python3 scripts/generate_test_data.py
-setup-models:
-	@echo "Setting up models..."; \
-		python3 scripts/setup_models.py
