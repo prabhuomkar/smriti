@@ -31,7 +31,7 @@ start: setup-models
 	@echo "Starting smriti services..."; \
 		docker compose up -d
 stop:
-	@echo "Starting smriti services..."; \
+	@echo "Stopping smriti services..."; \
 		docker compose down
 gen-test-data: start
 	@echo "Generating test data"; \

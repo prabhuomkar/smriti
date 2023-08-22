@@ -9,7 +9,8 @@ import schedule
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
-from src.components import Component, Metadata, Places, Classification, OCR, Faces, Finalize
+from src.components.component import Component
+from src.components.finalize import Finalize
 from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
@@ -69,7 +70,7 @@ async def run_pending() -> None:
         schedule.run_pending()
         await asyncio.sleep(1)
 
-async def serve() -> None:
+async def serve() -> None: # pylint: disable=too-many-locals
     """Main serve function"""
     # start metrics
     start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
@@ -98,14 +99,19 @@ async def serve() -> None:
         if 'params' in item:
             item['params'] = json.loads(item['params'])
         if item['name'] == 'metadata':
+            from src.components.metadata import Metadata
             components.append(Metadata(api_stub=api_stub, params=item['params']))
         elif item['name'] == 'places':
+            from src.components.places import Places
             components.append(Places(api_stub=api_stub, source=item['source']))
         elif item['name'] == 'classification':
+            from src.components.classification import Classification
             components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'ocr':
+            from src.components.ocr import OCR
             components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'faces':
+            from src.components.faces import Faces
             components.append(Faces(api_stub=api_stub, source=item['source'], params=item['params']))
         elif item['name'] == 'search':
             search_model = init_search(name=item['source'], params=item['params'])
