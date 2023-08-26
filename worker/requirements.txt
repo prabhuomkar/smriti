@@ -1,20 +1,22 @@
 annoy
 asyncio
+fastdeploy
 grpcio
 grpcio-tools
 facenet-pytorch
+fastdeploy-python -f https://www.paddlepaddle.org.cn/whl/fastdeploy.html
 minio
 moviepy
-ngt
-paddlepaddle==2.4.2 -i https://pypi.tuna.tsinghua.edu.cn/simple
-paddleocr
+onnxruntime
+opencv-python
+paddle2onnx
 Pillow
 prometheus-client
 PyExifTool
 rawpy
 requests
 schedule
-Wand
 torch
 torchvision
 transformers
+Wand
