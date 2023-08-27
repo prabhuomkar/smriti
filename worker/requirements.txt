@@ -7,9 +7,7 @@ facenet-pytorch
 fastdeploy-python -f https://www.paddlepaddle.org.cn/whl/fastdeploy.html
 minio
 moviepy
-onnxruntime
 opencv-python
-paddle2onnx
 Pillow
 prometheus-client
 PyExifTool
