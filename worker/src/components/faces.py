@@ -5,7 +5,6 @@ from grpc import RpcError
 import schedule
 from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
 from annoy import AnnoyIndex
-import ngtpy
 
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import (  # pylint: disable=no-name-in-module
@@ -56,8 +55,6 @@ class Faces(Component):
                 # build tree/index
                 if self.clustering_framework == 'annoy':
                     self._build_annoy(mediaitem_face_embeddings)
-                elif self.clustering_framework == 'ngt':
-                    self._build_ngt(mediaitem_face_embeddings)
                 # select items which need to be clustered
                 mediaitems_to_cluster = {}
                 new_cluster_idx = -1
@@ -130,22 +127,9 @@ class Faces(Component):
             self.data.add_item(i, mediaitem_face_embedding.embedding.embedding)
         self.data.build(len(mediaitem_face_embeddings))
 
-    def _build_ngt(self, mediaitem_face_embeddings: list[MediaItemFaceEmbedding]):
-        """Cluster faces using NGT library"""
-        # build index
-        ngtpy.create(b'index', len(mediaitem_face_embeddings[0].embedding.embedding))
-        self.data = ngtpy.Index(b'index')
-        for _, mediaitem_face_embedding in enumerate(mediaitem_face_embeddings):
-            self.data.insert(mediaitem_face_embedding.embedding.embedding)
-        self.data.build_index()
-        self.data.save()
-
     def _get_nn_for_mediaitem(self, mediaitem_idx: int):
         """Get nearest neighbour index for mediaitem"""
         if self.clustering_framework == 'annoy':
             nn_idx, nn_dist = self.data.get_nns_by_item(mediaitem_idx, n=2, include_distances=True)
             return (nn_idx[1], nn_dist[1])
-        if self.clustering_framework == 'ngt':
-            results = self.data.search(self.data.get_object(mediaitem_idx), size=2)
-            return results[1]
         return None

@@ -3,7 +3,7 @@ import os
 import requests
 import zipfile
 
-DOWNLOAD_MODELS_URL='https://www.dropbox.com/scl/fi/czw3bz5w8mcioqu393xkm/models.zip?rlkey=l1olp762n7iu3qmh4ie52ic3w&dl=1'
+DOWNLOAD_MODELS_URL='https://www.dropbox.com/scl/fi/3ee7svllbfif1uvj2p5au/models.zip?rlkey=rbdj82ptlkshw26wsc7kh9vd7&dl=1'
 
 
 print('ℹ️ downloading models, hang on...')

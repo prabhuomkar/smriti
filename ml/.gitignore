@@ -2,6 +2,7 @@
 *.pdmodel
 *.pdiparams
 *.pdiparams.info
+*.txt
 __pycache__/
 *.py[cod]
 *$py.class
@@ -52,3 +53,4 @@ Thumbs.db
 .DS_Store
 .idea/
 *checkpoints*
+*.onnx
