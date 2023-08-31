@@ -4,7 +4,7 @@ Enable this feature using API Configuration:
 SMRITI_FEATURE_THINGS: true
 SMRITI_ML_CLASSIFICATION: true
 SMRITI_ML_CLASSIFICATION_PROVIDER: pytorch
-SMRITI_ML_CLASSIFICATION_PARAMS: resnet-model.pt
+SMRITI_ML_CLASSIFICATION_PARAMS: {"file":"classification_v20230731.pt"}
 ```
 
 ## Use Cases
