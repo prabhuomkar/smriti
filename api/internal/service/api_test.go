@@ -920,7 +920,7 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		},
 		{
 			"save mediaitem people with invalid face id",
-			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": &api.MediaItemFacePeople{
+			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
 				FacePeople: map[string]string{"bad-face-id": "bad-people-id"},
 			}}},
 			nil,

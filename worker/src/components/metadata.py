@@ -111,7 +111,6 @@ class Metadata(Component):
                 result['latitude'] = getval_from_dict(metadata, ['Composite:GPSLatitude'], return_type='float')
                 result['longitude'] = getval_from_dict(metadata, ['Composite:GPSLongitude'], return_type='float')
                 if result['latitude'] is None or result['longitude'] is None:
-                    # pylint: disable=too-many-boolean-expressions
                     if 'EXIF:GPSLatitudeRef' in metadata and 'EXIF:GPSLatitude' in metadata and \
                         'EXIF:GPSLongitudeRef' in metadata and 'EXIF:GPSLongitude' in metadata and \
                          metadata['EXIF:GPSLatitudeRef'] != '' and metadata['EXIF:GPSLatitude'] != '' and \

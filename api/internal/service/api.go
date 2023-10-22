@@ -28,7 +28,7 @@ type Service struct {
 	Storage storage.Provider
 }
 
-func (s *Service) GetWorkerConfig(_ context.Context, _ *empty.Empty) (*api.ConfigResponse, error) {
+func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.ConfigResponse, error) {
 	type WorkerTask struct {
 		Name   string `json:"name"`
 		Source string `json:"source,omitempty"`
