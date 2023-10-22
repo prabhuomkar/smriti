@@ -49,4 +49,4 @@ async def test_places_process_grpc_exception():
     with mock.patch('src.protos.API.SaveMediaItemPlace', grpc_mock):
         result = await Places(APIStub(channel=grpc.insecure_channel('')), 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', 
                         None, {'latitude': 19.2195856, 'longitude': 73.1056888})
-        assert result == {'keywords': '421201 kalyan-dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
+        assert result == {'keywords': '421201 dombivali maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
