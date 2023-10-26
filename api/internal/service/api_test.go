@@ -1070,6 +1070,10 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			&mediaItemFinalResultRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_embeddings"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -1077,9 +1081,24 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			nil,
 		},
 		{
-			"save mediaitem final result with error",
+			"save mediaitem final result with error saving keywords",
 			&mediaItemFinalResultRequest,
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnError(errors.New("some db error"))
+				mock.ExpectRollback()
+			},
+			status.Error(codes.Internal, "error saving mediaitem final result: some db error"),
+		},
+		{
+			"save mediaitem final result with error saving embeddings",
+			&mediaItemFinalResultRequest,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_embeddings"`)).
 					WillReturnError(errors.New("some db error"))
