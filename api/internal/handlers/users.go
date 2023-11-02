@@ -54,7 +54,7 @@ func (h *Handler) UpdateUser(ctx echo.Context) error {
 	}
 	user.ID = uid
 	result := h.DB.Model(&user).Updates(user)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error updating user", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -69,7 +69,7 @@ func (h *Handler) DeleteUser(ctx echo.Context) error {
 	}
 	user := models.User{ID: uid}
 	result := h.DB.Delete(&user)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error deleting user", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}

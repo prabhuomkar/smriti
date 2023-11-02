@@ -4,7 +4,7 @@ fastdeploy==2.2.16
 grpcio==1.59.0
 grpcio-tools==1.59.0
 facenet-pytorch==2.5.3
-fastdeploy-python -f https://www.paddlepaddle.org.cn/whl/fastdeploy.html
+fastdeploy-python
 minio==7.1.17
 moviepy==1.0.3
 opencv-python==4.8.1.78

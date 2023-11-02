@@ -14,8 +14,6 @@ services:
       - storage
     environment:
       SMRITI_WORKER_HOST: worker
-      SMRITI_LOG_LEVEL: DEBUG
-      SMRITI_DATABASE_LOG_LEVEL: INFO
       SMRITI_CACHE_TYPE: redis
       SMRITI_STORAGE_PROVIDER: disk
       SMRITI_STORAGE_ENDPOINT: storage:9000
@@ -26,7 +24,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M
   worker:
     container_name: worker
@@ -39,7 +37,6 @@ services:
       - api
     environment:
       SMRITI_API_HOST: api
-      SMRITI_LOG_LEVEL: DEBUG
       PYTHONUNBUFFERED: '1'
     volumes:
       - ./storage:/storage:rw
@@ -47,7 +44,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '7'
+          cpus: '1.2'
           memory: 3G
   # infra services
   database:
@@ -63,7 +60,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M
   cache:
     container_name: cache
@@ -76,7 +73,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M
   storage:
     container_name: storage
@@ -93,5 +90,5 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M

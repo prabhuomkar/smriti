@@ -403,14 +403,16 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 	}
 	slog.Info("saving final mediaitem result", slog.Any("userId", req.UserId), slog.Any("mediaitem", req.Id))
 
-	mediaItem := models.MediaItem{}
-	mediaItem.ID = uid
-	mediaItem.UserID = userID
-	mediaItem.Keywords = &req.Keywords
-	result := s.DB.Model(&mediaItem).Updates(mediaItem)
-	if result.Error != nil || result.RowsAffected != 1 {
-		slog.Error("error saving mediaitem keywords", slog.Any("error", result.Error))
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
+	if len(req.GetKeywords()) > 0 {
+		mediaItem := models.MediaItem{}
+		mediaItem.ID = uid
+		mediaItem.UserID = userID
+		mediaItem.Keywords = &req.Keywords
+		result := s.DB.Model(&mediaItem).Updates(mediaItem)
+		if result.Error != nil {
+			slog.Error("error saving mediaitem keywords", slog.Any("error", result.Error))
+			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
+		}
 	}
 
 	if len(req.GetEmbeddings()) > 0 {
