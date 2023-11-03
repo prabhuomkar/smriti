@@ -156,7 +156,7 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 	album.ID = uid
 	album.UserID = userID
 	result := h.DB.Model(&album).Updates(album)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error updating album", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -176,8 +176,7 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 		slog.Error("error deleting album", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	result := h.DB.Delete(&album)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result := h.DB.Delete(&album); result.Error != nil {
 		slog.Error("error deleting album", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}

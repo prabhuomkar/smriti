@@ -3,8 +3,8 @@ package handlers
 import (
 	"api/internal/models"
 	"crypto/sha512"
+	"encoding/hex"
 	"errors"
-	"fmt"
 	"net/http"
 	"reflect"
 
@@ -54,7 +54,7 @@ func (h *Handler) UpdateUser(ctx echo.Context) error {
 	}
 	user.ID = uid
 	result := h.DB.Model(&user).Updates(user)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error updating user", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -68,8 +68,7 @@ func (h *Handler) DeleteUser(ctx echo.Context) error {
 		return err
 	}
 	user := models.User{ID: uid}
-	result := h.DB.Delete(&user)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result := h.DB.Delete(&user); result.Error != nil {
 		slog.Error("error deleting user", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -143,5 +142,5 @@ func getUser(ctx echo.Context) (*models.User, error) {
 func getPasswordHash(password string) string {
 	passwordHash := sha512.New()
 	passwordHash.Write([]byte(password))
-	return fmt.Sprintf("%x", passwordHash.Sum(nil))
+	return hex.EncodeToString(passwordHash.Sum(nil))
 }

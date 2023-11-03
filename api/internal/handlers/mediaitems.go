@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -167,7 +168,7 @@ func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
 	mediaItem.ID = uid
 	mediaItem.UserID = userID
 	result := h.DB.Model(&mediaItem).Updates(mediaItem)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error updating mediaItem", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -184,7 +185,7 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 	deleted := true
 	mediaItem := models.MediaItem{ID: uid, UserID: userID, IsDeleted: &deleted}
 	result := h.DB.Model(&mediaItem).Updates(mediaItem)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error updating mediaItem", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
@@ -403,7 +404,7 @@ func (h *Handler) generateHashForDuplicates(userID, mediaItemID, filePath string
 		return err
 	}
 
-	mediaItemHash := fmt.Sprintf("%x", fileHash.Sum(nil))
+	mediaItemHash := hex.EncodeToString(fileHash.Sum(nil))
 
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uuid.FromStringOrNil(mediaItemID)

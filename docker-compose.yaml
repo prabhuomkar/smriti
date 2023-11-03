@@ -14,8 +14,6 @@ services:
       - storage
     environment:
       SMRITI_WORKER_HOST: worker
-      SMRITI_LOG_LEVEL: DEBUG
-      SMRITI_DATABASE_LOG_LEVEL: INFO
       SMRITI_CACHE_TYPE: redis
       SMRITI_STORAGE_PROVIDER: disk
       SMRITI_STORAGE_ENDPOINT: storage:9000
@@ -26,7 +24,7 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M
   worker:
     container_name: worker
@@ -39,7 +37,6 @@ services:
       - api
     environment:
       SMRITI_API_HOST: api
-      SMRITI_LOG_LEVEL: DEBUG
       PYTHONUNBUFFERED: '1'
     volumes:
       - ./storage:/storage:rw
@@ -47,12 +44,12 @@ services:
     deploy:
       resources:
         limits:
-          cpus: '7'
+          cpus: '1.2'
           memory: 3G
   # infra services
   database:
     container_name: database
-    image: ankane/pgvector:v0.4.4
+    image: ankane/pgvector:v0.5.1
     restart: always
     environment:
       POSTGRES_USER: smritiuser
@@ -63,11 +60,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M
   cache:
     container_name: cache
-    image: redis:7.0-alpine
+    image: redis:7.2.2-alpine
     restart: always
     command: >
       --requirepass smritipass
@@ -76,11 +73,11 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M
   storage:
     container_name: storage
-    image: minio/minio:RELEASE.2023-05-18T00-05-36Z
+    image: minio/minio:RELEASE.2023-10-25T06-33-25Z
     volumes:
       - ./storage:/storage
     ports:
@@ -93,5 +90,5 @@ services:
     deploy:
       resources:
         limits:
-          cpus: 250m
+          cpus: '0.2'
           memory: 256M

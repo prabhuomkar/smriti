@@ -20,9 +20,9 @@ type (
 	// Provider ...
 	Provider interface {
 		Type() string
-		Upload(string, string, string) (string, error)
-		Delete(string, string) error
-		Get(string, string) (string, error)
+		Upload(filePath string, fileType string, fileID string) (string, error)
+		Delete(fileType string, fileID string) error
+		Get(fileType string, fileID string) (string, error)
 	}
 
 	// Config ...

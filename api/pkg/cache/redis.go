@@ -10,9 +10,9 @@ import (
 type (
 	// RedisClient ...
 	RedisClient interface {
-		Get(context.Context, string) (string, error)
-		Set(context.Context, string, interface{}, time.Duration) error
-		Del(context.Context, string) error
+		Get(ctx context.Context, key string) (string, error)
+		Set(ctx context.Context, key string, val interface{}, ttl time.Duration) error
+		Del(ctx context.Context, key string) error
 	}
 
 	// RedisCache ...

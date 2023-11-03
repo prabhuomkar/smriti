@@ -192,7 +192,7 @@ func (h *Handler) UpdatePerson(ctx echo.Context) error {
 	people.ID = uid
 	people.UserID = userID
 	result := h.DB.Model(&people).Updates(people)
-	if result.Error != nil || result.RowsAffected != 1 {
+	if result.Error != nil {
 		slog.Error("error updating people", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
