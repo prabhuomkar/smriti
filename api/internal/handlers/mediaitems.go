@@ -6,6 +6,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"encoding/hex"
 	"errors"
 	"fmt"
 	"io"
@@ -403,7 +404,7 @@ func (h *Handler) generateHashForDuplicates(userID, mediaItemID, filePath string
 		return err
 	}
 
-	mediaItemHash := fmt.Sprintf("%x", fileHash.Sum(nil))
+	mediaItemHash := hex.EncodeToString(fileHash.Sum(nil))
 
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uuid.FromStringOrNil(mediaItemID)

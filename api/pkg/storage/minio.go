@@ -19,9 +19,9 @@ type (
 	}
 
 	minioClient interface {
-		FPutObject(context.Context, string, string, string, minio.PutObjectOptions) (minio.UploadInfo, error)
-		RemoveObject(context.Context, string, string, minio.RemoveObjectOptions) error
-		PresignedGetObject(context.Context, string, string, time.Duration, url.Values) (*url.URL, error)
+		FPutObject(ctx context.Context, stringfileType string, fileID string, filePath string, opts minio.PutObjectOptions) (minio.UploadInfo, error)
+		RemoveObject(ctx context.Context, fileType string, fileID string, opts minio.RemoveObjectOptions) error
+		PresignedGetObject(ctx context.Context, fileType string, fileID string, expiry time.Duration, vals url.Values) (*url.URL, error)
 	}
 )
 

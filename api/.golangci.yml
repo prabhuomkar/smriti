@@ -16,6 +16,7 @@ linters:
     - tagalign
     - depguard
     - interfacer
+    - protogetter
 linters-settings:
   lll:
     line-length: 180

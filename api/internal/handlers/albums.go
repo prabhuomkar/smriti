@@ -176,8 +176,7 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 		slog.Error("error deleting album", slog.Any("error", err))
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	result := h.DB.Delete(&album)
-	if result.Error != nil {
+	if result := h.DB.Delete(&album); result.Error != nil {
 		slog.Error("error deleting album", slog.Any("error", result.Error))
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
