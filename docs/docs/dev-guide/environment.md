@@ -16,8 +16,8 @@ git clone git@github.com:prabhuomkar/smriti.git
 ## Setup
 
 ### API
-- Install [Golang 1.20](https://go.dev/dl/) or above
-- Install [golangci-lint 1.55.1](https://golangci-lint.run/) or above
+- Install [Golang 1.21](https://go.dev/dl/) or above
+- Install [golangci-lint 1.55.2](https://golangci-lint.run/) or above
 - Run the following command to finish your API setup
 ```
 make setup-api
