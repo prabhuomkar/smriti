@@ -25,7 +25,7 @@ make setup-api
 
 ### Worker
 - Install [Python 3.10](https://www.python.org/downloads/) or above
-- Install [pylint 3.0.2](https://pypi.org/project/pylint/) or above
+- Install [pylint 3.0.3](https://pypi.org/project/pylint/) or above
 - Run the following command to finish your Worker setup
 ```
 make setup-worker

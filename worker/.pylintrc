@@ -2,6 +2,7 @@
 ignore=tests
 ignore-patterns=.*_pb2.py,.*_grpc.py,.*.txt,.*file,.*.toml,.*.xml,.*.md
 disable=too-few-public-methods,logging-fstring-interpolation,broad-except,import-outside-toplevel,too-many-boolean-expressions
+ignored-modules=fastdeploy
 generated-members=fastdeploy.*,cv2.*
 [FORMAT]
 max-line-length=120
