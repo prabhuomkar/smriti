@@ -5,13 +5,13 @@ on:
       - master
     paths:
       - api/**
-      - .github/workflows/**
+      - .github/workflows/api.yaml
   pull_request:
     branches:
       - master
     paths:
       - api/**
-      - .github/workflows/**
+      - .github/workflows/api.yaml
   release:
     types: [published]
 jobs:
