@@ -10,7 +10,6 @@ import (
 	"errors"
 	"time"
 
-	"github.com/golang/protobuf/ptypes/empty"
 	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/exp/slog"
@@ -78,7 +77,7 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.Con
 	}, nil
 }
 
-func (s *Service) GetUsers(_ context.Context, _ *empty.Empty) (*api.GetUsersResponse, error) {
+func (s *Service) GetUsers(_ context.Context, _ *emptypb.Empty) (*api.GetUsersResponse, error) {
 	var userUUIDs []uuid.UUID
 	result := s.DB.Model(&models.User{}).Pluck("id", &userUUIDs)
 	if result.Error != nil {
@@ -96,7 +95,7 @@ func (s *Service) GetUsers(_ context.Context, _ *empty.Empty) (*api.GetUsersResp
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*empty.Empty, error) { //nolint: cyclop
+func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) { //nolint: cyclop
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", slog.Any("error", err))
@@ -152,7 +151,7 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceRequest) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", slog.Any("error", err))
@@ -192,7 +191,7 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingRequest) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", slog.Any("error", err))
@@ -227,7 +226,7 @@ func (s *Service) SaveMediaItemThing(_ context.Context, req *api.MediaItemThingR
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFaces(_ context.Context, req *api.MediaItemFacesRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemFaces(_ context.Context, req *api.MediaItemFacesRequest) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", slog.Any("error", err))
@@ -298,7 +297,7 @@ func (s *Service) GetMediaItemFaceEmbeddings(_ context.Context, req *api.MediaIt
 	}, nil
 }
 
-func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopleRequest) (*empty.Empty, error) { //nolint:gocognit,funlen,cyclop
+func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopleRequest) (*emptypb.Empty, error) { //nolint:gocognit,funlen,cyclop
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", slog.Any("error", err))
@@ -390,7 +389,7 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*empty.Empty, error) {
+func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", slog.Any("error", err))
