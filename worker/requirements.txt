@@ -3,7 +3,7 @@ asyncio==3.4.3
 grpcio==1.60.0
 grpcio-tools==1.60.0
 facenet-pytorch==2.5.3
-fastdeploy-python==1.0.7
+fastdeploy-python
 minio==7.2.0
 moviepy==1.0.3
 opencv-python==4.8.1.78
