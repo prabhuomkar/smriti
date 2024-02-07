@@ -40,7 +40,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	// file server
 	if handler.Config.Storage.Provider == "disk" {
 		fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
-		slog.Info(fmt.Sprintf("starting file server on: %s", fileRoute))
+		slog.Info("starting file server on: " + fileRoute)
 		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
 	}
 	// routes

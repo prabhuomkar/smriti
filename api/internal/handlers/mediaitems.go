@@ -286,7 +286,7 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	offset, limit := getOffsetAndLimit(ctx)
 	filters := getMediaItemFilters(ctx)
 	mediaItems := []models.MediaItem{}
-	result := h.DB.Where(fmt.Sprintf("user_id=? AND is_hidden=false AND is_deleted=false%s", filters), userID).
+	result := h.DB.Where("user_id=? AND is_hidden=false AND is_deleted=false"+filters, userID).
 		Find(&mediaItems).
 		Offset(offset).
 		Limit(limit)
