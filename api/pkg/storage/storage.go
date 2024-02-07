@@ -1,7 +1,6 @@
 package storage
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/minio/minio-go/v7"
@@ -48,15 +47,15 @@ func Init(cfg *Config) Provider { //nolint: ireturn
 			Client: minioClient,
 		}
 	}
-	err := os.Mkdir(fmt.Sprintf("%s/originals", cfg.Root), dirPermission)
+	err := os.Mkdir(cfg.Root+"/originals", dirPermission)
 	if err != nil {
 		slog.Error("error creating storage originals directory", slog.Any("error", err))
 	}
-	err = os.Mkdir(fmt.Sprintf("%s/previews", cfg.Root), dirPermission)
+	err = os.Mkdir(cfg.Root+"/previews", dirPermission)
 	if err != nil {
 		slog.Error("error creating storage previews directory", slog.Any("error", err))
 	}
-	err = os.Mkdir(fmt.Sprintf("%s/thumbnails", cfg.Root), dirPermission)
+	err = os.Mkdir(cfg.Root+"/thumbnails", dirPermission)
 	if err != nil {
 		slog.Error("error creating storage thumbnails directory", slog.Any("error", err))
 	}
