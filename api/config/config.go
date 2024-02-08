@@ -63,11 +63,11 @@ type (
 		Faces                  bool   `envconfig:"SMRITI_ML_FACES" default:"true"`
 		PlacesProvider         string `envconfig:"SMRITI_ML_PLACES_PROVIDER" default:"openstreetmap"`
 		ClassificationProvider string `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER" default:"pytorch"`
-		ClassificationParams   string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS" default:"{\"file\":\"classification_v20230731.pt\"}"`
+		ClassificationParams   string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS" default:"{\"file\":\"classification_v240229.pt\"}"`
 		OCRProvider            string `envconfig:"SMRITI_ML_OCR_PROVIDER" default:"paddlepaddle"`
 		OCRParams              string `envconfig:"SMRITI_ML_OCR_PARAMS" default:"{\"det_model_dir\":\"det_onnx\",\"rec_model_dir\":\"rec_onnx\",\"cls_model_dir\":\"cls_onnx\"}"`
 		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER" default:"pytorch"`
-		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v20230731.pt\",\"vision_file\":\"search_vision_v20230731.pt\"}"` //nolint:lll
+		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v240229.pt\",\"vision_file\":\"search_vision_v240229.pt\"}"` //nolint:lll
 		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER" default:"pytorch"`
 		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"{\"minutes\":\"1\",\"face_threshold\":\"0.9\",\"model\":\"vggface2\",\"clustering\":\"annoy\"}"`
 		MetadataParams         string `envconfig:"SMRITI_ML_METADATA_PARAMS" default:"{\"thumbnail_size\":\"512\"}"`

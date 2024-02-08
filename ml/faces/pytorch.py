@@ -10,14 +10,14 @@ from facenet_pytorch import MTCNN, InceptionResnetV1
 def download_and_save():
     """Download models for detection, recognition and classification"""
     print('downloading and saving pytorch models')
-    urllib.request.urlretrieve('https://github.com/timesler/facenet-pytorch/releases/download/v2.2.9/20180402-114759-vggface2.pt', 'vggface2.pt')
+    urllib.request.urlretrieve('https://github.com/timesler/facenet-pytorch/releases/download/v2.2.9/20180402-114759-vggface2.pt', '20180402-114759-vggface2.pt')
 
 def load_and_run(sample='example.jpg'):
     """Loads the saved pytorch models and runs sample image"""
     print('loading and running pytorch models')
     os.environ['TORCH_HOME'] = os.getcwd()
     try:
-        os.symlink(os.getcwd(), f'{os.getcwd()}/checkpoints')
+        os.symlink(f'{os.getcwd()}', f'{os.getcwd()}/checkpoints')
     except:
         pass
     det_model = MTCNN(keep_all=True)

@@ -1,12 +1,10 @@
 # Smriti ML Search
-This is a reference for making ML models ready for inference.  
+This is a reference for making ML models ready for inference to search based on embeddings.  
 The idea is for smriti to support multiple runtimes for different types of models.
 
 ## Providers
-Following types of providers are available for running ML Search:
+Following types of providers are available for running Search:
 - [PyTorch](https://pytorch.org/)
-- [Tensorflow](https://www.tensorflow.org/)
-- [ONNX](https://onnxruntime.ai/)
 
 ### PyTorch
 Refer to [pytorch.py](pytorch.py) for creating a [TorchScript](https://pytorch.org/docs/stable/jit.html) Module using a [HuggingFace](https://huggingface.co) model.

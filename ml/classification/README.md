@@ -3,10 +3,8 @@ This is a reference for making ML models ready for inference.
 The idea is for smriti to support multiple runtimes for different types of models.
 
 ## Providers
-Following types of providers are available for running ML Classification:
+Following types of providers are available for running Classification:
 - [PyTorch](https://pytorch.org/)
-- [Tensorflow](https://www.tensorflow.org/)
-- [ONNX](https://onnxruntime.ai/)
 
 ### PyTorch
 Refer to [pytorch.py](pytorch.py) for creating a [TorchScript](https://pytorch.org/docs/stable/jit.html) Module using a [TorchVision](https://pytorch.org/vision/stable/index.html) model.
