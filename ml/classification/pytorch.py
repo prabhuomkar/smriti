@@ -1,4 +1,5 @@
 """ML Classification TorchVision Model"""
+import os
 import sys
 
 from PIL import Image
@@ -7,7 +8,7 @@ from torchvision import transforms
 from torchvision.models import get_model, get_model_weights
 
 
-VERSION='20230731'
+VERSION=os.getenv('VERSION', 'dev').replace('.', '')
 FILE_NAME = f'classification_v{VERSION}.pt'
 MODEL_NAME = 'efficientnet_v2_s' # can be any torchvision classification model
 

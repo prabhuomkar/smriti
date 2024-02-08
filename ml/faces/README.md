@@ -1,22 +1,22 @@
-# Smriti ML OCR
-This is a reference for making ML models ready for inference to detect text in images.  
+# Smriti ML Faces
+This is a reference for making ML models ready for inference to detect faces in images.  
 The idea is for smriti to support multiple runtimes for different types of models.
 
 ## Providers
-Following types of providers are available for running ML Classification:
-- [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR)
+Following types of providers are available for running Face Detection:
+- [PyTorch](https://pytorch.org/)
 
-### PaddlePaddle
-Refer to [paddlepaddle.py](paddlepaddle.py) for downloading model files.
+### PyTorch
+Refer to [pytorch.py](pytorch.py) for downloading model files.
 
-#### Save PaddleOCR Model Assets
+#### Save PyTorch Model Assets
 ```
-python3 paddlepaddle.py save
+python3 pytorch.py save
 ```
 
 #### Run Inference
 ```
-python3 paddlepaddle.py run /path/to/example.jpg
+python3 pytorch.py run /path/to/example.jpg
 ```
 
 ### Tensorflow

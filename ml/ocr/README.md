@@ -3,7 +3,7 @@ This is a reference for making ML models ready for inference to detect text in i
 The idea is for smriti to support multiple runtimes for different types of models.
 
 ## Providers
-Following types of providers are available for running ML Classification:
+Following types of providers are available for running OCR:
 - [PaddlePaddle](https://github.com/PaddlePaddle/PaddleOCR)
 
 ### PaddlePaddle

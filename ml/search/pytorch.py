@@ -6,7 +6,7 @@ import torch
 from transformers import AutoTokenizer, AutoImageProcessor, CLIPTextModelWithProjection, CLIPVisionModelWithProjection
 
 
-VERSION='20230731'
+VERSION=os.getenv('VERSION', 'dev').replace('.', '')
 TEXT_FILE_NAME = f'search_text_v{VERSION}.pt'
 VISION_FILE_NAME = f'search_vision_v{VERSION}.pt'
 TOKENIZER_DIR_NAME = 'search_tokenizer'

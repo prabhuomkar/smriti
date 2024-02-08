@@ -3,6 +3,7 @@
 *.pdiparams
 *.pdiparams.info
 *.txt
+!requirements.txt
 __pycache__/
 *.py[cod]
 *$py.class
@@ -54,3 +55,4 @@ Thumbs.db
 .idea/
 *checkpoints*
 *.onnx
+search/**/*.json
