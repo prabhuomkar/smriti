@@ -1,7 +1,7 @@
 annoy==1.17.3
 asyncio==3.4.3
 facenet-pytorch==2.5.3
-fastdeploy-python==1.0.7
+fastdeploy-python
 grpcio==1.60.1
 grpcio-tools==1.60.1
 minio==7.2.3
