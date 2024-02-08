@@ -68,7 +68,7 @@ def download_and_save():
     shutil.rmtree('cls_infer')
     urllib.request.urlretrieve('https://raw.githubusercontent.com/PaddlePaddle/PaddleOCR/release/2.7/ppocr/utils/en_dict.txt', 'rec_onnx/en_dict.txt')
     
-def load_and_run(sample):
+def load_and_run(sample='example.jpg'):
     """Loads the saved paddle ocr models and runs sample image"""
     print('loading and running paddle ocr models')
     import fastdeploy as fd
@@ -82,7 +82,7 @@ def load_and_run(sample):
         runtime_option=default_option, model_format=fd.ModelFormat.ONNX)
     rec_model = fd.vision.ocr.Recognizer(
         model_file='rec_onnx/model.onnx', 
-        label_path='rec_infer/en_dict.txt', runtime_option=default_option, model_format=fd.ModelFormat.ONNX)
+        label_path='rec_onnx/en_dict.txt', runtime_option=default_option, model_format=fd.ModelFormat.ONNX)
     ocr = fd.vision.ocr.PPOCRv3(det_model=det_model, cls_model=cls_model, rec_model=rec_model)
     result = ocr.predict(cv2.imread(sample))
     print(result.text)
@@ -94,6 +94,9 @@ if __name__ == '__main__':
             download_and_save()
             exit(0)
         if args[1] == 'run':
-            load_and_run(args[2])
+            if len(args)  == 3:
+                load_and_run(args[2])
+            else:
+                load_and_run()
             exit(0)
     print('provide a valid arg: save OR run')

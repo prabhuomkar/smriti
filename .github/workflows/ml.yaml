@@ -7,6 +7,8 @@ jobs:
     if: ${{ github.event_name == 'release' && github.event.action == 'published' }}
     name: Release ML Models
     runs-on: ubuntu-latest
+    env:
+      VERSION: ${{ github.ref_name }}
     defaults:
       run:
         working-directory: ./ml
@@ -21,4 +23,13 @@ jobs:
         run: python -c "import sys; print(sys.version)"
       - name: Install Dependencies
         run: make install
+      - name: Create models
+        run: |
+          make all
+          zip -r models.zip classification/*.pt faces/*.pt ocr/cls_onnx ocr/det_onnx ocr/rec_onnx search/*.pt search/search_processor search/search_tokenizer
+      - name: Create release asset
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            models.zip
       
