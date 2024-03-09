@@ -70,7 +70,9 @@ func getMediaItemFilters(ctx echo.Context) string {
 		filterQuery += fmt.Sprintf(" AND mediaitem_category = '%s'", mediaItemCategory)
 	}
 	mediaItemStatus := ctx.QueryParam("status")
-	if mediaItemStatus != "" && (mediaItemStatus == string(models.Unspecified) || mediaItemStatus == string(models.Ready) || mediaItemStatus == string(models.Processing) || mediaItemStatus == string(models.Failed)) {
+	if mediaItemStatus != "" && (mediaItemStatus == string(models.Unspecified) ||
+		mediaItemStatus == string(models.Ready) || mediaItemStatus == string(models.Processing) ||
+		mediaItemStatus == string(models.Failed)) {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", mediaItemStatus)
 	}
 	return filterQuery
