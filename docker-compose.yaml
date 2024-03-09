@@ -21,11 +21,11 @@ services:
       SMRITI_STORAGE_SECRET_KEY: smritipass
     volumes:
       - ./storage:/storage:rw
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 256M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.2'
+    #       memory: 256M
   worker:
     container_name: worker
     build: worker
@@ -39,14 +39,15 @@ services:
       SMRITI_API_HOST: api
       PYTHONUNBUFFERED: '1'
       TOKENIZERS_PARALLELISM: false
+      SMRITI_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
       - ./models:/models:rw
-    deploy:
-      resources:
-        limits:
-          cpus: '1.2'
-          memory: 3G
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '1.2'
+    #       memory: 3G
   # infra services
   database:
     container_name: database
@@ -58,11 +59,11 @@ services:
       POSTGRES_DB: smriti
     ports:
       - '5432:5432'
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 256M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.2'
+    #       memory: 256M
   cache:
     container_name: cache
     image: redis:7.2.4-alpine
@@ -71,11 +72,11 @@ services:
       --requirepass smritipass
     ports:
       - '6379:6379'
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 256M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.2'
+    #       memory: 256M
   storage:
     container_name: storage
     image: minio/minio:RELEASE.2024-02-04T22-36-13Z
@@ -88,8 +89,8 @@ services:
       MINIO_ROOT_PASSWORD: smritipass
     command: server --address 0.0.0.0:9000 /storage
     restart: always
-    deploy:
-      resources:
-        limits:
-          cpus: '0.2'
-          memory: 256M
+    # deploy:
+    #   resources:
+    #     limits:
+    #       cpus: '0.2'
+    #       memory: 256M

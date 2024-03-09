@@ -26,7 +26,7 @@ class PyTorchModule:
                 logging.debug(f'generated text embedding: {res}')
                 return res
             return None
-        if data['type'] == 'photo':
+        if data and data['type'] == 'photo':
             input_tensor = self.processor(Image.open(data['previewPath']), return_tensors='pt')
             res = self.vision_module.forward(**input_tensor)
             if res is not None:
@@ -34,7 +34,7 @@ class PyTorchModule:
                 logging.debug(f'generated photo embedding: {res}')
                 return [res]
             return []
-        if data['type'] == 'video':
+        if data and data['type'] == 'video':
             result = []
             video_clip = VideoFileClip(data['previewPath'])
             for frame in video_clip.iter_frames(fps=video_clip.fps):
