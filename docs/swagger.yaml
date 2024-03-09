@@ -2,7 +2,7 @@ openapi: 3.0.3
 info:
   title: Smriti API
   description: Smarter Home for all your Photos and Videos
-  version: 24.02.29
+  version: 24.03.09
 servers:
   - url: https://localhost:5001
 tags:
@@ -146,6 +146,12 @@ paths:
           schema:
             type: string
             example: live
+        - name: status
+          in: query
+          description: MediaItem Status
+          schema:
+            type: string
+            example: FAILED
       summary: Get all existing mediaItems
       description: Get all existing mediaItems
       operationId: getMediaItems
@@ -1323,7 +1329,7 @@ components:
       properties:
         version:
           type: string
-          example: 24.02.29
+          example: 24.03.09
         gitSha:
           type: string
           example: addf120b430021c36c232c99ef8d926aea2acd6b
