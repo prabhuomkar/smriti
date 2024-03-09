@@ -1,4 +1,5 @@
 """ML Search HuggingFace Model"""
+import os
 import sys
 
 from PIL import Image

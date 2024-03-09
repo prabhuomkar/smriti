@@ -3,6 +3,7 @@ fastdeploy-python
 opencv-python==4.9.0.80
 paddle2onnx==1.1.0
 pillow==10.2.0
+six==1.16.0
 torch==2.2.0
 torchvision==0.17.0
 transformers==4.37.2

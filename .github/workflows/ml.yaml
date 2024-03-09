@@ -14,9 +14,9 @@ jobs:
         working-directory: ./ml
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.10.x'
       - name: Python Version
@@ -28,8 +28,8 @@ jobs:
           make all
           zip -r models.zip classification/*.pt faces/*.pt ocr/cls_onnx ocr/det_onnx ocr/rec_onnx search/*.pt search/search_processor search/search_tokenizer
       - name: Create release asset
-        uses: softprops/action-gh-release@v1
+        uses: softprops/action-gh-release@v2
         with:
           files: |
-            models.zip
+            ml/models.zip
       
