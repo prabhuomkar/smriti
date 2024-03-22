@@ -18,7 +18,6 @@ type (
 
 // GetDisk ...
 func GetDisk(cfg *config.Config) *Disk {
-	//nolint: nosnakecase
 	diskStat := syscall.Statfs_t{}
 	err := syscall.Statfs(cfg.Storage.DiskRoot, &diskStat)
 	if err != nil {

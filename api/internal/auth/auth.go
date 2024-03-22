@@ -101,7 +101,7 @@ func GetAccessAndRefreshTokens(cfg *config.Config, user models.User) (string, st
 }
 
 func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) {
-	parsedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(token *jwt.Token) (interface{}, error) {
+	parsedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(*jwt.Token) (interface{}, error) {
 		return []byte(cfg.Auth.Secret), nil
 	})
 	if err != nil || !parsedToken.Valid {

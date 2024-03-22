@@ -30,7 +30,7 @@ const (
 	HeaderUploadChunkOffset  = "X-Smriti-Upload-Chunk-Offset"
 	HeaderUploadChunkSession = "X-Smriti-Upload-Chunk-Session"
 
-	fileFlag       = os.O_WRONLY | os.O_APPEND | os.O_CREATE //nolint: nosnakecase
+	fileFlag       = os.O_WRONLY | os.O_APPEND | os.O_CREATE
 	filePermission = 0o644
 )
 
