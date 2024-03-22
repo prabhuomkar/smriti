@@ -23,7 +23,7 @@ func (h *Handler) GetSharedAlbumMediaItems(ctx echo.Context) error {
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Model(&sharedAlbum).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_deleted=?", false)
 	if err != nil {
-		slog.Error("error getting shared album mediaitems", slog.Any("error", err))
+		slog.Error("error getting shared album mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
@@ -41,7 +41,7 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 		Preload("CoverMediaItem").
 		First(&sharedAlbum)
 	if result.Error != nil {
-		slog.Error("error getting shared album", slog.Any("error", result.Error))
+		slog.Error("error getting shared album", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "shared link not found")
 		}
@@ -54,7 +54,7 @@ func getSharedAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
-		slog.Error("error getting shared album id", slog.Any("error", err))
+		slog.Error("error getting shared album id", "error", err)
 		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid shared link")
 	}
 	return uid, err

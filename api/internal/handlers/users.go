@@ -33,7 +33,7 @@ func (h *Handler) GetUser(ctx echo.Context) error {
 	user := models.User{}
 	result := h.DB.Model(&models.User{}).Where("id=?", uid).First(&user)
 	if result.Error != nil {
-		slog.Error("error getting user", slog.Any("error", result.Error))
+		slog.Error("error getting user", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "user not found")
 		}
@@ -55,7 +55,7 @@ func (h *Handler) UpdateUser(ctx echo.Context) error {
 	user.ID = uid
 	result := h.DB.Model(&user).Updates(user)
 	if result.Error != nil {
-		slog.Error("error updating user", slog.Any("error", result.Error))
+		slog.Error("error updating user", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
@@ -69,7 +69,7 @@ func (h *Handler) DeleteUser(ctx echo.Context) error {
 	}
 	user := models.User{ID: uid}
 	if result := h.DB.Delete(&user); result.Error != nil {
-		slog.Error("error deleting user", slog.Any("error", result.Error))
+		slog.Error("error deleting user", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
@@ -84,7 +84,7 @@ func (h *Handler) GetUsers(ctx echo.Context) error {
 		Offset(offset).
 		Limit(limit)
 	if result.Error != nil {
-		slog.Error("error getting users", slog.Any("error", result.Error))
+		slog.Error("error getting users", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, users)
@@ -98,7 +98,7 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 	}
 	user.ID = uuid.NewV4()
 	if result := h.DB.Create(&user); result.Error != nil {
-		slog.Error("error creating user", slog.Any("error", result.Error))
+		slog.Error("error creating user", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusCreated, user)
@@ -108,7 +108,7 @@ func getUserID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
-		slog.Error("error getting user id", slog.Any("error", err))
+		slog.Error("error getting user id", "error", err)
 		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user id")
 	}
 	return uid, err
@@ -117,7 +117,7 @@ func getUserID(ctx echo.Context) (uuid.UUID, error) {
 func getUser(ctx echo.Context) (*models.User, error) {
 	UserRequest := new(UserRequest)
 	if err := ctx.Bind(UserRequest); err != nil {
-		slog.Error("error getting user", slog.Any("error", err))
+		slog.Error("error getting user", "error", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user")
 	}
 	user := models.User{}

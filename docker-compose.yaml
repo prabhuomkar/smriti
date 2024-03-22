@@ -39,7 +39,6 @@ services:
       SMRITI_API_HOST: api
       PYTHONUNBUFFERED: '1'
       TOKENIZERS_PARALLELISM: false
-      SMRITI_LOG_LEVEL: DEBUG
     volumes:
       - ./storage:/storage:rw
       - ./models:/models:rw

@@ -9,6 +9,7 @@ import multiprocessing as mp
 
 API_URL ='http://localhost:5001'
 DOWNLOAD_SAMPLES_URL = 'https://www.dropbox.com/scl/fo/yyy82163nqh5ii5aqm8vz/h?rlkey=bjlvrz198fu9zntu6tmvgb2ya&dl=1'
+MAX_PARALLEL_UPLOADS = 3
 
 # create user
 res = requests.post(f'{API_URL}/v1/users', auth=('smriti', 'smritiT3st!'), json={'name':'Jeff Dean','username':'jeffdean','password':'jeffT3st!','features':'{"albums":true,'+
@@ -31,6 +32,7 @@ headers = {'Authorization': f'Bearer {access_token}'}
 
 # upload function
 def upload(file_type, file):
+    print(f'uploading {file_type} {file}')
     files = {'file': open(f'samples/{file_type}/{file}', 'rb')}
     res = requests.post(f'{API_URL}/v1/mediaItems', files=files, headers=headers)
     if res.status_code != 201:
@@ -42,7 +44,8 @@ def upload(file_type, file):
         res = requests.get(f'{API_URL}/v1/mediaItems/{res["id"]}', files=files, headers=headers)
         assert res.status_code == 200
         res = res.json()
-        if res['status'] == 'READY':
+        if res['status'] == 'READY' or res['status'] == 'FAILED':
+            print(f'finished {file_type} {file}')
             break
         time.sleep(5)
     return res['id']
@@ -66,8 +69,10 @@ with zipfile.ZipFile('samples.zip', 'r') as zip_ref:
 print('ℹ️ uploading sample mediaitems, hang on...')
 for file_type in os.listdir('samples'):
     files = os.listdir(f'samples/{file_type}')
-    with mp.Pool(processes=mp.cpu_count()-1) as pool:
-        mediaitems = pool.starmap(upload, list(zip([file_type for _ in range(len(files))], files)), chunksize=2)
+    for i in range(0, len(files), MAX_PARALLEL_UPLOADS):
+        chunk = files[i:i+MAX_PARALLEL_UPLOADS]
+        with mp.Pool(processes=mp.cpu_count()-1) as pool:
+            mediaitems = pool.starmap(upload, list(zip([file_type for _ in range(len(chunk))], chunk)))
 print('✅ uploaded sample mediaitems')
 
 # create albums

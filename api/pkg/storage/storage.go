@@ -41,7 +41,7 @@ func Init(cfg *Config) Provider { //nolint: ireturn
 			Secure: false,
 		})
 		if err != nil {
-			slog.Error("error creating storage client", slog.Any("error", err))
+			slog.Error("error creating storage client", "error", err)
 		}
 		return &Minio{
 			Client: minioClient,
@@ -49,15 +49,15 @@ func Init(cfg *Config) Provider { //nolint: ireturn
 	}
 	err := os.Mkdir(cfg.Root+"/originals", dirPermission)
 	if err != nil {
-		slog.Error("error creating storage originals directory", slog.Any("error", err))
+		slog.Error("error creating storage originals directory", "error", err)
 	}
 	err = os.Mkdir(cfg.Root+"/previews", dirPermission)
 	if err != nil {
-		slog.Error("error creating storage previews directory", slog.Any("error", err))
+		slog.Error("error creating storage previews directory", "error", err)
 	}
 	err = os.Mkdir(cfg.Root+"/thumbnails", dirPermission)
 	if err != nil {
-		slog.Error("error creating storage thumbnails directory", slog.Any("error", err))
+		slog.Error("error creating storage thumbnails directory", "error", err)
 	}
 	return &Disk{Root: cfg.Root}
 }

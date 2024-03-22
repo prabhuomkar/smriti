@@ -37,7 +37,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 		Where("username=? AND password=?", &loginRequest.Username, getPasswordHash(*loginRequest.Password)).
 		First(&user)
 	if result.Error != nil {
-		slog.Error("error getting user", slog.Any("error", result.Error))
+		slog.Error("error getting user", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "incorrect username or password")
 		}
@@ -45,7 +45,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 	}
 	accessToken, refreshToken, err := auth.GetTokens(h.Config, h.Cache, user)
 	if err != nil {
-		slog.Error("error getting tokens", slog.Any("error", err))
+		slog.Error("error getting tokens", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error getting tokens")
 	}
 	authResponse := AuthResponse{
@@ -61,7 +61,7 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 	refreshToken = strings.ReplaceAll(refreshToken, "Bearer ", "")
 	newAccessToken, newRefreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
 	if err != nil {
-		slog.Error("error refreshing tokens", slog.Any("error", err))
+		slog.Error("error refreshing tokens", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, "error refreshing tokens")
 	}
 	authResponse := AuthResponse{
@@ -83,11 +83,11 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 	loginRequest := new(LoginRequest)
 	err := ctx.Bind(loginRequest)
 	if err != nil {
-		slog.Error("error getting username and password", slog.Any("error", err))
+		slog.Error("error getting username and password", "error", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 	if loginRequest.Username == nil || loginRequest.Password == nil {
-		slog.Error("error getting username and password", slog.Any("error", err))
+		slog.Error("error getting username and password", "error", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 	return loginRequest, nil
