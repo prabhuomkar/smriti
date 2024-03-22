@@ -3,6 +3,7 @@ from unittest import mock
 import pytest
 from requests.exceptions import HTTPError
 
+import requests
 import grpc
 
 from src.components.places import Places
@@ -43,7 +44,10 @@ async def test_places_process_failed_process_exception(_):
         assert result == {'latitude': 19.2195856, 'longitude': 73.1056888}
 
 @pytest.mark.asyncio
-async def test_places_process_grpc_exception():
+async def test_places_process_grpc_exception(requests_mock):
+    requests_mock.get(url=API_URL.format(lat=19.2195856, lon=73.1056888), json={
+        'address': {'city': 'Dombivali', 'state': 'Maharashtra', 'postcode': '421201', 'country': 'India'}
+    })
     grpc_mock = mock.MagicMock()
     grpc_mock.side_effect = grpc.RpcError(Exception('some error'))
     with mock.patch('src.protos.API.SaveMediaItemPlace', grpc_mock):
