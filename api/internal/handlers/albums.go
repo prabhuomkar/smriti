@@ -42,7 +42,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	mediaItems := []models.MediaItem{}
 	err = h.DB.Model(&album).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_hidden=? AND is_deleted=?", false, false)
 	if err != nil {
-		slog.Error("error getting album mediaitems", slog.Any("error", err))
+		slog.Error("error getting album mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
@@ -64,7 +64,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	album.UserID = userID
 	err = h.DB.Omit("MediaItems.*").Model(&album).Association("MediaItems").Append(mediaItems)
 	if err != nil {
-		slog.Error("error adding album mediaitems", slog.Any("error", err))
+		slog.Error("error adding album mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	mediaItemCount := int(h.DB.Model(&album).Association("MediaItems").Count())
@@ -72,7 +72,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	album.CoverMediaItemID = &mediaItems[len(mediaItems)-1].ID
 	result := h.DB.Model(&album).Omit("MediaItems").Updates(album)
 	if result.Error != nil {
-		slog.Error("error updating album", slog.Any("error", result.Error))
+		slog.Error("error updating album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
@@ -94,13 +94,13 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	album.UserID = userID
 	err = h.DB.Omit("MediaItems.*").Model(&album).Association("MediaItems").Delete(mediaItems)
 	if err != nil {
-		slog.Error("error removing album mediaitems", slog.Any("error", err))
+		slog.Error("error removing album mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	newCoverMediaItem := models.MediaItem{}
 	err = h.DB.Model(&album).Association("MediaItems").Find(&newCoverMediaItem)
 	if err != nil {
-		slog.Error("error getting new album cover mediaitem", slog.Any("error", err))
+		slog.Error("error getting new album cover mediaitem", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	mediaItemCount := int(h.DB.Model(&album).Association("MediaItems").Count())
@@ -114,7 +114,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 		"CoverMediaItemID": album.CoverMediaItemID,
 	})
 	if result.Error != nil {
-		slog.Error("error updating album", slog.Any("error", result.Error))
+		slog.Error("error updating album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
@@ -133,7 +133,7 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 		Preload("CoverMediaItem").
 		First(&album)
 	if result.Error != nil {
-		slog.Error("error getting album", slog.Any("error", result.Error))
+		slog.Error("error getting album", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
 		}
@@ -157,7 +157,7 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 	album.UserID = userID
 	result := h.DB.Model(&album).Updates(album)
 	if result.Error != nil {
-		slog.Error("error updating album", slog.Any("error", result.Error))
+		slog.Error("error updating album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
@@ -173,11 +173,11 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 	album := models.Album{ID: uid, UserID: userID}
 	err = h.DB.Model(&album).Association("MediaItems").Clear()
 	if err != nil {
-		slog.Error("error deleting album", slog.Any("error", err))
+		slog.Error("error deleting album", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if result := h.DB.Delete(&album); result.Error != nil {
-		slog.Error("error deleting album", slog.Any("error", result.Error))
+		slog.Error("error deleting album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
@@ -198,7 +198,7 @@ func (h *Handler) GetAlbums(ctx echo.Context) error {
 		Offset(offset).
 		Limit(limit)
 	if result.Error != nil {
-		slog.Error("error getting albums", slog.Any("error", result.Error))
+		slog.Error("error getting albums", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, albums)
@@ -214,7 +214,7 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	album.ID = uuid.NewV4()
 	album.UserID = userID
 	if result := h.DB.Create(&album); result.Error != nil {
-		slog.Error("error creating album", slog.Any("error", result.Error))
+		slog.Error("error creating album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusCreated, album)
@@ -224,7 +224,7 @@ func getAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
 	uid, err := uuid.FromString(id)
 	if err != nil {
-		slog.Error("error getting album id", slog.Any("error", err))
+		slog.Error("error getting album id", "error", err)
 		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album id")
 	}
 	return uid, err
@@ -234,14 +234,14 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 	mediaItemsRequest := new(MediaItemsRequest)
 	err := ctx.Bind(mediaItemsRequest)
 	if err != nil || len(mediaItemsRequest.MediaItems) == 0 {
-		slog.Error("error getting album mediaitems", slog.Any("error", err))
+		slog.Error("error getting album mediaitems", "error", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitems")
 	}
 	mediaItems := make([]*models.MediaItem, len(mediaItemsRequest.MediaItems))
 	for idx, mediaItem := range mediaItemsRequest.MediaItems {
 		uid, err := uuid.FromString(mediaItem)
 		if err != nil {
-			slog.Error("error getting album mediaitem id", slog.Any("error", err))
+			slog.Error("error getting album mediaitem id", "error", err)
 			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 		}
 		mediaItems[idx] = &models.MediaItem{ID: uid}
@@ -253,7 +253,7 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 	albumRequest := new(AlbumRequest)
 	err := ctx.Bind(albumRequest)
 	if err != nil {
-		slog.Error("error getting album", slog.Any("error", err))
+		slog.Error("error getting album", "error", err)
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
 	album := models.Album{

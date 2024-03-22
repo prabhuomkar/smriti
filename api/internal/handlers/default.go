@@ -55,13 +55,13 @@ func (h *Handler) Search(ctx echo.Context) error {
 	if h.Config.ML.Search {
 		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
 		if err != nil {
-			slog.Error("error getting search query embedding", slog.Any("error", err))
+			slog.Error("error getting search query embedding", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		result := h.DB.Raw("SELECT * from mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> ?)", pgvector.NewVector(searchEmbedding.Embedding)).
 			Find(&mediaItems).Limit(searchDefaultLimit)
 		if result.Error != nil {
-			slog.Error("error searching mediaitems", slog.Any("error", result.Error))
+			slog.Error("error searching mediaitems", "error", result.Error)
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 		return ctx.JSON(http.StatusOK, mediaItems)
@@ -69,7 +69,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 	result := h.DB.Raw("SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', ?)", searchQuery).
 		Find(&mediaItems).Limit(searchDefaultLimit)
 	if result.Error != nil {
-		slog.Error("error searching mediaitems", slog.Any("error", result.Error))
+		slog.Error("error searching mediaitems", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
