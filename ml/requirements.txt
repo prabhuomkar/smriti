@@ -1,10 +1,10 @@
 facenet-pytorch==2.5.3
 fastdeploy-python
 opencv-python==4.9.0.80
-paddle2onnx==1.1.0
-pillow==10.2.0
+paddle2onnx==1.2.1
+Pillow==10.3.0
 six==1.16.0
-torch==2.2.0
-torchvision==0.17.0
-transformers==4.37.2
-urllib3==2.2.0
+torch==2.3.0
+torchvision==0.18.0
+transformers==4.40.1
+urllib3==2.2.1
