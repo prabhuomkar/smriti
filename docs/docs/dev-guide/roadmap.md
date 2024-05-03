@@ -15,5 +15,5 @@
 - [x] Open up for contributions to build Mobile & Web Application (v2023.08.31)
 - [x] Enhance Image & Video Support (v2024.03.09)
 - [x] Improvements to E2E Test Suite (v2024.03.09)
-- [ ] Sync content from Social Media Websites (v2024.04.30)
-- [ ] Generation of Memories (v2024.04.30)
+- [ ] Sync content from Social Media Websites (v2024.07.31)
+- [ ] Generation of Memories (v2024.07.31)
