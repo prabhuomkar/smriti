@@ -1,8 +1,8 @@
 facenet-pytorch==2.5.3
-fastdeploy-python
 opencv-python==4.9.0.80
-paddle2onnx==1.2.1
 Pillow==10.3.0
+paddleocr-convert==0.0.11
+rapidocr-onnxruntime==1.2.3
 six==1.16.0
 torch==2.3.0
 torchvision==0.18.0

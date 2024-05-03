@@ -1,4 +1,4 @@
-FROM python:3.10-slim AS builder
+FROM python:3.12-slim AS builder
 RUN apt update && \
     apt install --no-install-recommends -y build-essential \
     curl gcc libssl-dev python3-opencv ffmpeg libmagickwand-dev \

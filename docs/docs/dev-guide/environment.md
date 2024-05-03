@@ -24,7 +24,7 @@ make setup-api
 ```
 
 ### Worker
-- Install [Python 3.10](https://www.python.org/downloads/) or above
+- Install [Python 3.12](https://www.python.org/downloads/) or above
 - Install [pylint 3.1.0](https://pypi.org/project/pylint/) or above
 - Run the following command to finish your Worker setup
 ```
@@ -39,7 +39,7 @@ make setup-docs
 ```
 
 ### Tests
-- Install [Python 3.10](https://www.python.org/downloads/) or above
+- Install [Python 3.12](https://www.python.org/downloads/) or above
 - Run the following command to finish your Tests setup
 ```
 make setup-tests
