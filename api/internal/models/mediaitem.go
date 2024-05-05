@@ -138,7 +138,7 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *g
 	if field != nil { //nolint: nestif
 		switch gormDB.Statement.ReflectValue.Kind() { //nolint: exhaustive
 		case reflect.Slice, reflect.Array:
-			for i := 0; i < gormDB.Statement.ReflectValue.Len(); i++ {
+			for i := range gormDB.Statement.ReflectValue.Len() {
 				if fieldValue, isZero := field.ValueOf(gormDB.Statement.Context, gormDB.Statement.ReflectValue.Index(i)); !isZero {
 					if val, ok := fieldValue.(string); ok {
 						err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue.Index(i),

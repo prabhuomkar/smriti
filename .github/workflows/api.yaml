@@ -33,7 +33,7 @@ jobs:
       - name: Run Lint
         uses: golangci/golangci-lint-action@v4
         with:
-          version: v1.57.2
+          version: v1.58.0
           working-directory: api
       - name: Run Build
         run: make build
