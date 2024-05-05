@@ -52,7 +52,7 @@ func getRequestingUserID(ctx echo.Context) uuid.UUID {
 
 func getMonthAndDate(ctx echo.Context) (string, string, error) {
 	monthDate := ctx.Param("monthDate")
-	//nolint: gomnd
+	//nolint: gomnd, mnd
 	if len(monthDate) == 4 { // MMDD
 		return monthDate[:2], monthDate[2:], nil
 	}
