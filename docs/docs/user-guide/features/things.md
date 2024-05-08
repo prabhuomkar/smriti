@@ -4,7 +4,7 @@ Enable this feature using API Configuration:
 SMRITI_FEATURE_THINGS: true
 SMRITI_ML_CLASSIFICATION: true
 SMRITI_ML_CLASSIFICATION_PROVIDER: pytorch
-SMRITI_ML_CLASSIFICATION_PARAMS: {"file":"classification_v240309.pt"}
+SMRITI_ML_CLASSIFICATION_PARAMS: {"file":"classification_v240531.pt"}
 ```
 
 ## Use Cases
