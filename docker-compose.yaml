@@ -50,7 +50,7 @@ services:
   # infra services
   database:
     container_name: database
-    image: pgvector/pgvector:0.6.0-pg16
+    image: pgvector/pgvector:0.7.0-pg16
     restart: always
     environment:
       POSTGRES_USER: smritiuser
@@ -78,7 +78,7 @@ services:
     #       memory: 256M
   storage:
     container_name: storage
-    image: minio/minio:RELEASE.2024-02-04T22-36-13Z
+    image: minio/minio:RELEASE.2024-05-07T06-41-25Z
     volumes:
       - ./storage:/storage
     ports:
