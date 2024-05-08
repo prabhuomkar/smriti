@@ -42,7 +42,7 @@ jobs:
           make test-install
           make cover
       - name: Publish Coverage
-        uses: codecov/codecov-action@v3
+        uses: codecov/codecov-action@v4
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: worker
