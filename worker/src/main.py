@@ -31,9 +31,17 @@ class WorkerService(WorkerServicer):
         mediaitem_user_id = request.userId
         mediaitem_id = request.id
         mediaitem_file_path = request.filePath
-        if mediaitem_id is not None and mediaitem_user_id is not None and mediaitem_file_path is not None:
+        mediaitem_components = request.components
+        logging.info(f'mediaitem process request user {mediaitem_user_id} id {mediaitem_id} path {mediaitem_file_path} components {mediaitem_components}')
+        if mediaitem_id is not None and mediaitem_user_id is not None \
+            and mediaitem_file_path is not None and mediaitem_components is not None:
+            components = []
+            for _component in self.components:
+                if _component.name in mediaitem_components:
+                    components.append(_component)
             loop = asyncio.get_event_loop()
-            loop.create_task(process_mediaitem(self.components, self.search_model,
+            loop.create_task(process_mediaitem(components,
+                                               self.search_model if 'search' in mediaitem_components else None,
                                                mediaitem_user_id, mediaitem_id, mediaitem_file_path))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)

@@ -300,6 +300,7 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 // UploadMediaItems ...
 func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
+	features, _ := ctx.Get("features").(models.Features)
 	command := "start, finish"
 	session := ""
 	var err error
@@ -324,6 +325,11 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	}
 	defer openedFile.Close()
 
+	components := []string{}
+	if strings.Contains(command, "finish") {
+		components = h.getComponents(features)
+	}
+
 	if strings.Contains(command, "start") {
 		mediaItem := createNewMediaItem(userID, file.Filename)
 		result := h.DB.Create(&mediaItem)
@@ -333,7 +339,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		}
 
 		err = h.saveToDiskAndSendToWorker(userID.String(), mediaItem.ID.String(),
-			openedFile, strings.Contains(command, "finish"))
+			openedFile, components)
 		if err != nil {
 			return err
 		}
@@ -344,7 +350,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	}
 
 	err = h.saveToDiskAndSendToWorker(userID.String(), session,
-		openedFile, strings.Contains(command, "finish"))
+		openedFile, components)
 	if err != nil {
 		return err
 	}
@@ -352,7 +358,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFile multipart.File, sendToWorker bool) error {
+func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFile multipart.File, components []string) error {
 	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", h.Config.Storage.DiskRoot, mediaItemID), fileFlag, filePermission)
 	if err != nil {
 		slog.Error("error opening file", "error", err)
@@ -365,7 +371,7 @@ func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFi
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	if sendToWorker {
+	if len(components) != 0 {
 		err = h.generateHashForDuplicates(userID, mediaItemID, dstFile.Name())
 		if err != nil {
 			if strings.Contains(err.Error(), "violates unique constraint") {
@@ -377,9 +383,10 @@ func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFi
 		}
 
 		_, err = h.Worker.MediaItemProcess(context.Background(), &worker.MediaItemProcessRequest{
-			UserId:   userID,
-			Id:       mediaItemID,
-			FilePath: h.Config.Storage.DiskRoot,
+			UserId:     userID,
+			Id:         mediaItemID,
+			FilePath:   h.Config.Storage.DiskRoot,
+			Components: components,
 		})
 		if err != nil {
 			slog.Error("error sending mediaitem for processing", "error", err)
@@ -417,6 +424,27 @@ func (h *Handler) generateHashForDuplicates(userID, mediaItemID, filePath string
 	}
 
 	return nil
+}
+
+//nolint:cyclop
+func (h *Handler) getComponents(features models.Features) []string {
+	components := []string{"metadata"}
+	if h.Config.ML.Places && features.Places {
+		components = append(components, "places")
+	}
+	if h.Config.ML.Classification && features.Things {
+		components = append(components, "classification")
+	}
+	if h.Config.ML.OCR && features.Explore {
+		components = append(components, "ocr")
+	}
+	if h.Config.ML.Search && features.Explore {
+		components = append(components, "search")
+	}
+	if h.Config.ML.Faces && features.People {
+		components = append(components, "faces")
+	}
+	return components
 }
 
 func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {

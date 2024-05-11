@@ -6,6 +6,7 @@ message MediaItemProcessRequest {
     string userId = 1;
     string id = 2;
     string filePath = 3;
+    repeated string components = 4;
 }
 
 message MediaItemProcessResponse {
