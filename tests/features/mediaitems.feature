@@ -35,6 +35,11 @@ Feature: MediaItems
         When get all mediaitems with auth
         Then mediaitem is present in list
 
+    Scenario: Validate Duplicate Photo MediaItem
+        Given a mediaitem exists
+        When upload default photo mediaitem with auth
+        Then mediaitem already exists
+
     Scenario: Validate Delete Photo MediaItem
         Given a mediaitem exists
         When delete mediaitem without auth

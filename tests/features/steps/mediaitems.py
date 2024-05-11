@@ -135,6 +135,10 @@ def step_impl(context):
             raise Exception('failed to upload mediaitem')
         time.sleep(2)
 
+@then('mediaitem already exists')
+def step_impl(context):
+    assert context.response.status_code == 409
+
 @then('mediaitem is uploaded or exists')
 def step_impl(context):
     assert context.response.status_code in [200, 201]
