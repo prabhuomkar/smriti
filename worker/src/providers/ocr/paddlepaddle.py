@@ -19,6 +19,7 @@ class PaddleModule:
     def extract(self, mediaitem_user_id: str, mediaitem_id: str, mediaitem_type: str, input_file: str) -> dict:
         """Extract text from mediaitem"""
         words = []
+        # pylint: disable=too-many-nested-blocks
         if mediaitem_type == 'photo':
             result = self.model(cv2.imread(input_file))
             if result is not None and len(result) == 2:
