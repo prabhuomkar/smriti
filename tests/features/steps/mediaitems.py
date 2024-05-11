@@ -130,6 +130,7 @@ def step_impl(context):
         res = requests.get(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
         res = res.json()
         if res['status'] == 'READY':
+            time.sleep(2)
             break
         if res['status'] == 'FAILED':
             raise Exception('failed to upload mediaitem')
@@ -152,6 +153,7 @@ def step_impl(context):
         res = requests.get(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
         res = res.json()
         if res['status'] == 'READY':
+            time.sleep(2)
             break
         if res['status'] == 'FAILED':
             raise Exception('failed to upload mediaitem')

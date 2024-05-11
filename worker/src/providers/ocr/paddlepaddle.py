@@ -23,18 +23,20 @@ class PaddleModule:
             result = self.model(cv2.imread(input_file))
             if result is not None and len(result) == 2:
                 predictions = result[0]
-                for prediction in predictions:
-                    if len(prediction) == 3:
-                        words += prediction[1].split()
+                if predictions is not None:
+                    for prediction in predictions:
+                        if len(prediction) == 3:
+                            words += prediction[1].split()
         else:
             video_clip = VideoFileClip(input_file)
             for frame in video_clip.iter_frames(fps=video_clip.fps):
                 _result = self.model(frame)
                 if _result is not None and len(_result) == 2:
                     predictions = _result[0]
-                    for prediction in predictions:
-                        if len(prediction) == 3:
-                            words += prediction[1].split()
+                    if predictions is not None:
+                        for prediction in predictions:
+                            if len(prediction) == 3:
+                                words += prediction[1].split()
             video_clip.reader.close()
         logging.debug(f'extracted text for user {mediaitem_user_id} mediaitem {mediaitem_id}: {words}')
         if len(words) == 0:

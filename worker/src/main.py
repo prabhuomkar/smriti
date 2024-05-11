@@ -3,6 +3,7 @@ import asyncio
 import logging
 import os
 import json
+import signal
 
 import grpc
 import schedule
@@ -46,6 +47,12 @@ class WorkerService(WorkerServicer):
             return GenerateEmbeddingResponse(embedding=result)
         return GenerateEmbeddingResponse(embedding=None)
 
+def run_pending() -> None:
+    """Run scheduled jobs in background"""
+    while True:
+        schedule.run_pending()
+        asyncio.run(asyncio.sleep(1))
+
 # pylint: disable=redefined-builtin,invalid-name
 async def process_mediaitem(components: list[Component], search_model: PyTorchModule,
                             user_id: str, id: str, file_path: str) -> None:
@@ -64,16 +71,10 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
     await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
-async def run_pending() -> None:
-    """Run scheduled jobs in background"""
-    while True:
-        schedule.run_pending()
-        await asyncio.sleep(1)
-
 async def serve() -> None: # pylint: disable=too-many-locals
-    """Main serve function"""
+    """Start gRPC and metrics server"""
     # start metrics
-    start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
+    metrics_server, metrics_thread = start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
 
     # initialize api grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
@@ -118,22 +119,35 @@ async def serve() -> None: # pylint: disable=too-many-locals
     components.append(Finalize(api_stub=api_stub))
 
     # initialize worker grpc server
-    server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(components, search_model), server)
+    grpc_server = grpc.aio.server()
+    add_WorkerServicer_to_server(WorkerService(components, search_model), grpc_server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
-    server.add_insecure_port(f'[::]:{port}')
+    grpc_server.add_insecure_port(f'[::]:{port}')
+    await grpc_server.start()
     logging.info(f'starting grpc server on: {port}')
-    await server.start()
-    periodic_task = asyncio.create_task(run_pending())
-    try:
-        await server.wait_for_termination()
-    finally:
-        periodic_task.cancel()
-        logging.info('stopping grpc server')
-        await server.stop(10)
+    return grpc_server, metrics_server, metrics_thread
+
+async def shutdown(grpc_server, metrics_server, metrics_thread):
+    """Shutdown gRPC and metrics server"""
+    logging.info('stopping grpc server')
+    await grpc_server.stop(10)
+    logging.info('stopping metrics server')
+    metrics_server.shutdown()
+    metrics_thread.join()
+
+async def main():
+    """Main driver function"""
+    grpc_server, metrics_server, metrics_thread = await serve()
+    loop = asyncio.get_running_loop()
+    loop.run_in_executor(None, run_pending)
+    for sig in [signal.SIGINT, signal.SIGTERM]:
+        loop.add_signal_handler(sig, lambda sig=sig: asyncio.create_task(
+            shutdown(grpc_server, metrics_server, metrics_thread)))
+    await grpc_server.wait_for_termination()
+
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                         datefmt='%Y/%m/%d %H:%M:%S',
                         level=logging.getLevelName(os.getenv('SMRITI_LOG_LEVEL', 'INFO')))
-    asyncio.run(serve())
+    asyncio.run(main())
