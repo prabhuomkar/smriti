@@ -22,6 +22,8 @@ func (h *Handler) GetVersion(ctx echo.Context) error {
 }
 
 // GetFeatures ...
+//
+//nolint:cyclop
 func (h *Handler) GetFeatures(ctx echo.Context) error {
 	cfgFeatures := models.GetFeatures(h.Config)
 	features, _ := ctx.Get("features").(models.Features)
