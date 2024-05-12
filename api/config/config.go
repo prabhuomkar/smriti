@@ -1,6 +1,10 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"time"
+
+	"github.com/kelseyhightower/envconfig"
+)
 
 type (
 	// Log ...
@@ -102,6 +106,10 @@ type (
 		SecretKey string `envconfig:"SMRITI_STORAGE_SECRET_KEY" default:"smritipass"`
 	}
 
+	Job struct {
+		QueueInterval time.Duration `envconfig:"SMRITI_JOB_QUEUE_INTERVAL" default:"5s"`
+	}
+
 	// Config ...
 	Config struct {
 		Log
@@ -115,6 +123,7 @@ type (
 		ML
 		Admin
 		Storage
+		Job
 	}
 )
 

@@ -11,5 +11,6 @@ func GetModels() []interface{} {
 		MediaItem{},
 		MediaitemEmbedding{},
 		MediaitemFace{},
+		Job{},
 	}
 }

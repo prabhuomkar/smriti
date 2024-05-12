@@ -13,16 +13,16 @@ import (
 
 var (
 	jobCols = []string{
-		"id", "user_id", "type", "status", "last_mediaitem_id", "created_at", "updated_at",
+		"id", "user_id", "components", "status", "last_mediaitem_id", "created_at", "updated_at",
 	}
 	jobResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"SCHEDULED","type":"metadata","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"status":"SCHEDULED","components":"metadata,places","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
 	jobsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"RUNNING","type":"metadata","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"status":"RUNNING","components":"metadata,places","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"},` +
 		`{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"RUNNING","type":"faces","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"status":"RUNNING","components":"faces","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
@@ -181,11 +181,13 @@ func TestUpdateJob(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"status":"PAUSED"}`),
+			strings.NewReader(`{"status":"RUNNING"}`),
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+					WillReturnRows(sqlmock.NewRows(jobCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "jobs"`)).
-					WithArgs("PAUSED", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WithArgs("RUNNING", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -222,6 +224,30 @@ func TestUpdateJob(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"update job with error due to job already exists",
+			http.MethodPut,
+			"/v1/jobs/:id",
+			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"status":"RUNNING"}`),
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+					WillReturnRows(getMockedJobRow())
+
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateJob
+			},
+			http.StatusConflict,
+			"job already exists",
 		},
 	}
 	executeTests(t, tests)
@@ -346,8 +372,10 @@ func TestCreateJob(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"type":"search"}`),
+			strings.NewReader(`{"components":"search"}`),
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+					WillReturnRows(sqlmock.NewRows(jobCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "jobs"`)).
 					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), "SCHEDULED", "search", sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
@@ -360,7 +388,7 @@ func TestCreateJob(t *testing.T) {
 				return handler.CreateJob
 			},
 			http.StatusCreated,
-			`"status":"SCHEDULED","type":"search",`,
+			`"status":"SCHEDULED","components":"search",`,
 		},
 		{
 			"create job with error",
@@ -372,8 +400,10 @@ func TestCreateJob(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"type":"search"}`),
+			strings.NewReader(`{"components":"search"}`),
 			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+					WillReturnRows(sqlmock.NewRows(jobCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "jobs"`)).
 					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), "SCHEDULED", "search", sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
@@ -388,19 +418,42 @@ func TestCreateJob(t *testing.T) {
 			http.StatusInternalServerError,
 			"some db error",
 		},
+		{
+			"create job with error due to job already exists",
+			http.MethodPost,
+			"/v1/jobs",
+			"/v1/jobs",
+			[]string{},
+			[]string{},
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"components":"search"}`),
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+					WillReturnRows(getMockedJobRow())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateJob
+			},
+			http.StatusConflict,
+			"job already exists",
+		},
 	}
 	executeTests(t, tests)
 }
 
 func getMockedJobRow() *sqlmock.Rows {
 	return sqlmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "metadata", "SCHEDULED",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "metadata,places", "SCHEDULED",
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sampleTime, sampleTime)
 }
 
 func getMockedJobRows() *sqlmock.Rows {
 	return sqlmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "metadata", "RUNNING",
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "metadata,places", "RUNNING",
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "faces", "RUNNING",
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sampleTime, sampleTime)

@@ -15,8 +15,8 @@ import (
 type (
 	// JobRequest ...
 	JobRequest struct {
-		Type   *string `json:"type"`
-		Status *string `json:"status"`
+		Components *string `json:"components"`
+		Status     *string `json:"status"`
 	}
 )
 
@@ -51,6 +51,16 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 	job, err := getJob(ctx)
 	if err != nil {
 		return err
+	}
+	if job.Status == models.JobRunning {
+		existingJob := models.Job{}
+		result := h.DB.Model(&models.Job{}).
+			Where("user_id=? AND status IN (?, ?, ?)", userID, string(models.JobPaused), string(models.JobScheduled), string(models.JobRunning)).
+			First(&existingJob)
+		if (models.Job{} != existingJob) || (result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound)) {
+			slog.Error("job already exists", "error", result.Error)
+			return echo.NewHTTPError(http.StatusConflict, "job already exists")
+		}
 	}
 	result := h.DB.Model(&models.Job{UserID: userID, ID: uid}).Updates(map[string]interface{}{
 		"Status": job.Status,
@@ -90,6 +100,14 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 	job.ID = uuid.NewV4()
 	job.UserID = userID
 	job.Status = models.JobScheduled
+	existingJob := models.Job{}
+	result := h.DB.Model(&models.Job{}).
+		Where("user_id=? AND status IN (?, ?, ?)", userID, string(models.JobPaused), string(models.JobScheduled), string(models.JobRunning)).
+		First(&existingJob)
+	if (models.Job{} != existingJob) || (result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound)) {
+		slog.Error("job already exists", "error", result.Error)
+		return echo.NewHTTPError(http.StatusConflict, "job already exists")
+	}
 	if result := h.DB.Create(&job); result.Error != nil {
 		slog.Error("error creating job", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
@@ -115,8 +133,8 @@ func getJob(ctx echo.Context) (*models.Job, error) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid job")
 	}
 	job := models.Job{}
-	if jobRequest.Type != nil {
-		job.Type = *jobRequest.Type
+	if jobRequest.Components != nil {
+		job.Components = *jobRequest.Components
 	}
 	if jobRequest.Status != nil {
 		job.Status = models.JobStatus(*jobRequest.Status)
