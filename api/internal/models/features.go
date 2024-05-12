@@ -14,6 +14,7 @@ type (
 		Things     bool `json:"things,omitempty"`
 		People     bool `json:"people,omitempty"`
 		Sharing    bool `json:"sharing,omitempty"`
+		Jobs       bool `json:"jobs,omitempty"`
 	}
 )
 

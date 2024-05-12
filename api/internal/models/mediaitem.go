@@ -45,7 +45,7 @@ type (
 	// MediaItem ...
 	MediaItem struct {
 		ID                uuid.UUID             `json:"id" gorm:"primaryKey;index:,unique;type:uuid"`
-		UserID            uuid.UUID             `json:"userId" gorm:"column:user_id;uniqueIndex:idx_mediaitems_user_id_hash;"`
+		UserID            uuid.UUID             `json:"userId" gorm:"column:user_id;uniqueIndex:idx_mediaitems_user_id_hash"`
 		Filename          string                `json:"filename"`
 		Hash              *string               `json:"hash,omitempty" gorm:"index:idx_mediaitems_user_id_hash"`
 		Description       *string               `json:"description,omitempty"`

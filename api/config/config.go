@@ -84,6 +84,7 @@ type (
 		Things     bool `envconfig:"SMRITI_FEATURE_THINGS" default:"true"`
 		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"true"`
 		Sharing    bool `envconfig:"SMRITI_FEATURE_SHARING" default:"true"`
+		Jobs       bool `envconfig:"SMRITI_FEATURE_JOBS" default:"true"`
 	}
 
 	// Admin ...

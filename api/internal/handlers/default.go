@@ -35,6 +35,7 @@ func (h *Handler) GetFeatures(ctx echo.Context) error {
 	features.Things = features.Things && cfgFeatures.Things
 	features.People = features.People && cfgFeatures.People
 	features.Sharing = features.Sharing && cfgFeatures.Sharing
+	features.Jobs = features.Jobs && cfgFeatures.Jobs
 
 	return ctx.JSON(http.StatusOK, features)
 }

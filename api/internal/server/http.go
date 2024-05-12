@@ -117,6 +117,13 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	albums.DELETE("/:id", handler.DeleteAlbum)
 	albums.GET("", handler.GetAlbums)
 	albums.POST("", handler.CreateAlbum)
+	// jobs
+	jobs := version1.Group("/jobs")
+	jobs.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "jobs")...)
+	jobs.GET("/:id", handler.GetJob)
+	jobs.PUT("/:id", handler.UpdateJob)
+	jobs.GET("", handler.GetJobs)
+	jobs.POST("", handler.CreateJob)
 	// sharing
 	sharing := version1.Group("/sharing")
 	sharing.Use(getMiddlewareFuncs(handler.Config, handler.Cache, false, "sharing")...)

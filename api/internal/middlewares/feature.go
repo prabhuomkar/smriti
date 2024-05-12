@@ -23,6 +23,7 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "places" && cfg.Feature.Places && features.Places) ||
 				(feature == "things" && cfg.Feature.Things && features.Things) ||
 				(feature == "people" && cfg.Feature.People && features.People) ||
+				(feature == "jobs" && cfg.Feature.Jobs && features.Jobs) ||
 				(feature == "sharing" && cfg.Feature.Sharing) {
 				return next(ctx)
 			}
