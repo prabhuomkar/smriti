@@ -3,6 +3,7 @@ package main
 import (
 	"api/config"
 	"api/internal/handlers"
+	"api/internal/jobs"
 	"api/internal/models"
 	"api/internal/server"
 	"api/internal/service"
@@ -20,6 +21,7 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
+//nolint:funlen
 func main() {
 	cfg, err := config.Init()
 	if err != nil {
@@ -74,6 +76,14 @@ func main() {
 		panic(err)
 	}
 	handler.Worker = worker.NewWorkerClient(conn)
+
+	jobsInstance := &jobs.Job{
+		Config:  cfg,
+		DB:      pgDB,
+		Storage: storageProvider,
+		Worker:  worker.NewWorkerClient(conn),
+	}
+	go jobsInstance.StartJobs()
 
 	// graceful shutdown
 	shutdownSignal := make(chan os.Signal, 1)

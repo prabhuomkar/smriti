@@ -108,6 +108,7 @@ type (
 
 	Job struct {
 		QueueInterval time.Duration `envconfig:"SMRITI_JOB_QUEUE_INTERVAL" default:"5s"`
+		Concurrency   int           `envconfig:"SMRITI_JOB_CONCURRENCY" default:"10"`
 	}
 
 	// Config ...
