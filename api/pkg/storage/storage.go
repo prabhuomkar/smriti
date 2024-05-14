@@ -12,7 +12,9 @@ const (
 	ProviderDisk  = "disk"
 	ProviderMinio = "minio"
 
-	dirPermission = 0o777
+	dirPermission  = 0o777
+	fileFlag       = os.O_WRONLY | os.O_APPEND | os.O_CREATE
+	filePermission = 0o644
 )
 
 type (
@@ -20,6 +22,7 @@ type (
 	Provider interface {
 		Type() string
 		Upload(filePath string, fileType string, fileID string) (string, error)
+		Download(filePath string, fileType string, fileID string) error
 		Delete(fileType string, fileID string) error
 		Get(fileType string, fileID string) (string, error)
 	}

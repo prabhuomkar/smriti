@@ -66,17 +66,15 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
                             user_id: str, id: str, file_path: str) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
-    metadata = await components[0].process(user_id, id, file_path, None)
-    result = metadata
-    for i in range(1, len(components)-1):
+    result = None
+    for component in components:
         loop = asyncio.get_event_loop()
-        task = loop.create_task(components[i].process(user_id, id, file_path, result))
+        task = loop.create_task(component.process(user_id, id, file_path, result))
         result = await task
     if search_model:
         result['embeddings'] = search_model.generate_embedding('file', result)
         if 'keywords' in result:
             result['embeddings'] += [search_model.generate_embedding('text', result['keywords'])]
-    await components[len(components)-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
 async def serve() -> None: # pylint: disable=too-many-locals

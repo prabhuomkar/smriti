@@ -444,6 +444,7 @@ func (h *Handler) getComponents(features models.Features) []string {
 	if h.Config.ML.Faces && features.People {
 		components = append(components, "faces")
 	}
+	components = append(components, "finalize")
 	return components
 }
 

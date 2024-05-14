@@ -37,6 +37,25 @@ func (d *Disk) Upload(filePath, fileType, fileID string) (string, error) {
 	return result, nil
 }
 
+func (d *Disk) Download(filePath, fileType, fileID string) error {
+	sourceFilePath := fmt.Sprintf("%s/%s/%s", d.Root, fileType, fileID)
+	sourceFile, err := os.Open(sourceFilePath)
+	if err != nil {
+		return fmt.Errorf("error downloading file to disk as cannot open file: %w", err)
+	}
+	defer sourceFile.Close()
+	destinationFile, err := os.OpenFile(filePath, fileFlag, filePermission)
+	if err != nil {
+		return fmt.Errorf("error downloading file to disk as cannot create file: %w", err)
+	}
+	defer destinationFile.Close()
+	_, err = io.Copy(destinationFile, sourceFile)
+	if err != nil {
+		return fmt.Errorf("error downloading file to disk as cannot copy contents: %w", err)
+	}
+	return nil
+}
+
 func (d *Disk) Delete(fileType, fileID string) error {
 	err := os.Remove(fmt.Sprintf("%s/%s/%s", d.Root, fileType, fileID))
 	if err != nil {

@@ -23,6 +23,10 @@ func (m *mockMinioClient) FPutObject(_ context.Context, _ string, _ string, _ st
 	return minio.UploadInfo{}, nil
 }
 
+func (m *mockMinioClient) FGetObject(_ context.Context, _ string, _ string, _ string, _ minio.GetObjectOptions) error {
+	return nil
+}
+
 func (m *mockMinioClient) RemoveObject(_ context.Context, _ string, _ string, _ minio.RemoveObjectOptions) error {
 	return nil
 }

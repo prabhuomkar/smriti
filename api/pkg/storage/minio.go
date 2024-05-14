@@ -19,7 +19,8 @@ type (
 	}
 
 	minioClient interface {
-		FPutObject(ctx context.Context, stringfileType string, fileID string, filePath string, opts minio.PutObjectOptions) (minio.UploadInfo, error)
+		FPutObject(ctx context.Context, fileType string, fileID string, filePath string, opts minio.PutObjectOptions) (minio.UploadInfo, error)
+		FGetObject(ctx context.Context, fileType string, fileID string, filePath string, opts minio.GetObjectOptions) error
 		RemoveObject(ctx context.Context, fileType string, fileID string, opts minio.RemoveObjectOptions) error
 		PresignedGetObject(ctx context.Context, fileType string, fileID string, expiry time.Duration, vals url.Values) (*url.URL, error)
 	}
@@ -42,6 +43,14 @@ func (m *Minio) Upload(filePath, fileType, fileID string) (string, error) {
 		defer os.Remove(filePath)
 	}
 	return fmt.Sprintf("/%s/%s", fileType, fileID), nil
+}
+
+func (m *Minio) Download(filePath, fileType, fileID string) error {
+	err := m.Client.FGetObject(context.Background(), fileType, fileID, filePath, minio.GetObjectOptions{})
+	if err != nil {
+		return fmt.Errorf("error downloading file from minio: %w", err)
+	}
+	return nil
 }
 
 func (m *Minio) Delete(fileType, fileID string) error {
