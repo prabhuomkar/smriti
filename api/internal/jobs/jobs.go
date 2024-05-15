@@ -8,6 +8,7 @@ import (
 	"context"
 	"fmt"
 	"log/slog"
+	"strconv"
 	"strings"
 	"sync"
 	"time"
@@ -149,7 +150,8 @@ func (j *Job) executeJobMediaItem(wg *sync.WaitGroup, jobCfg models.Job, queue <
 			UserId:     item.UserID.String(),
 			Id:         item.ID.String(),
 			FilePath:   j.Config.Storage.DiskRoot,
-			Components: strings.Split(jobCfg.Components, ","),
+			Components: getComponents(jobCfg.Components),
+			Payload:    j.getPayload(jobCfg, item),
 		})
 		if err != nil {
 			slog.Error("error sending mediaitem for processing", "error", err)
@@ -184,6 +186,30 @@ func (j *Job) executeJobMediaItem(wg *sync.WaitGroup, jobCfg models.Job, queue <
 	}
 }
 
+func getComponents(jobComponents string) []worker.MediaItemComponent {
+	components := strings.Split(jobComponents, ",")
+	workerComponents := []worker.MediaItemComponent{}
+	for _, component := range components {
+		switch strings.ToUpper(component) {
+		case worker.MediaItemComponent_METADATA.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_METADATA)
+		case worker.MediaItemComponent_PREVIEW_THUMBNAIL.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_PREVIEW_THUMBNAIL)
+		case worker.MediaItemComponent_PLACES.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_PLACES)
+		case worker.MediaItemComponent_CLASSIFICATION.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_CLASSIFICATION)
+		case worker.MediaItemComponent_FACES.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_FACES)
+		case worker.MediaItemComponent_OCR.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_OCR)
+		case worker.MediaItemComponent_SEARCH.String():
+			workerComponents = append(workerComponents, worker.MediaItemComponent_SEARCH)
+		}
+	}
+	return workerComponents
+}
+
 func (j *Job) getJobStatus(jobCfg models.Job) models.JobStatus {
 	currentJob := models.Job{}
 	result := j.DB.Model(&models.Job{}).
@@ -203,6 +229,21 @@ func (j *Job) updateJobStatus(jobCfg models.Job, status models.JobStatus) {
 	if result.Error != nil {
 		slog.Error("error updating job status", "error", result.Error)
 	}
+}
+
+func (j *Job) getPayload(jobCfg models.Job, mediaItem models.MediaItem) map[string]string {
+	payload := map[string]string{}
+	_, fileName := getFileTypeAndFileName(jobCfg.Components, mediaItem.ID.String(), string(mediaItem.MediaItemType))
+	payload["sourcePath"] = fmt.Sprintf("%s/%s", j.Config.Storage.DiskRoot, mediaItem.ID.String())
+	payload["previewPath"] = fmt.Sprintf("%s/%s", j.Config.Storage.DiskRoot, fileName)
+	if mediaItem.Latitude != nil {
+		payload["latitude"] = strconv.FormatFloat(*mediaItem.Latitude, 'f', -1, 64)
+	}
+	if mediaItem.Longitude != nil {
+		payload["longitude"] = strconv.FormatFloat(*mediaItem.Longitude, 'f', -1, 64)
+	}
+	payload["type"] = string(mediaItem.MediaItemType)
+	return payload
 }
 
 func getFileTypeAndFileName(components, mediaItemID, mediaItemType string) (string, string) {

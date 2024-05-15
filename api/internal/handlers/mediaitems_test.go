@@ -1140,6 +1140,27 @@ func TestGetMediaItems(t *testing.T) {
 			mediaitemsResponseBody,
 		},
 		{
+			"get mediaitems with 2 rows and filters",
+			http.MethodGet,
+			"/v1/mediaItems",
+			"/v1/mediaItems?status=FAILED",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRows())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItems
+			},
+			http.StatusOK,
+			mediaitemsResponseBody,
+		},
+		{
 			"get mediaitems with error",
 			http.MethodGet,
 			"/v1/mediaItems",

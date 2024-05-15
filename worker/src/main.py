@@ -14,7 +14,7 @@ from src.components.component import Component
 from src.components.finalize import Finalize
 from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import MediaItemComponent, MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
@@ -32,17 +32,21 @@ class WorkerService(WorkerServicer):
         mediaitem_id = request.id
         mediaitem_file_path = request.filePath
         mediaitem_components = request.components
-        logging.info(f'mediaitem process request user {mediaitem_user_id} id {mediaitem_id} path {mediaitem_file_path} components {mediaitem_components}')
+        mediaitem_payload = request.payload
+        logging.info(f'mediaitem process request user {mediaitem_user_id} id {mediaitem_id} \
+                     path {mediaitem_file_path} components {mediaitem_components} payload {mediaitem_payload}')
         if mediaitem_id is not None and mediaitem_user_id is not None \
             and mediaitem_file_path is not None and mediaitem_components is not None:
             components = []
+            mediaitem_components = [
+                MediaItemComponent.Name(mediaitem_component).lower() for mediaitem_component in mediaitem_components]
             for _component in self.components:
-                if _component.name in mediaitem_components:
+                if _component.name in mediaitem_components or _component.name == 'finalize':
                     components.append(_component)
             loop = asyncio.get_event_loop()
             loop.create_task(process_mediaitem(components,
                                                self.search_model if 'search' in mediaitem_components else None,
-                                               mediaitem_user_id, mediaitem_id, mediaitem_file_path))
+                                               mediaitem_user_id, mediaitem_id, mediaitem_file_path, mediaitem_payload))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)
 
@@ -61,20 +65,22 @@ def run_pending() -> None:
         schedule.run_pending()
         asyncio.run(asyncio.sleep(1))
 
-# pylint: disable=redefined-builtin,invalid-name
+# pylint: disable=redefined-builtin,invalid-name,too-many-arguments
 async def process_mediaitem(components: list[Component], search_model: PyTorchModule,
-                            user_id: str, id: str, file_path: str) -> None:
+                            user_id: str, id: str, file_path: str, payload: any) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
-    result = None
-    for component in components:
+    result = dict(payload)
+    for i in range(len(components)-1):
         loop = asyncio.get_event_loop()
-        task = loop.create_task(component.process(user_id, id, file_path, result))
+        task = loop.create_task(components[i].process(user_id, id, file_path, result))
         result = await task
+    logging.info(result)
     if search_model:
         result['embeddings'] = search_model.generate_embedding('file', result)
         if 'keywords' in result:
             result['embeddings'] += [search_model.generate_embedding('text', result['keywords'])]
+    await components[-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
 async def serve() -> None: # pylint: disable=too-many-locals

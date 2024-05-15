@@ -325,7 +325,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	}
 	defer openedFile.Close()
 
-	components := []string{}
+	components := []worker.MediaItemComponent{}
 	if strings.Contains(command, "finish") {
 		components = h.getComponents(features)
 	}
@@ -358,7 +358,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFile multipart.File, components []string) error {
+func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFile multipart.File, components []worker.MediaItemComponent) error {
 	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", h.Config.Storage.DiskRoot, mediaItemID), fileFlag, filePermission)
 	if err != nil {
 		slog.Error("error opening file", "error", err)
@@ -427,24 +427,26 @@ func (h *Handler) generateHashForDuplicates(userID, mediaItemID, filePath string
 }
 
 //nolint:cyclop
-func (h *Handler) getComponents(features models.Features) []string {
-	components := []string{"metadata"}
+func (h *Handler) getComponents(features models.Features) []worker.MediaItemComponent {
+	components := []worker.MediaItemComponent{
+		worker.MediaItemComponent_METADATA,
+		worker.MediaItemComponent_PREVIEW_THUMBNAIL,
+	}
 	if h.Config.ML.Places && features.Places {
-		components = append(components, "places")
+		components = append(components, worker.MediaItemComponent_PLACES)
 	}
 	if h.Config.ML.Classification && features.Things {
-		components = append(components, "classification")
+		components = append(components, worker.MediaItemComponent_CLASSIFICATION)
 	}
 	if h.Config.ML.OCR && features.Explore {
-		components = append(components, "ocr")
+		components = append(components, worker.MediaItemComponent_OCR)
 	}
 	if h.Config.ML.Search && features.Explore {
-		components = append(components, "search")
+		components = append(components, worker.MediaItemComponent_SEARCH)
 	}
 	if h.Config.ML.Faces && features.People {
-		components = append(components, "faces")
+		components = append(components, worker.MediaItemComponent_FACES)
 	}
-	components = append(components, "finalize")
 	return components
 }
 
