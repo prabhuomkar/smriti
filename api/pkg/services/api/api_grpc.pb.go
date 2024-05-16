@@ -27,6 +27,7 @@ type APIClient interface {
 	GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error)
 	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
+	SaveMediaItemPreviewThumbnail(ctx context.Context, in *MediaItemPreviewThumbnailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemFaces(ctx context.Context, in *MediaItemFacesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -72,6 +73,15 @@ func (c *aPIClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grp
 func (c *aPIClient) SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	out := new(emptypb.Empty)
 	err := c.cc.Invoke(ctx, "/API/SaveMediaItemMetadata", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aPIClient) SaveMediaItemPreviewThumbnail(ctx context.Context, in *MediaItemPreviewThumbnailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
+	out := new(emptypb.Empty)
+	err := c.cc.Invoke(ctx, "/API/SaveMediaItemPreviewThumbnail", in, out, opts...)
 	if err != nil {
 		return nil, err
 	}
@@ -131,6 +141,7 @@ type APIServer interface {
 	GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error)
 	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*emptypb.Empty, error)
+	SaveMediaItemPreviewThumbnail(context.Context, *MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*emptypb.Empty, error)
 	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*emptypb.Empty, error)
 	SaveMediaItemFaces(context.Context, *MediaItemFacesRequest) (*emptypb.Empty, error)
@@ -154,6 +165,9 @@ func (UnimplementedAPIServer) GetUsers(context.Context, *emptypb.Empty) (*GetUse
 }
 func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemMetadata not implemented")
+}
+func (UnimplementedAPIServer) SaveMediaItemPreviewThumbnail(context.Context, *MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemPreviewThumbnail not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemPlace not implemented")
@@ -251,6 +265,24 @@ func _API_SaveMediaItemMetadata_Handler(srv interface{}, ctx context.Context, de
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(APIServer).SaveMediaItemMetadata(ctx, req.(*MediaItemMetadataRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _API_SaveMediaItemPreviewThumbnail_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaItemPreviewThumbnailRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(APIServer).SaveMediaItemPreviewThumbnail(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/API/SaveMediaItemPreviewThumbnail",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(APIServer).SaveMediaItemPreviewThumbnail(ctx, req.(*MediaItemPreviewThumbnailRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -367,6 +399,10 @@ var API_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveMediaItemMetadata",
 			Handler:    _API_SaveMediaItemMetadata_Handler,
+		},
+		{
+			MethodName: "SaveMediaItemPreviewThumbnail",
+			Handler:    _API_SaveMediaItemPreviewThumbnail_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemPlace",

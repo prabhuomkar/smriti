@@ -13,15 +13,11 @@ class ConfigResponse(_message.Message):
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
 class MediaItemMetadataRequest(_message.Message):
-    __slots__ = ("userId", "id", "status", "mimeType", "sourcePath", "placeholder", "previewPath", "thumbnailPath", "type", "category", "width", "height", "creationTime", "cameraMake", "cameraModel", "focalLength", "apertureFNumber", "isoEquivalent", "exposureTime", "fps", "latitude", "longitude")
+    __slots__ = ("userId", "id", "status", "mimeType", "type", "category", "width", "height", "creationTime", "cameraMake", "cameraModel", "focalLength", "apertureFNumber", "isoEquivalent", "exposureTime", "fps", "latitude", "longitude")
     USERID_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
     MIMETYPE_FIELD_NUMBER: _ClassVar[int]
-    SOURCEPATH_FIELD_NUMBER: _ClassVar[int]
-    PLACEHOLDER_FIELD_NUMBER: _ClassVar[int]
-    PREVIEWPATH_FIELD_NUMBER: _ClassVar[int]
-    THUMBNAILPATH_FIELD_NUMBER: _ClassVar[int]
     TYPE_FIELD_NUMBER: _ClassVar[int]
     CATEGORY_FIELD_NUMBER: _ClassVar[int]
     WIDTH_FIELD_NUMBER: _ClassVar[int]
@@ -40,10 +36,6 @@ class MediaItemMetadataRequest(_message.Message):
     id: str
     status: str
     mimeType: str
-    sourcePath: str
-    placeholder: str
-    previewPath: str
-    thumbnailPath: str
     type: str
     category: str
     width: int
@@ -58,7 +50,25 @@ class MediaItemMetadataRequest(_message.Message):
     fps: str
     latitude: float
     longitude: float
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., sourcePath: _Optional[str] = ..., placeholder: _Optional[str] = ..., previewPath: _Optional[str] = ..., thumbnailPath: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
+
+class MediaItemPreviewThumbnailRequest(_message.Message):
+    __slots__ = ("userId", "id", "status", "sourcePath", "previewPath", "thumbnailPath", "placeholder")
+    USERID_FIELD_NUMBER: _ClassVar[int]
+    ID_FIELD_NUMBER: _ClassVar[int]
+    STATUS_FIELD_NUMBER: _ClassVar[int]
+    SOURCEPATH_FIELD_NUMBER: _ClassVar[int]
+    PREVIEWPATH_FIELD_NUMBER: _ClassVar[int]
+    THUMBNAILPATH_FIELD_NUMBER: _ClassVar[int]
+    PLACEHOLDER_FIELD_NUMBER: _ClassVar[int]
+    userId: str
+    id: str
+    status: str
+    sourcePath: str
+    previewPath: str
+    thumbnailPath: str
+    placeholder: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., sourcePath: _Optional[str] = ..., previewPath: _Optional[str] = ..., thumbnailPath: _Optional[str] = ..., placeholder: _Optional[str] = ...) -> None: ...
 
 class MediaItemPlaceRequest(_message.Message):
     __slots__ = ("userId", "id", "postcode", "country", "state", "city", "town")

@@ -95,7 +95,7 @@ func (s *Service) GetUsers(_ context.Context, _ *emptypb.Empty) (*api.GetUsersRe
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) { //nolint: cyclop
+func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
@@ -120,34 +120,63 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		UserID: userID, ID: uid, CreationTime: creationTime,
 	}
 	parseMediaItem(&mediaItem, req)
-	mediaItem.SourceURL, err = uploadFile(s.Storage, req.SourcePath, "originals", req.Id)
-	if err != nil {
-		slog.Error("error uploading original file for mediaitem", "id", req.Id, "error", err)
-		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
-	}
-	if req.Placeholder != nil {
-		mediaItem.Placeholder = *req.Placeholder
-	}
-	if req.PreviewPath != nil {
-		mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
-		if err != nil {
-			slog.Error("error uploading preview file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
-		}
-	}
-	if req.ThumbnailPath != nil {
-		mediaItem.ThumbnailURL, err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
-		if err != nil {
-			slog.Error("error uploading thumbnail file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
-		}
-	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil {
 		slog.Error("error updating mediaitem result", "error", result.Error)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
 	}
 	slog.Info("saved metadata for mediaitem", "mediaitem", mediaItem.ID.String())
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) SaveMediaItemPreviewThumbnail(_ context.Context, req *api.MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error) { //nolint: cyclop
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		slog.Error("error getting mediaitem user id", "error", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		slog.Error("error getting mediaitem id", "error", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	slog.Info("saving preview and thumbnail for mediaitem", "userId", req.UserId, "mediaitem", req.Id, "body", req.String())
+	mediaItem := models.MediaItem{
+		UserID: userID, ID: uid,
+	}
+	mediaItemUpdates := map[string]interface{}{
+		"status": req.Status,
+	}
+	if req.SourcePath != nil {
+		mediaItemUpdates["source_url"], err = uploadFile(s.Storage, *req.SourcePath, "originals", req.Id)
+		if err != nil {
+			slog.Error("error uploading original file for mediaitem", "id", req.Id, "error", err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
+		}
+	}
+	if req.Placeholder != nil {
+		mediaItemUpdates["placeholder"] = *req.Placeholder
+	}
+	if req.PreviewPath != nil {
+		mediaItemUpdates["preview_url"], err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
+		if err != nil {
+			slog.Error("error uploading preview file for mediaitem", "id", req.Id, "error", err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
+		}
+	}
+	if req.ThumbnailPath != nil {
+		mediaItemUpdates["thumbnail_url"], err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
+		if err != nil {
+			slog.Error("error uploading thumbnail file for mediaitem", "id", req.Id, "error", err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
+		}
+	}
+	result := s.DB.Model(&mediaItem).Updates(mediaItemUpdates)
+	if result.Error != nil {
+		slog.Error("error updating mediaitem result", "error", result.Error)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
+	}
+	slog.Info("saved preview and thumbnail for mediaitem", "mediaitem", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 
