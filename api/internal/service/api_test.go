@@ -150,7 +150,7 @@ func TestGetWorkerConfig(t *testing.T) {
 		{
 			"get worker config with success",
 			&config.Config{ML: config.ML{Places: true, PlacesProvider: "openstreetmap"}},
-			[]byte(`[{"name":"places","source":"openstreetmap"}]`),
+			[]byte(`[{"name":"METADATA"},{"name":"PLACES","source":"openstreetmap"}]`),
 			nil,
 		},
 		{
@@ -161,18 +161,18 @@ func TestGetWorkerConfig(t *testing.T) {
 				OCR: true, OCRProvider: "paddlepaddle", OCRParams: `{"det_model_dir":"/det_infer"}`,
 				Search: true, SearchProvider: "pytorch", SearchParams: `{"tokenizer_dir":"/tokenizer"}`,
 				Faces: true, FacesParams: `{"face_threshold":"0.9"}`,
-				MetadataParams: `{"thumbnail_size":"512"}`,
+				PreviewThumbnailParams: `{"thumbnail_size":"512"}`,
 			}},
-			[]byte(`[{"name":"metadata","params":"{\"thumbnail_size\":\"512\"}"},{"name":"places","source":"openstreetmap"},` +
-				`{"name":"classification","source":"pytorch","params":"{\"file\":\"model-file-name.pt\"}"},{"name":"ocr","source":"paddlepaddle",` +
-				`"params":"{\"det_model_dir\":\"/det_infer\"}"},{"name":"search","source":"pytorch","params":"{\"tokenizer_dir\":\"/tokenizer\"}"},` +
-				`{"name":"faces","params":"{\"face_threshold\":\"0.9\"}"}]`),
+			[]byte(`[{"name":"METADATA"},{"name":"PREVIEW_THUMBNAIL","params":"{\"thumbnail_size\":\"512\"}"},{"name":"PLACES","source":"openstreetmap"},` +
+				`{"name":"CLASSIFICATION","source":"pytorch","params":"{\"file\":\"model-file-name.pt\"}"},{"name":"OCR","source":"paddlepaddle",` +
+				`"params":"{\"det_model_dir\":\"/det_infer\"}"},{"name":"SEARCH","source":"pytorch","params":"{\"tokenizer_dir\":\"/tokenizer\"}"},` +
+				`{"name":"FACES","params":"{\"face_threshold\":\"0.9\"}"}]`),
 			nil,
 		},
 		{
 			"get worker config with no error",
 			&config.Config{},
-			[]byte(`null`),
+			[]byte(`[{"name":"METADATA"}]`),
 			nil,
 		},
 	}

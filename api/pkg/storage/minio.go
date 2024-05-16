@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"net/url"
-	"os"
 	"time"
 
 	"github.com/minio/minio-go/v7"
@@ -38,9 +37,6 @@ func (m *Minio) Upload(filePath, fileType, fileID string) (string, error) {
 	_, err := m.Client.FPutObject(context.Background(), fileType, fileID, filePath, objectOptions)
 	if err != nil {
 		return "", fmt.Errorf("error uploading file to minio: %w", err)
-	}
-	if fileType != "previews" {
-		defer os.Remove(filePath)
 	}
 	return fmt.Sprintf("/%s/%s", fileType, fileID), nil
 }

@@ -10,6 +10,7 @@ from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import (  # pylint: disable=no-name-in-module
     MediaItemFacesRequest, MediaItemEmbedding, MediaItemFacePeople,
     MediaItemPeopleRequest, MediaItemFaceEmbeddingsRequest, MediaItemFaceEmbedding)
+from src.protos.worker_pb2 import MediaItemComponent, FACES  # pylint: disable=no-name-in-module
 from src.components.component import Component
 from src.providers.faces.utils import init_faces
 
@@ -17,7 +18,7 @@ from src.providers.faces.utils import init_faces
 class Faces(Component):
     """Faces Component"""
     def __init__(self, api_stub: APIStub, source: str, params: dict) -> None:
-        super().__init__('faces', api_stub)
+        super().__init__(MediaItemComponent.Name(FACES), api_stub)
         self.source = init_faces(source, params)
         self.clustering_framework = params['clustering']
         self.data = None

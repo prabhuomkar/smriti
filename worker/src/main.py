@@ -7,14 +7,16 @@ import signal
 
 import grpc
 import schedule
-from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
+from google.protobuf.empty_pb2 import Empty  # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
 from src.components.component import Component
 from src.components.finalize import Finalize
 from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.worker_pb2 import MediaItemComponent, MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import (  # pylint: disable=no-name-in-module
+    MediaItemComponent, MediaItemProcessResponse, GenerateEmbeddingResponse,
+    METADATA, PREVIEW_THUMBNAIL, CLASSIFICATION, FACES, OCR, PLACES, SEARCH)
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
@@ -22,7 +24,7 @@ class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
     def __init__(self, components: list[Component], search_model: PyTorchModule) -> None:
-        self.components = components
+        self.ordered_components = components
         self.search_model = search_model
 
     # pylint: disable=invalid-overridden-method
@@ -39,8 +41,9 @@ class WorkerService(WorkerServicer):
             and mediaitem_file_path is not None and mediaitem_components is not None:
             components = []
             mediaitem_components = [
-                MediaItemComponent.Name(mediaitem_component).lower() for mediaitem_component in mediaitem_components]
-            for _component in self.components:
+                MediaItemComponent.Name(mediaitem_component) for mediaitem_component in mediaitem_components]
+            logging.info(mediaitem_components)
+            for _component in self.ordered_components:
                 if _component.name in mediaitem_components or _component.name == 'finalize':
                     components.append(_component)
             loop = asyncio.get_event_loop()
@@ -75,7 +78,6 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
         loop = asyncio.get_event_loop()
         task = loop.create_task(components[i].process(user_id, id, file_path, result))
         result = await task
-    logging.info(result)
     if search_model:
         result['embeddings'] = search_model.generate_embedding('file', result)
         if 'keywords' in result:
@@ -111,22 +113,25 @@ async def serve() -> None: # pylint: disable=too-many-locals
     for item in cfg:
         if 'params' in item:
             item['params'] = json.loads(item['params'])
-        if item['name'] == 'metadata':
+        if item['name'] == MediaItemComponent.Name(METADATA):
             from src.components.metadata import Metadata
-            components.append(Metadata(api_stub=api_stub, params=item['params']))
-        elif item['name'] == 'places':
+            components.append(Metadata(api_stub=api_stub))
+        elif item['name'] == MediaItemComponent.Name(PREVIEW_THUMBNAIL):
+            from src.components.preview_thumbnail import PreviewThumbnail
+            components.append(PreviewThumbnail(api_stub=api_stub, params=item['params']))
+        elif item['name'] == MediaItemComponent.Name(PLACES):
             from src.components.places import Places
             components.append(Places(api_stub=api_stub, source=item['source']))
-        elif item['name'] == 'classification':
+        elif item['name'] == MediaItemComponent.Name(CLASSIFICATION):
             from src.components.classification import Classification
             components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))
-        elif item['name'] == 'ocr':
-            from src.components.ocr import OCR
-            components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
-        elif item['name'] == 'faces':
+        elif item['name'] == MediaItemComponent.Name(OCR):
+            from src.components.ocr import OCR as OCRComponent
+            components.append(OCRComponent(api_stub=api_stub, source=item['source'], params=item['params']))
+        elif item['name'] == MediaItemComponent.Name(FACES):
             from src.components.faces import Faces
             components.append(Faces(api_stub=api_stub, source=item['source'], params=item['params']))
-        elif item['name'] == 'search':
+        elif item['name'] == MediaItemComponent.Name(SEARCH):
             search_model = init_search(name=item['source'], params=item['params'])
     components.append(Finalize(api_stub=api_stub))
 

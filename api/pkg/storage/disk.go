@@ -31,9 +31,6 @@ func (d *Disk) Upload(filePath, fileType, fileID string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error uploading file to disk as cannot copy contents: %w", err)
 	}
-	if fileType != "previews" {
-		defer os.Remove(filePath)
-	}
 	return result, nil
 }
 

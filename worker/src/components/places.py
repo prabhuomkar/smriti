@@ -5,6 +5,7 @@ from grpc import RpcError
 
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import MediaItemPlaceRequest  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import MediaItemComponent, PLACES  # pylint: disable=no-name-in-module
 from src.components.component import Component
 from src.providers.places.utils import init_places
 
@@ -12,7 +13,7 @@ from src.providers.places.utils import init_places
 class Places(Component):
     """Places Component"""
     def __init__(self, api_stub: APIStub, source: str) -> None:
-        super().__init__('places', api_stub)
+        super().__init__(MediaItemComponent.Name(PLACES), api_stub)
         self.source = init_places(source)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:

@@ -79,7 +79,7 @@ func (j *Job) executeJob(jobCfg models.Job) {
 	} else {
 		queue <- mediaItem
 		for result := range results {
-			slog.Info("completed item from job queue", "mediaItem", result)
+			slog.Info("completed item from job queue", "mediaitem", result)
 			err := j.updateJobLastMediaItem(jobCfg, result)
 			if err != nil {
 				j.updateJobStatus(jobCfg, models.JobCompleted)
@@ -135,7 +135,7 @@ func (j *Job) executeJobMediaItem(wg *sync.WaitGroup, jobCfg models.Job, queue <
 	}
 	defer watcher.Close()
 	for item := range queue {
-		slog.Debug("processing item from job queue", "mediaItem", item.ID.String())
+		slog.Debug("processing item from job queue", "mediaitem", item.ID.String())
 		// download the mediaitem to disk root depending on the type of the job
 		fileType, fileName := getFileTypeAndFileName(jobCfg.Components, item.ID.String(), string(item.MediaItemType))
 		filePath := fmt.Sprintf("%s/%s", j.Config.Storage.DiskRoot, fileName)
@@ -172,7 +172,7 @@ func (j *Job) executeJobMediaItem(wg *sync.WaitGroup, jobCfg models.Job, queue <
 					break watcherLoop
 				}
 				if event.Op&fsnotify.Remove == fsnotify.Remove {
-					slog.Debug("finished processing item from job queue", "mediaItem", item.ID.String())
+					slog.Debug("finished processing item from job queue", "mediaitem", item.ID.String())
 					results <- item.ID
 					break watcherLoop
 				}
@@ -242,6 +242,7 @@ func (j *Job) getPayload(jobCfg models.Job, mediaItem models.MediaItem) map[stri
 	if mediaItem.Longitude != nil {
 		payload["longitude"] = strconv.FormatFloat(*mediaItem.Longitude, 'f', -1, 64)
 	}
+	payload["mimeType"] = mediaItem.MimeType
 	payload["type"] = string(mediaItem.MediaItemType)
 	return payload
 }

@@ -4,10 +4,15 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/services/api"
+	"api/pkg/services/worker"
 	"api/pkg/storage"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
 	"time"
 
 	"github.com/pgvector/pgvector-go"
@@ -34,36 +39,37 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.Con
 		Params string `json:"params,omitempty"`
 	}
 	var workerTasks []WorkerTask
-	if len(s.Config.ML.MetadataParams) > 0 {
-		workerTasks = append(workerTasks, WorkerTask{Name: "metadata", Params: s.Config.MetadataParams})
+	workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_METADATA.String()})
+	if len(s.Config.ML.PreviewThumbnailParams) > 0 {
+		workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_PREVIEW_THUMBNAIL.String(), Params: s.Config.PreviewThumbnailParams})
 	}
 	if s.Config.ML.Places {
-		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
+		workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_PLACES.String(), Source: s.Config.ML.PlacesProvider})
 	}
 	if s.Config.ML.Classification {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "classification",
+			Name:   worker.MediaItemComponent_CLASSIFICATION.String(),
 			Source: s.Config.ClassificationProvider,
 			Params: s.Config.ClassificationParams,
 		})
 	}
 	if s.Config.ML.OCR {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "ocr",
+			Name:   worker.MediaItemComponent_OCR.String(),
 			Source: s.Config.OCRProvider,
 			Params: s.Config.OCRParams,
 		})
 	}
 	if s.Config.ML.Search {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "search",
+			Name:   worker.MediaItemComponent_SEARCH.String(),
 			Source: s.Config.SearchProvider,
 			Params: s.Config.SearchParams,
 		})
 	}
 	if s.Config.ML.Faces {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "faces",
+			Name:   worker.MediaItemComponent_FACES.String(),
 			Source: s.Config.FacesProvider,
 			Params: s.Config.FacesParams,
 		})
@@ -418,7 +424,7 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) {
+func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) { //nolint:cyclop
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
@@ -455,6 +461,26 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result: %s", result.Error.Error())
 		}
 	}
+
+	defer func() {
+		err := filepath.WalkDir(s.Config.DiskRoot, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				slog.Error("error iterating over directory for mediaitem", "mediaitem", req.Id, "error", err)
+				return err
+			}
+			if !d.IsDir() && strings.Contains(d.Name(), req.Id) {
+				if err := os.Remove(path); err != nil {
+					return fmt.Errorf("error removing file for mediaitem %s: %w", req.Id, err)
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			slog.Error("error clearing the files for mediaitem", "mediaitem", req.Id, "error", err)
+		} else {
+			slog.Debug("cleared the files for mediaitem", "mediaitem", req.Id)
+		}
+	}()
 
 	slog.Info("saved final mediaitem result", "userId", userID.String(), "mediaitem", uid.String())
 	return &emptypb.Empty{}, nil
