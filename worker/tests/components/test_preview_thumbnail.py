@@ -36,11 +36,11 @@ async def test_preview_thumbnail_process_video_success(_, __):
     del result['placeholder']
     assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 'type': 'video'}
 
-@mock.patch('src.components.PreviewThumbnail._generate_photo_preview_and_thumbnail_and_placeholder', return_value=(bytes(), bytes(), bytes()))
+@mock.patch('src.components.PreviewThumbnail._generate_video_preview_and_thumbnail_and_placeholder', return_value=(bytes(), bytes(), bytes()))
 @pytest.mark.asyncio
 async def test_preview_thumbnail_process_grpc_exception(_):
     metadata = {
-        'type': 'photo', 'sourcePath': 'sourcePath', 'mimeType': 'image/png',
+        'type': 'video', 'sourcePath': 'sourcePath',
     }
     grpc_mock = mock.MagicMock()
     grpc_mock.side_effect = grpc.RpcError(Exception('some error'))
@@ -50,7 +50,7 @@ async def test_preview_thumbnail_process_grpc_exception(_):
         del result['previewPath']
         del result['thumbnailPath']
         del result['placeholder']
-        assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 'mimeType': 'image/png', 'type': 'photo'}
+        assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 'type': 'video'}
 
 @mock.patch('src.components.PreviewThumbnail._grpc_save_mediaitem_preview_thumbnail', return_value=None)
 @pytest.mark.asyncio

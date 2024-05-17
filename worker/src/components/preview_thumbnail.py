@@ -80,7 +80,7 @@ class PreviewThumbnail(Component):
         return result
 
     def _grpc_save_mediaitem_preview_thumbnail(self, result: dict):
-        """gRPC call for saving mediaitem metadata"""
+        """gRPC call for saving mediaitem preview and thumbnail"""
         try:
             request = MediaItemPreviewThumbnailRequest(
                 userId=result['userId'],
