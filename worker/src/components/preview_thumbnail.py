@@ -91,7 +91,7 @@ class PreviewThumbnail(Component):
                 previewPath=result['previewPath'] if 'previewPath' in result else None,
                 thumbnailPath=result['thumbnailPath'] if 'thumbnailPath' in result else None,
             )
-            _ = self.api_stub.SaveMediaItemMetadata(request)
+            _ = self.api_stub.SaveMediaItemPreviewThumbnail(request)
         except RpcError as rpc_exp:
             logging.error(
                 f'error sending preview and thumbnail for mediaitem {request.id}: {str(rpc_exp)}')

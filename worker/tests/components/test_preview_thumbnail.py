@@ -44,7 +44,7 @@ async def test_preview_thumbnail_process_grpc_exception(_):
     }
     grpc_mock = mock.MagicMock()
     grpc_mock.side_effect = grpc.RpcError(Exception('some error'))
-    with mock.patch('src.protos.API.SaveMediaItemMetadata', grpc_mock):
+    with mock.patch('src.protos.API.SaveMediaItemPreviewThumbnail', grpc_mock):
         result = await PreviewThumbnail(APIStub(channel=grpc.insecure_channel('')), params={'thumbnail_size':'512'}).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', metadata)
         del result['sourcePath']
         del result['previewPath']
