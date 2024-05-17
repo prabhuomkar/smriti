@@ -9,7 +9,7 @@ import (
 )
 
 func TestStartStopHTTPServer(t *testing.T) {
-	handler := &handlers.Handler{Config: &config.Config{}}
+	handler := &handlers.Handler{Config: &config.Config{Storage: config.Storage{Provider: "disk"}}}
 	srv := StartHTTPServer(handler)
 	defer srv.Close()
 	assert.NotNil(t, srv)

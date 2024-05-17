@@ -61,7 +61,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 			slog.Error("error getting search query embedding", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-		result := h.DB.Raw("SELECT * from mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> ?)", pgvector.NewVector(searchEmbedding.Embedding)).
+		result := h.DB.Raw("SELECT * FROM mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> ?)", pgvector.NewVector(searchEmbedding.Embedding)).
 			Find(&mediaItems).Limit(searchDefaultLimit)
 		if result.Error != nil {
 			slog.Error("error searching mediaitems", "error", result.Error)

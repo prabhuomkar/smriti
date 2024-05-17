@@ -1387,7 +1387,8 @@ func TestUploadMediaItems(t *testing.T) {
 			[]string{},
 			[]string{},
 			map[string]string{
-				echo.HeaderContentType: contentType4,
+				echo.HeaderContentType:   contentType4,
+				echo.HeaderAuthorization: "atoken",
 			},
 			sampleFile4,
 			func(mock sqlmock.Sqlmock) {
