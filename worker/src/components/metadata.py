@@ -2,6 +2,7 @@
 import logging
 import datetime
 import re
+import json
 
 import exiftool
 from grpc import RpcError
@@ -37,6 +38,7 @@ class Metadata(Component):
                 ethelper.check_execute = False
                 metadata = ethelper.get_metadata(file_path)[0]
                 logging.debug(f'metadata for user {mediaitem_user_id} mediaitem {mediaitem_id}: {metadata}')
+                result['exifdata'] = str(json.dumps(metadata))
                 result['mimeType'] = getval_from_dict(metadata, ['File:MIMEType'])
                 result['type'] = 'photo' if result['mimeType'] and 'image' in result['mimeType'] else \
                     'video' if result['mimeType'] and 'video' in result['mimeType'] else 'unknown'
@@ -142,6 +144,7 @@ class Metadata(Component):
                 fps=result['fps'] if 'fps' in result else None,
                 latitude=result['latitude'] if 'latitude' in result else None,
                 longitude=result['longitude'] if 'longitude' in result else None,
+                exifData=result['exifdata'] if 'exifdata' in result else None,
             )
             _ = self.api_stub.SaveMediaItemMetadata(request)
         except RpcError as rpc_exp:

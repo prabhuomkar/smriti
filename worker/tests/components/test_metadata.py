@@ -21,6 +21,7 @@ async def test_metadata_process_photo_success(_):
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
+        del result['exifdata']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'panorama', 'mimeType': 'image/jpeg', 'width': 14124, 
                         'height': 3100, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -40,6 +41,7 @@ async def test_metadata_process_video_success(_):
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
+        del result['exifdata']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'live', 'mimeType': 'video/mpeg', 'width': 1080, 
                         'height': 720, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -59,6 +61,7 @@ async def test_metadata_process_video_category_slow_success(_):
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
+        del result['exifdata']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'slow', 'mimeType': 'video/mpeg', 'width': 1080, 
                         'height': 720, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -78,6 +81,7 @@ async def test_metadata_process_video_category_timelapse_success(_):
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
+        del result['exifdata']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'timelapse', 'mimeType': 'video/mpeg', 'width': 1080, 
                         'height': 720, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -97,6 +101,7 @@ async def test_metadata_process_video_category_default_success(_):
     with mock.patch('exiftool.ExifToolHelper.get_metadata', exiftool_mock):
         result = await Metadata(None).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
         del result['sourcePath']
+        del result['exifdata']
         assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'video', 'category': 'default', 'mimeType': 'video/mpeg', 'width': 1080, 
                         'height': 720, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 
@@ -126,6 +131,7 @@ async def test_metadata_process_grpc_exception():
         with mock.patch('src.protos.API.SaveMediaItemMetadata', grpc_mock):
             result = await Metadata(APIStub(channel=grpc.insecure_channel(''))).process('mediaitem_user_id', 'mediaitem_id', 'mediaitem_file_path', None)
             del result['sourcePath']
+            del result['exifdata']
             assert result == {'userId': 'mediaitem_user_id', 'id': 'mediaitem_id', 'status': 'READY', 
                         'type': 'photo', 'category': 'screenshot', 'mimeType': 'image/jpeg', 'width': 4022, 
                         'height': 3100, 'cameraMake': 'Apple', 'cameraModel': 'iPhone 12 mini', 

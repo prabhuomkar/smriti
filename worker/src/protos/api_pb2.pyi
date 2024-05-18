@@ -13,7 +13,7 @@ class ConfigResponse(_message.Message):
     def __init__(self, config: _Optional[bytes] = ...) -> None: ...
 
 class MediaItemMetadataRequest(_message.Message):
-    __slots__ = ("userId", "id", "status", "mimeType", "type", "category", "width", "height", "creationTime", "cameraMake", "cameraModel", "focalLength", "apertureFNumber", "isoEquivalent", "exposureTime", "fps", "latitude", "longitude")
+    __slots__ = ("userId", "id", "status", "mimeType", "type", "category", "width", "height", "creationTime", "cameraMake", "cameraModel", "focalLength", "apertureFNumber", "isoEquivalent", "exposureTime", "fps", "latitude", "longitude", "exifData")
     USERID_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     STATUS_FIELD_NUMBER: _ClassVar[int]
@@ -32,6 +32,7 @@ class MediaItemMetadataRequest(_message.Message):
     FPS_FIELD_NUMBER: _ClassVar[int]
     LATITUDE_FIELD_NUMBER: _ClassVar[int]
     LONGITUDE_FIELD_NUMBER: _ClassVar[int]
+    EXIFDATA_FIELD_NUMBER: _ClassVar[int]
     userId: str
     id: str
     status: str
@@ -50,7 +51,8 @@ class MediaItemMetadataRequest(_message.Message):
     fps: str
     latitude: float
     longitude: float
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ...) -> None: ...
+    exifData: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., mimeType: _Optional[str] = ..., type: _Optional[str] = ..., category: _Optional[str] = ..., width: _Optional[int] = ..., height: _Optional[int] = ..., creationTime: _Optional[str] = ..., cameraMake: _Optional[str] = ..., cameraModel: _Optional[str] = ..., focalLength: _Optional[str] = ..., apertureFNumber: _Optional[str] = ..., isoEquivalent: _Optional[str] = ..., exposureTime: _Optional[str] = ..., fps: _Optional[str] = ..., latitude: _Optional[float] = ..., longitude: _Optional[float] = ..., exifData: _Optional[str] = ...) -> None: ...
 
 class MediaItemPreviewThumbnailRequest(_message.Message):
     __slots__ = ("userId", "id", "status", "sourcePath", "previewPath", "thumbnailPath", "placeholder")

@@ -23,7 +23,7 @@ var (
 		"id", "user_id", "filename", "description", "mime_type", "source_url", "preview_url", "thumbnail_url",
 		"placeholder", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
 		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
+		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "exif_data", "created_at", "updated_at",
 	}
 	mediaitemFaceCols     = []string{"id", "mediaitem_id", "people_id", "thumbnail"}
 	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
@@ -1477,7 +1477,7 @@ func getMockedMediaItemRow() *sqlmock.Rows {
 			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "placeholder", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemRows() *sqlmock.Rows {
@@ -1486,12 +1486,12 @@ func getMockedMediaItemRows() *sqlmock.Rows {
 			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "placeholder", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime).
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", nil, sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "placeholder", "false", "true", "true", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemFaceRow() *sqlmock.Rows {

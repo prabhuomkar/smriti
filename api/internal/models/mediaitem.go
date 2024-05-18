@@ -72,6 +72,7 @@ type (
 		Latitude          *float64              `json:"latitude,omitempty"`
 		Longitude         *float64              `json:"longitude,omitempty"`
 		FPS               *string               `json:"fps,omitempty"`
+		EXIFData          *string               `json:"-" gorm:"column:exif_data"`
 		Keywords          *string               `json:"-"`
 		CreatedAt         time.Time             `json:"createdAt"`
 		UpdatedAt         time.Time             `json:"updatedAt"`

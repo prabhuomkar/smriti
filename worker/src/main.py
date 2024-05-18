@@ -42,13 +42,13 @@ class WorkerService(WorkerServicer):
             components = []
             mediaitem_components = [
                 MediaItemComponent.Name(mediaitem_component) for mediaitem_component in mediaitem_components]
-            logging.info(mediaitem_components)
             for _component in self.ordered_components:
-                if _component.name in mediaitem_components or _component.name == 'finalize':
+                if _component.name in mediaitem_components or _component.name == 'FINALIZE':
                     components.append(_component)
+            logging.info([_comp.name for _comp in components])
             loop = asyncio.get_event_loop()
             loop.create_task(process_mediaitem(components,
-                                               self.search_model if 'search' in mediaitem_components else None,
+                                               self.search_model if MediaItemComponent.Name(SEARCH) in mediaitem_components else None,
                                                mediaitem_user_id, mediaitem_id, mediaitem_file_path, mediaitem_payload))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)

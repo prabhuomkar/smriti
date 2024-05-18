@@ -2,6 +2,7 @@
 import logging
 import random
 import base64
+import json
 
 import rawpy
 from moviepy.editor import VideoFileClip
@@ -45,12 +46,13 @@ class PreviewThumbnail(Component):
         result['userId'] = mediaitem_user_id
         result['id'] = mediaitem_id
         file_path = metadata['sourcePath']
+        exifdata = json.loads(metadata['exifdata']) if 'exifdata' in metadata else {}
         if metadata['type'] == 'photo' or metadata['type'] == 'unknown':
             # generate preview and thumbnail for a photo
             try:
                 result['previewPath'], result['thumbnailPath'], \
                     result['placeholder'] = self._generate_photo_preview_and_thumbnail_and_placeholder(
-                    file_path, result['mimeType'], metadata)
+                    file_path, result['mimeType'], exifdata)
                 logging.debug(f'extracted preview and thumbnail and placeholder for \
                             user {mediaitem_user_id} photo mediaitem {mediaitem_id}')
             except Exception as exp:
@@ -111,9 +113,9 @@ class PreviewThumbnail(Component):
                     converted.save(filename=thumbnail_path)
                 lidx = 0 if img.size[0] > img.size[1] else 1
                 sidx = 1 if lidx == 0 else 0
-                percent = 8/float(img.size[lidx])
+                percent = 4/float(img.size[lidx])
                 size = int((float(img.size[sidx])*float(percent)))
-                img.resize(8, size)
+                img.resize(4, size)
                 placeholder_bytes = img.make_blob()
                 placeholder = base64.b64encode(placeholder_bytes).decode('utf-8')
             return thumbnail_path, str(placeholder)
@@ -124,10 +126,10 @@ class PreviewThumbnail(Component):
 
     # pylint: disable=too-many-locals
     def _generate_photo_preview_and_thumbnail_and_placeholder(self, original_file_path: str, mime_type: str,
-                                                              metadata: dict):
+                                                              exifdata: dict):
         """Generate preview and thumbnail image for a photo"""
         preview_path = f'{original_file_path}-preview'
-        if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES and not self._is_raw(metadata):
+        if mime_type in self.PREVIEWABLE_PHOTO_MIME_TYPES and not self._is_raw(exifdata):
             try:
                 with open(original_file_path, 'rb') as file_reader:
                     with WandImage(file=file_reader) as original:
@@ -141,8 +143,8 @@ class PreviewThumbnail(Component):
                                 photo mediaitem: {original_file_path}: {str(exp)}')
                 try:
                     with open(original_file_path, 'rb') as file_reader:
-                        if 'File:FileType'in metadata:
-                            with WandImage(file=file_reader, format=metadata['File:FileType']) as original:
+                        if 'File:FileType'in exifdata:
+                            with WandImage(file=file_reader, format=exifdata['File:FileType']) as original:
                                 with original.convert('jpeg') as converted:
                                     converted.save(filename=preview_path)
                     thumbnail_path, placeholder = self._generate_photo_thumbnail_and_placeholder(
@@ -180,8 +182,8 @@ class PreviewThumbnail(Component):
                     logging.warning(f'error generating preview for raw \
                                 photo mediaitem: {original_file_path}: {str(nm_exp)}')
                     with open(original_file_path, 'rb') as file_reader:
-                        if 'File:FileType'in metadata:
-                            with WandImage(file=file_reader, format=metadata['File:FileType']) as original:
+                        if 'File:FileType'in exifdata:
+                            with WandImage(file=file_reader, format=exifdata['File:FileType']) as original:
                                 with original.convert('jpeg') as converted:
                                     converted.save(filename=preview_path)
                     thumbnail_path, placeholder = self._generate_photo_thumbnail_and_placeholder(
@@ -225,11 +227,11 @@ class PreviewThumbnail(Component):
         video_thumbnail_path, placeholder = self._generate_video_thumbnail_and_placeholder(video_preview_path)
         return video_preview_path, video_thumbnail_path, placeholder
 
-    def _is_raw(self, metadata: dict) -> bool:
+    def _is_raw(self, exifdata: dict) -> bool:
         """Detect if the image is RAW irrespective of the image mimetype"""
-        if 'EXIF:JpgFromRaw' in metadata or 'EXIF:OriginalRawFileName' in metadata or\
-            'EXIF:NewRawImageDigest' in metadata or 'EXIF:RawDataUniqueID' in metadata:
+        if 'EXIF:JpgFromRaw' in exifdata or 'EXIF:OriginalRawFileName' in exifdata or\
+            'EXIF:NewRawImageDigest' in exifdata or 'EXIF:RawDataUniqueID' in exifdata:
             return True
-        if 'File:FileType' in metadata and metadata['File:FileType'] in self.RAW_FILE_TYPES:
+        if 'File:FileType' in exifdata and exifdata['File:FileType'] in self.RAW_FILE_TYPES:
             return True
         return False

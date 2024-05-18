@@ -27,6 +27,7 @@ message MediaItemMetadataRequest {
     optional string fps = 16;
     optional double latitude = 17;
     optional double longitude = 18;
+    optional string exifData = 19;
 }
 
 message MediaItemPreviewThumbnailRequest {

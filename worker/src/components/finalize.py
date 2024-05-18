@@ -12,7 +12,7 @@ class Finalize(Component):
     """Finalize Component"""
 
     def __init__(self, api_stub: APIStub) -> None:
-        super().__init__('finalize', api_stub)
+        super().__init__('FINALIZE', api_stub)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> dict:
         """Process finalizing mediaitem"""

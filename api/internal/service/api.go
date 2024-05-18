@@ -507,6 +507,7 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	mediaItem.FPS = req.Fps
 	mediaItem.Latitude = req.Latitude
 	mediaItem.Longitude = req.Longitude
+	mediaItem.EXIFData = req.ExifData
 	if req.MimeType != nil {
 		mediaItem.MimeType = *req.MimeType
 	}

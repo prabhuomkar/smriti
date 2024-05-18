@@ -244,6 +244,7 @@ func (j *Job) getPayload(jobCfg models.Job, mediaItem models.MediaItem) map[stri
 	}
 	payload["mimeType"] = mediaItem.MimeType
 	payload["type"] = string(mediaItem.MediaItemType)
+	payload["exifdata"] = *mediaItem.EXIFData
 	return payload
 }
 
