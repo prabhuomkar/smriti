@@ -425,7 +425,7 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) { //nolint:cyclop
+func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) { //nolint:cyclop,funlen,gocognit
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
@@ -469,10 +469,10 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 				slog.Error("error iterating over directory for mediaitem", "mediaitem", req.Id, "error", err)
 				return err
 			}
-			if !d.IsDir() && strings.Contains(d.Name(), req.Id) {
+			if !d.IsDir() && strings.Contains(d.Name(), req.Id) && filepath.Dir(path) == s.Config.DiskRoot {
 				// acquire lock to check if not copied
 				for {
-					slog.Info("deleting file", "path", path)
+					slog.Debug("deleting file", "path", path)
 					file, err := os.Open(path)
 					if err != nil {
 						continue
