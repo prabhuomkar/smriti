@@ -2,8 +2,8 @@
 Feature: RAW MediaItems
 
     Background: Setup User
-        Given a user is created if does not exist
-        When user logs in
+        Given a user default is created if does not exist
+        When user default logs in
         Then token is generated
 
     Scenario: Validate Create RAW MediaItem

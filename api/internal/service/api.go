@@ -13,6 +13,7 @@ import (
 	"os"
 	"path/filepath"
 	"strings"
+	"syscall"
 	"time"
 
 	"github.com/pgvector/pgvector-go"
@@ -469,8 +470,20 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 				return err
 			}
 			if !d.IsDir() && strings.Contains(d.Name(), req.Id) {
-				if err := os.Remove(path); err != nil {
-					return fmt.Errorf("error removing file for mediaitem %s: %w", req.Id, err)
+				// acquire lock to check if not copied
+				for {
+					slog.Info("deleting file", "path", path)
+					file, err := os.Open(path)
+					if err != nil {
+						continue
+					}
+					if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+						continue
+					}
+					if err = os.Remove(path); err != nil {
+						return fmt.Errorf("error removing file for mediaitem %s: %w", req.Id, err)
+					}
+					break
 				}
 			}
 			return nil

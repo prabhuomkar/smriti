@@ -4,16 +4,18 @@ from requests.auth import HTTPBasicAuth
 
 from common import API_URL, ADMIN_USERNAME, ADMIN_PASSWORD, CREATED_USER, CREATED_ALBUM, UPDATED_ALBUM
 
-@given('a user is created if does not exist')
-def step_impl(context):
+@given('a user {name} is created if does not exist')
+def step_impl(context, name):
     res = requests.get(API_URL+'/v1/users',
                         auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
     assert res.status_code == 200
     users = res.json()
     if len(users) != 0:
-        context.album_id = users[0]['id']
+        for user in users:
+            if user['username'] == CREATED_USER[name]['username']:
+                context.user_id = user['id']
     else:
-        res = requests.post(API_URL+'/v1/users', json=CREATED_USER,
+        res = requests.post(API_URL+'/v1/users', json=CREATED_USER[name],
                             auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
         assert res.status_code == 201
         context.user_id = res.json()['id']

@@ -11,7 +11,7 @@ Pillow==10.3.0
 PyExifTool==0.5.6
 rapidocr-onnxruntime==1.2.3
 rawpy==0.21.0
-requests==2.31.0
+requests==2.32.3
 schedule==1.2.1
 torch==2.3.0
 torchvision==0.18.0

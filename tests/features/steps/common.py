@@ -5,12 +5,28 @@ API_URL = os.getenv('API_URL', 'http://localhost:5001')
 ADMIN_USERNAME = 'smriti'
 ADMIN_PASSWORD = 'smritiT3st!'
 
-CREATED_USER = {'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!','features':'{"albums":true,'+
-                '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
-                '"people":true,"sharing":true}'}
-UPDATED_USER = {'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!','features':'{"albums"'+
-                ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
-                '"people":true,"sharing":true}'}
+CREATED_USER = {
+    'default': {
+        'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!','features':'{"albums":true,'+
+        '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
+        '"people":true,"sharing":true}'
+    },
+    'jobs': {
+        'name': 'Steve Jobs', 'username': 'stevejobs', 'password': 'johndoeT3st!','features':'{"albums":true,'+
+        '"favourites":true,"hidden":true,"trash":true,"sharing":true}'
+    }
+}
+UPDATED_USER = {
+    'default': {
+        'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!','features':'{"albums"'+
+        ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
+        '"people":true,"sharing":true}'
+    },
+    'jobs': {
+        'name': 'Steve Updated Jobs', 'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,'+
+        '"explore":true,"places":true,"things":true,"people":true,"sharing":true}'
+    }
+}
 
 CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 CREATED_SHARED_ALBUM = {'name': 'Album Name', 'description': 'Album Description', 'shared': True}
