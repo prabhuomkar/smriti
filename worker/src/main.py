@@ -3,17 +3,20 @@ import asyncio
 import logging
 import os
 import json
+import signal
 
 import grpc
 import schedule
-from google.protobuf.empty_pb2 import Empty   # pylint: disable=no-name-in-module
+from google.protobuf.empty_pb2 import Empty  # pylint: disable=no-name-in-module
 from prometheus_client import start_http_server
 
 from src.components.component import Component
 from src.components.finalize import Finalize
 from src.providers.search import init_search, PyTorchModule
 from src.protos.api_pb2_grpc import APIStub
-from src.protos.worker_pb2 import MediaItemProcessResponse, GenerateEmbeddingResponse  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import (  # pylint: disable=no-name-in-module
+    MediaItemComponent, MediaItemProcessResponse, GenerateEmbeddingResponse,
+    METADATA, PREVIEW_THUMBNAIL, CLASSIFICATION, FACES, OCR, PLACES, SEARCH)
 from src.protos.worker_pb2_grpc import WorkerServicer, add_WorkerServicer_to_server
 
 
@@ -21,7 +24,7 @@ class WorkerService(WorkerServicer):
     """Worker gRPC Service"""
 
     def __init__(self, components: list[Component], search_model: PyTorchModule) -> None:
-        self.components = components
+        self.ordered_components = components
         self.search_model = search_model
 
     # pylint: disable=invalid-overridden-method
@@ -30,10 +33,23 @@ class WorkerService(WorkerServicer):
         mediaitem_user_id = request.userId
         mediaitem_id = request.id
         mediaitem_file_path = request.filePath
-        if mediaitem_id is not None and mediaitem_user_id is not None and mediaitem_file_path is not None:
+        mediaitem_components = request.components
+        mediaitem_payload = request.payload
+        logging.info(f'mediaitem process request user {mediaitem_user_id} id {mediaitem_id} \
+                     path {mediaitem_file_path} components {mediaitem_components} payload {mediaitem_payload}')
+        if mediaitem_id is not None and mediaitem_user_id is not None \
+            and mediaitem_file_path is not None and mediaitem_components is not None:
+            components = []
+            mediaitem_components = [
+                MediaItemComponent.Name(mediaitem_component) for mediaitem_component in mediaitem_components]
+            for _component in self.ordered_components:
+                if _component.name in mediaitem_components or _component.name == 'FINALIZE':
+                    components.append(_component)
+            logging.info([_comp.name for _comp in components])
             loop = asyncio.get_event_loop()
-            loop.create_task(process_mediaitem(self.components, self.search_model,
-                                               mediaitem_user_id, mediaitem_id, mediaitem_file_path))
+            loop.create_task(process_mediaitem(components,self.search_model if MediaItemComponent.Name(SEARCH) \
+                                               in mediaitem_components else None, mediaitem_user_id, mediaitem_id,
+                                               mediaitem_file_path, mediaitem_payload))
             return MediaItemProcessResponse(ok=True)
         return MediaItemProcessResponse(ok=False)
 
@@ -46,14 +62,19 @@ class WorkerService(WorkerServicer):
             return GenerateEmbeddingResponse(embedding=result)
         return GenerateEmbeddingResponse(embedding=None)
 
-# pylint: disable=redefined-builtin,invalid-name
+def run_pending() -> None:
+    """Run scheduled jobs in background"""
+    while True:
+        schedule.run_pending()
+        asyncio.run(asyncio.sleep(1))
+
+# pylint: disable=redefined-builtin,invalid-name,too-many-arguments
 async def process_mediaitem(components: list[Component], search_model: PyTorchModule,
-                            user_id: str, id: str, file_path: str) -> None:
+                            user_id: str, id: str, file_path: str, payload: any) -> None:
     """Process mediaitem"""
     logging.info(f'started processing mediaitem for user {user_id} mediaitem {id}')
-    metadata = await components[0].process(user_id, id, file_path, None)
-    result = metadata
-    for i in range(1, len(components)-1):
+    result = dict(payload)
+    for i in range(len(components)-1):
         loop = asyncio.get_event_loop()
         task = loop.create_task(components[i].process(user_id, id, file_path, result))
         result = await task
@@ -61,19 +82,13 @@ async def process_mediaitem(components: list[Component], search_model: PyTorchMo
         result['embeddings'] = search_model.generate_embedding('file', result)
         if 'keywords' in result:
             result['embeddings'] += [search_model.generate_embedding('text', result['keywords'])]
-    await components[len(components)-1].process(user_id, id, file_path, result)
+    await components[-1].process(user_id, id, file_path, result)
     logging.info(f'finished processing mediaitem for user {user_id} mediaitem {id}')
 
-async def run_pending() -> None:
-    """Run scheduled jobs in background"""
-    while True:
-        schedule.run_pending()
-        await asyncio.sleep(1)
-
 async def serve() -> None: # pylint: disable=too-many-locals
-    """Main serve function"""
+    """Start gRPC and metrics server"""
     # start metrics
-    start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
+    metrics_server, metrics_thread = start_http_server(int(os.getenv('SMRITI_METRICS_PORT', '5002')))
 
     # initialize api grpc client
     api_host = os.getenv('SMRITI_API_HOST', '127.0.0.1')
@@ -98,42 +113,58 @@ async def serve() -> None: # pylint: disable=too-many-locals
     for item in cfg:
         if 'params' in item:
             item['params'] = json.loads(item['params'])
-        if item['name'] == 'metadata':
+        if item['name'] == MediaItemComponent.Name(METADATA):
             from src.components.metadata import Metadata
-            components.append(Metadata(api_stub=api_stub, params=item['params']))
-        elif item['name'] == 'places':
+            components.append(Metadata(api_stub=api_stub))
+        elif item['name'] == MediaItemComponent.Name(PREVIEW_THUMBNAIL):
+            from src.components.preview_thumbnail import PreviewThumbnail
+            components.append(PreviewThumbnail(api_stub=api_stub, params=item['params']))
+        elif item['name'] == MediaItemComponent.Name(PLACES):
             from src.components.places import Places
             components.append(Places(api_stub=api_stub, source=item['source']))
-        elif item['name'] == 'classification':
+        elif item['name'] == MediaItemComponent.Name(CLASSIFICATION):
             from src.components.classification import Classification
             components.append(Classification(api_stub=api_stub, source=item['source'], params=item['params']))
-        elif item['name'] == 'ocr':
-            from src.components.ocr import OCR
-            components.append(OCR(api_stub=api_stub, source=item['source'], params=item['params']))
-        elif item['name'] == 'faces':
+        elif item['name'] == MediaItemComponent.Name(OCR):
+            from src.components.ocr import OCR as OCRComponent
+            components.append(OCRComponent(api_stub=api_stub, source=item['source'], params=item['params']))
+        elif item['name'] == MediaItemComponent.Name(FACES):
             from src.components.faces import Faces
             components.append(Faces(api_stub=api_stub, source=item['source'], params=item['params']))
-        elif item['name'] == 'search':
+        elif item['name'] == MediaItemComponent.Name(SEARCH):
             search_model = init_search(name=item['source'], params=item['params'])
     components.append(Finalize(api_stub=api_stub))
 
     # initialize worker grpc server
-    server = grpc.aio.server()
-    add_WorkerServicer_to_server(WorkerService(components, search_model), server)
+    grpc_server = grpc.aio.server()
+    add_WorkerServicer_to_server(WorkerService(components, search_model), grpc_server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
-    server.add_insecure_port(f'[::]:{port}')
+    grpc_server.add_insecure_port(f'[::]:{port}')
+    await grpc_server.start()
     logging.info(f'starting grpc server on: {port}')
-    await server.start()
-    periodic_task = asyncio.create_task(run_pending())
-    try:
-        await server.wait_for_termination()
-    finally:
-        periodic_task.cancel()
-        logging.info('stopping grpc server')
-        await server.stop(10)
+    return grpc_server, metrics_server, metrics_thread
+
+async def shutdown(grpc_server, metrics_server, metrics_thread):
+    """Shutdown gRPC and metrics server"""
+    logging.info('stopping grpc server')
+    await grpc_server.stop(10)
+    logging.info('stopping metrics server')
+    metrics_server.shutdown()
+    metrics_thread.join()
+
+async def main():
+    """Main driver function"""
+    grpc_server, metrics_server, metrics_thread = await serve()
+    loop = asyncio.get_running_loop()
+    loop.run_in_executor(None, run_pending)
+    for sig in [signal.SIGINT, signal.SIGTERM]:
+        loop.add_signal_handler(sig, lambda sig=sig: asyncio.create_task(
+            shutdown(grpc_server, metrics_server, metrics_thread)))
+    await grpc_server.wait_for_termination()
+
 
 if __name__ == '__main__':
     logging.basicConfig(format='%(asctime)s %(levelname)s %(message)s',
                         datefmt='%Y/%m/%d %H:%M:%S',
                         level=logging.getLevelName(os.getenv('SMRITI_LOG_LEVEL', 'INFO')))
-    asyncio.run(serve())
+    asyncio.run(main())

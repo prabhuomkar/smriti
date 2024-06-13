@@ -23,6 +23,13 @@ func (m *mockMinioClient) FPutObject(_ context.Context, _ string, _ string, _ st
 	return minio.UploadInfo{}, nil
 }
 
+func (m *mockMinioClient) FGetObject(_ context.Context, _ string, _ string, _ string, _ minio.GetObjectOptions) error {
+	if m.wantErr {
+		return errors.New("some error")
+	}
+	return nil
+}
+
 func (m *mockMinioClient) RemoveObject(_ context.Context, _ string, _ string, _ minio.RemoveObjectOptions) error {
 	if m.wantErr {
 		return errors.New("some error")
@@ -69,6 +76,37 @@ func TestMinioUpload(t *testing.T) {
 			} else {
 				assert.NoError(t, err)
 				assert.Equal(t, "/originals/fileID", res)
+			}
+		})
+	}
+}
+
+func TestMinioDownload(t *testing.T) {
+	tests := []struct {
+		Name        string
+		WantErr     bool
+		ErrContains string
+	}{
+		{
+			"error",
+			true,
+			"error downloading file from minio",
+		},
+		{
+			"success",
+			false,
+			"",
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			provider := &Minio{&mockMinioClient{test.WantErr}}
+			err := provider.Download("filePath", "originals", "fileID")
+			if test.WantErr {
+				assert.Error(t, err)
+				assert.Contains(t, err.Error(), test.ErrContains)
+			} else {
+				assert.NoError(t, err)
 			}
 		})
 	}

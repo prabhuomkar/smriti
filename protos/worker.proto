@@ -2,10 +2,22 @@ syntax = "proto3";
 
 option go_package = "worker/";
 
+enum MediaItemComponent {
+    METADATA = 0;
+    PREVIEW_THUMBNAIL = 1;
+    PLACES = 2;
+    CLASSIFICATION = 3;
+    FACES = 4;
+    OCR = 5;
+    SEARCH = 6;
+}
+
 message MediaItemProcessRequest {
     string userId = 1;
     string id = 2;
     string filePath = 3;
+    repeated MediaItemComponent components = 4;
+    map<string, string> payload = 5;
 }
 
 message MediaItemProcessResponse {

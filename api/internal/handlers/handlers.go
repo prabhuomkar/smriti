@@ -74,6 +74,8 @@ func getMediaItemFilters(ctx echo.Context) string {
 		mediaItemStatus == string(models.Ready) || mediaItemStatus == string(models.Processing) ||
 		mediaItemStatus == string(models.Failed)) {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", mediaItemStatus)
+	} else {
+		filterQuery += fmt.Sprintf(" AND status = '%s'", string(models.Ready))
 	}
 	return filterQuery
 }

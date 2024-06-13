@@ -2,10 +2,10 @@ Feature: User Management
 
     Scenario: Validate Create User
         Given there are no users
-        When create user without auth
+        When create default user without auth
         Then auth error is found
-        When create user with auth
-        Then user is created
+        When create default user with auth
+        Then user default is created
         When get user without auth
         Then auth error is found
         When get user with auth
@@ -17,10 +17,10 @@ Feature: User Management
 
     Scenario: Validate Update User
         Given a user exists
-        When update user without auth
+        When update default user without auth
         Then auth error is found
-        When update user with auth
-        Then user is updated
+        When update default user with auth
+        Then user default is updated
         When get user without auth
         Then auth error is found
         When get user with auth
@@ -35,7 +35,7 @@ Feature: User Management
         When delete user without auth
         Then auth error is found
         When delete user with auth
-        Then user is deleted
+        Then user default is deleted
         When get user without auth
         Then auth error is found
         When get user with auth

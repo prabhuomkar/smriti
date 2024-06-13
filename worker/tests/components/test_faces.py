@@ -14,7 +14,7 @@ from src.protos.api_pb2 import GetUsersResponse, MediaItemFaceEmbeddingsResponse
 async def test_faces_process_success(_):
     faces = Faces(APIStub(channel=grpc.insecure_channel('')), 'pytorch', {'minutes':'1','face_threshold':'0.9','model':'vggface2','clustering': 'annoy'})
     faces.source = mock.MagicMock()
-    faces.source.detect.return_value = dict({'userId':'userId','id':'id','embeddings':[[0.4,0.2]]})
+    faces.source.detect.return_value = dict({'userId':'userId','id':'id','embeddings':[[0.4,0.2]],'thumbnails':['thumbnail']})
     result = await faces.process('mediaitem_user_id', 'mediaitem_id', None,
                     {'previewPath': 'location/to-preview-file'})
     assert result == {'previewPath':'location/to-preview-file'}

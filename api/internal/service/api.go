@@ -4,10 +4,16 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/services/api"
+	"api/pkg/services/worker"
 	"api/pkg/storage"
 	"context"
 	"encoding/json"
 	"errors"
+	"fmt"
+	"os"
+	"path/filepath"
+	"strings"
+	"syscall"
 	"time"
 
 	"github.com/pgvector/pgvector-go"
@@ -34,36 +40,37 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.Con
 		Params string `json:"params,omitempty"`
 	}
 	var workerTasks []WorkerTask
-	if len(s.Config.ML.MetadataParams) > 0 {
-		workerTasks = append(workerTasks, WorkerTask{Name: "metadata", Params: s.Config.MetadataParams})
+	workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_METADATA.String()})
+	if len(s.Config.ML.PreviewThumbnailParams) > 0 {
+		workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_PREVIEW_THUMBNAIL.String(), Params: s.Config.PreviewThumbnailParams})
 	}
 	if s.Config.ML.Places {
-		workerTasks = append(workerTasks, WorkerTask{Name: "places", Source: s.Config.ML.PlacesProvider})
+		workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_PLACES.String(), Source: s.Config.ML.PlacesProvider})
 	}
 	if s.Config.ML.Classification {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "classification",
+			Name:   worker.MediaItemComponent_CLASSIFICATION.String(),
 			Source: s.Config.ClassificationProvider,
 			Params: s.Config.ClassificationParams,
 		})
 	}
 	if s.Config.ML.OCR {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "ocr",
+			Name:   worker.MediaItemComponent_OCR.String(),
 			Source: s.Config.OCRProvider,
 			Params: s.Config.OCRParams,
 		})
 	}
 	if s.Config.ML.Search {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "search",
+			Name:   worker.MediaItemComponent_SEARCH.String(),
 			Source: s.Config.SearchProvider,
 			Params: s.Config.SearchParams,
 		})
 	}
 	if s.Config.ML.Faces {
 		workerTasks = append(workerTasks, WorkerTask{
-			Name:   "faces",
+			Name:   worker.MediaItemComponent_FACES.String(),
 			Source: s.Config.FacesProvider,
 			Params: s.Config.FacesParams,
 		})
@@ -95,7 +102,7 @@ func (s *Service) GetUsers(_ context.Context, _ *emptypb.Empty) (*api.GetUsersRe
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) { //nolint: cyclop
+func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
@@ -120,34 +127,63 @@ func (s *Service) SaveMediaItemMetadata(_ context.Context, req *api.MediaItemMet
 		UserID: userID, ID: uid, CreationTime: creationTime,
 	}
 	parseMediaItem(&mediaItem, req)
-	mediaItem.SourceURL, err = uploadFile(s.Storage, req.SourcePath, "originals", req.Id)
-	if err != nil {
-		slog.Error("error uploading original file for mediaitem", "id", req.Id, "error", err)
-		return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
-	}
-	if req.Placeholder != nil {
-		mediaItem.Placeholder = *req.Placeholder
-	}
-	if req.PreviewPath != nil {
-		mediaItem.PreviewURL, err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
-		if err != nil {
-			slog.Error("error uploading preview file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
-		}
-	}
-	if req.ThumbnailPath != nil {
-		mediaItem.ThumbnailURL, err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
-		if err != nil {
-			slog.Error("error uploading thumbnail file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
-		}
-	}
 	result := s.DB.Model(&mediaItem).Updates(mediaItem)
 	if result.Error != nil {
 		slog.Error("error updating mediaitem result", "error", result.Error)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
 	}
 	slog.Info("saved metadata for mediaitem", "mediaitem", mediaItem.ID.String())
+	return &emptypb.Empty{}, nil
+}
+
+func (s *Service) SaveMediaItemPreviewThumbnail(_ context.Context, req *api.MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error) { //nolint: cyclop
+	userID, err := uuid.FromString(req.UserId)
+	if err != nil {
+		slog.Error("error getting mediaitem user id", "error", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+	}
+	uid, err := uuid.FromString(req.Id)
+	if err != nil {
+		slog.Error("error getting mediaitem id", "error", err)
+		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+	}
+	slog.Info("saving preview and thumbnail for mediaitem", "userId", req.UserId, "mediaitem", req.Id, "body", req.String())
+	mediaItem := models.MediaItem{
+		UserID: userID, ID: uid,
+	}
+	mediaItemUpdates := map[string]interface{}{
+		"status": req.Status,
+	}
+	if req.SourcePath != nil {
+		mediaItemUpdates["source_url"], err = uploadFile(s.Storage, *req.SourcePath, "originals", req.Id)
+		if err != nil {
+			slog.Error("error uploading original file for mediaitem", "id", req.Id, "error", err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
+		}
+	}
+	if req.Placeholder != nil {
+		mediaItemUpdates["placeholder"] = *req.Placeholder
+	}
+	if req.PreviewPath != nil {
+		mediaItemUpdates["preview_url"], err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
+		if err != nil {
+			slog.Error("error uploading preview file for mediaitem", "id", req.Id, "error", err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
+		}
+	}
+	if req.ThumbnailPath != nil {
+		mediaItemUpdates["thumbnail_url"], err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
+		if err != nil {
+			slog.Error("error uploading thumbnail file for mediaitem", "id", req.Id, "error", err)
+			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
+		}
+	}
+	result := s.DB.Model(&mediaItem).Updates(mediaItemUpdates)
+	if result.Error != nil {
+		slog.Error("error updating mediaitem result", "error", result.Error)
+		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", result.Error.Error())
+	}
+	slog.Info("saved preview and thumbnail for mediaitem", "mediaitem", mediaItem.ID.String())
 	return &emptypb.Empty{}, nil
 }
 
@@ -389,7 +425,7 @@ func (s *Service) SaveMediaItemPeople(_ context.Context, req *api.MediaItemPeopl
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) {
+func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) { //nolint:cyclop,funlen,gocognit
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
@@ -427,6 +463,38 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 		}
 	}
 
+	defer func() {
+		err := filepath.WalkDir(s.Config.DiskRoot, func(path string, d os.DirEntry, err error) error {
+			if err != nil {
+				slog.Error("error iterating over directory for mediaitem", "mediaitem", req.Id, "error", err)
+				return err
+			}
+			if !d.IsDir() && strings.Contains(d.Name(), req.Id) && filepath.Dir(path) == s.Config.DiskRoot {
+				// acquire lock to check if not copied
+				for {
+					slog.Debug("deleting file", "path", path)
+					file, err := os.Open(path)
+					if err != nil {
+						continue
+					}
+					if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+						continue
+					}
+					if err = os.Remove(path); err != nil {
+						return fmt.Errorf("error removing file for mediaitem %s: %w", req.Id, err)
+					}
+					break
+				}
+			}
+			return nil
+		})
+		if err != nil {
+			slog.Error("error clearing the files for mediaitem", "mediaitem", req.Id, "error", err)
+		} else {
+			slog.Debug("cleared the files for mediaitem", "mediaitem", req.Id)
+		}
+	}()
+
 	slog.Info("saved final mediaitem result", "userId", userID.String(), "mediaitem", uid.String())
 	return &emptypb.Empty{}, nil
 }
@@ -452,6 +520,7 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	mediaItem.FPS = req.Fps
 	mediaItem.Latitude = req.Latitude
 	mediaItem.Longitude = req.Longitude
+	mediaItem.EXIFData = req.ExifData
 	if req.MimeType != nil {
 		mediaItem.MimeType = *req.MimeType
 	}

@@ -5,23 +5,23 @@ from requests.auth import HTTPBasicAuth
 from common import API_URL, ADMIN_USERNAME, ADMIN_PASSWORD, CREATED_USER
 
 
-@given('a user is created')
-def step_impl(context):
-    res = requests.post(API_URL+'/v1/users', json=CREATED_USER,
+@given('a user {name} is created')
+def step_impl(context, name):
+    res = requests.post(API_URL+'/v1/users', json=CREATED_USER[name],
                         auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
     assert res.status_code == 201
     context.user_id = res.json()['id']
 
-@then('a user is deleted')
-def step_impl(context):
-    res = requests.delete(API_URL+'/v1/users/'+context.user_id, json=CREATED_USER,
+@then('a user {name} is deleted')
+def step_impl(context, name):
+    res = requests.delete(API_URL+'/v1/users/'+context.user_id, json=CREATED_USER[name],
                           auth=HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD))
     assert res.status_code == 204
 
-@when('user logs in')
-def step_impl(context):
+@when('user {name} logs in')
+def step_impl(context, name):
     res = requests.post(API_URL+'/v1/auth/login', json={
-                        'username': CREATED_USER['username'], 'password': CREATED_USER['password']})
+                        'username': CREATED_USER[name]['username'], 'password': CREATED_USER[name]['password']})
     context.response = res
 
 @when('user refreshes token')

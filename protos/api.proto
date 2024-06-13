@@ -13,24 +13,31 @@ message MediaItemMetadataRequest {
     string id = 2;
     string status = 3;
     optional string mimeType = 4;
-    string sourcePath = 5;
-    optional string placeholder = 6;
-    optional string previewPath = 7;
-    optional string thumbnailPath = 8;
-    string type = 9;
-    string category = 10;
-    optional int32 width = 11;
-    optional int32 height = 12;
-    optional string creationTime = 13;
-    optional string cameraMake = 14;
-    optional string cameraModel = 15;
-    optional string focalLength = 16;
-    optional string apertureFNumber = 17;
-    optional string isoEquivalent = 18;
-    optional string exposureTime = 19;
-    optional string fps = 20;
-    optional double latitude = 21;
-    optional double longitude = 22;
+    string type = 5;
+    string category = 6;
+    optional int32 width = 7;
+    optional int32 height = 8;
+    optional string creationTime = 9;
+    optional string cameraMake = 10;
+    optional string cameraModel = 11;
+    optional string focalLength = 12;
+    optional string apertureFNumber = 13;
+    optional string isoEquivalent = 14;
+    optional string exposureTime = 15;
+    optional string fps = 16;
+    optional double latitude = 17;
+    optional double longitude = 18;
+    optional string exifData = 19;
+}
+
+message MediaItemPreviewThumbnailRequest {
+    string userId = 1;
+    string id = 2;
+    string status = 3;
+    optional string sourcePath = 4;
+    optional string previewPath = 5;
+    optional string thumbnailPath = 6;
+    optional string placeholder = 7;
 }
 
 message MediaItemPlaceRequest {
@@ -100,6 +107,7 @@ service API {
     rpc GetMediaItemFaceEmbeddings(MediaItemFaceEmbeddingsRequest) returns (MediaItemFaceEmbeddingsResponse) {}
     rpc GetUsers(google.protobuf.Empty) returns (GetUsersResponse) {}
     rpc SaveMediaItemMetadata(MediaItemMetadataRequest) returns (google.protobuf.Empty) {}
+    rpc SaveMediaItemPreviewThumbnail(MediaItemPreviewThumbnailRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemPlace(MediaItemPlaceRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemThing(MediaItemThingRequest) returns (google.protobuf.Empty) {}
     rpc SaveMediaItemFaces(MediaItemFacesRequest) returns (google.protobuf.Empty) {}

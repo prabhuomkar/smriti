@@ -62,22 +62,22 @@ def step_impl(context):
     assert 'username' not in context.user
     assert context.user['message'] == 'user not found'
 
-@when('create user {condition} auth')
-def step_impl(context, condition):
+@when('create {name} user {condition} auth')
+def step_impl(context, name, condition):
     auth = None
     if condition == 'with':
         auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
-    res = requests.post(API_URL+'/v1/users', json=CREATED_USER, auth=auth)
+    res = requests.post(API_URL+'/v1/users', json=CREATED_USER[name], auth=auth)
     context.response = res
 
-@when('update user {condition} auth')
-def step_impl(context, condition):
+@when('update {name} user {condition} auth')
+def step_impl(context, name, condition):
     auth = None
     if condition == 'with':
         auth = HTTPBasicAuth(ADMIN_USERNAME, ADMIN_PASSWORD)
     user_id = context.user_id
     res = requests.put(API_URL+'/v1/users/'+user_id,
-                       json=UPDATED_USER, auth=auth)
+                       json=UPDATED_USER[name], auth=auth)
     context.response = res
 
 @when('delete user {condition} auth')
@@ -89,19 +89,19 @@ def step_impl(context, condition):
     res = requests.delete(API_URL+'/v1/users/'+user_id, auth=auth)
     context.response = res
 
-@then('user is created')
-def step_impl(context):
+@then('user {name} is created')
+def step_impl(context, name):
     assert context.response.status_code == 201
     context.user_id = context.response.json()['id']
-    context.match_user = CREATED_USER
+    context.match_user = CREATED_USER[name]
 
-@then('user is updated')
-def step_impl(context):
+@then('user {name} is updated')
+def step_impl(context, name):
     assert context.response.status_code == 204
-    context.match_user = UPDATED_USER
+    context.match_user = UPDATED_USER[name]
 
-@then('user is deleted')
-def step_impl(context):
+@then('user {name} is deleted')
+def step_impl(context, name):
     assert context.response.status_code == 204
-    context.match_user = UPDATED_USER
+    context.match_user = UPDATED_USER[name]
 

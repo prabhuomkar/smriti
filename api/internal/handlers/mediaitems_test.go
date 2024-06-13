@@ -23,7 +23,7 @@ var (
 		"id", "user_id", "filename", "description", "mime_type", "source_url", "preview_url", "thumbnail_url",
 		"placeholder", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
 		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
+		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "exif_data", "created_at", "updated_at",
 	}
 	mediaitemFaceCols     = []string{"id", "mediaitem_id", "people_id", "thumbnail"}
 	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
@@ -1140,6 +1140,27 @@ func TestGetMediaItems(t *testing.T) {
 			mediaitemsResponseBody,
 		},
 		{
+			"get mediaitems with 2 rows and filters",
+			http.MethodGet,
+			"/v1/mediaItems",
+			"/v1/mediaItems?status=FAILED",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+					WillReturnRows(getMockedMediaItemRows())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetMediaItems
+			},
+			http.StatusOK,
+			mediaitemsResponseBody,
+		},
+		{
 			"get mediaitems with error",
 			http.MethodGet,
 			"/v1/mediaItems",
@@ -1366,7 +1387,8 @@ func TestUploadMediaItems(t *testing.T) {
 			[]string{},
 			[]string{},
 			map[string]string{
-				echo.HeaderContentType: contentType4,
+				echo.HeaderContentType:   contentType4,
+				echo.HeaderAuthorization: "atoken",
 			},
 			sampleFile4,
 			func(mock sqlmock.Sqlmock) {
@@ -1455,7 +1477,7 @@ func getMockedMediaItemRow() *sqlmock.Rows {
 			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "placeholder", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemRows() *sqlmock.Rows {
@@ -1464,12 +1486,12 @@ func getMockedMediaItemRows() *sqlmock.Rows {
 			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "placeholder", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime).
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", nil, sampleTime, sampleTime).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"filename", "description", "mime_type", "source_url", "preview_url",
 			"thumbnail_url", "placeholder", "false", "true", "true", "status", "mediaitem_type", "mediaitem_category", 720,
 			480, sampleTime, "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
+			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemFaceRow() *sqlmock.Rows {

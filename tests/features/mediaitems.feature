@@ -1,8 +1,8 @@
 Feature: MediaItems
 
     Background: Setup User
-        Given a user is created if does not exist
-        When user logs in
+        Given a user default is created if does not exist
+        When user default logs in
         Then token is generated
 
     Scenario: Validate Create Photo MediaItem
@@ -34,6 +34,11 @@ Feature: MediaItems
         Then auth error is found
         When get all mediaitems with auth
         Then mediaitem is present in list
+
+    Scenario: Validate Duplicate Photo MediaItem
+        Given a mediaitem exists
+        When upload default photo mediaitem with auth
+        Then mediaitem already exists
 
     Scenario: Validate Delete Photo MediaItem
         Given a mediaitem exists

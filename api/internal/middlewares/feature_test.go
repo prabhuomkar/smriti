@@ -31,6 +31,7 @@ func TestFeatureCheckForbidden(t *testing.T) {
 		Things:     false,
 		People:     false,
 		Sharing:    false,
+		Jobs:       false,
 	}}
 	handler := &handlers.Handler{
 		Config: cfg,
@@ -45,6 +46,7 @@ func TestFeatureCheckForbidden(t *testing.T) {
 		"places":     handler.GetPlaces,
 		"things":     handler.GetThings,
 		"people":     handler.GetPeople,
+		"jobs":       handler.GetJobs,
 	}
 	for feature, handler := range featureHandlerMap {
 		// test

@@ -1,6 +1,10 @@
 package config
 
-import "github.com/kelseyhightower/envconfig"
+import (
+	"time"
+
+	"github.com/kelseyhightower/envconfig"
+)
 
 type (
 	// Log ...
@@ -70,7 +74,7 @@ type (
 		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS" default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v240508.pt\",\"vision_file\":\"search_vision_v240508.pt\"}"` //nolint:lll
 		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER" default:"pytorch"`
 		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS" default:"{\"minutes\":\"1\",\"face_threshold\":\"0.9\",\"model\":\"vggface2\",\"clustering\":\"annoy\"}"`
-		MetadataParams         string `envconfig:"SMRITI_ML_METADATA_PARAMS" default:"{\"thumbnail_size\":\"512\"}"`
+		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{\"thumbnail_size\":\"512\"}"`
 	}
 
 	// Feature ...
@@ -84,6 +88,7 @@ type (
 		Things     bool `envconfig:"SMRITI_FEATURE_THINGS" default:"true"`
 		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE" default:"true"`
 		Sharing    bool `envconfig:"SMRITI_FEATURE_SHARING" default:"true"`
+		Jobs       bool `envconfig:"SMRITI_FEATURE_JOBS" default:"true"`
 	}
 
 	// Admin ...
@@ -101,6 +106,11 @@ type (
 		SecretKey string `envconfig:"SMRITI_STORAGE_SECRET_KEY" default:"smritipass"`
 	}
 
+	Job struct {
+		QueueInterval time.Duration `envconfig:"SMRITI_JOB_QUEUE_INTERVAL" default:"5s"`
+		Concurrency   int           `envconfig:"SMRITI_JOB_CONCURRENCY" default:"10"`
+	}
+
 	// Config ...
 	Config struct {
 		Log
@@ -114,6 +124,7 @@ type (
 		ML
 		Admin
 		Storage
+		Job
 	}
 )
 

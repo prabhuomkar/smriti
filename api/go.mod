@@ -5,6 +5,7 @@ go 1.22
 require (
 	github.com/DATA-DOG/go-sqlmock v1.5.0
 	github.com/bluele/gcache v0.0.2
+	github.com/fsnotify/fsnotify v1.7.0
 	github.com/go-redis/redis/v8 v8.11.5
 	github.com/golang-jwt/jwt/v4 v4.5.0
 	github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus v1.0.1

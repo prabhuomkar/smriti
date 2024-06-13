@@ -22,6 +22,8 @@ func (h *Handler) GetVersion(ctx echo.Context) error {
 }
 
 // GetFeatures ...
+//
+//nolint:cyclop
 func (h *Handler) GetFeatures(ctx echo.Context) error {
 	cfgFeatures := models.GetFeatures(h.Config)
 	features, _ := ctx.Get("features").(models.Features)
@@ -35,6 +37,7 @@ func (h *Handler) GetFeatures(ctx echo.Context) error {
 	features.Things = features.Things && cfgFeatures.Things
 	features.People = features.People && cfgFeatures.People
 	features.Sharing = features.Sharing && cfgFeatures.Sharing
+	features.Jobs = features.Jobs && cfgFeatures.Jobs
 
 	return ctx.JSON(http.StatusOK, features)
 }
@@ -58,7 +61,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 			slog.Error("error getting search query embedding", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-		result := h.DB.Raw("SELECT * from mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> ?)", pgvector.NewVector(searchEmbedding.Embedding)).
+		result := h.DB.Raw("SELECT * FROM mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> ?)", pgvector.NewVector(searchEmbedding.Embedding)).
 			Find(&mediaItems).Limit(searchDefaultLimit)
 		if result.Error != nil {
 			slog.Error("error searching mediaitems", "error", result.Error)

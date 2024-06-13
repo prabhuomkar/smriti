@@ -37,9 +37,12 @@ test-search:
 test-raw:
 	@echo "testing feature: raw mediaitems"
 	behave -i raw.feature
+test-jobs:
+	@echo "testing feature: jobs"
+	behave -i jobs.feature
 test-all:
 	@echo "testing all features"
-	behave --tags=~long
+	behave --tags=~long --tags=~wip
 clear:
 	@echo "clearing uploaded files"
 	@sudo rm -rf ../storage/originals/*

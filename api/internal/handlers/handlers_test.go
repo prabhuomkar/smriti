@@ -69,7 +69,7 @@ func executeTests(t *testing.T, tests []Test) {
 			ctx.Set("userID", "4d05b5f6-17c2-475e-87fe-3fc8b9567179")
 			if _, ok := test.Header[echo.HeaderAuthorization]; ok {
 				var features models.Features
-				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true}`), &features)
+				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true,"things":true,"people":true}`), &features)
 				ctx.Set("features", features)
 			}
 			// database
@@ -106,7 +106,8 @@ func executeTests(t *testing.T, tests []Test) {
 				Config: &config.Config{
 					Storage: config.Storage{DiskRoot: os.TempDir()},
 					Auth:    config.Auth{RefreshTTL: 60},
-					Feature: config.Feature{Albums: true, Explore: true, Places: true},
+					Feature: config.Feature{Albums: true, Explore: true, Places: true, Things: true, People: true},
+					ML:      config.ML{Places: true, Classification: true, OCR: true, Faces: true, Search: true},
 				},
 				DB:     mockGDB,
 				Cache:  mockCache,

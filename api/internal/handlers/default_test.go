@@ -48,7 +48,7 @@ func TestGetFeatures(t *testing.T) {
 				return handler.GetFeatures
 			},
 			http.StatusOK,
-			`{"albums":true,"explore":true,"places":true}`,
+			`{"albums":true,"explore":true,"places":true,"things":true,"people":true}`,
 		},
 	}
 	executeTests(t, tests)
@@ -136,7 +136,7 @@ func TestSearch(t *testing.T) {
 					WillReturnRows(sqlmock.NewRows(mediaitemCols))
 			},
 			nil,
-			nil,
+			&mockWorkerGRPCClient{wantOk: true},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Search
 			},
@@ -157,7 +157,7 @@ func TestSearch(t *testing.T) {
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
-			nil,
+			&mockWorkerGRPCClient{wantOk: true},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Search
 			},
@@ -178,12 +178,30 @@ func TestSearch(t *testing.T) {
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
-			nil,
+			&mockWorkerGRPCClient{wantOk: true},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Search
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"search mediaitems with error getting embedding",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			nil,
+			nil,
+			&mockWorkerGRPCClient{wantErr: true},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusInternalServerError,
+			"some grpc error",
 		},
 	}
 	executeTests(t, tests)

@@ -1,14 +1,12 @@
 FROM golang:1.22-alpine as builder
-RUN apk update && apk add git
-RUN mkdir -p /app
+RUN apk update && apk add --no-cache git
 WORKDIR /app
-COPY go.mod .
-COPY go.sum .
+COPY go.mod go.sum ./
 RUN go mod download
 COPY . .
 ARG VERSION=dev
 ARG GITSHA=-
-RUN go build -o api --ldflags="-X 'api/internal/models.DefaultVersion=$VERSION' -X 'api/internal/models.DefaultGitSHA=$GITSHA'"
+RUN CGO_ENABLED=0 go build -o api --ldflags="-X 'api/internal/models.DefaultVersion=$VERSION' -X 'api/internal/models.DefaultGitSHA=$GITSHA'"
 
 FROM alpine
 WORKDIR /app

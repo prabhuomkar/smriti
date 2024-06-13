@@ -5,6 +5,7 @@ from grpc import RpcError
 
 from src.protos.api_pb2_grpc import APIStub
 from src.protos.api_pb2 import MediaItemThingRequest  # pylint: disable=no-name-in-module
+from src.protos.worker_pb2 import MediaItemComponent, CLASSIFICATION  # pylint: disable=no-name-in-module
 from src.components.component import Component
 from src.providers.classification.utils import init_classification
 
@@ -12,7 +13,7 @@ from src.providers.classification.utils import init_classification
 class Classification(Component):
     """Classification Component"""
     def __init__(self, api_stub: APIStub, source: str, params: dict) -> None:
-        super().__init__('classification', api_stub)
+        super().__init__(MediaItemComponent.Name(CLASSIFICATION), api_stub)
         self.model = init_classification(source, params)
 
     async def process(self, mediaitem_user_id: str, mediaitem_id: str, _: str, metadata: dict) -> None:

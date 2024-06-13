@@ -130,10 +130,15 @@ def step_impl(context):
         res = requests.get(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
         res = res.json()
         if res['status'] == 'READY':
+            time.sleep(2)
             break
         if res['status'] == 'FAILED':
             raise Exception('failed to upload mediaitem')
         time.sleep(2)
+
+@then('mediaitem already exists')
+def step_impl(context):
+    assert context.response.status_code == 409
 
 @then('mediaitem is uploaded or exists')
 def step_impl(context):
@@ -148,6 +153,7 @@ def step_impl(context):
         res = requests.get(API_URL+'/v1/mediaItems/'+mediaitem_id, headers=headers)
         res = res.json()
         if res['status'] == 'READY':
+            time.sleep(2)
             break
         if res['status'] == 'FAILED':
             raise Exception('failed to upload mediaitem')

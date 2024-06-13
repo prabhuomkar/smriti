@@ -20,6 +20,8 @@ tags:
     description: User Management for your application
   - name: Sharing
     description: Sharing Albums or MediaItems
+  - name: Jobs
+    description: Background jobs for your MediaItems
 paths:
   /version:
     get:
@@ -1314,6 +1316,135 @@ paths:
           description: Not Found
         '500':
           description: Internal Server Error
+  /v1/jobs:
+    get:
+      tags:
+        - Jobs
+      parameters:
+        - name: page
+          in: query
+          description: Pagination page
+          schema:
+            type: number
+            default: 1
+        - name: limit
+          in: query
+          description: Pagination limit
+          schema:
+            type: number
+            default: 15
+      summary: Get all existing jobs
+      description: Get all existing jobs
+      operationId: getJobs
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Jobs'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '500':
+          description: Internal Server Error
+    post:
+      tags:
+        - Jobs
+      summary: Create a new job
+      description: Create a new job
+      operationId: createJob
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: Job request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobCreateRequest'
+      responses:
+        '201':
+          description: Created
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '409':
+          description: Conflict
+        '500':
+          description: Internal Server Error
+  /v1/jobs/{id}:
+    get:
+      tags:
+        - Jobs
+      parameters:
+        - name: id
+          in: path
+          description: ID of job
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Get an existing job
+      description: Get an existing job
+      operationId: getJob
+      security:
+        - bearerAuth: []
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Job'
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '500':
+          description: Internal Server Error
+    put:
+      tags:
+        - Jobs
+      parameters:
+        - name: id
+          in: path
+          description: ID of job
+          required: true
+          schema:
+            type: string
+            format: uuid
+      summary: Update an existing job
+      description: Update an existing job
+      operationId: updateJob
+      security:
+        - bearerAuth: []
+      requestBody:
+        description: job request body
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/JobUpdateRequest'
+      responses:
+        '204':
+          description: No Content
+        '400':
+          description: Bad Request
+        '401':
+          description: Unauthenticated
+        '404':
+          description: Not Found
+        '409':
+          description: Conflict
+        '500':
+          description: Internal Server Error
 components:
   securitySchemes:
     bearerAuth:
@@ -1730,6 +1861,53 @@ components:
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
+    Job:
+      type: object
+      properties:
+        id:
+          readOnly: true
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        userId:
+          readOnly: true
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        components:
+          type: string
+          example: metadata, faces
+        status:
+          readOnly: true
+          type: string
+          enum: ["SCHEDULED", "RUNNING", "PAUSED", "COMPLETED", "STOPPED"]
+        lastMediaItemId:
+          type: string
+          format: uuid
+          example: 102dc522de-1669-48a4-8270-4950a0237599
+        createdAt:
+          readOnly: true
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+        updatedAt:
+          readOnly: true
+          type: string
+          format: date-time
+          example: "2022-09-14T16:58:28Z"
+    JobCreateRequest:
+      type: object
+      properties:
+        components:
+          type: string
+          example: metadata,faces
+    JobUpdateRequest:
+      type: object
+      properties:
+        status:
+          type: string
+          enum: ["SCHEDULED", "RUNNING", "PAUSED", "COMPLETED", "STOPPED"]
+          example: "PAUSED"
     MediaItems:
       type: array
       items:
@@ -1754,3 +1932,7 @@ components:
       type: array
       items:
         $ref: '#/components/schemas/User'
+    Jobs:
+      type: array
+      items:
+        $ref: '#/components/schemas/Job'
