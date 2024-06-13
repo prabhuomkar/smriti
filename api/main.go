@@ -69,9 +69,8 @@ func main() {
 
 	opts := []grpc.DialOption{
 		grpc.WithTransportCredentials(insecure.NewCredentials()),
-		grpc.WithBlock(),
 	}
-	conn, err := grpc.Dial(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
+	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
 	if err != nil {
 		panic(err)
 	}
