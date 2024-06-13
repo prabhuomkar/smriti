@@ -1365,7 +1365,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/JobRequest'
+              $ref: '#/components/schemas/JobCreateRequest'
       responses:
         '201':
           description: Created
@@ -1431,7 +1431,7 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/JobRequest'
+              $ref: '#/components/schemas/JobUpdateRequest'
       responses:
         '204':
           description: No Content
@@ -1895,12 +1895,15 @@ components:
           type: string
           format: date-time
           example: "2022-09-14T16:58:28Z"
-    JobRequest:
+    JobCreateRequest:
       type: object
       properties:
         components:
           type: string
-          example: metadata, faces
+          example: metadata,faces
+    JobUpdateRequest:
+      type: object
+      properties:
         status:
           type: string
           enum: ["SCHEDULED", "RUNNING", "PAUSED", "COMPLETED", "STOPPED"]

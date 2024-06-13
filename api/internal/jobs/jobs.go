@@ -169,18 +169,19 @@ func (j *Job) executeJobMediaItem(wg *sync.WaitGroup, jobCfg models.Job, queue <
 			select {
 			case event, ok := <-watcher.Events:
 				if !ok {
+					slog.Error("exiting watching file", "file", fileName)
 					break watcherLoop
 				}
 				if event.Op&fsnotify.Remove == fsnotify.Remove {
-					slog.Debug("finished processing item from job queue", "mediaitem", item.ID.String())
+					slog.Info("finished processing item from job queue", "mediaitem", item.ID.String())
 					results <- item.ID
 					break watcherLoop
 				}
 			case err, ok := <-watcher.Errors:
 				if !ok {
+					slog.Error("error watching file", "file", fileName, "error", err)
 					break watcherLoop
 				}
-				slog.Error("error watching file", "file", fileName, "error", err)
 			}
 		}
 	}

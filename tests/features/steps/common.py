@@ -13,7 +13,7 @@ CREATED_USER = {
     },
     'jobs': {
         'name': 'Steve Jobs', 'username': 'stevejobs', 'password': 'johndoeT3st!','features':'{"albums":true,'+
-        '"favourites":true,"hidden":true,"trash":true,"sharing":true}'
+        '"favourites":true,"hidden":true,"trash":true,"sharing":true,"jobs":true}'
     }
 }
 UPDATED_USER = {
@@ -24,7 +24,7 @@ UPDATED_USER = {
     },
     'jobs': {
         'name': 'Steve Updated Jobs', 'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,'+
-        '"explore":true,"places":true,"things":true,"people":true,"sharing":true}'
+        '"explore":true,"places":true,"things":true,"people":true,"sharing":true,"jobs":true}'
     }
 }
 
