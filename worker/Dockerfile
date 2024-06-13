@@ -7,7 +7,7 @@ RUN curl --proto '=https' --tlsv1.3 -sSf https://sh.rustup.rs -o rustup-init.sh
 RUN sh rustup-init.sh -y
 ENV PATH="/root/.cargo/bin:${PATH}"
 ADD requirements.txt /requirements.txt
-RUN pip3 install --no-cache-dir -r requirements.txt -vvv --default-timeout=60
+RUN pip3 install --no-cache-dir -r requirements.txt -vvv
 COPY src /app/src
 EXPOSE 15002
 WORKDIR /app
