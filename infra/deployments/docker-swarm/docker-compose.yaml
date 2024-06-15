@@ -32,7 +32,7 @@ services:
       replicas: 2
   # infra services
   database:
-    image: pgvector/pgvector:0.7.0-pg16
+    image: pgvector/pgvector:0.7.2-pg16
     restart: always
     environment:
       POSTGRES_USER: smritiuser
@@ -41,14 +41,14 @@ services:
     ports:
       - '5432:5432'
   cache:
-    image: redis:7.2.4-alpine
+    image: redis:7.2.5-alpine
     command: >
       --requirepass smriti
     ports:
       - '6379:6379'
   storage:
     container_name: storage
-    image: minio/minio:RELEASE.2024-05-07T06-41-25Z
+    image: minio/minio:RELEASE.2024-06-13T22-53-53Z
     volumes:
       - ./storage:/storage
     ports:

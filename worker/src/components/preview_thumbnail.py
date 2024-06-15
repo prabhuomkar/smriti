@@ -205,14 +205,16 @@ class PreviewThumbnail(Component):
                 sidx = 1 if lidx == 0 else 0
                 percent = self.thumbnail_size/float(img.size[lidx])
                 size = int((float(img.size[sidx])*float(percent)))
-                img.resize(self.thumbnail_size, size)
+                dims = [self.thumbnail_size, size] if img.size[0] > img.size[1] else [size, self.thumbnail_size]
+                img.resize(dims[0], dims[1])
                 with img.convert('jpeg') as converted:
                     converted.save(filename=video_thumbnail_path)
                 lidx = 0 if img.size[0] > img.size[1] else 1
                 sidx = 1 if lidx == 0 else 0
                 percent = 4/float(img.size[lidx])
                 size = int((float(img.size[sidx])*float(percent)))
-                img.resize(4, size)
+                dims = [4, size] if img.size[0] > img.size[1] else [size, 4]
+                img.resize(dims[0], dims[1])
                 placeholder_bytes = img.make_blob()
                 placeholder = base64.b64encode(placeholder_bytes).decode('utf-8')
             return video_thumbnail_path, str(placeholder)

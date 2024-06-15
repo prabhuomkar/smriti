@@ -18,7 +18,7 @@ require (
 	github.com/satori/go.uuid v1.2.0
 	github.com/stretchr/testify v1.9.0
 	go.uber.org/automaxprocs v1.5.3
-	golang.org/x/exp v0.0.0-20240604190554-fc45aab8b7f8
+	golang.org/x/exp v0.0.0-20240613232115-7f521ea00fb8
 	google.golang.org/grpc v1.64.0
 	google.golang.org/protobuf v1.34.2
 	gorm.io/driver/postgres v1.5.9
