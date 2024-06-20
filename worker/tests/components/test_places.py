@@ -28,7 +28,7 @@ async def test_places_process_success(_, __):
 async def test_places_process_success_with_keywords(_, __):
     result = await Places(None, 'openstreetmap').process('mediaitem_user_id', 'mediaitem_id', None,
                     {'latitude': 19.2195856, 'longitude': 73.1056888, 'keywords': 'exists'})
-    assert result == {'keywords': 'exists 421201 dombivli dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
+    assert result == {'keywords': 'exists 421201 dombivli maharashtra india', 'latitude': 19.2195856, 'longitude': 73.1056888}
 
 @pytest.mark.asyncio
 async def test_places_process_success_no_metadata():

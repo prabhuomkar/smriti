@@ -26,7 +26,7 @@ class Classification(Component):
             if result is not None:
                 if 'keywords' not in metadata or metadata['keywords'] == '':
                     metadata['keywords'] = result['name'].lower()
-                else:
+                elif result['name'].lower() not in metadata['keywords']:
                     metadata['keywords'] += (' ' + result['name'].lower())
                 metadata['keywords'] = metadata['keywords'].strip()
                 self._grpc_save_mediaitem_thing(result)

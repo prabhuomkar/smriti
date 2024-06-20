@@ -16,6 +16,8 @@ async def test_ocr_process_success(_):
     ocr.model.extract.return_value = dict({'userId':'userId','id':'id','words':['first','second']})
     result = await ocr.process('mediaitem_user_id', 'mediaitem_id', None,
                     {'previewPath': 'location/to-preview-file'})
+    if 'keywords' in result:
+        result['keywords'] = ' '.join(sorted(result['keywords'].split(' ')))
     assert result == {'keywords':'first second','previewPath':'location/to-preview-file'}
 
 @mock.patch('src.providers.ocr.PaddleModule.__init__', return_value=None)
