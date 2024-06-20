@@ -1,5 +1,5 @@
 facenet-pytorch==2.5.3
-opencv-python==4.10.0.82
+opencv-python==4.10.0.84
 Pillow==10.3.0
 paddle2onnx==1.2.1
 paddleocr-convert==0.0.18
@@ -10,4 +10,4 @@ six==1.16.0
 torch==2.3.0
 torchvision==0.18.0
 transformers==4.41.2
-urllib3==2.2.1
+urllib3==2.2.2
