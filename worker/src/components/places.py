@@ -28,20 +28,23 @@ class Places(Component):
             if result is not None:
                 place_keywords = ''
                 if result['postcode']:
-                    place_keywords += (result['postcode']+' ')
+                    place_keywords += (result['postcode'].lower()+' ')
                 if result['city']:
-                    place_keywords += (result['city']+' ')
+                    place_keywords += (result['city'].lower()+' ')
                 if result['town']:
-                    place_keywords += (result['town']+' ')
+                    place_keywords += (result['town'].lower()+' ')
                 if result['state']:
-                    place_keywords += (result['state']+' ')
+                    place_keywords += (result['state'].lower()+' ')
                 if result['country']:
-                    place_keywords += (result['country']+' ')
+                    place_keywords += (result['country'].lower()+' ')
+                place_keywords = place_keywords.strip()
                 if 'keywords' not in metadata or metadata['keywords'] == '':
                     metadata['keywords'] = place_keywords
                 else:
-                    metadata['keywords'] += (' ' + place_keywords)
-                metadata['keywords'] = metadata['keywords'].strip().lower()
+                    for keyword in place_keywords.split(' '):
+                        if keyword not in metadata['keywords']:
+                            metadata['keywords'] += (' ' + keyword)
+                metadata['keywords'] = metadata['keywords'].strip()
                 self._grpc_save_mediaitem_place(result)
         except Exception as exp:
             logging.error(f'error getting place response for user {mediaitem_user_id} '+

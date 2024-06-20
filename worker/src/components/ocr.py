@@ -25,9 +25,11 @@ class OCR(Component):
             if result:
                 ocr_keywords = ' '.join(result['words'] if 'words' in result and result['words'] else '').lower()
                 if 'keywords' not in metadata or metadata['keywords'] == '':
-                    metadata['keywords'] = ocr_keywords
+                    metadata['keywords'] = ' '.join(list(set(ocr_keywords.split(' '))))
                 else:
-                    metadata['keywords'] += (' ' + ocr_keywords)
+                    for keyword in ocr_keywords.split(' '):
+                        if keyword not in metadata['keywords']:
+                            metadata['keywords'] += (' ' + keyword)
                 metadata['keywords'] = metadata['keywords'].strip()
         except Exception as exp:
             logging.error(f'error getting ocr response for user {mediaitem_user_id} '+
