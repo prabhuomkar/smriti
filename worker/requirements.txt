@@ -5,6 +5,7 @@ grpcio==1.64.1
 grpcio-tools==1.64.1
 minio==7.2.7
 moviepy==1.0.3
+numpy==1.26.4
 opencv-python==4.10.0.84
 prometheus-client==0.20.0
 Pillow==10.3.0

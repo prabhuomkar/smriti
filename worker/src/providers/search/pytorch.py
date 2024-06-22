@@ -3,7 +3,6 @@ import logging
 
 from PIL import Image
 import torch
-from moviepy.editor import VideoFileClip
 from transformers import AutoTokenizer, AutoImageProcessor
 
 
@@ -34,16 +33,4 @@ class PyTorchModule:
                 logging.debug(f'generated photo embedding: {res}')
                 return [res]
             return []
-        if data and data['type'] == 'video':
-            result = []
-            video_clip = VideoFileClip(data['previewPath'])
-            for frame in video_clip.iter_frames(fps=video_clip.fps):
-                input_tensor = self.processor(Image.open(frame), return_tensors='pt')
-                res = self.vision_module.forward(**input_tensor)
-                if res is not None:
-                    res = res.tolist()
-                    result += [res]
-            video_clip.reader.close()
-            logging.debug(f'generated video embedding: {result}')
-            return result
         return []

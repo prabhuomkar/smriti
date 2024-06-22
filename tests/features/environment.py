@@ -1,4 +1,5 @@
 import psycopg2
+import time
 
 
 ALL_TABLES = ['thing_mediaitems', 'place_mediaitems',
@@ -10,6 +11,7 @@ def before_feature(context, feature):
     cleanup_tables()
 
 def after_feature(context, feature):
+    time.sleep(10)
     cleanup_tables()
 
 def cleanup_tables():
