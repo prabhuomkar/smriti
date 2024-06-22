@@ -4,7 +4,7 @@ Feature: Things
         Given a user default is created if does not exist
         When user default logs in
         Then token is generated
-        When upload default photo mediaitem with auth if does not exist and wait 10 seconds
+        When upload default photo mediaitem with auth if does not exist and wait 5 seconds
         Then mediaitem is uploaded or exists
 
     Scenario: Validate Things

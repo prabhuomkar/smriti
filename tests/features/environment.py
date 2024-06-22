@@ -1,4 +1,5 @@
 import psycopg2
+import time
 
 
 ALL_TABLES = ['thing_mediaitems', 'place_mediaitems',

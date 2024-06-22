@@ -14,6 +14,8 @@ class PyTorchModule:
         os.environ['TORCH_HOME'] = '/'
         try:
             os.symlink('/models/faces/', '/checkpoints')
+        except FileExistsError:
+            pass
         except Exception as exp:
             logging.error(f'error creating symlink: {str(exp)}')
         self.prob_threshold = float(params['face_threshold'])

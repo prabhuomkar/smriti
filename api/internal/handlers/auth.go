@@ -37,10 +37,10 @@ func (h *Handler) Login(ctx echo.Context) error {
 		Where("username=? AND password=?", &loginRequest.Username, getPasswordHash(*loginRequest.Password)).
 		First(&user)
 	if result.Error != nil {
-		slog.Error("error getting user", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "incorrect username or password")
 		}
+		slog.Error("error getting user", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	accessToken, refreshToken, err := auth.GetTokens(h.Config, h.Cache, user)

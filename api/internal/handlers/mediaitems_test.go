@@ -1192,6 +1192,7 @@ func TestUploadMediaItems(t *testing.T) {
 	sampleFile4, contentType4 := getMockedMediaItemFile(t)
 	sampleFile5, contentType5 := getMockedMediaItemFile(t)
 	sampleFile6, contentType6 := getMockedMediaItemFile(t)
+	sampleFile7, contentType7 := getMockedMediaItemFile(t)
 	tests := []Test{
 		{
 			"upload mediaitems with invalid command",
@@ -1320,6 +1321,35 @@ func TestUploadMediaItems(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"upload mediaitems with error saving hash due to duplicates",
+			http.MethodPost,
+			"/v1/mediaItems",
+			"/v1/mediaItems",
+			[]string{},
+			[]string{},
+			map[string]string{
+				echo.HeaderContentType: contentType7,
+			},
+			sampleFile7,
+			func(mock sqlmock.Sqlmock) {
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
+					WillReturnResult(sqlmock.NewResult(1, 1))
+				mock.ExpectCommit()
+				mock.ExpectBegin()
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+					WillReturnError(errors.New("violates unique constraint"))
+				mock.ExpectRollback()
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UploadMediaItems
+			},
+			http.StatusConflict,
+			"mediaitem already exists",
 		},
 		{
 			"upload mediaitems with error saving hash in mediaitem process",

@@ -7,6 +7,7 @@ import (
 	"errors"
 	"time"
 
+	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt/v4"
 	uuid "github.com/satori/go.uuid"
 	"golang.org/x/exp/slog"
@@ -69,7 +70,9 @@ func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string
 func RemoveTokens(cache cache.Provider, accessToken string) error {
 	refreshToken, err := cache.Get(accessToken)
 	if err != nil {
-		slog.Error("error getting access token from cache", "error", err)
+		if !errors.Is(err, redis.Nil) {
+			slog.Error("error getting access token from cache", "error", err)
+		}
 		return err
 	}
 
@@ -82,8 +85,11 @@ func RemoveTokens(cache cache.Provider, accessToken string) error {
 
 // VerifyToken ...
 func VerifyToken(cfg *config.Config, cache cache.Provider, accessToken string) (*TokenClaims, error) {
-	if _, err := cache.Get(accessToken); err != nil {
-		slog.Error("error getting access token from cache", "error", err)
+	_, err := cache.Get(accessToken)
+	if err != nil {
+		if !errors.Is(err, redis.Nil) {
+			slog.Error("error getting access token from cache", "error", err)
+		}
 		return nil, err
 	}
 

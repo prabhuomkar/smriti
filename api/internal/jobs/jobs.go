@@ -6,6 +6,7 @@ import (
 	"api/pkg/services/worker"
 	"api/pkg/storage"
 	"context"
+	"errors"
 	"fmt"
 	"log/slog"
 	"strconv"
@@ -110,6 +111,9 @@ func (j *Job) getJobMediaItem(jobCfg models.Job, lastMediaItemID uuid.UUID) (mod
 	mediaItem := models.MediaItem{}
 	result := j.DB.Where("user_id=? AND id>?", jobCfg.UserID, lastMediaItemID).Order("created_at").First(&mediaItem)
 	if result.Error != nil {
+		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+			return mediaItem, result.Error
+		}
 		slog.Error("error getting job mediaitem", "error", result.Error)
 		return mediaItem, result.Error
 	}
@@ -246,7 +250,9 @@ func (j *Job) getPayload(jobCfg models.Job, mediaItem models.MediaItem) map[stri
 	payload["mimeType"] = mediaItem.MimeType
 	payload["type"] = string(mediaItem.MediaItemType)
 	payload["exifdata"] = *mediaItem.EXIFData
-	payload["keywords"] = *mediaItem.Keywords
+	if mediaItem.Keywords != nil {
+		payload["keywords"] = *mediaItem.Keywords
+	}
 	return payload
 }
 
