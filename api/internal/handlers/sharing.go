@@ -41,10 +41,10 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 		Preload("CoverMediaItem").
 		First(&sharedAlbum)
 	if result.Error != nil {
-		slog.Error("error getting shared album", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "shared link not found")
 		}
+		slog.Error("error getting shared album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, sharedAlbum)

@@ -133,10 +133,10 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 		Preload("CoverMediaItem").
 		First(&album)
 	if result.Error != nil {
-		slog.Error("error getting album", "error", result.Error)
 		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
 		}
+		slog.Error("error getting album", "error", result.Error)
 		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 	}
 	return ctx.JSON(http.StatusOK, album)

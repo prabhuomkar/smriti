@@ -5,7 +5,7 @@ Feature: Jobs
         Then user jobs is created
         When user jobs logs in
         Then token is generated
-        When upload jobs.jpeg photo mediaitem with auth
+        When upload jobs.jpeg photo mediaitem with auth and wait 5 seconds
         Then mediaitem is uploaded
         When update jobs user with auth
         Then user jobs is updated
