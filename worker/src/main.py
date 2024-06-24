@@ -136,7 +136,7 @@ async def serve() -> None: # pylint: disable=too-many-locals
     components.append(Finalize(api_stub=api_stub))
 
     # initialize worker grpc server
-    grpc_server = grpc.aio.server()
+    grpc_server = grpc.aio.server(maximum_concurrent_rpcs=int(os.getenv('SMRITI_WORKER_CONCURRENT_RPCS', '5')))
     add_WorkerServicer_to_server(WorkerService(components, search_model), grpc_server)
     port = int(os.getenv('SMRITI_WORKER_PORT', '15002'))
     grpc_server.add_insecure_port(f'[::]:{port}')
