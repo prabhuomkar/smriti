@@ -16,5 +16,5 @@ requests==2.32.3
 schedule==1.2.2
 torch==2.6.0
 torchvision==0.21.0
-transformers==4.41.2
+transformers==4.49.0
 Wand==0.6.13
