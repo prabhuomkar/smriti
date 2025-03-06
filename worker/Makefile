@@ -5,7 +5,7 @@ run:
 	@python3 -m src.main
 
 test-install:
-	@pip install numpy==2.2.3 pytest pytest-cov requests-mock pytest-asyncio
+	@pip install pytest pytest-cov requests-mock pytest-asyncio
 
 test: 
 	@python3 -m pytest
