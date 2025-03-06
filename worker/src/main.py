@@ -68,7 +68,7 @@ def run_pending() -> None:
         schedule.run_pending()
         asyncio.run(asyncio.sleep(1))
 
-# pylint: disable=redefined-builtin,invalid-name,too-many-arguments
+# pylint: disable=redefined-builtin,invalid-name,too-many-arguments,too-many-positional-arguments
 async def process_mediaitem(components: list[Component], search_model: PyTorchModule,
                             user_id: str, id: str, file_path: str, payload: any) -> None:
     """Process mediaitem"""

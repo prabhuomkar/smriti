@@ -34,8 +34,8 @@ class Faces(Component):
             if result is not None:
                 self._grpc_save_mediaitem_faces(result)
         except Exception as exp:
-            logging.error(f'error getting faces response for user {mediaitem_user_id} '+
-                          f'mediaitem {mediaitem_id}: {str(exp)}')
+            logging.error('error getting faces response for user %s mediaitem %s: %s',
+                          mediaitem_user_id, mediaitem_id, exp)
         logging.info(f'processed faces for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return metadata
 

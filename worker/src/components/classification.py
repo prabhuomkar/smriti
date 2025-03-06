@@ -31,8 +31,8 @@ class Classification(Component):
                 metadata['keywords'] = metadata['keywords'].strip()
                 self._grpc_save_mediaitem_thing(result)
         except Exception as exp:
-            logging.error(f'error getting classification response for user {mediaitem_user_id} '+
-                          f'mediaitem {mediaitem_id}: {str(exp)}')
+            logging.error('error getting classification response for user %s mediaitem %s: %s',
+                          mediaitem_user_id, mediaitem_id, exp)
         logging.info(f'processed classification for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return metadata
 

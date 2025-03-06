@@ -32,7 +32,7 @@ class OCR(Component):
                             metadata['keywords'] += (' ' + keyword)
                 metadata['keywords'] = metadata['keywords'].strip()
         except Exception as exp:
-            logging.error(f'error getting ocr response for user {mediaitem_user_id} '+
-                          f'mediaitem {mediaitem_id}: {str(exp)}')
+            logging.error('error getting ocr response for user %s mediaitem %s: %s',
+                          mediaitem_user_id, mediaitem_id, exp)
         logging.info(f'processed ocr for user {mediaitem_user_id} mediaitem {mediaitem_id}')
         return metadata
