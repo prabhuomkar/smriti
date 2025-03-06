@@ -227,7 +227,7 @@ class PreviewThumbnail(Component):
         """Generate preview and thumbnail image for a video"""
         video = VideoFileClip(original_file_path)
         video_preview_path = f'{original_file_path}-preview.mp4'
-        video.write_videofile(video_preview_path, codec='libx264', logger=None, verbose=False)
+        video.write_videofile(video_preview_path)
         video_thumbnail_path, placeholder = self._generate_video_thumbnail_and_placeholder(video_preview_path)
         return video_preview_path, video_thumbnail_path, placeholder
 

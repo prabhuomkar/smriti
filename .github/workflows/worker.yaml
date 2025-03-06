@@ -25,7 +25,7 @@ jobs:
       - name: Git Checkout
         uses: actions/checkout@v4
       - name: Setup Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.12.x'
       - name: Python Version
@@ -34,7 +34,7 @@ jobs:
         run: make install
       - name: Run Lint
         run: |
-          pip install pylint==3.2.3
+          pip install pylint==3.3.4
           make lint
       - name: Run Test & Cover
         run: |
@@ -42,7 +42,7 @@ jobs:
           make test-install
           make cover
       - name: Publish Coverage
-        uses: codecov/codecov-action@v4
+        uses: codecov/codecov-action@v5
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: worker
@@ -63,12 +63,12 @@ jobs:
       - name: Setup Docker Buildx
         uses: docker/setup-buildx-action@v3
       - name: Login to Docker Hub
-        uses: docker/login-action@v2
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Build and Push
-        uses: docker/build-push-action@v5
+        uses: docker/build-push-action@v6
         with:
           context: worker
           file: ./worker/Dockerfile

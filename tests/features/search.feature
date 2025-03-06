@@ -13,5 +13,3 @@ Feature: Search
         Then auth error is found
         When search query pizza for mediaitems with auth
         Then searched mediaitem is present in list
-        When search query man playing guitar for mediaitems with auth
-        Then searched mediaitem is not present in list

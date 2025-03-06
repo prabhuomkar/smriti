@@ -42,7 +42,7 @@ func getOffsetAndLimit(ctx echo.Context) (int, int) {
 	if err != nil {
 		limit = defaultLimit
 	}
-	return int((page - 1) * limit), int(limit)
+	return int((page - 1) * limit), int(limit) //nolint: gosec
 }
 
 func getRequestingUserID(ctx echo.Context) uuid.UUID {

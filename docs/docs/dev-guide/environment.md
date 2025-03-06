@@ -16,8 +16,8 @@ git clone git@github.com:prabhuomkar/smriti.git
 ## Setup
 
 ### API
-- Install [Golang 1.22](https://go.dev/dl/) or above
-- Install [golangci-lint 1.59.1](https://golangci-lint.run/) or above
+- Install [Golang 1.24](https://go.dev/dl/) or above
+- Install [golangci-lint 1.64.6](https://golangci-lint.run/) or above
 - Run the following command to finish your API setup
 ```
 make setup-api
@@ -25,7 +25,7 @@ make setup-api
 
 ### Worker
 - Install [Python 3.12](https://www.python.org/downloads/) or above
-- Install [pylint 3.1.0](https://pypi.org/project/pylint/) or above
+- Install [pylint 3.3.4](https://pypi.org/project/pylint/) or above
 - Run the following command to finish your Worker setup
 ```
 make setup-worker
