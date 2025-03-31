@@ -20,7 +20,7 @@ services:
     volumes:
       - ./storage:/storage:rw
   worker:
-    image: smritihq/worker:master
+    image: smritihq/pyworker:master
     ports:
       - '15002:15002'
     environment:

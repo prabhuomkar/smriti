@@ -5,6 +5,7 @@ The following guide will help you in setting up the development environment to w
 Make sure, before you start any development, following things are installed and available on your system of choice: 
 - [Git](https://git-scm.com/)
 - [Docker](https://www.docker.com/)
+- [Protocol Buffers](https://protobuf.dev/installation/)
 - [Common Sense](https://en.wikipedia.org/wiki/Common_sense)
 
 ## Getting Codebase
@@ -24,11 +25,20 @@ make setup-api
 ```
 
 ### Worker
+- Install [CMake 3.30](https://cmake.org/download/) or above
+- Install [cpplint 2.0.0](https://pypi.org/project/cpplint/) or above
+- Install [clang-tidy 19.1.7](https://clang.llvm.org/extra/clang-tidy/) or above
+- Install [clang-format 19.1.7](https://clang.llvm.org/docs/ClangFormat.html) or above
+```
+make setup-worker
+```
+
+### PyWorker
 - Install [Python 3.12](https://www.python.org/downloads/) or above
 - Install [pylint 3.3.4](https://pypi.org/project/pylint/) or above
 - Run the following command to finish your Worker setup
 ```
-make setup-worker
+make setup-pyworker
 ```
 
 ### Docs

@@ -13,7 +13,7 @@ execute_process(
 if(NOT GIT_SHA)
     set(GIT_SHA "-")
 endif()
-find_package(spdlog REQUIRED)
+add_subdirectory(third_party/spdlog)
 add_executable(worker
     src/main.cc
     src/metadata.cc

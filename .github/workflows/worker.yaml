@@ -1,17 +1,17 @@
-name: Smriti PyWorker CI
+name: Smriti Worker CI
 on:
   push:
     branches:    
       - master
     paths:
-      - pyworker/**
-      - .github/workflows/pyworker.yaml
+      - worker/**
+      - .github/workflows/worker.yaml
   pull_request:
     branches:
       - master
     paths:
-      - pyworker/**
-      - .github/workflows/pyworker.yaml
+      - worker/**
+      - .github/workflows/worker.yaml
   release:
     types: [published]
 jobs:
@@ -20,25 +20,31 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./pyworker
+        working-directory: ./worker
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
-      - name: Setup Python
-        uses: actions/setup-python@v5
+      - name: Setup cmake
+        uses: jwlawson/actions-setup-cmake@v2
         with:
-          python-version: '3.12.x'
-      - name: Python Version
-        run: python -c "import sys; print(sys.version)"
+          cmake-version: '3.30.x'
+      - name: CMake Version
+        run: cmake --version
       - name: Install Dependencies
-        run: make install
-      - name: Run Lint
         run: |
-          pip install pylint==3.3.4
-          make lint
+          sudo apt install -y libspdlog-dev clang-tidy clang-format
+          pip install cpplint
+          cpplint --version
+          clang-tidy --version
+          clang-format --version
+      - name: Run Lint
+        run: make lint
+      - name: Run Build
+        run: |
+          git submodule update --init --recursive
+          make build
       - name: Run Test & Cover
         run: |
-          sudo apt-get install -y libimage-exiftool-perl exiftool libraw-dev
           make test-install
           make cover
       - name: Publish Coverage
@@ -46,7 +52,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: worker
-          files: pyworker/coverage.xml
+          files: worker/coverage.xml
   publish:
     if: ${{ (github.event_name == 'release' && github.event.action == 'published') || github.ref == 'refs/heads/master' }}
     needs: ci
@@ -54,7 +60,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./pyworker
+        working-directory: ./worker
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -71,10 +77,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: worker
-          file: ./pyworker/Dockerfile
+          file: ./worker/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64/v8
           build-args: |
             GITSHA=${{ github.sha }}
             VERSION=${ github.ref_name }}
-          tags: smritihq/pyworker:${{ github.ref_name }}
+          tags: smritihq/worker:${{ github.ref_name }}
