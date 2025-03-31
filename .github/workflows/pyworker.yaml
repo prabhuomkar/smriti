@@ -1,17 +1,17 @@
-name: Smriti Worker CI
+name: Smriti PyWorker CI
 on:
   push:
     branches:    
       - master
     paths:
-      - worker/**
-      - .github/workflows/worker.yaml
+      - pyworker/**
+      - .github/workflows/pyworker.yaml
   pull_request:
     branches:
       - master
     paths:
-      - worker/**
-      - .github/workflows/worker.yaml
+      - pyworker/**
+      - .github/workflows/pyworker.yaml
   release:
     types: [published]
 jobs:
@@ -20,7 +20,7 @@ jobs:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: ./worker
+        working-directory: ./pyworker
     steps:
       - name: Git Checkout
         uses: actions/checkout@v4
@@ -46,7 +46,7 @@ jobs:
         with:
           token: ${{ secrets.CODECOV_TOKEN }}
           flags: worker
-          files: worker/coverage.xml
+          files: pyworker/coverage.xml
   publish:
     if: ${{ (github.event_name == 'release' && github.event.action == 'published') || github.ref == 'refs/heads/master' }}
     needs: ci
@@ -71,10 +71,10 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: worker
-          file: ./worker/Dockerfile
+          file: ./pyworker/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64/v8
           build-args: |
             GITSHA=${{ github.sha }}
             VERSION=${ github.ref_name }}
-          tags: smritihq/worker:${{ github.ref_name }}
+          tags: smritihq/pyworker:${{ github.ref_name }}

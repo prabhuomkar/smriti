@@ -1,0 +1,35 @@
+// Copyright 2025 Omkar Prabhu
+#pragma once
+
+#include <cstdlib>
+#include <iostream>
+#include <memory>
+#include <string>
+
+class Config {
+ public:
+  Config() {
+    const char* env_log_level = std::getenv("SMRITI_WORKER_LOG_LEVEL");
+    log_level = spdlog::level::info;
+    if (env_log_level) {
+      std::string level_str(env_log_level);
+      if (level_str == "debug")
+        log_level = spdlog::level::debug;
+      else if (level_str == "info")
+        log_level = spdlog::level::info;
+      else if (level_str == "warn")
+        log_level = spdlog::level::warn;
+      else if (level_str == "error")
+        log_level = spdlog::level::err;
+      else if (level_str == "critical")
+        log_level = spdlog::level::critical;
+    }
+
+    const char* env_port = std::getenv("SMRITI_WORKER_PORT");
+    port = (env_port && std::strlen(env_port) > 0) ? std::string(env_port)
+                                                   : "15002";
+  }
+
+  spdlog::level::level_enum log_level;
+  std::string port;
+};
