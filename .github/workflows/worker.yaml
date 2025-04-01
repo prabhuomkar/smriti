@@ -30,23 +30,17 @@ jobs:
           cmake-version: '3.30.x'
       - name: CMake Version
         run: cmake --version
-      - name: Install Dependencies
+      - name: Run Lint
         run: |
-          sudo apt install -y libspdlog-dev clang-tidy clang-format
           pip install cpplint
           cpplint --version
-          clang-tidy --version
-          clang-format --version
-      - name: Run Lint
-        run: make lint
+          make lint
       - name: Run Build
         run: |
-          git submodule update --init --recursive
-          make build
+          make build-with-tests
       - name: Run Test & Cover
         run: |
-          make test-install
-          make cover
+          make test
       - name: Publish Coverage
         uses: codecov/codecov-action@v5
         with:

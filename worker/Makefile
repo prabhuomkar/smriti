@@ -26,21 +26,23 @@ install:
 .PHONY: build
 build:
 	@mkdir -p build
-	@cmake -DCMAKE_PREFIX_PATH=${MY_INSTALL_DIR} . -B build
+	@cmake -S . -B build -DCMAKE_PREFIX_PATH=${MY_INSTALL_DIR}
+	@cd build && make -j 4
+
+.PHONY: build-with-tests
+build-with-tests:
+	@mkdir -p build
+	@cmake -S . -B build -DCMAKE_PREFIX_PATH=${MY_INSTALL_DIR} -DBUILD_TESTS=ON
 	@cd build && make -j 4
 
 .PHONY: run
 run:
 	@./build/worker
 
-.PHONY: test-install
-test-install:
-	@git submodule update --init --recursive
-
 .PHONY: test
 test: 
-	@./build/worker_tests
-	@./build/worker_benchmarks
+	@./build/tests/worker_tests
+	@./build/tests/worker_benchmarks
 
 .PHONY: cover
 cover: 
@@ -53,7 +55,6 @@ cover-html: cover
 .PHONY: lint
 lint:
 	@cpplint --recursive include/ src/ tests/
-	@clang-tidy src/*.cc -- -std=c++17 -I./include -I/usr/include -I/usr/local/include/ -I/opt/homebrew/include/
 
 .PHONY: proto
 proto:

@@ -45,9 +45,8 @@ message MediaItemPlaceRequest {
     string id = 2;
     optional string postcode = 3;
     optional string country = 4;
-    optional string state = 5;
-    optional string city = 6;
-    optional string town = 7;
+    optional string locality = 5; // city, town, village, municipality
+    optional string area = 6; // suburb, road, neighbourhood
 }
 
 message MediaItemThingRequest {
