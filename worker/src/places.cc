@@ -66,18 +66,21 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
     }
 
     std::string locality = "";
-    if (address["city"].error() == simdjson::SUCCESS) {
-      locality = std::string(address["city"].get_string().value());
+    if (locality == "" && address["village"].error() == simdjson::SUCCESS) {
+      locality = std::string(address["village"].get_string().value());
     }
     if (locality == "" && address["town"].error() == simdjson::SUCCESS) {
       locality = std::string(address["town"].get_string().value());
     }
-    if (locality == "" && address["village"].error() == simdjson::SUCCESS) {
-      locality = std::string(address["village"].get_string().value());
+    if (address["city"].error() == simdjson::SUCCESS) {
+      locality = std::string(address["city"].get_string().value());
     }
     if (locality == "" &&
         address["municipality"].error() == simdjson::SUCCESS) {
       locality = std::string(address["municipality"].get_string().value());
+    }
+    if (locality == "" && address["county"].error() == simdjson::SUCCESS) {
+      locality = std::string(address["county"].get_string().value());
     }
     result["locality"] = locality;
 

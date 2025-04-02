@@ -3,9 +3,9 @@ package middlewares
 import (
 	"api/config"
 	"api/internal/models"
+	"log/slog"
 
 	"github.com/labstack/echo/v4"
-	"golang.org/x/exp/slog"
 )
 
 // FeatureCheck ...

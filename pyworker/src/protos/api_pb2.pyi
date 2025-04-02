@@ -73,22 +73,20 @@ class MediaItemPreviewThumbnailRequest(_message.Message):
     def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., status: _Optional[str] = ..., sourcePath: _Optional[str] = ..., previewPath: _Optional[str] = ..., thumbnailPath: _Optional[str] = ..., placeholder: _Optional[str] = ...) -> None: ...
 
 class MediaItemPlaceRequest(_message.Message):
-    __slots__ = ("userId", "id", "postcode", "country", "state", "city", "town")
+    __slots__ = ("userId", "id", "postcode", "country", "locality", "area")
     USERID_FIELD_NUMBER: _ClassVar[int]
     ID_FIELD_NUMBER: _ClassVar[int]
     POSTCODE_FIELD_NUMBER: _ClassVar[int]
     COUNTRY_FIELD_NUMBER: _ClassVar[int]
-    STATE_FIELD_NUMBER: _ClassVar[int]
-    CITY_FIELD_NUMBER: _ClassVar[int]
-    TOWN_FIELD_NUMBER: _ClassVar[int]
+    LOCALITY_FIELD_NUMBER: _ClassVar[int]
+    AREA_FIELD_NUMBER: _ClassVar[int]
     userId: str
     id: str
     postcode: str
     country: str
-    state: str
-    city: str
-    town: str
-    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., postcode: _Optional[str] = ..., country: _Optional[str] = ..., state: _Optional[str] = ..., city: _Optional[str] = ..., town: _Optional[str] = ...) -> None: ...
+    locality: str
+    area: str
+    def __init__(self, userId: _Optional[str] = ..., id: _Optional[str] = ..., postcode: _Optional[str] = ..., country: _Optional[str] = ..., locality: _Optional[str] = ..., area: _Optional[str] = ...) -> None: ...
 
 class MediaItemThingRequest(_message.Message):
     __slots__ = ("userId", "id", "name")

@@ -2,11 +2,11 @@ package storage
 
 import (
 	"errors"
+	"log/slog"
 	"os"
 
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
-	"golang.org/x/exp/slog"
 )
 
 const (

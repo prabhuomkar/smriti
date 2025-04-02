@@ -25,8 +25,7 @@ class OpenStreetMap:
         if 'address' not in body:
             return None
         if 'address' in body and ('postcode' not in body['address'] or \
-                                   'country' not in body['address'] or \
-                                   'state' not in body['address']):
+                                   'country' not in body['address']):
             return None
 
         address = body['address']
@@ -35,7 +34,6 @@ class OpenStreetMap:
             'id': mediaitem_id,
             'postcode': getval_from_dict(address, ['postcode']),
             'country': getval_from_dict(address, ['country']),
-            'state': getval_from_dict(address, ['state']),
-            'city': getval_from_dict(address, ['city', 'county']),
-            'town':  getval_from_dict(address, ['town']),
+            'locality': getval_from_dict(address, ['village', 'town', 'city', 'municipality', 'county']),
+            'area': getval_from_dict(address, ['suburb', 'quarter', 'neighbourhood', 'road']),
         })

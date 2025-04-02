@@ -5,11 +5,11 @@ import (
 	"api/internal/service"
 	"api/pkg/services/api"
 	"fmt"
+	"log/slog"
 	"net"
 
 	grpcprom "github.com/grpc-ecosystem/go-grpc-middleware/providers/prometheus"
 	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/exp/slog"
 	"google.golang.org/grpc"
 )
 

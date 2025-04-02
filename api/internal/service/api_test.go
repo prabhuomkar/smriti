@@ -56,30 +56,28 @@ var (
 		Placeholder: &placeholder,
 	}
 	country               = "country"
-	state                 = "state"
-	town                  = "town"
-	city                  = "city"
 	postcode              = "postcode"
+	locality              = "locality"
+	area                  = "area"
 	embedding             = pgvector.NewVector([]float32{0.0, 0.42, 0.111})
 	mediaItemEmbedding    = api.MediaItemEmbedding{Embedding: []float32{0.0, 0.42, 0.111}}
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
 		UserId:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Country:  &country,
-		State:    &state,
-		Town:     &town,
-		City:     &city,
 		Postcode: &postcode,
+		Locality: &locality,
+		Area:     &area,
 	}
-	mediaItemPlaceTownRequest = api.MediaItemPlaceRequest{
+	mediaItemPlaceLocalityRequest = api.MediaItemPlaceRequest{
+		UserId:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Id:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Locality: &locality,
+	}
+	mediaItemPlaceAreaRequest = api.MediaItemPlaceRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Town:   &town,
-	}
-	mediaItemPlaceStateRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		State:  &state,
+		Area:   &area,
 	}
 	mediaItemThingRequest = api.MediaItemThingRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -120,8 +118,8 @@ var (
 	}
 	sampleTime, _ = time.Parse("2006-01-02 15:04:05 -0700", "2022-09-22 11:22:33 +0530")
 	placeCols     = []string{
-		"id", "name", "postcode", "town", "city", "state",
-		"country", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
+		"id", "name", "postcode", "country", "locality", "area", "cover_mediaitem_id",
+		"is_hidden", "created_at", "updated_at",
 	}
 	thingCols = []string{
 		"id", "name", "cover_mediaitem_id", "is_hidden", "created_at", "updated_at",
@@ -576,7 +574,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
-			"save mediaitem place with city success",
+			"save mediaitem place with all details success",
 			&mediaItemPlaceRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
@@ -601,8 +599,8 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			nil,
 		},
 		{
-			"save mediaitem place with town success",
-			&mediaItemPlaceTownRequest,
+			"save mediaitem place with locality success",
+			&mediaItemPlaceLocalityRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
@@ -626,8 +624,8 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			nil,
 		},
 		{
-			"save mediaitem place with state success",
-			&mediaItemPlaceStateRequest,
+			"save mediaitem place with area success",
+			&mediaItemPlaceAreaRequest,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
@@ -1252,8 +1250,7 @@ func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 
 func getMockedPlaceRow() *sqlmock.Rows {
 	return sqlmock.NewRows(placeCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "town", "city",
-			"state", "country", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "country", "locality", "area", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
 func getMockedThingRow() *sqlmock.Rows {

@@ -10,6 +10,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log/slog"
 	"math/big"
 	"mime/multipart"
 	"net/http"
@@ -20,7 +21,6 @@ import (
 
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
 	"gorm.io/gorm"
 )
 

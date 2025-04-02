@@ -3,11 +3,11 @@ package handlers
 import (
 	"api/internal/models"
 	"api/pkg/services/worker"
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	"github.com/pgvector/pgvector-go"
-	"golang.org/x/exp/slog"
 )
 
 const (

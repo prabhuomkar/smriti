@@ -29,14 +29,12 @@ class Places(Component):
                 place_keywords = ''
                 if result['postcode']:
                     place_keywords += (result['postcode'].lower()+' ')
-                if result['city']:
-                    place_keywords += (result['city'].lower()+' ')
-                if result['town']:
-                    place_keywords += (result['town'].lower()+' ')
-                if result['state']:
-                    place_keywords += (result['state'].lower()+' ')
                 if result['country']:
                     place_keywords += (result['country'].lower()+' ')
+                if result['locality']:
+                    place_keywords += (result['locality'].lower()+' ')
+                if result['area']:
+                    place_keywords += (result['area'].lower()+' ')
                 place_keywords = place_keywords.strip()
                 if 'keywords' not in metadata or metadata['keywords'] == '':
                     metadata['keywords'] = place_keywords
@@ -60,9 +58,8 @@ class Places(Component):
                 id=result['id'],
                 postcode=result['postcode'] if 'postcode' in result else None,
                 country=result['country'] if 'country' in result else None,
-                state=result['state'] if 'state' in result else None,
-                city=result['city'] if 'city' in result else None,
-                town=result['town'] if 'town' in result else None,
+                locality=result['locality'] if 'locality' in result else None,
+                area=result['area'] if 'area' in result else None,
             )
             _ = self.api_stub.SaveMediaItemPlace(request)
         except RpcError as rpc_exp:

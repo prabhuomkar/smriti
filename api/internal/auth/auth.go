@@ -5,12 +5,12 @@ import (
 	"api/internal/models"
 	"api/pkg/cache"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt/v4"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
 )
 
 type (

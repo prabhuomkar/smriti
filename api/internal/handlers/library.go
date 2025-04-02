@@ -2,11 +2,11 @@ package handlers
 
 import (
 	"api/internal/models"
+	"log/slog"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
 )
 
 // GetFavouriteMediaItems ...

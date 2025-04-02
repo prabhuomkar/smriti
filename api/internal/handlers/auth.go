@@ -4,11 +4,11 @@ import (
 	"api/internal/auth"
 	"api/internal/models"
 	"errors"
+	"log/slog"
 	"net/http"
 	"strings"
 
 	"github.com/labstack/echo/v4"
-	"golang.org/x/exp/slog"
 	"gorm.io/gorm"
 )
 

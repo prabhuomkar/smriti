@@ -14,10 +14,9 @@ type Place struct {
 	UserID           uuid.UUID    `json:"userId" gorm:"column:user_id"`
 	Name             string       `json:"name"`
 	Postcode         *string      `json:"postcode"`
-	Town             *string      `json:"town"`
-	City             *string      `json:"city"`
-	State            *string      `json:"state"`
 	Country          *string      `json:"country"`
+	Locality         *string      `json:"locality"`
+	Area             *string      `json:"area"`
 	IsHidden         *bool        `json:"hidden" gorm:"column:is_hidden;default:false"`
 	CoverMediaItemID *uuid.UUID   `json:"coverMediaItemId" gorm:"column:cover_mediaitem_id;type:uuid"`
 	CreatedAt        time.Time    `json:"createdAt"`

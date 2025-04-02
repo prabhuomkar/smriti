@@ -10,6 +10,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"log/slog"
 	"os"
 	"path/filepath"
 	"strings"
@@ -18,7 +19,6 @@ import (
 
 	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -202,10 +202,9 @@ func (s *Service) SaveMediaItemPlace(_ context.Context, req *api.MediaItemPlaceR
 	place := models.Place{
 		UserID:   userID,
 		Postcode: req.Postcode,
-		Town:     req.Town,
-		City:     req.City,
-		State:    req.State,
 		Country:  req.Country,
+		Locality: req.Locality,
+		Area:     req.Area,
 	}
 	place.Name = getNameForPlace(place)
 	result := s.DB.Where(models.Place{UserID: userID, Name: place.Name, Postcode: place.Postcode}).
@@ -500,13 +499,13 @@ func (s *Service) SaveMediaItemFinalResult(_ context.Context, req *api.MediaItem
 }
 
 func getNameForPlace(place models.Place) string {
-	if place.City != nil {
-		return *place.City
+	if place.Locality != nil {
+		return *place.Locality
 	}
-	if place.Town != nil {
-		return *place.Town
+	if place.Area != nil {
+		return *place.Area
 	}
-	return *place.State
+	return *place.Country
 }
 
 func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {

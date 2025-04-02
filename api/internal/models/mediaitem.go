@@ -4,6 +4,7 @@ import (
 	"api/pkg/cache"
 	"api/pkg/storage"
 	"fmt"
+	"log/slog"
 	"reflect"
 	"strings"
 	"sync"
@@ -11,7 +12,6 @@ import (
 
 	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
 	"gorm.io/gorm"
 )
 
@@ -145,7 +145,7 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *g
 						err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue.Index(i),
 							m.getMediaItemURL(fieldName, val))
 						if err != nil {
-							slog.Error("error setting %s value for %s: %+v", fieldName, val, err)
+							slog.Error("error setting field value", "field", fieldName, "value", val, "error", err)
 						}
 					}
 				}
@@ -156,7 +156,7 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *g
 					err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue,
 						m.getMediaItemURL(fieldName, val))
 					if err != nil {
-						slog.Error("error setting %s value for %s: %+v", fieldName, val, err)
+						slog.Error("error setting value for field", "field", fieldName, "value", val, "error", err)
 					}
 				}
 			}
