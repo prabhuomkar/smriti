@@ -104,9 +104,8 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
   return result;
 }
 
-std::string OpenStreetMap::Format(
-    std::string input,
-    const std::unordered_map<std::string, std::string>& values) {
+std::string Format(std::string input,
+                   const std::unordered_map<std::string, std::string>& values) {
   for (const auto& [key, value] : values) {
     std::string placeholder = "{" + key + "}";
     size_t pos = input.find(placeholder);
