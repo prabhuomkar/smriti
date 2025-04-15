@@ -16,7 +16,10 @@
 #define DEFAULT_GIT_SHA "-"
 #endif
 
+#include "worker/api_client.h"
 #include "worker/config.h"
+
+using services::api::APIClient;
 
 constexpr const char kVersion[] = DEFAULT_VERSION;
 constexpr const char kGitSha[] = DEFAULT_GIT_SHA;
@@ -44,8 +47,15 @@ int main() {
   std::signal(SIGTERM, gracefulShutdown);
   std::signal(SIGINT, gracefulShutdown);
 
+  APIClient api_client(grpc::CreateChannel(cfg->api_host + ":" + cfg->api_port,
+                                           grpc::InsecureChannelCredentials()));
+  std::string worker_config = api_client.GetWorkerConfig();
+  spdlog::info("worker config: {}", worker_config);
+
   while (!terminating) {
-    // TODO(omkar): Initialize gRPC client
+    // TODO(omkar): Pull jobs from API server and execute graph
+    spdlog::info("worker running");
+    std::this_thread::sleep_for(std::chrono::seconds(10));
   }
 
   return 0;

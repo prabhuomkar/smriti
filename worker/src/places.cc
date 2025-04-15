@@ -70,7 +70,7 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
     }
 
     std::string locality = "";
-    if (locality == "" && address["village"].error() == simdjson::SUCCESS) {
+    if (address["village"].error() == simdjson::SUCCESS) {
       locality = std::string(address["village"].get_string().value());
     }
     if (locality == "" && address["town"].error() == simdjson::SUCCESS) {

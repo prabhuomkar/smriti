@@ -32,14 +32,14 @@ class Config {
                                                    : "15002";
 
     const char* env_api_host = std::getenv("SMRITI_API_HOST");
-    port = (env_api_host && std::strlen(env_api_host) > 0)
-               ? std::string(env_api_host)
-               : "127.0.0.1";
+    api_host = (env_api_host && std::strlen(env_api_host) > 0)
+                   ? std::string(env_api_host)
+                   : "127.0.0.1";
 
     const char* env_api_port = std::getenv("SMRITI_API_PORT");
-    port = (env_api_port && std::strlen(env_api_port) > 0)
-               ? std::string(env_api_port)
-               : "15001";
+    api_port = (env_api_port && std::strlen(env_api_port) > 0)
+                   ? std::string(env_api_port)
+                   : "15001";
   }
 
   spdlog::level::level_enum log_level;

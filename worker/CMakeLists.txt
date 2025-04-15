@@ -23,11 +23,19 @@ endif()
 
 include(cmake/Dependencies.cmake)
 
+list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+
+find_package(gRPC REQUIRED)
+find_package(Protobuf REQUIRED)
+
 file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
 
-add_executable(worker ${EXEC_SOURCES})
+file(GLOB GENERATED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/generated/protos/*.cc)
+
+add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES})
 
 target_include_directories(worker PRIVATE 
+    ${CMAKE_CURRENT_SOURCE_DIR}/generated
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/src
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cpr/include
@@ -40,7 +48,10 @@ target_compile_definitions(worker PRIVATE
 target_link_libraries(worker PRIVATE
     spdlog::spdlog
     cpr::cpr
-    simdjson::simdjson)
+    simdjson::simdjson
+    gRPC::grpc++
+    gRPC::grpc
+    protobuf::libprotobuf)
 
 set_target_properties(worker PROPERTIES 
     CXX_STANDARD 17 
