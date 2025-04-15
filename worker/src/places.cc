@@ -11,6 +11,10 @@
 #include <unordered_map>
 #include <utility>
 
+namespace components {
+
+namespace places {
+
 class HttpClient : public HttpClientInterface {
  public:
   cpr::Response Get(const cpr::Url& url, const cpr::Header& headers) override {
@@ -118,3 +122,7 @@ std::string Format(std::string input,
   }
   return input;
 }
+
+} // namespace places
+
+} // namespace components

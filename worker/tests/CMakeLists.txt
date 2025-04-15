@@ -1,5 +1,9 @@
 file(GLOB TEST_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*_test.cc)
 
+file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cc)
+
+list(FILTER EXEC_SOURCES EXCLUDE REGEX ".*/main\\.cc$")
+
 add_executable(worker_tests ${TEST_SOURCES})
 
 target_include_directories(worker_tests
@@ -8,10 +12,11 @@ target_include_directories(worker_tests
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
 )
 
+target_sources(worker_tests PRIVATE ${EXEC_SOURCES})
+
 target_link_libraries(worker_tests
                       gtest_main
                       gmock_main
-                      worker_components
                       spdlog::spdlog
                       cpr::cpr
                       simdjson::simdjson)
@@ -30,10 +35,11 @@ target_include_directories(worker_benchmarks
     ${CMAKE_CURRENT_SOURCE_DIR}/../src
 )
 
+target_sources(worker_benchmarks PRIVATE ${EXEC_SOURCES})
+
 target_link_libraries(worker_benchmarks
                       benchmark_main
                       gmock_main
-                      worker_components
                       spdlog::spdlog
                       cpr::cpr
                       simdjson::simdjson)

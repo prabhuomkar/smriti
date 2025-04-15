@@ -12,6 +12,10 @@
 #include "places_test.cc" // NOLINT
 #include "worker/places.h"
 
+using components::places::HttpClientInterface;
+using components::places::OpenStreetMap;
+using components::places::Places;
+
 static void BM_PlacesNoOp(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   for (auto _ : state) {

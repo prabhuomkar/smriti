@@ -9,6 +9,10 @@
 #include <unordered_map>
 #include <utility>
 
+namespace components {
+
+namespace places {
+
 class HttpClientInterface {
  public:
   virtual ~HttpClientInterface() = default;
@@ -45,3 +49,7 @@ class OpenStreetMap : public Places {
 
 std::string Format(std::string input,
                    const std::unordered_map<std::string, std::string>& values);
+
+} // namespace places
+
+} // namespace components

@@ -13,6 +13,10 @@
 #include <unordered_map>
 #include <utility>
 
+using components::places::HttpClientInterface;
+using components::places::OpenStreetMap;
+using components::places::Places;
+
 class MockHttpClient : public HttpClientInterface {
  public:
   MOCK_METHOD(cpr::Response, Get,

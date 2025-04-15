@@ -23,31 +23,9 @@ endif()
 
 include(cmake/Dependencies.cmake)
 
-add_library(worker_components STATIC
-    src/metadata.cc
-    src/preview_thumbnail.cc
-    src/places.cc)
+file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
 
-target_include_directories(worker_components PRIVATE 
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cpr/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
-
-target_link_libraries(worker_components PRIVATE
-    spdlog::spdlog
-    cpr::cpr
-    simdjson::simdjson)
-
-set_target_properties(worker_components PROPERTIES 
-    CXX_STANDARD 17 
-    CXX_EXTENSIONS OFF)
-
-add_executable(worker
-    src/main.cc
-    src/metadata.cc
-    src/preview_thumbnail.cc
-    src/places.cc)
+add_executable(worker ${EXEC_SOURCES})
 
 target_include_directories(worker PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/include
