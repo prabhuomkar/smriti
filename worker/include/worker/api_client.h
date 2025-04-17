@@ -16,10 +16,19 @@ namespace api {
 class APIClient {
  public:
   explicit APIClient(std::shared_ptr<grpc::Channel> channel);
+  explicit APIClient(std::unique_ptr<API::StubInterface> stub);
   std::string GetWorkerConfig();
+  bool SaveMediaItemMetadata(const MediaItemMetadataRequest& request);
+  bool SaveMediaItemPreviewThumbnail(
+      const MediaItemPreviewThumbnailRequest& request);
+  bool SaveMediaItemPlace(const MediaItemPlaceRequest& request);
+  bool SaveMediaItemThing(const MediaItemThingRequest& request);
+  bool SaveMediaItemFaces(const MediaItemFacesRequest& request);
+  bool SaveMediaItemPeople(const MediaItemPeopleRequest& request);
+  bool SaveMediaItemFinalResult(const MediaItemFinalResultRequest& request);
 
  private:
-  std::unique_ptr<API::Stub> stub_;
+  std::unique_ptr<API::StubInterface> stub_;
 };
 
 } // namespace api

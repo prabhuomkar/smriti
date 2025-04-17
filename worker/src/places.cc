@@ -31,7 +31,7 @@ std::unordered_map<std::string, std::string> Places::ReverseGeocode(
 std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
     const std::string& user_id, const std::string& mediaitem_id,
     std::optional<double> latitude, std::optional<double> longitude) {
-  if (!latitude.has_value() || !longitude.has_value()) {
+  if (latitude == std::nullopt && longitude == std::nullopt) {
     return {};
   }
 
