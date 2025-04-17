@@ -31,6 +31,16 @@ void assertPlacesResult(std::unordered_map<std::string, std::string> expected,
   }
 }
 
+TEST(PlacesTest, WithPlaces) {
+  spdlog::set_level(spdlog::level::off);
+  auto places = components::places::WithPlaces("openstreetmap");
+  ASSERT_TRUE(places != nullptr);
+  auto osm = std::dynamic_pointer_cast<OpenStreetMap>(places);
+  ASSERT_TRUE(osm != nullptr);
+  places = components::places::WithPlaces("unknown");
+  ASSERT_TRUE(places == nullptr);
+}
+
 TEST(PlacesTest, EmptyInput) {
   spdlog::set_level(spdlog::level::off);
   Places places;

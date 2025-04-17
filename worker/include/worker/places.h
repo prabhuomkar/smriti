@@ -20,6 +20,13 @@ class HttpClientInterface {
                             const cpr::Header& headers) = 0;
 };
 
+class HttpClient : public HttpClientInterface {
+ public:
+  cpr::Response Get(const cpr::Url& url, const cpr::Header& headers) override {
+    return cpr::Get(url, headers);
+  }
+};
+
 class Places {
  public:
   Places() {}
@@ -49,6 +56,8 @@ class OpenStreetMap : public Places {
 
 std::string Format(std::string input,
                    const std::unordered_map<std::string, std::string>& values);
+
+std::shared_ptr<Places> WithPlaces(const std::string& source);
 
 } // namespace places
 

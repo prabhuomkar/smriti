@@ -15,13 +15,6 @@ namespace components {
 
 namespace places {
 
-class HttpClient : public HttpClientInterface {
- public:
-  cpr::Response Get(const cpr::Url& url, const cpr::Header& headers) override {
-    return cpr::Get(url, headers);
-  }
-};
-
 std::unordered_map<std::string, std::string> Places::ReverseGeocode(
     const std::string& user_id, const std::string& mediaitem_id,
     std::optional<double> latitude, std::optional<double> longitude) {
@@ -121,6 +114,13 @@ std::string Format(std::string input,
     }
   }
   return input;
+}
+
+std::shared_ptr<Places> WithPlaces(const std::string& source) {
+  if (source == "openstreetmap") {
+    return std::make_shared<OpenStreetMap>(std::make_shared<HttpClient>());
+  }
+  return nullptr;
 }
 
 } // namespace places
