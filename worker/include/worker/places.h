@@ -9,6 +9,8 @@
 #include <unordered_map>
 #include <utility>
 
+#include "worker/components.h"
+
 namespace components {
 
 namespace places {
@@ -57,8 +59,7 @@ class OpenStreetMap : public Places {
 std::string Format(std::string input,
                    const std::unordered_map<std::string, std::string>& values);
 
-std::shared_ptr<Places> WithPlaces(const std::string& source);
-
+std::shared_ptr<Places> Init(const ComponentConfig& config);
 } // namespace places
 
 } // namespace components

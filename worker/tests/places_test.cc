@@ -13,6 +13,9 @@
 #include <unordered_map>
 #include <utility>
 
+#include "worker/components.h"
+
+using components::ComponentConfig;
 using components::places::HttpClientInterface;
 using components::places::OpenStreetMap;
 using components::places::Places;
@@ -31,13 +34,14 @@ void assertPlacesResult(std::unordered_map<std::string, std::string> expected,
   }
 }
 
-TEST(PlacesTest, WithPlaces) {
+TEST(PlacesTest, Init) {
   spdlog::set_level(spdlog::level::off);
-  auto places = components::places::WithPlaces("openstreetmap");
+  auto places =
+      components::places::Init(ComponentConfig("openstreetmap", "params"));
   ASSERT_TRUE(places != nullptr);
   auto osm = std::dynamic_pointer_cast<OpenStreetMap>(places);
   ASSERT_TRUE(osm != nullptr);
-  places = components::places::WithPlaces("unknown");
+  places = components::places::Init(ComponentConfig("unknown", "params"));
   ASSERT_TRUE(places == nullptr);
 }
 

@@ -18,6 +18,7 @@ class APIClient {
   explicit APIClient(std::shared_ptr<grpc::Channel> channel);
   explicit APIClient(std::unique_ptr<API::StubInterface> stub);
   std::string GetWorkerConfig();
+  MediaItemProcessResponse GetMediaItemProcess();
   bool SaveMediaItemMetadata(const MediaItemMetadataRequest& request);
   bool SaveMediaItemPreviewThumbnail(
       const MediaItemPreviewThumbnailRequest& request);

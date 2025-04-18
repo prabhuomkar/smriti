@@ -11,6 +11,8 @@
 #include <unordered_map>
 #include <utility>
 
+#include "worker/components.h"
+
 namespace components {
 
 namespace places {
@@ -29,9 +31,8 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
   }
 
   cpr::Response r = http_client_->Get(
-      cpr::Url{
-          Format(url_, {{"latitude", std::to_string(latitude.value())},
-                        {"longitude", std::to_string(longitude.value())}})},
+      cpr::Url{Format(url_, {{"lat", std::to_string(latitude.value())},
+                             {"lon", std::to_string(longitude.value())}})},
       cpr::Header{{"User-Agent", "smriti-worker"},
                   {"Accept-Language", "en-GB,en-US"}});
   if (r.error.message != "") {
@@ -39,11 +40,12 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
     return {};
   }
   if (r.status_code != 200) {
+    spdlog::error("error in openstreetmap response: {} {}", r.status_code,
+                  r.text);
     return {};
   }
 
-  spdlog::info("success in openstreetmap response: {} {}", r.status_code,
-               r.text);
+  spdlog::info("openstreetmap response: {} {}", r.status_code, r.text);
 
   simdjson::ondemand::parser parser;
   simdjson::padded_string padded_body(r.text);
@@ -116,8 +118,8 @@ std::string Format(std::string input,
   return input;
 }
 
-std::shared_ptr<Places> WithPlaces(const std::string& source) {
-  if (source == "openstreetmap") {
+std::shared_ptr<Places> Init(const ComponentConfig& config) {
+  if (config.source == "openstreetmap") {
     return std::make_shared<OpenStreetMap>(std::make_shared<HttpClient>());
   }
   return nullptr;

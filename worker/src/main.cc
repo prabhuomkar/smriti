@@ -1,4 +1,5 @@
 // Copyright 2025 Omkar Prabhu
+#include <simdjson.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
 
@@ -8,6 +9,8 @@
 #include <iostream>
 #include <memory>
 #include <string>
+#include <unordered_map>
+#include <vector>
 
 #ifndef DEFAULT_VERSION
 #define DEFAULT_VERSION "dev"
@@ -16,9 +19,13 @@
 #define DEFAULT_GIT_SHA "-"
 #endif
 
+#include "protos/api.pb.h"
 #include "worker/api_client.h"
+#include "worker/components.h"
 #include "worker/config.h"
+#include "worker/places.h"
 
+using components::ComponentConfig;
 using services::api::APIClient;
 
 constexpr const char kVersion[] = DEFAULT_VERSION;
@@ -51,6 +58,15 @@ int main() {
                                            grpc::InsecureChannelCredentials()));
   std::string worker_config = api_client.GetWorkerConfig();
   spdlog::info("worker config: {}", worker_config);
+  std::unordered_map<std::string, ComponentConfig> component_configs =
+      components::ParseComponentConfig(worker_config);
+  std::shared_ptr<components::places::Places> places;
+  for (const auto& [name, config] : component_configs) {
+    if (name == MediaItemComponent_Name(MediaItemComponent::PLACES)) {
+      places = components::places::Init(config);
+    }
+  }
+  spdlog::info("parsed component config: {}", component_configs.size());
 
   while (!terminating) {
     // TODO(omkar): Pull jobs from API server and execute graph

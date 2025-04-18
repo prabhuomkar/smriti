@@ -54,6 +54,44 @@ TEST_F(APIClientTest, GetWorkerConfigFailure) {
   EXPECT_EQ(config, "");
 }
 
+TEST_F(APIClientTest, GetMediaItemProcessSuccess) {
+  EXPECT_CALL(*mock_stub_, GetMediaItemProcess(_, _, _))
+      .WillOnce(Invoke([&](grpc::ClientContext*, const google::protobuf::Empty&,
+                           MediaItemProcessResponse* resp) {
+        MediaItemProcessResponse response;
+        response.set_userid("user-id");
+        response.set_id("mediaitem-id");
+        response.set_filepath("mediaitem-file-path");
+        response.add_components(MediaItemComponent::METADATA);
+        response.add_components(MediaItemComponent::PREVIEW_THUMBNAIL);
+        (*response.mutable_payload())["key"] = "value";
+        *resp = response;
+        return grpc::Status::OK;
+      }));
+  MediaItemProcessResponse mediaitem_process = client_->GetMediaItemProcess();
+  EXPECT_EQ(mediaitem_process.userid(), "user-id");
+  EXPECT_EQ(mediaitem_process.id(), "mediaitem-id");
+  EXPECT_EQ(mediaitem_process.filepath(), "mediaitem-file-path");
+  ASSERT_EQ(mediaitem_process.components_size(), 2);
+  EXPECT_EQ(mediaitem_process.components(0), MediaItemComponent::METADATA);
+  EXPECT_EQ(mediaitem_process.components(1),
+            MediaItemComponent::PREVIEW_THUMBNAIL);
+  ASSERT_EQ(mediaitem_process.payload().size(), 1);
+  EXPECT_EQ(mediaitem_process.payload().at("key"), "value");
+}
+
+TEST_F(APIClientTest, GetMediaItemProcessFailure) {
+  EXPECT_CALL(*mock_stub_, GetMediaItemProcess(_, _, _))
+      .WillOnce(Return(
+          grpc::Status(grpc::StatusCode::UNAVAILABLE, "Service unavailable")));
+  MediaItemProcessResponse mediaitem_process = client_->GetMediaItemProcess();
+  EXPECT_TRUE(mediaitem_process.userid().empty());
+  EXPECT_TRUE(mediaitem_process.id().empty());
+  EXPECT_TRUE(mediaitem_process.filepath().empty());
+  EXPECT_EQ(mediaitem_process.components_size(), 0);
+  EXPECT_EQ(mediaitem_process.payload().size(), 0);
+}
+
 TEST_F(APIClientTest, SaveMediaItemMetadataSuccess) {
   EXPECT_CALL(*mock_stub_, SaveMediaItemMetadata(_, _, _))
       .WillOnce(

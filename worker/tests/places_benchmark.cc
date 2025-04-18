@@ -16,7 +16,16 @@ using components::places::HttpClientInterface;
 using components::places::OpenStreetMap;
 using components::places::Places;
 
-static void BM_PlacesNoOp(benchmark::State& state) { // NOLINT
+static void BM_PlacesInit(benchmark::State& state) { // NOLINT
+  spdlog::set_level(spdlog::level::off);
+  ComponentConfig config = ComponentConfig("openstreetmap", "params");
+  for (auto _ : state) {
+    auto places = components::places::Init(config);
+    benchmark::DoNotOptimize(places);
+  }
+}
+
+static void BM_PlacesEmptyInput(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   for (auto _ : state) {
     Places places;
@@ -26,7 +35,7 @@ static void BM_PlacesNoOp(benchmark::State& state) { // NOLINT
   }
 }
 
-static void BM_OpenStreetMapNoOp(benchmark::State& state) { // NOLINT
+static void BM_OpenStreetMapEmptyInput(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   for (auto _ : state) {
     Places places;
@@ -87,9 +96,9 @@ static void BM_OpenStreetMapSuccess(benchmark::State& state) { // NOLINT
   }
 }
 
-BENCHMARK(BM_PlacesNoOp)->ThreadPerCpu();
-BENCHMARK(BM_OpenStreetMapNoOp)->ThreadPerCpu();
+BENCHMARK(BM_PlacesInit)->ThreadPerCpu();
+BENCHMARK(BM_PlacesEmptyInput)->ThreadPerCpu();
+BENCHMARK(BM_OpenStreetMapEmptyInput)->ThreadPerCpu();
 BENCHMARK(BM_OpenStreetMapErrorResponse)->ThreadPerCpu();
 BENCHMARK(BM_OpenStreetMapIncorrectStatusCode)->ThreadPerCpu();
 BENCHMARK(BM_OpenStreetMapSuccess)->ThreadPerCpu();
-BENCHMARK_MAIN();

@@ -34,6 +34,20 @@ std::string APIClient::GetWorkerConfig() {
   return response.config();
 }
 
+MediaItemProcessResponse APIClient::GetMediaItemProcess() {
+  google::protobuf::Empty request;
+  MediaItemProcessResponse response;
+  grpc::ClientContext context;
+  grpc::Status status =
+      stub_->GetMediaItemProcess(&context, request, &response);
+  if (!status.ok()) {
+    spdlog::error("error getting media item process: {}",
+                  status.error_message());
+    return {};
+  }
+  return response;
+}
+
 bool APIClient::SaveMediaItemMetadata(const MediaItemMetadataRequest& request) {
   google::protobuf::Empty response;
   grpc::ClientContext context;
