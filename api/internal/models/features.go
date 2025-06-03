@@ -21,14 +21,14 @@ type (
 // GetFeatures ...
 func GetFeatures(cfg *config.Config) *Features {
 	return &Features{
-		Favourites: cfg.Feature.Favourites,
-		Hidden:     cfg.Feature.Hidden,
-		Trash:      cfg.Feature.Trash,
-		Albums:     cfg.Feature.Albums,
-		Explore:    cfg.Feature.Explore,
+		Favourites: cfg.Favourites,
+		Hidden:     cfg.Hidden,
+		Trash:      cfg.Trash,
+		Albums:     cfg.Albums,
+		Explore:    cfg.Explore,
 		Places:     cfg.Feature.Places,
-		Things:     cfg.Feature.Things,
-		People:     cfg.Feature.People,
-		Sharing:    cfg.Feature.Sharing,
+		Things:     cfg.Things,
+		People:     cfg.People,
+		Sharing:    cfg.Sharing,
 	}
 }

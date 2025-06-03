@@ -38,10 +38,10 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	}))
 	srvHandler.GET("/metrics", echoprometheus.NewHandler())
 	// file server
-	if handler.Config.Storage.Provider == "disk" {
-		fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
+	if handler.Config.Provider == "disk" {
+		fileRoute := getFileRoute(handler.Config.DiskRoot)
 		slog.Info("starting file server on: " + fileRoute)
-		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
+		srvHandler.Static(fileRoute, handler.Config.DiskRoot)
 	}
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)

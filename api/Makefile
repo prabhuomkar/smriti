@@ -2,6 +2,14 @@
 build: 
 	@go build -o api --ldflags="-X 'api/internal/models.DefaultVersion=$(VERSION)' -X 'api/internal/models.DefaultGitSHA=$(shell git rev-parse HEAD)'"
 
+.PHONY: migrate-up
+migrate-up:
+	@migrate -path=pkg/database/migrations -database "${DATABASE_URL}" -verbose up
+
+.PHONY: migrate-down
+migrate-down:
+	@migrate -path=pkg/database/migrations -database "${DATABASE_URL}" -verbose down
+
 .PHONY: run
 run: build
 	@./api

@@ -66,12 +66,9 @@ int main() {
       places = components::places::Init(config);
     }
   }
-  spdlog::info("parsed component config: {}", component_configs.size());
 
   while (!terminating) {
-    // TODO(omkar): Pull jobs from API server and execute graph
     spdlog::info("worker running");
-    std::this_thread::sleep_for(std::chrono::seconds(10));
   }
 
   return 0;

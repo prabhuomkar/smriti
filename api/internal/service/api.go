@@ -4,7 +4,6 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/services/api"
-	"api/pkg/services/worker"
 	"api/pkg/storage"
 	"context"
 	"encoding/json"
@@ -31,56 +30,99 @@ type Service struct {
 	Config  *config.Config
 	DB      *gorm.DB
 	Storage storage.Provider
+
+	enabledComponents *[]api.MediaItemComponent
+}
+
+func Init(cfg *config.Config, db *gorm.DB, storage storage.Provider) *Service {
+	enabledComponents := []api.MediaItemComponent{
+		api.MediaItemComponent_METADATA,
+	}
+	if len(cfg.PreviewThumbnailParams) > 0 {
+		enabledComponents = append(enabledComponents, api.MediaItemComponent_PREVIEW_THUMBNAIL)
+	}
+	if cfg.ML.Places {
+		enabledComponents = append(enabledComponents, api.MediaItemComponent_PLACES)
+	}
+	if cfg.Classification {
+		enabledComponents = append(enabledComponents, api.MediaItemComponent_CLASSIFICATION)
+	}
+	if cfg.OCR {
+		enabledComponents = append(enabledComponents, api.MediaItemComponent_OCR)
+	}
+	if cfg.Search {
+		enabledComponents = append(enabledComponents, api.MediaItemComponent_SEARCH)
+	}
+	if cfg.Faces {
+		enabledComponents = append(enabledComponents, api.MediaItemComponent_FACES)
+	}
+
+	return &Service{
+		Config:            cfg,
+		DB:                db,
+		Storage:           storage,
+		enabledComponents: &enabledComponents,
+	}
 }
 
 func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.ConfigResponse, error) {
-	type WorkerTask struct {
+	type Component struct {
 		Name   string `json:"name"`
 		Source string `json:"source,omitempty"`
 		Params string `json:"params,omitempty"`
 	}
-	var workerTasks []WorkerTask
-	workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_METADATA.String()})
-	if len(s.Config.ML.PreviewThumbnailParams) > 0 {
-		workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_PREVIEW_THUMBNAIL.String(), Params: s.Config.PreviewThumbnailParams})
+	var components []Component
+	components = append(components, Component{Name: api.MediaItemComponent_METADATA.String()})
+	if len(s.Config.PreviewThumbnailParams) > 0 {
+		components = append(components, Component{Name: api.MediaItemComponent_PREVIEW_THUMBNAIL.String(), Params: s.Config.PreviewThumbnailParams})
 	}
 	if s.Config.ML.Places {
-		workerTasks = append(workerTasks, WorkerTask{Name: worker.MediaItemComponent_PLACES.String(), Source: s.Config.ML.PlacesProvider})
+		components = append(components, Component{Name: api.MediaItemComponent_PLACES.String(), Source: s.Config.PlacesProvider})
 	}
-	if s.Config.ML.Classification {
-		workerTasks = append(workerTasks, WorkerTask{
-			Name:   worker.MediaItemComponent_CLASSIFICATION.String(),
+	if s.Config.Classification {
+		components = append(components, Component{
+			Name:   api.MediaItemComponent_CLASSIFICATION.String(),
 			Source: s.Config.ClassificationProvider,
 			Params: s.Config.ClassificationParams,
 		})
 	}
-	if s.Config.ML.OCR {
-		workerTasks = append(workerTasks, WorkerTask{
-			Name:   worker.MediaItemComponent_OCR.String(),
+	if s.Config.OCR {
+		components = append(components, Component{
+			Name:   api.MediaItemComponent_OCR.String(),
 			Source: s.Config.OCRProvider,
 			Params: s.Config.OCRParams,
 		})
 	}
-	if s.Config.ML.Search {
-		workerTasks = append(workerTasks, WorkerTask{
-			Name:   worker.MediaItemComponent_SEARCH.String(),
+	if s.Config.Search {
+		components = append(components, Component{
+			Name:   api.MediaItemComponent_SEARCH.String(),
 			Source: s.Config.SearchProvider,
 			Params: s.Config.SearchParams,
 		})
 	}
-	if s.Config.ML.Faces {
-		workerTasks = append(workerTasks, WorkerTask{
-			Name:   worker.MediaItemComponent_FACES.String(),
+	if s.Config.Faces {
+		components = append(components, Component{
+			Name:   api.MediaItemComponent_FACES.String(),
 			Source: s.Config.FacesProvider,
 			Params: s.Config.FacesParams,
 		})
 	}
-	configBytes, err := json.Marshal(&workerTasks)
+	configBytes, err := json.Marshal(&components)
 	if err != nil {
 		return nil, status.Errorf(codes.Internal, "error parsing worker config: %s", err.Error())
 	}
 	return &api.ConfigResponse{
 		Config: configBytes,
+	}, nil
+}
+
+func (s *Service) GetMediaItemProcess(_ context.Context, _ *emptypb.Empty) (*api.MediaItemProcessResponse, error) {
+	return &api.MediaItemProcessResponse{
+		UserId:     "",
+		Id:         "",
+		FilePath:   "",
+		Components: *s.enabledComponents, // LATER(omkar): Add components based on features enabled per user
+		Payload:    nil,
 	}, nil
 }
 
@@ -304,7 +346,7 @@ func (s *Service) GetMediaItemFaceEmbeddings(_ context.Context, req *api.MediaIt
 
 	mediaItems := []models.MediaItem{}
 	result := s.DB.Model(&models.MediaItem{}).
-		Where("status=? AND user_id=?", models.Ready, userID).
+		Where("status=? AND user_id=?", models.StatusReady, userID).
 		Preload("Faces").
 		Find(&mediaItems)
 	if result.Error != nil {

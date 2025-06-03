@@ -1191,8 +1191,6 @@ func TestUploadMediaItems(t *testing.T) {
 	sampleFile3, contentType3 := getMockedMediaItemFile(t)
 	sampleFile4, contentType4 := getMockedMediaItemFile(t)
 	sampleFile5, contentType5 := getMockedMediaItemFile(t)
-	sampleFile6, contentType6 := getMockedMediaItemFile(t)
-	sampleFile7, contentType7 := getMockedMediaItemFile(t)
 	tests := []Test{
 		{
 			"upload mediaitems with invalid command",
@@ -1330,9 +1328,9 @@ func TestUploadMediaItems(t *testing.T) {
 			[]string{},
 			[]string{},
 			map[string]string{
-				echo.HeaderContentType: contentType7,
+				echo.HeaderContentType: contentType2,
 			},
-			sampleFile7,
+			sampleFile2,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
@@ -1359,9 +1357,9 @@ func TestUploadMediaItems(t *testing.T) {
 			[]string{},
 			[]string{},
 			map[string]string{
-				echo.HeaderContentType: contentType2,
+				echo.HeaderContentType: contentType3,
 			},
-			sampleFile2,
+			sampleFile3,
 			func(mock sqlmock.Sqlmock) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
@@ -1379,35 +1377,6 @@ func TestUploadMediaItems(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
-		},
-		{
-			"upload mediaitems with error sending file to worker due to error in mediaitem process",
-			http.MethodPost,
-			"/v1/mediaItems",
-			"/v1/mediaItems",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: contentType3,
-			},
-			sampleFile3,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			&mockWorkerGRPCClient{wantErr: true},
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UploadMediaItems
-			},
-			http.StatusInternalServerError,
-			"some grpc error",
 		},
 		{
 			"upload mediaitems successfully",
@@ -1432,7 +1401,7 @@ func TestUploadMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
-			&mockWorkerGRPCClient{wantOk: true},
+			nil,
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UploadMediaItems
 			},
@@ -1440,7 +1409,7 @@ func TestUploadMediaItems(t *testing.T) {
 			`"id"`,
 		},
 		{
-			"upload mediaitems with error for resumable",
+			"upload mediaitems successfully for resumable",
 			http.MethodPost,
 			"/v1/mediaItems",
 			"/v1/mediaItems",
@@ -1461,36 +1430,7 @@ func TestUploadMediaItems(t *testing.T) {
 				mock.ExpectCommit()
 			},
 			nil,
-			&mockWorkerGRPCClient{wantErr: true},
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UploadMediaItems
-			},
-			http.StatusInternalServerError,
-			"some grpc error",
-		},
-		{
-			"upload mediaitems successfully for resumable",
-			http.MethodPost,
-			"/v1/mediaItems",
-			"/v1/mediaItems",
-			[]string{},
-			[]string{},
-			map[string]string{
-				HeaderUploadType:         "resumable",
-				HeaderUploadCommand:      "finish",
-				HeaderUploadChunkOffset:  "100",
-				HeaderUploadChunkSession: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				echo.HeaderContentType:   contentType6,
-			},
-			sampleFile6,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
 			nil,
-			&mockWorkerGRPCClient{wantOk: true},
 			func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UploadMediaItems
 			},

@@ -27,12 +27,12 @@ type (
 func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (string, string, error) {
 	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user)
 
-	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
+	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.RefreshTTL)*time.Second)
 	if setRefreshErr != nil {
 		slog.Error("error caching refresh token", "error", setRefreshErr)
 		return "", "", setRefreshErr
 	}
-	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.Auth.AccessTTL)*time.Second)
+	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.AccessTTL)*time.Second)
 	if setAccessErr != nil {
 		slog.Error("error caching refresh token", "error", setAccessErr)
 		return "", "", setAccessErr
@@ -108,7 +108,7 @@ func GetAccessAndRefreshTokens(cfg *config.Config, user models.User) (string, st
 
 func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) {
 	parsedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(*jwt.Token) (interface{}, error) {
-		return []byte(cfg.Auth.Secret), nil
+		return []byte(cfg.Secret), nil
 	})
 	if err != nil || !parsedToken.Valid {
 		slog.Error("error parsing claims from token", "error", err)
@@ -125,9 +125,9 @@ func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) 
 }
 
 func getSignedToken(cfg *config.Config, user models.User, subject string) string {
-	ttl := cfg.Auth.AccessTTL
+	ttl := cfg.AccessTTL
 	if subject == "refresh" {
-		ttl = cfg.Auth.RefreshTTL
+		ttl = cfg.RefreshTTL
 	}
 	creationTime := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
@@ -138,12 +138,12 @@ func getSignedToken(cfg *config.Config, user models.User, subject string) string
 			ExpiresAt: jwt.NewNumericDate(creationTime.Add(time.Duration(ttl) * time.Second)),
 			IssuedAt:  jwt.NewNumericDate(creationTime),
 			NotBefore: jwt.NewNumericDate(creationTime),
-			Issuer:    cfg.Auth.Issuer,
-			Audience:  []string{cfg.Auth.Audience},
+			Issuer:    cfg.Issuer,
+			Audience:  []string{cfg.Audience},
 			Subject:   subject,
 			ID:        user.ID.String(),
 		},
 	})
-	signedToken, _ := token.SignedString([]byte(cfg.Auth.Secret))
+	signedToken, _ := token.SignedString([]byte(cfg.Secret))
 	return signedToken
 }

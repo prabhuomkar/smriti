@@ -86,22 +86,22 @@ type (
 )
 
 const (
-	Unspecified MediaItemStatus = "UNSPECIFIED"
-	Processing  MediaItemStatus = "PROCESSING"
-	Ready       MediaItemStatus = "READY"
-	Failed      MediaItemStatus = "FAILED"
+	StatusUnspecified MediaItemStatus = "UNSPECIFIED"
+	StatusProcessing  MediaItemStatus = "PROCESSING"
+	StatusReady       MediaItemStatus = "READY"
+	StatusFailed      MediaItemStatus = "FAILED"
 
-	Unknown MediaItemType = "unknown"
-	Photo   MediaItemType = "photo"
-	Video   MediaItemType = "video"
+	TypeUnknown MediaItemType = "unknown"
+	TypePhoto   MediaItemType = "photo"
+	TypeVideo   MediaItemType = "video"
 
-	Default    MediaItemCategory = "default"
-	Screenshot MediaItemCategory = "screenshot"
-	Panorama   MediaItemCategory = "panorama"
-	Slow       MediaItemCategory = "slow"
-	Motion     MediaItemCategory = "motion"
-	Live       MediaItemCategory = "live"
-	Timelapse  MediaItemCategory = "timelapse"
+	CategoryDefault    MediaItemCategory = "default"
+	CategoryScreenshot MediaItemCategory = "screenshot"
+	CategoryPanorama   MediaItemCategory = "panorama"
+	CategorySlow       MediaItemCategory = "slow"
+	CategoryMotion     MediaItemCategory = "motion"
+	CategoryLive       MediaItemCategory = "live"
+	CategoryTimelapse  MediaItemCategory = "timelapse"
 
 	preFetchTime = 24
 )

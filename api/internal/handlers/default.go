@@ -55,7 +55,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid search query")
 	}
 	mediaItems := []models.MediaItem{}
-	if h.Config.ML.Search {
+	if h.Config.Search {
 		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
 		if err != nil {
 			slog.Error("error getting search query embedding", "error", err)

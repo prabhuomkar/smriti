@@ -3,7 +3,6 @@ package main
 import (
 	"api/config"
 	"api/internal/handlers"
-	"api/internal/jobs"
 	"api/internal/models"
 	"api/internal/server"
 	"api/internal/service"
@@ -21,15 +20,14 @@ import (
 	"google.golang.org/grpc/credentials/insecure"
 )
 
-//nolint:funlen
 func main() {
 	cfg, err := config.Init()
 	if err != nil {
 		panic(err)
 	}
 
-	pgDB, err := database.Init(cfg.Database.LogLevel, cfg.Database.Host, cfg.Database.Port,
-		cfg.Database.Username, cfg.Database.Password, cfg.Database.Name)
+	pgDB, err := database.Init(cfg.LogLevel, cfg.Database.Host, cfg.Database.Port,
+		cfg.Database.Username, cfg.Database.Password, cfg.Name)
 	if err != nil {
 		panic(err)
 	}
@@ -41,15 +39,11 @@ func main() {
 	cache := cache.Init(cfg)
 
 	storageProvider := storage.Init(&storage.Config{
-		Provider: cfg.Storage.Provider, Root: cfg.Storage.DiskRoot,
-		Endpoint: cfg.Storage.Endpoint, AccessKey: cfg.Storage.AccessKey, SecretKey: cfg.Storage.SecretKey,
+		Provider: cfg.Provider, Root: cfg.DiskRoot,
+		Endpoint: cfg.Endpoint, AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey,
 	})
 
-	service := &service.Service{
-		Config:  cfg,
-		DB:      pgDB,
-		Storage: storageProvider,
-	}
+	service := service.Init(cfg, pgDB, storageProvider)
 	grpcServer := server.StartGRPCServer(cfg, service)
 
 	err = pgDB.Callback().Query().Register("mediaItemUrl", (&models.MediaItemURLPlugin{
@@ -75,14 +69,6 @@ func main() {
 		panic(err)
 	}
 	handler.Worker = worker.NewWorkerClient(conn)
-
-	jobsInstance := &jobs.Job{
-		Config:  cfg,
-		DB:      pgDB,
-		Storage: storageProvider,
-		Worker:  worker.NewWorkerClient(conn),
-	}
-	go jobsInstance.StartJobs()
 
 	// graceful shutdown
 	shutdownSignal := make(chan os.Signal, 1)

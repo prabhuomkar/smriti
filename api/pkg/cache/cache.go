@@ -19,7 +19,7 @@ type Provider interface {
 
 // Init ...
 func Init(config *config.Config) Provider { //nolint: ireturn
-	switch config.Cache.Type {
+	switch config.Type {
 	case "redis":
 		return &RedisCache{
 			Connection: &redisClient{client: redis.NewClient(&redis.Options{

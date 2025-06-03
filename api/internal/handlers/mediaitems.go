@@ -2,8 +2,6 @@ package handlers
 
 import (
 	"api/internal/models"
-	"api/pkg/services/worker"
-	"context"
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/hex"
@@ -300,7 +298,6 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 // UploadMediaItems ...
 func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
-	features, _ := ctx.Get("features").(models.Features)
 	command := "start, finish"
 	session := ""
 	var err error
@@ -325,11 +322,6 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	}
 	defer openedFile.Close()
 
-	components := []worker.MediaItemComponent{}
-	if strings.Contains(command, "finish") {
-		components = h.getComponents(features)
-	}
-
 	if strings.Contains(command, "start") {
 		mediaItem := createNewMediaItem(userID, file.Filename)
 		result := h.DB.Create(&mediaItem)
@@ -338,8 +330,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
 		}
 
-		err = h.saveToDiskAndSendToWorker(userID.String(), mediaItem.ID.String(),
-			openedFile, components)
+		err = h.saveToDisk(userID.String(), mediaItem.ID.String(),
+			openedFile, strings.Contains(command, "finish"))
 		if err != nil {
 			return err
 		}
@@ -349,8 +341,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		})
 	}
 
-	err = h.saveToDiskAndSendToWorker(userID.String(), session,
-		openedFile, components)
+	err = h.saveToDisk(userID.String(), session,
+		openedFile, strings.Contains(command, "finish"))
 	if err != nil {
 		return err
 	}
@@ -358,8 +350,8 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFile multipart.File, components []worker.MediaItemComponent) error {
-	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", h.Config.Storage.DiskRoot, mediaItemID), fileFlag, filePermission)
+func (h *Handler) saveToDisk(userID, mediaItemID string, openedFile multipart.File, finish bool) error {
+	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", h.Config.DiskRoot, mediaItemID), fileFlag, filePermission)
 	if err != nil {
 		slog.Error("error opening file", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -371,7 +363,7 @@ func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFi
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	if len(components) != 0 {
+	if finish {
 		err = h.generateHashForDuplicates(userID, mediaItemID, dstFile.Name())
 		if err != nil {
 			if strings.Contains(err.Error(), "violates unique constraint") {
@@ -379,17 +371,6 @@ func (h *Handler) saveToDiskAndSendToWorker(userID, mediaItemID string, openedFi
 				return echo.NewHTTPError(http.StatusConflict, "mediaitem already exists")
 			}
 			slog.Error("error while generating hash for mediaitem", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-
-		_, err = h.Worker.MediaItemProcess(context.Background(), &worker.MediaItemProcessRequest{
-			UserId:     userID,
-			Id:         mediaItemID,
-			FilePath:   h.Config.Storage.DiskRoot,
-			Components: components,
-		})
-		if err != nil {
-			slog.Error("error sending mediaitem for processing", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
@@ -426,38 +407,14 @@ func (h *Handler) generateHashForDuplicates(userID, mediaItemID, filePath string
 	return nil
 }
 
-//nolint:cyclop
-func (h *Handler) getComponents(features models.Features) []worker.MediaItemComponent {
-	components := []worker.MediaItemComponent{
-		worker.MediaItemComponent_METADATA,
-		worker.MediaItemComponent_PREVIEW_THUMBNAIL,
-	}
-	if h.Config.ML.Places && features.Places {
-		components = append(components, worker.MediaItemComponent_PLACES)
-	}
-	if h.Config.ML.Classification && features.Things {
-		components = append(components, worker.MediaItemComponent_CLASSIFICATION)
-	}
-	if h.Config.ML.OCR && features.Explore {
-		components = append(components, worker.MediaItemComponent_OCR)
-	}
-	if h.Config.ML.Search && features.Explore {
-		components = append(components, worker.MediaItemComponent_SEARCH)
-	}
-	if h.Config.ML.Faces && features.People {
-		components = append(components, worker.MediaItemComponent_FACES)
-	}
-	return components
-}
-
 func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {
 	mediaItem := new(models.MediaItem)
 	mediaItem.ID = uuid.NewV4()
 	mediaItem.UserID = userID
 	mediaItem.Filename = fileName
-	mediaItem.MediaItemType = models.Unknown
-	mediaItem.MediaItemCategory = models.Default
-	mediaItem.Status = models.Processing
+	mediaItem.MediaItemType = models.TypeUnknown
+	mediaItem.MediaItemCategory = models.CategoryDefault
+	mediaItem.Status = models.StatusUnspecified
 	return mediaItem
 }
 

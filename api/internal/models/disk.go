@@ -18,7 +18,7 @@ type (
 // GetDisk ...
 func GetDisk(cfg *config.Config) *Disk {
 	diskStat := syscall.Statfs_t{}
-	err := syscall.Statfs(cfg.Storage.DiskRoot, &diskStat)
+	err := syscall.Statfs(cfg.DiskRoot, &diskStat)
 	if err != nil {
 		slog.Error("error getting disk stats", slog.Any("error", err))
 		return nil
