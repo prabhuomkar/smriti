@@ -181,6 +181,8 @@ CREATE UNIQUE INDEX idx_jobs_id ON jobs USING btree (id);
 
 CREATE UNIQUE INDEX idx_mediaitem_faces_id ON mediaitem_faces USING btree (id);
 
+CREATE UNIQUE INDEX idx_mediaitem_faces_mediaitem_id_people_id ON mediaitem_faces USING btree (mediaitem_id, people_id);
+
 CREATE UNIQUE INDEX idx_mediaitems_id ON mediaitems USING btree (id);
 
 CREATE UNIQUE INDEX idx_mediaitems_user_id_hash ON mediaitems USING btree (user_id, hash);
@@ -189,7 +191,11 @@ CREATE UNIQUE INDEX idx_people_id ON people USING btree (id);
 
 CREATE UNIQUE INDEX idx_places_id ON places USING btree (id);
 
+CREATE UNIQUE INDEX idx_places_user_id_name_postcode ON places USING btree (user_id, name, postcode);
+
 CREATE UNIQUE INDEX idx_things_id ON things USING btree (id);
+
+CREATE UNIQUE INDEX idx_things_user_id_name ON things USING btree (user_id, name);
 
 ALTER TABLE ONLY album_mediaitems
 ADD CONSTRAINT fk_album_mediaitems_album FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE;
