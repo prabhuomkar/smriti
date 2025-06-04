@@ -3,6 +3,7 @@ package service
 import (
 	"api/config"
 	"api/internal/models"
+	"api/pkg/database"
 	"api/pkg/services/api"
 	"api/pkg/storage"
 	"context"
@@ -21,20 +22,19 @@ import (
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
-	"gorm.io/gorm"
 )
 
 // Service ...
 type Service struct {
 	api.UnimplementedAPIServer
 	Config  *config.Config
-	DB      *gorm.DB
+	DB      database.DBInterface
 	Storage storage.Provider
 
 	enabledComponents *[]api.MediaItemComponent
 }
 
-func Init(cfg *config.Config, db *gorm.DB, storage storage.Provider) *Service {
+func Init(cfg *config.Config, db database.DBInterface, storage storage.Provider) *Service {
 	enabledComponents := []api.MediaItemComponent{
 		api.MediaItemComponent_METADATA,
 	}

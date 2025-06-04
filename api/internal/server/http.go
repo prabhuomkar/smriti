@@ -102,7 +102,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	things.GET("", handler.GetThings)
 	people := explore.Group("/people")
 	people.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "people")...)
-	people.GET("/:id/mediaItems", handler.GetPeopleMediaItems)
+	people.GET("/:id/mediaItems", handler.GetPersonMediaItems)
 	people.GET("/:id", handler.GetPerson)
 	people.PUT("/:id", handler.UpdatePerson)
 	people.GET("", handler.GetPeople)

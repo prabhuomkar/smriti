@@ -7,12 +7,13 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 )
 
 var (
-	userCols         = []string{"id", "name", "username", "password", "created_at", "updated_at"}
+	userCols         = []string{"id", "name", "username", "password", "features", "created_at", "updated_at"}
 	userResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"username":"username",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
@@ -53,9 +54,9 @@ func TestGetUser(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnRows(sqlmock.NewRows(userCols))
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg()).WillReturnError(pgx.ErrNoRows)
 			},
 			nil,
 			nil,
@@ -66,27 +67,6 @@ func TestGetUser(t *testing.T) {
 			"user not found",
 		},
 		{
-			"get user",
-			http.MethodGet,
-			"/v1/users/:id",
-			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnRows(getMockedUserRow())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetUser
-			},
-			http.StatusOK,
-			userResponseBody,
-		},
-		{
 			"get user with error",
 			http.MethodGet,
 			"/v1/users/:id",
@@ -95,9 +75,9 @@ func TestGetUser(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnError(errors.New("some db error"))
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg()).WillReturnError(errors.New("some db error"))
 			},
 			nil,
 			nil,
@@ -106,6 +86,50 @@ func TestGetUser(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"get user with error in scanning",
+			http.MethodGet,
+			"/v1/users/:id",
+			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols).AddRow(
+					"invalid", "name", "username", "password", "", "invalid", "invalid",
+				))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetUser
+			},
+			http.StatusInternalServerError,
+			"Scanning value error",
+		},
+		{
+			"get user with success",
+			http.MethodGet,
+			"/v1/users/:id",
+			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg()).WillReturnRows(getMockedUserRow())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetUser
+			},
+			http.StatusOK,
+			userResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -170,33 +194,6 @@ func TestUpdateUser(t *testing.T) {
 			"invalid user",
 		},
 		{
-			"update user with success",
-			http.MethodPut,
-			"/v1/users/:id",
-			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", sqlmock.AnyArg(),
-						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdateUser
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
 			"update user with error",
 			http.MethodPut,
 			"/v1/users/:id",
@@ -207,13 +204,11 @@ func TestUpdateUser(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "users"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", sqlmock.AnyArg(),
-						sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
+						pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
 			},
 			nil,
 			nil,
@@ -222,6 +217,31 @@ func TestUpdateUser(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"update user with success",
+			http.MethodPut,
+			"/v1/users/:id",
+			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
+						pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateUser
+			},
+			http.StatusNoContent,
+			"",
 		},
 	}
 	executeTests(t, tests)
@@ -248,30 +268,6 @@ func TestDeleteUser(t *testing.T) {
 			"invalid user id",
 		},
 		{
-			"delete user with success",
-			http.MethodDelete,
-			"/v1/users/:id",
-			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.DeleteUser
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
 			"delete user with error",
 			http.MethodDelete,
 			"/v1/users/:id",
@@ -280,12 +276,10 @@ func TestDeleteUser(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM "users"`)).
-					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users`)).
+					WithArgs(pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
 			},
 			nil,
 			nil,
@@ -295,12 +289,77 @@ func TestDeleteUser(t *testing.T) {
 			http.StatusInternalServerError,
 			"some db error",
 		},
+		{
+			"delete user with success",
+			http.MethodDelete,
+			"/v1/users/:id",
+			"/v1/users/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("DELETE", 1))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.DeleteUser
+			},
+			http.StatusNoContent,
+			"",
+		},
 	}
 	executeTests(t, tests)
 }
 
 func TestGetUsers(t *testing.T) {
 	tests := []Test{
+		{
+			"get users with error",
+			http.MethodGet,
+			"/v1/users",
+			"/v1/users",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnError(errors.New("some db error"))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetUsers
+			},
+			http.StatusInternalServerError,
+			"some db error",
+		},
+		{
+			"get users with error in scanning",
+			http.MethodGet,
+			"/v1/users",
+			"/v1/users",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols).
+					AddRow("invalid", "name", "username", "password", "", "invalid", "invalid"))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetUsers
+			},
+			http.StatusInternalServerError,
+			"Scanning value error",
+		},
 		{
 			"get users with empty table",
 			http.MethodGet,
@@ -310,9 +369,9 @@ func TestGetUsers(t *testing.T) {
 			[]string{},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnRows(sqlmock.NewRows(userCols))
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols))
 			},
 			nil,
 			nil,
@@ -331,9 +390,9 @@ func TestGetUsers(t *testing.T) {
 			[]string{},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnRows(getMockedUserRows())
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(getMockedUserRows())
 			},
 			nil,
 			nil,
@@ -342,27 +401,6 @@ func TestGetUsers(t *testing.T) {
 			},
 			http.StatusOK,
 			usersResponseBody,
-		},
-		{
-			"get users with error",
-			http.MethodGet,
-			"/v1/users",
-			"/v1/users",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetUsers
-			},
-			http.StatusInternalServerError,
-			"some db error",
 		},
 	}
 	executeTests(t, tests)
@@ -409,32 +447,6 @@ func TestCreateUser(t *testing.T) {
 			"invalid user",
 		},
 		{
-			"create user with success",
-			http.MethodPost,
-			"/v1/users",
-			"/v1/users",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "username", sqlmock.AnyArg(), "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.CreateUser
-			},
-			http.StatusCreated,
-			`"name":"name","username":"username"`,
-		},
-		{
 			"create user with error",
 			http.MethodPost,
 			"/v1/users",
@@ -445,12 +457,10 @@ func TestCreateUser(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "users"`)).
-					WithArgs(sqlmock.AnyArg(), "name", "username", sqlmock.AnyArg(), "{\"albums\":true}", sqlmock.AnyArg(), sqlmock.AnyArg()).
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users`)).
+					WithArgs(pgxmock.AnyArg(), "name", "username", pgxmock.AnyArg(), "{\"albums\":true}", pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
 			},
 			nil,
 			nil,
@@ -460,17 +470,41 @@ func TestCreateUser(t *testing.T) {
 			http.StatusInternalServerError,
 			"some db error",
 		},
+		{
+			"create user with success",
+			http.MethodPost,
+			"/v1/users",
+			"/v1/users",
+			[]string{},
+			[]string{},
+			map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			},
+			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users`)).
+					WithArgs(pgxmock.AnyArg(), "name", "username", pgxmock.AnyArg(), "{\"albums\":true}", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateUser
+			},
+			http.StatusCreated,
+			`"name":"name","username":"username"`,
+		},
 	}
 	executeTests(t, tests)
 }
 
-func getMockedUserRow() *sqlmock.Rows {
-	return sqlmock.NewRows(userCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", sampleTime, sampleTime)
+func getMockedUserRow() *pgxmock.Rows {
+	return pgxmock.NewRows(userCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", "", sampleTime, sampleTime)
 }
 
-func getMockedUserRows() *sqlmock.Rows {
-	return sqlmock.NewRows(userCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "username", "password", sampleTime, sampleTime)
+func getMockedUserRows() *pgxmock.Rows {
+	return pgxmock.NewRows(userCols).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", "", sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "username", "password", "", sampleTime, sampleTime)
 }

@@ -1,3 +1,5 @@
+CREATE EXTENSION IF NOT EXISTS vector;
+
 CREATE TABLE album_mediaitems (
     mediaitem_id uuid NOT NULL,
     album_id uuid NOT NULL
@@ -190,19 +192,19 @@ CREATE UNIQUE INDEX idx_places_id ON places USING btree (id);
 CREATE UNIQUE INDEX idx_things_id ON things USING btree (id);
 
 ALTER TABLE ONLY album_mediaitems
-ADD CONSTRAINT fk_album_mediaitems_album FOREIGN KEY (album_id) REFERENCES albums(id);
+ADD CONSTRAINT fk_album_mediaitems_album FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY album_mediaitems
-ADD CONSTRAINT fk_album_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_album_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY albums
 ADD CONSTRAINT fk_albums_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
 
 ALTER TABLE ONLY mediaitem_embeddings
-ADD CONSTRAINT fk_mediaitems_embeddings FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_mediaitems_embeddings FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY mediaitem_faces
-ADD CONSTRAINT fk_mediaitems_faces FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_mediaitems_faces FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY people
 ADD CONSTRAINT fk_people_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
@@ -211,25 +213,25 @@ ALTER TABLE ONLY people
 ADD CONSTRAINT fk_people_cover_media_item_face FOREIGN KEY (cover_mediaitem_face_id) REFERENCES mediaitem_faces(id);
 
 ALTER TABLE ONLY people_mediaitems
-ADD CONSTRAINT fk_people_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_people_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY people_mediaitems
-ADD CONSTRAINT fk_people_mediaitems_people FOREIGN KEY (people_id) REFERENCES people(id);
+ADD CONSTRAINT fk_people_mediaitems_people FOREIGN KEY (people_id) REFERENCES people(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY place_mediaitems
-ADD CONSTRAINT fk_place_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_place_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY place_mediaitems
-ADD CONSTRAINT fk_place_mediaitems_place FOREIGN KEY (place_id) REFERENCES places(id);
+ADD CONSTRAINT fk_place_mediaitems_place FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY places
 ADD CONSTRAINT fk_places_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
 
 ALTER TABLE ONLY thing_mediaitems
-ADD CONSTRAINT fk_thing_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_thing_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY thing_mediaitems
-ADD CONSTRAINT fk_thing_mediaitems_thing FOREIGN KEY (thing_id) REFERENCES things(id);
+ADD CONSTRAINT fk_thing_mediaitems_thing FOREIGN KEY (thing_id) REFERENCES things(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY things
 ADD CONSTRAINT fk_things_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);

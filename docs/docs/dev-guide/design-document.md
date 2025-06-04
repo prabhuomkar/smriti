@@ -8,7 +8,7 @@
 - Service written in Golang
   - REST API: [echo](https://echo.labstack.com/)
   - RPC: [gRPC + protobuf](https://grpc.io/)
-  - Postgres: [gorm](https://gorm.io/)
+  - Postgres: [pgx](https://github.com/jackc/pgx)
   - Linting: [golangci-lint](https://golangci-lint.run/)
 - Will read/write to Database
 - Will read/write to Disk

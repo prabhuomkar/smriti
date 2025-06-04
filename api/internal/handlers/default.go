@@ -61,19 +61,97 @@ func (h *Handler) Search(ctx echo.Context) error {
 			slog.Error("error getting search query embedding", "error", err)
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-		result := h.DB.Raw("SELECT * FROM mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> ?)", pgvector.NewVector(searchEmbedding.Embedding)).
-			Find(&mediaItems).Limit(searchDefaultLimit)
-		if result.Error != nil {
-			slog.Error("error searching mediaitems", "error", result.Error)
-			return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+		rows, err := h.DB.Query(ctx.Request().Context(), "SELECT * FROM mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> $1) LIMIT $2", pgvector.NewVector(searchEmbedding.Embedding), searchDefaultLimit)
+		if err != nil {
+			slog.Error("error searching mediaitems", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		defer rows.Close()
+		for rows.Next() {
+			mediaItem := models.MediaItem{}
+			if err := rows.Scan(&mediaItem.ID,
+				&mediaItem.UserID,
+				&mediaItem.Filename,
+				&mediaItem.Hash,
+				&mediaItem.Description,
+				&mediaItem.MimeType,
+				&mediaItem.SourceURL,
+				&mediaItem.PreviewURL,
+				&mediaItem.ThumbnailURL,
+				&mediaItem.Placeholder,
+				&mediaItem.IsFavourite,
+				&mediaItem.IsHidden,
+				&mediaItem.IsDeleted,
+				&mediaItem.Status,
+				&mediaItem.MediaItemType,
+				&mediaItem.MediaItemCategory,
+				&mediaItem.Width,
+				&mediaItem.Height,
+				&mediaItem.CreationTime,
+				&mediaItem.CameraMake,
+				&mediaItem.CameraModel,
+				&mediaItem.FocalLength,
+				&mediaItem.ApertureFnumber,
+				&mediaItem.IsoEquivalent,
+				&mediaItem.ExposureTime,
+				&mediaItem.Latitude,
+				&mediaItem.Longitude,
+				&mediaItem.FPS,
+				&mediaItem.EXIFData,
+				&mediaItem.Keywords,
+				&mediaItem.CreatedAt,
+				&mediaItem.UpdatedAt); err != nil {
+				slog.Error("error scanning mediaitem", "error", err)
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			}
+			mediaItems = append(mediaItems, mediaItem)
 		}
 		return ctx.JSON(http.StatusOK, mediaItems)
 	}
-	result := h.DB.Raw("SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', ?)", searchQuery).
-		Find(&mediaItems).Limit(searchDefaultLimit)
-	if result.Error != nil {
-		slog.Error("error searching mediaitems", "error", result.Error)
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	rows, err := h.DB.Query(ctx.Request().Context(), "SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', $1) LIMIT $2", searchQuery, searchDefaultLimit)
+	if err != nil {
+		slog.Error("error searching mediaitems", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		mediaItem := models.MediaItem{}
+		if err := rows.Scan(&mediaItem.ID,
+			&mediaItem.UserID,
+			&mediaItem.Filename,
+			&mediaItem.Hash,
+			&mediaItem.Description,
+			&mediaItem.MimeType,
+			&mediaItem.SourceURL,
+			&mediaItem.PreviewURL,
+			&mediaItem.ThumbnailURL,
+			&mediaItem.Placeholder,
+			&mediaItem.IsFavourite,
+			&mediaItem.IsHidden,
+			&mediaItem.IsDeleted,
+			&mediaItem.Status,
+			&mediaItem.MediaItemType,
+			&mediaItem.MediaItemCategory,
+			&mediaItem.Width,
+			&mediaItem.Height,
+			&mediaItem.CreationTime,
+			&mediaItem.CameraMake,
+			&mediaItem.CameraModel,
+			&mediaItem.FocalLength,
+			&mediaItem.ApertureFnumber,
+			&mediaItem.IsoEquivalent,
+			&mediaItem.ExposureTime,
+			&mediaItem.Latitude,
+			&mediaItem.Longitude,
+			&mediaItem.FPS,
+			&mediaItem.EXIFData,
+			&mediaItem.Keywords,
+			&mediaItem.CreatedAt,
+			&mediaItem.UpdatedAt); err != nil {
+			slog.Error("error scanning mediaitem", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		mediaItems = append(mediaItems, mediaItem)
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }

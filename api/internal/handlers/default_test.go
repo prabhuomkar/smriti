@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 )
 
 func TestGetFeatures(t *testing.T) {
@@ -131,9 +131,10 @@ func TestSearch(t *testing.T) {
 			[]string{},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WillReturnRows(sqlmock.NewRows(mediaitemCols))
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols))
 			},
 			nil,
 			&mockWorkerGRPCClient{wantOk: true},
@@ -142,48 +143,6 @@ func TestSearch(t *testing.T) {
 			},
 			http.StatusOK,
 			"[]",
-		},
-		{
-			"search mediaitems with 2 rows",
-			http.MethodGet,
-			"/v1/search",
-			"/v1/search?q=keyword",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WillReturnRows(getMockedMediaItemRows())
-			},
-			nil,
-			&mockWorkerGRPCClient{wantOk: true},
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.Search
-			},
-			http.StatusOK,
-			mediaitemsResponseBody,
-		},
-		{
-			"search mediaitems with error",
-			http.MethodGet,
-			"/v1/search",
-			"/v1/search?q=keyword",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			&mockWorkerGRPCClient{wantOk: true},
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.Search
-			},
-			http.StatusInternalServerError,
-			"some db error",
 		},
 		{
 			"search mediaitems with error getting embedding",
@@ -202,6 +161,76 @@ func TestSearch(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some grpc error",
+		},
+		{
+			"search mediaitems with error",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			},
+			nil,
+			&mockWorkerGRPCClient{wantOk: true},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusInternalServerError,
+			"some db error",
+		},
+		{
+			"search mediaitems with error in scanning",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
+						"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
+						480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
+						&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+			},
+			nil,
+			&mockWorkerGRPCClient{wantOk: true},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusInternalServerError,
+			"Scanning value error",
+		},
+		{
+			"search mediaitems with 2 rows",
+			http.MethodGet,
+			"/v1/search",
+			"/v1/search?q=keyword",
+			[]string{},
+			[]string{},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemRows())
+			},
+			nil,
+			&mockWorkerGRPCClient{wantOk: true},
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.Search
+			},
+			http.StatusOK,
+			mediaitemsResponseBody,
 		},
 	}
 	executeTests(t, tests)

@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/cache"
+	"api/pkg/database"
 	"api/pkg/services/worker"
 	"fmt"
 	"strconv"
@@ -11,13 +12,12 @@ import (
 
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
 // Handler ...
 type Handler struct {
 	Config *config.Config
-	DB     *gorm.DB
+	DB     database.DBInterface
 	Worker worker.WorkerClient
 	Cache  cache.Provider
 }

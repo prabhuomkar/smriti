@@ -10,9 +10,9 @@ const UsersTable = "users"
 
 // User ...
 type User struct {
-	ID        uuid.UUID `json:"id" gorm:"primaryKey;type:uuid"`
+	ID        uuid.UUID `json:"id"`
 	Name      string    `json:"name"`
-	Username  string    `json:"username" gorm:"unique"`
+	Username  string    `json:"username"`
 	Password  string    `json:"-"`
 	Features  string    `json:"-"`
 	CreatedAt time.Time `json:"createdAt"`

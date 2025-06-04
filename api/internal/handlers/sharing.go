@@ -6,9 +6,14 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
+)
+
+const (
+	queryGetSharedAlbumMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM album_mediaitems WHERE shared = true AND album_id=$1) AND is_hidden = false AND is_deleted = false ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryGetSharedAlbum           = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id = m.id WHERE a.shared = true AND a.id=$1 GROUP BY a.id, m.id`
 )
 
 // GetSharedAlbumMediaItems ...
@@ -18,13 +23,52 @@ func (h *Handler) GetSharedAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	sharedAlbum := new(models.Album)
-	sharedAlbum.ID = uid
 	mediaItems := []models.MediaItem{}
-	err = h.DB.Model(&sharedAlbum).Offset(offset).Limit(limit).Association("MediaItems").Find(&mediaItems, "is_deleted=?", false)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetSharedAlbumMediaItems, uid, offset, limit)
 	if err != nil {
 		slog.Error("error getting shared album mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		mediaItem := models.MediaItem{}
+		err = rows.Scan(&mediaItem.ID,
+			&mediaItem.UserID,
+			&mediaItem.Filename,
+			&mediaItem.Hash,
+			&mediaItem.Description,
+			&mediaItem.MimeType,
+			&mediaItem.SourceURL,
+			&mediaItem.PreviewURL,
+			&mediaItem.ThumbnailURL,
+			&mediaItem.Placeholder,
+			&mediaItem.IsFavourite,
+			&mediaItem.IsHidden,
+			&mediaItem.IsDeleted,
+			&mediaItem.Status,
+			&mediaItem.MediaItemType,
+			&mediaItem.MediaItemCategory,
+			&mediaItem.Width,
+			&mediaItem.Height,
+			&mediaItem.CreationTime,
+			&mediaItem.CameraMake,
+			&mediaItem.CameraModel,
+			&mediaItem.FocalLength,
+			&mediaItem.ApertureFnumber,
+			&mediaItem.IsoEquivalent,
+			&mediaItem.ExposureTime,
+			&mediaItem.Latitude,
+			&mediaItem.Longitude,
+			&mediaItem.FPS,
+			&mediaItem.EXIFData,
+			&mediaItem.Keywords,
+			&mediaItem.CreatedAt,
+			&mediaItem.UpdatedAt)
+		if err != nil {
+			slog.Error("error scanning shared album mediaitem", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		mediaItems = append(mediaItems, mediaItem)
 	}
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
@@ -35,17 +79,56 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	sharedAlbum := models.Album{}
-	result := h.DB.Model(&models.Album{}).
-		Where("is_shared=true AND id=?", uid).
-		Preload("CoverMediaItem").
-		First(&sharedAlbum)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	sharedAlbum := models.Album{CoverMediaItem: &models.MediaItem{}}
+	err = h.DB.QueryRow(ctx.Request().Context(), queryGetSharedAlbum, uid).Scan(&sharedAlbum.ID,
+		&sharedAlbum.UserID,
+		&sharedAlbum.Name,
+		&sharedAlbum.Description,
+		&sharedAlbum.IsShared,
+		&sharedAlbum.IsHidden,
+		&sharedAlbum.MediaItemsCount,
+		&sharedAlbum.CoverMediaItemID,
+		&sharedAlbum.CreatedAt,
+		&sharedAlbum.UpdatedAt,
+		&sharedAlbum.CoverMediaItem.ID,
+		&sharedAlbum.CoverMediaItem.UserID,
+		&sharedAlbum.CoverMediaItem.Filename,
+		&sharedAlbum.CoverMediaItem.Hash,
+		&sharedAlbum.CoverMediaItem.Description,
+		&sharedAlbum.CoverMediaItem.MimeType,
+		&sharedAlbum.CoverMediaItem.SourceURL,
+		&sharedAlbum.CoverMediaItem.PreviewURL,
+		&sharedAlbum.CoverMediaItem.ThumbnailURL,
+		&sharedAlbum.CoverMediaItem.Placeholder,
+		&sharedAlbum.CoverMediaItem.IsFavourite,
+		&sharedAlbum.CoverMediaItem.IsHidden,
+		&sharedAlbum.CoverMediaItem.IsDeleted,
+		&sharedAlbum.CoverMediaItem.Status,
+		&sharedAlbum.CoverMediaItem.MediaItemType,
+		&sharedAlbum.CoverMediaItem.MediaItemCategory,
+		&sharedAlbum.CoverMediaItem.Width,
+		&sharedAlbum.CoverMediaItem.Height,
+		&sharedAlbum.CoverMediaItem.CreationTime,
+		&sharedAlbum.CoverMediaItem.CameraMake,
+		&sharedAlbum.CoverMediaItem.CameraModel,
+		&sharedAlbum.CoverMediaItem.FocalLength,
+		&sharedAlbum.CoverMediaItem.ApertureFnumber,
+		&sharedAlbum.CoverMediaItem.IsoEquivalent,
+		&sharedAlbum.CoverMediaItem.ExposureTime,
+		&sharedAlbum.CoverMediaItem.Latitude,
+		&sharedAlbum.CoverMediaItem.Longitude,
+		&sharedAlbum.CoverMediaItem.FPS,
+		&sharedAlbum.CoverMediaItem.EXIFData,
+		&sharedAlbum.CoverMediaItem.Keywords,
+		&sharedAlbum.CoverMediaItem.CreatedAt,
+		&sharedAlbum.CoverMediaItem.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "shared link not found")
 		}
-		slog.Error("error getting shared album", "error", result.Error)
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+		slog.Error("error getting shared album", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, sharedAlbum)
 }

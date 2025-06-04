@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	uuid "github.com/satori/go.uuid"
-	"gorm.io/gorm"
 )
 
 type (
@@ -20,6 +20,14 @@ type (
 	}
 )
 
+const (
+	queryGetJob         = `SELECT * FROM jobs WHERE user_id=$1 AND id=$2`
+	queryGetJobs        = `SELECT * FROM jobs WHERE user_id=$1 ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryCheckJobExists = `SELECT COUNT(*) FROM jobs WHERE user_id=$1 AND status IN ($2, $3, $4)`
+	queryCreateJob      = `INSERT INTO jobs (id, user_id, status, components, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6)`
+	queryUpdateJob      = `UPDATE jobs SET status=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
+)
+
 // GetJob ...
 func (h *Handler) GetJob(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
@@ -28,15 +36,20 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 		return err
 	}
 	job := models.Job{}
-	result := h.DB.Model(&models.Job{}).
-		Where("id=? AND user_id=?", uid, userID).
-		First(&job)
-	if result.Error != nil {
-		slog.Error("error getting job", "error", result.Error)
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	err = h.DB.QueryRow(ctx.Request().Context(), queryGetJob, userID, uid).Scan(
+		&job.ID,
+		&job.UserID,
+		&job.Status,
+		&job.Components,
+		&job.LastMediItemID,
+		&job.CreatedAt,
+		&job.UpdatedAt)
+	if err != nil {
+		slog.Error("error getting job", "error", err)
+		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "job not found")
 		}
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusOK, job)
 }
@@ -53,21 +66,21 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 		return err
 	}
 	if job.Status == models.JobRunning {
-		existingJob := models.Job{}
-		result := h.DB.Model(&models.Job{}).
-			Where("user_id=? AND status IN (?, ?, ?)", userID, string(models.JobPaused), string(models.JobScheduled), string(models.JobRunning)).
-			First(&existingJob)
-		if (models.Job{} != existingJob) || (result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound)) {
-			slog.Error("job already exists", "error", result.Error)
+		existingJobCount := 0
+		err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused), string(models.JobScheduled), string(models.JobRunning)).Scan(&existingJobCount)
+		if err != nil {
+			slog.Error("error getting existing job count", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		if existingJobCount > 0 {
+			slog.Error("job already exists", "error", err)
 			return echo.NewHTTPError(http.StatusConflict, "job already exists")
 		}
 	}
-	result := h.DB.Model(&models.Job{UserID: userID, ID: uid}).Updates(map[string]interface{}{
-		"Status": job.Status,
-	})
-	if result.Error != nil {
-		slog.Error("error updating job", "error", result.Error)
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	result, err := h.DB.Exec(ctx.Request().Context(), queryUpdateJob, userID, uid, job.Status, job.UpdatedAt)
+	if !result.Update() || err != nil {
+		slog.Error("error updating job", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusNoContent, nil)
 }
@@ -77,15 +90,26 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	jobs := []models.Job{}
-	result := h.DB.Model(&models.Job{}).
-		Where("user_id=?", userID).
-		Order("created_at desc").
-		Find(&jobs).
-		Offset(offset).
-		Limit(limit)
-	if result.Error != nil {
-		slog.Error("error getting jobs", "error", result.Error)
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetJobs, userID, offset, limit)
+	if err != nil {
+		slog.Error("error getting jobs", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	defer rows.Close()
+	for rows.Next() {
+		job := models.Job{}
+		err = rows.Scan(&job.ID,
+			&job.UserID,
+			&job.Status,
+			&job.Components,
+			&job.LastMediItemID,
+			&job.CreatedAt,
+			&job.UpdatedAt)
+		if err != nil {
+			slog.Error("error scanning job", "error", err)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		jobs = append(jobs, job)
 	}
 	return ctx.JSON(http.StatusOK, jobs)
 }
@@ -100,17 +124,26 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 	job.ID = uuid.NewV4()
 	job.UserID = userID
 	job.Status = models.JobScheduled
-	existingJob := models.Job{}
-	result := h.DB.Model(&models.Job{}).
-		Where("user_id=? AND status IN (?, ?, ?)", userID, string(models.JobPaused), string(models.JobScheduled), string(models.JobRunning)).
-		First(&existingJob)
-	if (models.Job{} != existingJob) || (result.Error != nil && !errors.Is(result.Error, gorm.ErrRecordNotFound)) {
-		slog.Error("job already exists", "error", result.Error)
+	existingJobCount := 0
+	err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused), string(models.JobScheduled), string(models.JobRunning)).Scan(&existingJobCount)
+	if err != nil {
+		slog.Error("error getting existing job count", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+	if existingJobCount > 0 {
+		slog.Error("job already exists", "error", err)
 		return echo.NewHTTPError(http.StatusConflict, "job already exists")
 	}
-	if result := h.DB.Create(&job); result.Error != nil {
-		slog.Error("error creating job", "error", result.Error)
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+	result, err := h.DB.Exec(ctx.Request().Context(), queryCreateJob,
+		job.ID,
+		job.UserID,
+		job.Status,
+		job.Components,
+		job.CreatedAt,
+		job.UpdatedAt)
+	if !result.Insert() || err != nil {
+		slog.Error("error creating job", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	return ctx.JSON(http.StatusCreated, job)
 }

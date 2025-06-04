@@ -11,8 +11,8 @@ import (
 	"api/internal/auth"
 	"api/internal/models"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -87,8 +87,9 @@ func TestLogin(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"username":"username","password":"password"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs("username", pgxmock.AnyArg()).
 					WillReturnRows(getMockedUserRow())
 			},
 			nil,
@@ -110,9 +111,10 @@ func TestLogin(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"username":"username","password":"password"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
-					WillReturnRows(sqlmock.NewRows(userCols))
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs("username", pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(userCols))
 			},
 			nil,
 			nil,
@@ -133,8 +135,9 @@ func TestLogin(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"username":"username","password":"password"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs("username", pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -156,8 +159,9 @@ func TestLogin(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
 			strings.NewReader(`{"username":"username","password":"password"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "users"`)).
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
+					WithArgs("username", pgxmock.AnyArg()).
 					WillReturnRows(getMockedUserRow())
 			},
 			[]func(interface{}, interface{}) (interface{}, error){

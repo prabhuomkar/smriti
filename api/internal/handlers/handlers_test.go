@@ -19,14 +19,12 @@ import (
 	"api/pkg/cache"
 	"api/pkg/services/worker"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type Test struct {
@@ -38,7 +36,7 @@ type Test struct {
 	ParamValues      []string
 	Header           map[string]string
 	Body             io.Reader
-	MockDB           func(mock sqlmock.Sqlmock)
+	MockDB           func(mock pgxmock.PgxPoolIface)
 	mockCache        []func(interface{}, interface{}) (interface{}, error)
 	mockWorkerClient *mockWorkerGRPCClient
 	Handler          func(handler *Handler) func(ctx echo.Context) error
@@ -73,20 +71,11 @@ func executeTests(t *testing.T, tests []Test) {
 				ctx.Set("features", features)
 			}
 			// database
-			mockDB, mock, err := sqlmock.New()
-			assert.NoError(t, err)
+			mockDB, err := pgxmock.NewPool()
+			require.NoError(t, err)
 			defer mockDB.Close()
-			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
-				DSN:                  "sqlmock",
-				DriverName:           "postgres",
-				Conn:                 mockDB,
-				PreferSimpleProtocol: true,
-			}), &gorm.Config{
-				Logger: logger.Default.LogMode(logger.Error),
-			})
-			assert.NoError(t, err)
 			if test.MockDB != nil {
-				test.MockDB(mock)
+				test.MockDB(mockDB)
 			}
 			mockCache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 			if test.mockCache != nil {
@@ -109,7 +98,7 @@ func executeTests(t *testing.T, tests []Test) {
 					Feature: config.Feature{Albums: true, Explore: true, Places: true, Things: true, People: true},
 					ML:      config.ML{Places: true, Classification: true, OCR: true, Faces: true, Search: true},
 				},
-				DB:     mockGDB,
+				DB:     mockDB,
 				Cache:  mockCache,
 				Worker: test.mockWorkerClient,
 			}

@@ -11,12 +11,24 @@ import (
 	"api/internal/handlers"
 	"api/internal/models"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"github.com/stretchr/testify/require"
+)
+
+var (
+	userCols  = []string{"id", "name", "username", "password", "features", "created_at", "updated_at"}
+	albumCols = []string{
+		"id", "user_id", "name", "description", "is_shared", "is_hidden",
+		"mediaitems_count", "cover_mediaitem_id", "created_at", "updated_at",
+	}
+	mediaitemCols = []string{
+		"id", "user_id", "filename", "hash", "description", "mime_type", "source_url", "preview_url", "thumbnail_url",
+		"placeholder", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
+		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
+		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "exif_data", "keywords", "created_at", "updated_at",
+	}
 )
 
 func TestFeatureCheckForbidden(t *testing.T) {
@@ -67,36 +79,17 @@ func TestFeatureCheckOK(t *testing.T) {
 	}}
 	// mock db
 	// database
-	mockDB, mock, err := sqlmock.New()
-	assert.NoError(t, err)
+	mockDB, err := pgxmock.NewPool()
+	require.NoError(t, err)
 	defer mockDB.Close()
-	mockGDB, err := gorm.Open(postgres.New(postgres.Config{
-		DSN:                  "sqlmock",
-		DriverName:           "postgres",
-		Conn:                 mockDB,
-		PreferSimpleProtocol: true,
-	}), &gorm.Config{
-		Logger: logger.Default.LogMode(logger.Error),
-	})
-	assert.NoError(t, err)
 	// handler
 	handler := &handlers.Handler{
 		Config: cfg,
-		DB:     mockGDB,
+		DB:     mockDB,
 	}
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
-		WillReturnRows(sqlmock.NewRows([]string{
-			"id", "name", "description", "is_shared", "is_hidden", "cover_mediaitem_id",
-			"mediaitems_count", "created_at", "updated_at",
-		}))
-	mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-		WillReturnRows(sqlmock.NewRows([]string{
-			"id", "filename", "description", "mime_type", "source_url", "preview_url",
-			"thumbnail_url", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
-			"width",
-			"height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-			"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "created_at", "updated_at",
-		}))
+	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+		WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
 	featureHandlerMap := map[string]interface{}{
 		"albums": handler.GetAlbums,
 	}

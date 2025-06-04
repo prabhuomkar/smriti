@@ -26,12 +26,13 @@ type (
 
 	// Database ...
 	Database struct {
-		LogLevel string `envconfig:"SMRITI_DATABASE_LOG_LEVEL" default:"ERROR"`
-		Host     string `envconfig:"SMRITI_DATABASE_HOST" default:"database"`
-		Port     int    `envconfig:"SMRITI_DATABASE_PORT" default:"5432"`
-		Username string `envconfig:"SMRITI_DATABASE_USERNAME" default:"smritiuser"`
-		Password string `envconfig:"SMRITI_DATABASE_PASSWORD" default:"smritipass"`
-		Name     string `envconfig:"SMRITI_DATABASE_NAME" default:"smriti"`
+		LogLevel string        `envconfig:"SMRITI_DATABASE_LOG_LEVEL" default:"ERROR"`
+		Host     string        `envconfig:"SMRITI_DATABASE_HOST" default:"database"`
+		Port     int           `envconfig:"SMRITI_DATABASE_PORT" default:"5432"`
+		Username string        `envconfig:"SMRITI_DATABASE_USERNAME" default:"smritiuser"`
+		Password string        `envconfig:"SMRITI_DATABASE_PASSWORD" default:"smritipass"`
+		Name     string        `envconfig:"SMRITI_DATABASE_NAME" default:"smriti"`
+		Timeout  time.Duration `envconfig:"SMRITI_DATABASE_TIMEOUT" default:"10s"`
 	}
 
 	// Cache ...

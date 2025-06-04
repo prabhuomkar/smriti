@@ -8,8 +8,8 @@ import (
 	"net/http"
 	"strings"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	"gorm.io/gorm"
 )
 
 type (
@@ -26,6 +26,10 @@ type (
 	}
 )
 
+const (
+	queryAuthLogin = `SELECT * FROM users WHERE username=$1 AND password=$2`
+)
+
 // Login ...
 func (h *Handler) Login(ctx echo.Context) error {
 	loginRequest, err := getUsernameAndPassword(ctx)
@@ -33,15 +37,21 @@ func (h *Handler) Login(ctx echo.Context) error {
 		return err
 	}
 	user := models.User{}
-	result := h.DB.Model(&models.User{}).
-		Where("username=? AND password=?", &loginRequest.Username, getPasswordHash(*loginRequest.Password)).
-		First(&user)
-	if result.Error != nil {
-		if errors.Is(result.Error, gorm.ErrRecordNotFound) {
+	err = h.DB.QueryRow(ctx.Request().Context(), queryAuthLogin, *loginRequest.Username, *loginRequest.Password).Scan(
+		&user.ID,
+		&user.Name,
+		&user.Username,
+		&user.Password,
+		&user.Features,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
+	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "incorrect username or password")
 		}
-		slog.Error("error getting user", "error", result.Error)
-		return echo.NewHTTPError(http.StatusInternalServerError, result.Error.Error())
+		slog.Error("error getting user", "error", err)
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	accessToken, refreshToken, err := auth.GetTokens(h.Config, h.Cache, user)
 	if err != nil {

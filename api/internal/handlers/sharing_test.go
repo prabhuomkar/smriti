@@ -6,8 +6,8 @@ import (
 	"regexp"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 )
 
 func TestGetSharedAlbumMediaItems(t *testing.T) {
@@ -39,9 +39,10 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
-					WillReturnRows(sqlmock.NewRows(mediaitemCols))
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols))
 			},
 			nil,
 			nil,
@@ -52,27 +53,6 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			"[]",
 		},
 		{
-			"get shared album mediaitems with 2 rows",
-			http.MethodGet,
-			"/v1/sharing/:id/mediaItems",
-			"/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRows())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetSharedAlbumMediaItems
-			},
-			http.StatusOK,
-			mediaitemsResponseBody,
-		},
-		{
 			"get shared album mediaitems with error",
 			http.MethodGet,
 			"/v1/sharing/:id/mediaItems",
@@ -81,8 +61,9 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`JOIN "album_mediaitems"`)).
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -92,6 +73,54 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"get shared album mediaitems with error in scanning",
+			http.MethodGet,
+			"/v1/sharing/:id/mediaItems",
+			"/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
+						"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
+						480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
+						&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetSharedAlbumMediaItems
+			},
+			http.StatusInternalServerError,
+			"Scanning value error",
+		},
+		{
+			"get shared album mediaitems with 2 rows",
+			http.MethodGet,
+			"/v1/sharing/:id/mediaItems",
+			"/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemRows())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetSharedAlbumMediaItems
+			},
+			http.StatusOK,
+			mediaitemsResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -126,9 +155,10 @@ func TestGetSharedAlbum(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
-					WillReturnRows(sqlmock.NewRows(albumCols))
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(albumCols))
 			},
 			nil,
 			nil,
@@ -139,29 +169,6 @@ func TestGetSharedAlbum(t *testing.T) {
 			"shared link not found",
 		},
 		{
-			"get shared album",
-			http.MethodGet,
-			"/v1/sharing/:id",
-			"/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
-					WillReturnRows(getMockedAlbumRow())
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRow())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetSharedAlbum
-			},
-			http.StatusOK,
-			albumResponseBody,
-		},
-		{
 			"get shared album with error",
 			http.MethodGet,
 			"/v1/sharing/:id",
@@ -170,8 +177,9 @@ func TestGetSharedAlbum(t *testing.T) {
 			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
 			map[string]string{},
 			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "albums"`)).
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+					WithArgs(pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -181,6 +189,55 @@ func TestGetSharedAlbum(t *testing.T) {
 			},
 			http.StatusInternalServerError,
 			"some db error",
+		},
+		{
+			"get shared album with error in scanning",
+			http.MethodGet,
+			"/v1/sharing/:id",
+			"/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
+						&sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
+						"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
+						480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
+						&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetSharedAlbum
+			},
+			http.StatusInternalServerError,
+			"Scanning value error",
+		},
+		{
+			"get shared album with success",
+			http.MethodGet,
+			"/v1/sharing/:id",
+			"/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			[]string{"id"},
+			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+			map[string]string{},
+			nil,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnRows(getMockedAlbumRow())
+			},
+			nil,
+			nil,
+			func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetSharedAlbum
+			},
+			http.StatusOK,
+			albumResponseBody,
 		},
 	}
 	executeTests(t, tests)

@@ -16,6 +16,7 @@ import (
 	"api/pkg/storage"
 
 	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/pashagolub/pgxmock"
 	"github.com/pgvector/pgvector-go"
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -204,7 +205,7 @@ func TestGetUsers(t *testing.T) {
 	}{
 		{
 			"get users with success",
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "id" FROM "users"`)).
 					WillReturnRows(getMockedUserIDRows())
 			},
@@ -215,7 +216,7 @@ func TestGetUsers(t *testing.T) {
 		},
 		{
 			"get users with error",
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT "id" FROM "users"`)).
 					WillReturnError(errors.New("some db error"))
 			},
@@ -295,11 +296,11 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		{
 			"save mediaitem result with success",
 			&mediaItemResultRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"mimetype", "photo", "default", 1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(),
+						"mimetype", "photo", "default", 1080, 720, pgxmock.AnyArg(), pgxmock.AnyArg(),
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
@@ -309,11 +310,11 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		{
 			"save mediaitem result with error",
 			&mediaItemResultRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WithArgs("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"mimetype", "photo", "default", 1080, 720, sqlmock.AnyArg(), sqlmock.AnyArg(),
+						"mimetype", "photo", "default", 1080, 720, pgxmock.AnyArg(), pgxmock.AnyArg(),
 						"4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
@@ -436,11 +437,11 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 		{
 			"save mediaitem preview and thumbnail with success",
 			&mediaItemPreviewThumbnailRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(),
-						sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
+						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnResult(sqlmock.NewResult(1, 1))
 				mock.ExpectCommit()
 			},
@@ -474,11 +475,11 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 		{
 			"save mediaitem preview and thumbnail with error",
 			&mediaItemPreviewThumbnailRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(),
-						sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
+						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 					WillReturnError(errors.New("some db error"))
 				mock.ExpectRollback()
 			},
@@ -576,7 +577,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		{
 			"save mediaitem place with all details success",
 			&mediaItemPlaceRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
 				mock.ExpectBegin()
@@ -601,7 +602,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		{
 			"save mediaitem place with locality success",
 			&mediaItemPlaceLocalityRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
 				mock.ExpectBegin()
@@ -626,7 +627,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		{
 			"save mediaitem place with area success",
 			&mediaItemPlaceAreaRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
 				mock.ExpectBegin()
@@ -651,7 +652,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		{
 			"save mediaitem place with place find or create error",
 			&mediaItemPlaceRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnError(errors.New("some db error"))
 			},
@@ -660,7 +661,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		{
 			"save mediaitem place with error",
 			&mediaItemPlaceRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "places"`)).
 					WillReturnRows(getMockedPlaceRow())
 				mock.ExpectBegin()
@@ -734,7 +735,7 @@ func TestSaveMediaItemThing(t *testing.T) {
 		{
 			"save mediaitem thing with success",
 			&mediaItemThingRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(getMockedThingRow())
 				mock.ExpectBegin()
@@ -759,7 +760,7 @@ func TestSaveMediaItemThing(t *testing.T) {
 		{
 			"save mediaitem thing with thing find or create error",
 			&mediaItemThingRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnError(errors.New("some db error"))
 			},
@@ -768,7 +769,7 @@ func TestSaveMediaItemThing(t *testing.T) {
 		{
 			"save mediaitem thing with error",
 			&mediaItemThingRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "things"`)).
 					WillReturnRows(getMockedThingRow())
 				mock.ExpectBegin()
@@ -842,7 +843,7 @@ func TestSaveMediaItemFaces(t *testing.T) {
 		{
 			"save mediaitem faces with success",
 			&mediaItemFacesRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_faces"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -853,7 +854,7 @@ func TestSaveMediaItemFaces(t *testing.T) {
 		{
 			"save mediaitem faces with error",
 			&mediaItemFacesRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "mediaitem_faces"`)).
 					WillReturnError(errors.New("some db error"))
@@ -917,7 +918,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 		{
 			"get mediaitem face embeddings with success",
 			&mediaItemFaceEmbeddingsRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnRows(getMockedMediaItemRow(&existingPlaceKeywords))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitem_faces"`)).
@@ -936,7 +937,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 		{
 			"get mediaitem face embeddings with error",
 			&mediaItemFaceEmbeddingsRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
 			},
@@ -1019,9 +1020,9 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		{
 			"save mediaitem people with success",
 			&mediaItemPeopleRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
-					WillReturnRows(sqlmock.NewRows(peopleCols))
+					WillReturnRows(pgxmock.NewRows(peopleCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -1046,9 +1047,9 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		{
 			"save mediaitem people with error saving people",
 			&mediaItemPeopleRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
-					WillReturnRows(sqlmock.NewRows(peopleCols))
+					WillReturnRows(pgxmock.NewRows(peopleCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
 					WillReturnError(errors.New("some db error"))
@@ -1059,9 +1060,9 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		{
 			"save mediaitem people with error saving people mediaitems",
 			&mediaItemPeopleRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
-					WillReturnRows(sqlmock.NewRows(peopleCols))
+					WillReturnRows(pgxmock.NewRows(peopleCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -1078,9 +1079,9 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		{
 			"save mediaitem people with error saving mediaitem faces people",
 			&mediaItemPeopleRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "people"`)).
-					WillReturnRows(sqlmock.NewRows(peopleCols))
+					WillReturnRows(pgxmock.NewRows(peopleCols))
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "people"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -1158,7 +1159,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 		{
 			"save mediaitem final result with success",
 			&mediaItemFinalResultRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -1173,7 +1174,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 		{
 			"save mediaitem final result with error saving keywords",
 			&mediaItemFinalResultRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnError(errors.New("some db error"))
@@ -1184,7 +1185,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 		{
 			"save mediaitem final result with error saving embeddings",
 			&mediaItemFinalResultRequest,
-			func(mock sqlmock.Sqlmock) {
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBegin()
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
 					WillReturnResult(sqlmock.NewResult(1, 1))
@@ -1248,19 +1249,19 @@ func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func getMockedPlaceRow() *sqlmock.Rows {
-	return sqlmock.NewRows(placeCols).
+func getMockedPlaceRow() *pgxmock.Rows {
+	return pgxmock.NewRows(placeCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "postcode", "country", "locality", "area", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
-func getMockedThingRow() *sqlmock.Rows {
-	return sqlmock.NewRows(thingCols).
+func getMockedThingRow() *pgxmock.Rows {
+	return pgxmock.NewRows(thingCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name",
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "true", sampleTime, sampleTime)
 }
 
-func getMockedMediaItemRow(existingKeyword *string) *sqlmock.Rows {
-	return sqlmock.NewRows(mediaitemCols).
+func getMockedMediaItemRow(existingKeyword *string) *pgxmock.Rows {
+	return pgxmock.NewRows(mediaitemCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"filename", "description", "mime_type", existingKeyword, "source_url", "preview_url",
 			"thumbnail_url", "true", "false", "false", "status", "mediaitem_type", "mediaitem_category", 720,
@@ -1268,16 +1269,16 @@ func getMockedMediaItemRow(existingKeyword *string) *sqlmock.Rows {
 			"iso_equivalent", "exposure_time", "17.580249", "-70.278493", "fps", sampleTime, sampleTime)
 }
 
-func getMockedMediaItemFaceEmbeddingRows() *sqlmock.Rows {
-	return sqlmock.NewRows(mediaitemFaceCols).
+func getMockedMediaItemFaceEmbeddingRows() *pgxmock.Rows {
+	return pgxmock.NewRows(mediaitemFaceCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			nil, embedding).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", embedding)
 }
 
-func getMockedUserIDRows() *sqlmock.Rows {
-	return sqlmock.NewRows([]string{"id"}).
+func getMockedUserIDRows() *pgxmock.Rows {
+	return pgxmock.NewRows([]string{"id"}).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180")
 }

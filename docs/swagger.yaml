@@ -739,7 +739,7 @@ paths:
             format: uuid
       summary: Update a people entity
       description: Update a people entity
-      operationId: updatePeople
+      operationId: updatePerson
       security:
         - bearerAuth: []
       requestBody:
@@ -774,7 +774,7 @@ paths:
             format: uuid
       summary: Get mediaItems of a people entity
       description: Get mediaItems of a people entity
-      operationId: getPeopleMediaItems
+      operationId: getPersonMediaItems
       security:
         - bearerAuth: []
       responses:

@@ -3,7 +3,6 @@ package main
 import (
 	"api/config"
 	"api/internal/handlers"
-	"api/internal/models"
 	"api/internal/server"
 	"api/internal/service"
 	"api/pkg/cache"
@@ -27,11 +26,7 @@ func main() {
 	}
 
 	pgDB, err := database.Init(cfg.LogLevel, cfg.Database.Host, cfg.Database.Port,
-		cfg.Database.Username, cfg.Database.Password, cfg.Name)
-	if err != nil {
-		panic(err)
-	}
-	err = pgDB.AutoMigrate(models.GetModels()...)
+		cfg.Database.Username, cfg.Database.Password, cfg.Name, cfg.Timeout)
 	if err != nil {
 		panic(err)
 	}
@@ -45,14 +40,6 @@ func main() {
 
 	service := service.Init(cfg, pgDB, storageProvider)
 	grpcServer := server.StartGRPCServer(cfg, service)
-
-	err = pgDB.Callback().Query().Register("mediaItemUrl", (&models.MediaItemURLPlugin{
-		Storage: storageProvider,
-		Cache:   cache,
-	}).TransformMediaItemURL)
-	if err != nil {
-		panic(err)
-	}
 
 	handler := &handlers.Handler{
 		Config: cfg,
