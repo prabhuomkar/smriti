@@ -31,13 +31,13 @@ type (
 const (
 	queryGetYearsAgoMediaItems = `SELECT *, EXTRACT(year FROM creation_time) as creation_year FROM mediaitems WHERE user_id=$1 AND EXTRACT(month FROM creation_time)=$2 AND EXTRACT(day FROM creation_time)=$3 AND EXTRACT(year FROM creation_time) IN (SELECT EXTRACT(year FROM creation_time) FROM mediaitems) ORDER BY creation_time`
 	queryGetPlace              = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id WHERE p.user_id=$1 AND p.id=$2 GROUP BY p.id, m.id`
-	queryGetPlaces             = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id WHERE p.user_id=$1 AND p.is_hidden=false GROUP BY p.id, m.id ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryGetPlaces             = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id WHERE p.user_id=$1 AND p.is_hidden=false GROUP BY p.id, m.id ORDER BY p.created_at DESC OFFSET $2 LIMIT $3`
 	queryGetPlaceMediaItems    = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM place_mediaitems WHERE user_id=$1 AND place_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
 	queryGetThing              = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.id=$2 GROUP BY t.id, m.id`
-	queryGetThings             = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.is_hidden=false GROUP BY t.id, m.id ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryGetThings             = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.is_hidden=false GROUP BY t.id, m.id ORDER BY t.created_at DESC OFFSET $2 LIMIT $3`
 	queryGetThingMediaItems    = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM thing_mediaitems WHERE user_id=$1 AND thing_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
 	queryGetPerson             = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id WHERE p.user_id=$1 AND p.id=$2 GROUP BY p.id, mf.id`
-	queryGetPeople             = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id WHERE p.user_id=$1 AND p.is_hidden=false GROUP BY p.id, mf.id ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryGetPeople             = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id WHERE p.user_id=$1 AND p.is_hidden=false GROUP BY p.id, mf.id ORDER BY p.created_at DESC OFFSET $2 LIMIT $3`
 	queryGetPersonMediaItems   = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM people_mediaitems WHERE user_id=$1 AND people_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
 	queryUpdatePerson          = `UPDATE people SET name=$3, is_hidden=$4, cover_mediaitem_id=$5, cover_mediaitem_face_id=$6, updated_at=$7 WHERE user_id=$1 AND id=$2`
 )

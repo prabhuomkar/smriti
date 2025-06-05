@@ -36,7 +36,7 @@ const (
 	queryGetAlbumMediaItemIdAndCount = `SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems WHERE album_id=$1 LIMIT 1`
 	queryUpdateAlbumMediaItems       = `UPDATE albums SET mediaitems_count=$1, cover_mediaitem_id=CASE WHEN cover_mediaitem_id IS NULL THEN $2 ELSE cover_mediaitem_id END WHERE user_id=$3 AND id=$4`
 	queryGetAlbum                    = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.id=$2 GROUP BY a.id, m.id`
-	queryGetAlbums                   = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.is_hidden=false AND is_shared=$2 GROUP BY a.id, m.id ORDER BY created_at DESC OFFSET $3 LIMIT $4`
+	queryGetAlbums                   = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.is_hidden=false AND is_shared=$2 GROUP BY a.id, m.id ORDER BY a.created_at DESC OFFSET $3 LIMIT $4`
 	queryUpdateAlbum                 = `UPDATE albums SET name=$3, description=$4, is_shared=$5, is_hidden=$6, cover_mediaitem_id=$7, updated_at=$8 WHERE user_id=$1 AND id=$2`
 	queryDeleteAlbum                 = `DELETE FROM albums WHERE user_id=$1 AND id=$2`
 	queryCreateAlbum                 = `INSERT INTO albums (id, user_id, name, description, is_shared, is_hidden, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
