@@ -8,7 +8,7 @@ import (
 )
 
 func TestInit(t *testing.T) {
-	db, err := Init("WARNING", "host", 1000, "username", "password", "name", time.Second)
+	db, err := Init("host", 1000, "username", "password", "name", time.Second)
 	assert.Nil(t, db)
 	assert.Error(t, err)
 }

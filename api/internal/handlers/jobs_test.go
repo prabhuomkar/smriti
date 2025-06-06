@@ -103,8 +103,19 @@ func TestGetJob(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(jobCols).AddRow(pgxmock.AnyArg(), pgxmock.AnyArg(), "SCHEDULED", "metadata,places",
-						pgxmock.AnyArg(), sampleTime, sampleTime))
+					WillReturnRows(
+						pgxmock.NewRows(
+							jobCols,
+						).AddRow(
+							pgxmock.AnyArg(),
+							pgxmock.AnyArg(),
+							"SCHEDULED",
+							"metadata,places",
+							pgxmock.AnyArg(),
+							sampleTime,
+							sampleTime,
+						),
+					)
 			},
 			nil,
 			nil,
@@ -211,7 +222,12 @@ func TestUpdateJob(t *testing.T) {
 			strings.NewReader(`{"status":"RUNNING"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -235,7 +251,12 @@ func TestUpdateJob(t *testing.T) {
 			strings.NewReader(`{"status":"RUNNING"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(1))
 
 			},
@@ -260,10 +281,20 @@ func TestUpdateJob(t *testing.T) {
 			strings.NewReader(`{"status":"RUNNING"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
-					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobRunning, pgxmock.AnyArg()).
+					WithArgs(
+						sampleCoverMediaItemID,
+						sampleCoverMediaItemID,
+						models.JobRunning,
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -287,10 +318,20 @@ func TestUpdateJob(t *testing.T) {
 			strings.NewReader(`{"status":"RUNNING"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
-					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobRunning, pgxmock.AnyArg()).
+					WithArgs(
+						sampleCoverMediaItemID,
+						sampleCoverMediaItemID,
+						models.JobRunning,
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 			},
 			nil,
@@ -318,7 +359,11 @@ func TestGetJobs(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows(jobCols))
 			},
 			nil,
@@ -340,7 +385,11 @@ func TestGetJobs(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -362,9 +411,24 @@ func TestGetJobs(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(jobCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "SCHEDULED", "metadata,places",
-						&sampleCoverMediaItemID, sampleTime, sampleTime))
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							jobCols,
+						).AddRow(
+							"invalid",
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+							"SCHEDULED",
+							"metadata,places",
+							&sampleCoverMediaItemID,
+							sampleTime,
+							sampleTime,
+						),
+					)
 			},
 			nil,
 			nil,
@@ -385,7 +449,11 @@ func TestGetJobs(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(getMockedJobRows())
 			},
 			nil,
@@ -453,7 +521,12 @@ func TestCreateJob(t *testing.T) {
 			strings.NewReader(`{"components":"search"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -477,7 +550,12 @@ func TestCreateJob(t *testing.T) {
 			strings.NewReader(`{"components":"search"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(1))
 			},
 			nil,
@@ -502,10 +580,22 @@ func TestCreateJob(t *testing.T) {
 			strings.NewReader(`{"components":"search"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), models.JobScheduled, "search", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						models.JobScheduled,
+						"search",
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -529,10 +619,22 @@ func TestCreateJob(t *testing.T) {
 			strings.NewReader(`{"components":"search"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO jobs`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), models.JobScheduled, "search", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						models.JobScheduled,
+						"search",
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 			},
 			nil,
@@ -549,14 +651,35 @@ func TestCreateJob(t *testing.T) {
 
 func getMockedJobRow() *pgxmock.Rows {
 	return pgxmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "SCHEDULED", "metadata,places",
-			&sampleCoverMediaItemID, sampleTime, sampleTime)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"SCHEDULED",
+			"metadata,places",
+			&sampleCoverMediaItemID,
+			sampleTime,
+			sampleTime,
+		)
 }
 
 func getMockedJobRows() *pgxmock.Rows {
 	return pgxmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "RUNNING", "metadata,places",
-			&sampleCoverMediaItemID, sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "RUNNING", "faces",
-			&sampleCoverMediaItemID, sampleTime, sampleTime)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"RUNNING",
+			"metadata,places",
+			&sampleCoverMediaItemID,
+			sampleTime,
+			sampleTime,
+		).
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"RUNNING",
+			"faces",
+			&sampleCoverMediaItemID,
+			sampleTime,
+			sampleTime,
+		)
 }

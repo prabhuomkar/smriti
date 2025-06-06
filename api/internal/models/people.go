@@ -3,6 +3,7 @@ package models
 import (
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	uuid "github.com/satori/go.uuid"
 )
 
@@ -25,4 +26,23 @@ type People struct {
 // TableName ...
 func (People) TableName() string {
 	return PeopleTable
+}
+
+func ScanRowsToPerson(rows pgx.Rows) (People, error) {
+	person := People{CoverMediaItemFace: &MediaitemFace{}}
+	err := rows.Scan(
+		&person.ID,
+		&person.UserID,
+		&person.Name,
+		&person.IsHidden,
+		&person.CoverMediaItemID,
+		&person.CoverMediaItemFaceID,
+		&person.CreatedAt,
+		&person.UpdatedAt,
+		&person.CoverMediaItemFace.ID,
+		&person.CoverMediaItemFace.MediaitemID,
+		&person.CoverMediaItemFace.PeopleID,
+		&person.CoverMediaItemFace.Embedding,
+		&person.CoverMediaItemFace.Thumbnail)
+	return person, err
 }

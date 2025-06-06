@@ -51,8 +51,22 @@ func TestGetTokens(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			cfg := &config.Config{}
-			cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().SerializeFunc(test.SerializeFunc).Build()}
-			atoken, rtoken, err := GetTokens(cfg, cache, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")})
+			cache := &cache.InMemoryCache{
+				Connection: gcache.New(
+					1024,
+				).LRU().SerializeFunc(
+					test.SerializeFunc,
+				).Build(),
+			}
+			atoken, rtoken, err := GetTokens(
+				cfg,
+				cache,
+				models.User{
+					ID: uuid.FromStringOrNil(
+						"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+					),
+				},
+			)
 			if test.WantErr {
 				assert.Empty(t, atoken)
 				assert.Empty(t, rtoken)
@@ -77,7 +91,15 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache cache.Provider) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
+				_, oldRToken := GetAccessAndRefreshTokens(
+					cfg,
+					models.User{
+						ID: uuid.FromStringOrNil(
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						),
+						Username: "username",
+					},
+				)
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
 			},
@@ -107,7 +129,13 @@ func TestRefreshTokens(t *testing.T) {
 		{
 			"error getting user id from claims",
 			func(cfg *config.Config, cache cache.Provider) string {
-				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("invalid-user-id"), Username: "username"})
+				_, oldRToken := GetAccessAndRefreshTokens(
+					cfg,
+					models.User{
+						ID:       uuid.FromStringOrNil("invalid-user-id"),
+						Username: "username",
+					},
+				)
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
 			},
@@ -151,7 +179,15 @@ func TestRemoveTokens(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache cache.Provider) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
+				oldAToken, _ := GetAccessAndRefreshTokens(
+					cfg,
+					models.User{
+						ID: uuid.FromStringOrNil(
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						),
+						Username: "username",
+					},
+				)
 				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
 			},
@@ -200,7 +236,15 @@ func TestVerifyToken(t *testing.T) {
 		{
 			"success",
 			func(cfg *config.Config, cache cache.Provider) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
+				oldAToken, _ := GetAccessAndRefreshTokens(
+					cfg,
+					models.User{
+						ID: uuid.FromStringOrNil(
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+						),
+						Username: "username",
+					},
+				)
 				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
 			},

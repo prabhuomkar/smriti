@@ -12,8 +12,10 @@ import (
 )
 
 const (
-	queryGetSharedAlbumMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM album_mediaitems WHERE shared = true AND album_id=$1) AND is_hidden = false AND is_deleted = false ORDER BY created_at DESC OFFSET $2 LIMIT $3`
-	queryGetSharedAlbum           = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id = m.id WHERE a.shared = true AND a.id=$1 GROUP BY a.id, m.id`
+	queryGetSharedAlbumMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM album_mediaitems` +
+		` WHERE shared = true AND album_id=$1) AND is_hidden = false AND is_deleted = false ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryGetSharedAlbum = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id = m.id` +
+		` WHERE a.shared = true AND a.id=$1 GROUP BY a.id, m.id`
 )
 
 // GetSharedAlbumMediaItems ...
@@ -24,49 +26,26 @@ func (h *Handler) GetSharedAlbumMediaItems(ctx echo.Context) error {
 		return err
 	}
 	mediaItems := []models.MediaItem{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetSharedAlbumMediaItems, uid, offset, limit)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		queryGetSharedAlbumMediaItems,
+		uid,
+		offset,
+		limit,
+	)
 	if err != nil {
 		slog.Error("error getting shared album mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
-		mediaItem := models.MediaItem{}
-		err = rows.Scan(&mediaItem.ID,
-			&mediaItem.UserID,
-			&mediaItem.Filename,
-			&mediaItem.Hash,
-			&mediaItem.Description,
-			&mediaItem.MimeType,
-			&mediaItem.SourceURL,
-			&mediaItem.PreviewURL,
-			&mediaItem.ThumbnailURL,
-			&mediaItem.Placeholder,
-			&mediaItem.IsFavourite,
-			&mediaItem.IsHidden,
-			&mediaItem.IsDeleted,
-			&mediaItem.Status,
-			&mediaItem.MediaItemType,
-			&mediaItem.MediaItemCategory,
-			&mediaItem.Width,
-			&mediaItem.Height,
-			&mediaItem.CreationTime,
-			&mediaItem.CameraMake,
-			&mediaItem.CameraModel,
-			&mediaItem.FocalLength,
-			&mediaItem.ApertureFnumber,
-			&mediaItem.IsoEquivalent,
-			&mediaItem.ExposureTime,
-			&mediaItem.Latitude,
-			&mediaItem.Longitude,
-			&mediaItem.FPS,
-			&mediaItem.EXIFData,
-			&mediaItem.Keywords,
-			&mediaItem.CreatedAt,
-			&mediaItem.UpdatedAt)
+		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning shared album mediaitem", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
@@ -80,7 +59,12 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 		return err
 	}
 	sharedAlbum := models.Album{CoverMediaItem: &models.MediaItem{}}
-	err = h.DB.QueryRow(ctx.Request().Context(), queryGetSharedAlbum, uid).Scan(&sharedAlbum.ID,
+	err = h.DB.QueryRow(
+		ctx.Request().Context(),
+		queryGetSharedAlbum,
+		uid,
+	).Scan(
+		&sharedAlbum.ID,
 		&sharedAlbum.UserID,
 		&sharedAlbum.Name,
 		&sharedAlbum.Description,
@@ -125,7 +109,10 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 	)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusNotFound, "shared link not found")
+			return echo.NewHTTPError(
+				http.StatusNotFound,
+				"shared link not found",
+			)
 		}
 		slog.Error("error getting shared album", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -138,7 +125,10 @@ func getSharedAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting shared album id", "error", err)
-		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid shared link")
+		return uuid.Nil, echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid shared link",
+		)
 	}
 	return uid, err
 }

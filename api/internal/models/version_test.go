@@ -8,5 +8,9 @@ import (
 
 func TestGetVersion(t *testing.T) {
 	ver := GetVersion()
-	assert.Equal(t, &Version{Version: DefaultVersion, GitSHA: DefaultGitSHA}, ver)
+	assert.Equal(
+		t,
+		&Version{Version: DefaultVersion, GitSHA: DefaultGitSHA},
+		ver,
+	)
 }

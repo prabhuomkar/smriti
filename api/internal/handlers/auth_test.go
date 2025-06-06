@@ -186,8 +186,15 @@ func TestLogin(t *testing.T) {
 }
 
 func TestRefresh(t *testing.T) {
-	_, rtoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}},
-		models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
+	_, rtoken := auth.GetAccessAndRefreshTokens(
+		&config.Config{Auth: config.Auth{RefreshTTL: 60}},
+		models.User{
+			ID: uuid.FromStringOrNil(
+				"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			),
+			Username: "username",
+		},
+	)
 	tests := []Test{
 		{
 			"refresh with success",
@@ -232,8 +239,15 @@ func TestRefresh(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
-	_, atoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}},
-		models.User{ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username"})
+	_, atoken := auth.GetAccessAndRefreshTokens(
+		&config.Config{Auth: config.Auth{RefreshTTL: 60}},
+		models.User{
+			ID: uuid.FromStringOrNil(
+				"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			),
+			Username: "username",
+		},
+	)
 	tests := []Test{
 		{
 			"logout with success",

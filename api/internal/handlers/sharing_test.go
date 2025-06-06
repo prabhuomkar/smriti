@@ -41,7 +41,11 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols))
 			},
 			nil,
@@ -63,7 +67,11 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -85,12 +93,47 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-						"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
-						480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-						&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(mediaitemCols).AddRow(
+							"invalid",
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+							"filename",
+							nil,
+							&sampleDescription,
+							"mime_type",
+							"source_url",
+							"preview_url",
+							"thumbnail_url",
+							"placeholder",
+							&sampleBoolTrue,
+							&sampleBoolFalse,
+							&sampleBoolFalse,
+							"status",
+							"mediaitem_type",
+							"mediaitem_category",
+							720,
+							480,
+							sampleTime,
+							&sampleCameraMake,
+							&sampleCameraModel,
+							&sampleFocalLength,
+							&sampleApertureFnumber,
+							&sampleIsoEquivalent,
+							&sampleExposureTime,
+							&sampleLatitude,
+							&sampleLongitude,
+							&sampleFPS,
+							nil,
+							nil,
+							sampleTime,
+							sampleTime,
+						),
+					)
 			},
 			nil,
 			nil,
@@ -111,7 +154,11 @@ func TestGetSharedAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
@@ -156,9 +203,15 @@ func TestGetSharedAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(albumCols))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(albumCols),
+					)
 			},
 			nil,
 			nil,
@@ -178,9 +231,15 @@ func TestGetSharedAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -200,14 +259,60 @@ func TestGetSharedAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
-						&sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-						"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
-						480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-						&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							append(albumCols, mediaitemCols...),
+						).AddRow(
+							"invalid",
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+							"name",
+							&sampleDescription,
+							&sampleBoolTrue,
+							&sampleBoolFalse,
+							&sampleMediaItemsCount,
+							&sampleCoverMediaItemID,
+							sampleTime,
+							sampleTime,
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+							"filename",
+							nil,
+							&sampleDescription,
+							"mime_type",
+							"source_url",
+							"preview_url",
+							"thumbnail_url",
+							"placeholder",
+							&sampleBoolTrue,
+							&sampleBoolFalse,
+							&sampleBoolFalse,
+							"status",
+							"mediaitem_type",
+							"mediaitem_category",
+							720,
+							480,
+							sampleTime,
+							&sampleCameraMake,
+							&sampleCameraModel,
+							&sampleFocalLength,
+							&sampleApertureFnumber,
+							&sampleIsoEquivalent,
+							&sampleExposureTime,
+							&sampleLatitude,
+							&sampleLongitude,
+							&sampleFPS,
+							nil,
+							nil,
+							sampleTime,
+							sampleTime,
+						),
+					)
 			},
 			nil,
 			nil,
@@ -227,9 +332,15 @@ func TestGetSharedAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(getMockedAlbumRow())
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						getMockedAlbumRow(),
+					)
 			},
 			nil,
 			nil,

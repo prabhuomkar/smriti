@@ -19,19 +19,42 @@ type mockMinioClient struct {
 	wantErr bool
 }
 
-func (m *mockMinioClient) FPutObject(_ context.Context, _ string, _ string, _ string, _ minio.PutObjectOptions) (minio.UploadInfo, error) {
+func (m *mockMinioClient) FPutObject(
+	_ context.Context,
+	_ string,
+	_ string,
+	_ string,
+	_ minio.PutObjectOptions,
+) (minio.UploadInfo, error) {
 	return minio.UploadInfo{}, nil
 }
 
-func (m *mockMinioClient) FGetObject(_ context.Context, _ string, _ string, _ string, _ minio.GetObjectOptions) error {
+func (m *mockMinioClient) FGetObject(
+	_ context.Context,
+	_ string,
+	_ string,
+	_ string,
+	_ minio.GetObjectOptions,
+) error {
 	return nil
 }
 
-func (m *mockMinioClient) RemoveObject(_ context.Context, _ string, _ string, _ minio.RemoveObjectOptions) error {
+func (m *mockMinioClient) RemoveObject(
+	_ context.Context,
+	_ string,
+	_ string,
+	_ minio.RemoveObjectOptions,
+) error {
 	return nil
 }
 
-func (m *mockMinioClient) PresignedGetObject(_ context.Context, bucket string, object string, _ time.Duration, _ url.Values) (*url.URL, error) {
+func (m *mockMinioClient) PresignedGetObject(
+	_ context.Context,
+	bucket string,
+	object string,
+	_ time.Duration,
+	_ url.Values,
+) (*url.URL, error) {
 	if m.wantErr {
 		return nil, errors.New("some error")
 	}
@@ -54,8 +77,14 @@ func TestMediaItemURLPluginGetMediaItemURL(t *testing.T) {
 		{
 			"success getting from cache",
 			func() cache.Provider {
-				mockCache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
-				mockCache.SetWithExpire("/originals/fileID", "cachedURL", 1*time.Minute)
+				mockCache := &cache.InMemoryCache{
+					Connection: gcache.New(1024).LRU().Build(),
+				}
+				mockCache.SetWithExpire(
+					"/originals/fileID",
+					"cachedURL",
+					1*time.Minute,
+				)
 				return mockCache
 			},
 			nil,

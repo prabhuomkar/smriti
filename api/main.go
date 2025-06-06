@@ -25,7 +25,7 @@ func main() {
 		panic(err)
 	}
 
-	pgDB, err := database.Init(cfg.LogLevel, cfg.Database.Host, cfg.Database.Port,
+	pgDB, err := database.Init(cfg.Database.Host, cfg.Database.Port,
 		cfg.Database.Username, cfg.Database.Password, cfg.Name, cfg.Timeout)
 	if err != nil {
 		panic(err)

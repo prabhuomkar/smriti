@@ -18,10 +18,33 @@ type (
 	}
 
 	minioClient interface {
-		FPutObject(ctx context.Context, fileType string, fileID string, filePath string, opts minio.PutObjectOptions) (minio.UploadInfo, error)
-		FGetObject(ctx context.Context, fileType string, fileID string, filePath string, opts minio.GetObjectOptions) error
-		RemoveObject(ctx context.Context, fileType string, fileID string, opts minio.RemoveObjectOptions) error
-		PresignedGetObject(ctx context.Context, fileType string, fileID string, expiry time.Duration, vals url.Values) (*url.URL, error)
+		FPutObject(
+			ctx context.Context,
+			fileType string,
+			fileID string,
+			filePath string,
+			opts minio.PutObjectOptions,
+		) (minio.UploadInfo, error)
+		FGetObject(
+			ctx context.Context,
+			fileType string,
+			fileID string,
+			filePath string,
+			opts minio.GetObjectOptions,
+		) error
+		RemoveObject(
+			ctx context.Context,
+			fileType string,
+			fileID string,
+			opts minio.RemoveObjectOptions,
+		) error
+		PresignedGetObject(
+			ctx context.Context,
+			fileType string,
+			fileID string,
+			expiry time.Duration,
+			vals url.Values,
+		) (*url.URL, error)
 	}
 )
 
@@ -42,7 +65,13 @@ func (m *Minio) Upload(filePath, fileType, fileID string) (string, error) {
 }
 
 func (m *Minio) Download(filePath, fileType, fileID string) error {
-	err := m.Client.FGetObject(context.Background(), fileType, fileID, filePath, minio.GetObjectOptions{})
+	err := m.Client.FGetObject(
+		context.Background(),
+		fileType,
+		fileID,
+		filePath,
+		minio.GetObjectOptions{},
+	)
 	if err != nil {
 		return fmt.Errorf("error downloading file from minio: %w", err)
 	}
@@ -50,7 +79,12 @@ func (m *Minio) Download(filePath, fileType, fileID string) error {
 }
 
 func (m *Minio) Delete(fileType, fileID string) error {
-	err := m.Client.RemoveObject(context.Background(), fileType, fileID, minio.RemoveObjectOptions{})
+	err := m.Client.RemoveObject(
+		context.Background(),
+		fileType,
+		fileID,
+		minio.RemoveObjectOptions{},
+	)
 	if err != nil {
 		return fmt.Errorf("error deleting file from minio: %w", err)
 	}

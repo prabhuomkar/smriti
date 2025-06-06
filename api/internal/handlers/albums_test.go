@@ -15,8 +15,10 @@ import (
 
 var (
 	sampleName             = "name"
-	sampleCoverMediaItemID = uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")
-	sampleMediaItemsCount  = 12
+	sampleCoverMediaItemID = uuid.FromStringOrNil(
+		"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+	)
+	sampleMediaItemsCount = 12
 
 	albumCols = []string{
 		"id", "user_id", "name", "description", "is_shared", "is_hidden",
@@ -93,7 +95,12 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols))
 			},
 			nil,
@@ -115,7 +122,12 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -137,7 +149,12 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnRows(getMockedMediaItemRows())
 			},
 			nil,
@@ -222,9 +239,15 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
+				mock.ExpectBeginTx(
+					pgx.TxOptions{},
+				).WillReturnError(
+					errors.New("some db error"),
+				)
 			},
 			nil,
 			nil,
@@ -244,12 +267,21 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -269,15 +301,32 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectExec(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -297,18 +346,45 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"mediaitem_id", "mediaitems_count"}).
-						AddRow(sampleCoverMediaItemID, sampleMediaItemsCount))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							[]string{"mediaitem_id", "mediaitems_count"},
+						).
+							AddRow(
+								sampleCoverMediaItemID,
+								sampleMediaItemsCount,
+							),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -329,18 +405,45 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"mediaitem_id", "mediaitems_count"}).
-						AddRow(sampleCoverMediaItemID, sampleMediaItemsCount))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							[]string{"mediaitem_id", "mediaitems_count"},
+						).
+							AddRow(
+								sampleCoverMediaItemID,
+								sampleMediaItemsCount,
+							),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
 			},
@@ -362,18 +465,45 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"mediaitem_id", "mediaitems_count"}).
-						AddRow(sampleCoverMediaItemID, sampleMediaItemsCount))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							[]string{"mediaitem_id", "mediaitems_count"},
+						).
+							AddRow(
+								sampleCoverMediaItemID,
+								sampleMediaItemsCount,
+							),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit()
 			},
@@ -459,9 +589,15 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
+				mock.ExpectBeginTx(
+					pgx.TxOptions{},
+				).WillReturnError(
+					errors.New("some db error"),
+				)
 			},
 			nil,
 			nil,
@@ -481,12 +617,21 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`DELETE FROM album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -506,15 +651,32 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("DELETE", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`DELETE FROM album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("DELETE", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -534,18 +696,45 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("DELETE", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"mediaitem_id", "mediaitems_count"}).
-						AddRow(sampleCoverMediaItemID, sampleMediaItemsCount))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`DELETE FROM album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("DELETE", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							[]string{"mediaitem_id", "mediaitems_count"},
+						).
+							AddRow(
+								sampleCoverMediaItemID,
+								sampleMediaItemsCount,
+							),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -566,18 +755,45 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("DELETE", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"mediaitem_id", "mediaitems_count"}).
-						AddRow(sampleCoverMediaItemID, sampleMediaItemsCount))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`DELETE FROM album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("DELETE", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							[]string{"mediaitem_id", "mediaitems_count"},
+						).
+							AddRow(
+								sampleCoverMediaItemID,
+								sampleMediaItemsCount,
+							),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
 			},
@@ -599,18 +815,45 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
+			strings.NewReader(
+				`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
-				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("DELETE", 1))
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
-					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"mediaitem_id", "mediaitems_count"}).
-						AddRow(sampleCoverMediaItemID, sampleMediaItemsCount))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`DELETE FROM album_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("DELETE", 1),
+					)
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(
+							[]string{"mediaitem_id", "mediaitems_count"},
+						).
+							AddRow(
+								sampleCoverMediaItemID,
+								sampleMediaItemsCount,
+							),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit()
 			},
@@ -656,9 +899,16 @@ func TestGetAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(append(albumCols, mediaitemCols...)),
+					)
 			},
 			nil,
 			nil,
@@ -678,9 +928,16 @@ func TestGetAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -700,15 +957,60 @@ func TestGetAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
-							&sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-							"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-							"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
-							480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-							&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(append(albumCols, mediaitemCols...)).
+							AddRow(
+								"invalid",
+								"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+								"name",
+								&sampleDescription,
+								&sampleBoolTrue,
+								&sampleBoolFalse,
+								&sampleMediaItemsCount,
+								&sampleCoverMediaItemID,
+								sampleTime,
+								sampleTime,
+								"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+								"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+								"filename",
+								nil,
+								&sampleDescription,
+								"mime_type",
+								"source_url",
+								"preview_url",
+								"thumbnail_url",
+								"placeholder",
+								&sampleBoolTrue,
+								&sampleBoolFalse,
+								&sampleBoolFalse,
+								"status",
+								"mediaitem_type",
+								"mediaitem_category",
+								720,
+								480,
+								sampleTime,
+								&sampleCameraMake,
+								&sampleCameraModel,
+								&sampleFocalLength,
+								&sampleApertureFnumber,
+								&sampleIsoEquivalent,
+								&sampleExposureTime,
+								&sampleLatitude,
+								&sampleLongitude,
+								&sampleFPS,
+								nil,
+								nil,
+								sampleTime,
+								sampleTime,
+							),
+					)
 			},
 			nil,
 			nil,
@@ -728,9 +1030,16 @@ func TestGetAlbum(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(getMockedAlbumRow())
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						getMockedAlbumRow(),
+					)
 			},
 			nil,
 			nil,
@@ -812,7 +1121,9 @@ func TestUpdateAlbum(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`),
+			strings.NewReader(
+				`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`,
+			),
 			nil,
 			nil,
 			nil,
@@ -832,12 +1143,22 @@ func TestUpdateAlbum(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","description":"description","shared":true,"hidden":true,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
+			strings.NewReader(
+				`{"name":"name","description":"description","shared":true,"hidden":true,` +
+					`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, sampleName, &sampleDescription, &sampleBoolTrue, &sampleBoolTrue,
-						&sampleCoverMediaItemID, pgxmock.AnyArg()).
+					WithArgs(
+						sampleCoverMediaItemID,
+						sampleCoverMediaItemID,
+						sampleName,
+						&sampleDescription,
+						&sampleBoolTrue,
+						&sampleBoolTrue,
+						&sampleCoverMediaItemID,
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -858,12 +1179,22 @@ func TestUpdateAlbum(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","description":"description","shared":true,"hidden":true,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
+			strings.NewReader(
+				`{"name":"name","description":"description","shared":true,"hidden":true,` +
+					`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
-					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, sampleName, &sampleDescription, &sampleBoolTrue, &sampleBoolTrue,
-						&sampleCoverMediaItemID, pgxmock.AnyArg()).
+					WithArgs(
+						sampleCoverMediaItemID,
+						sampleCoverMediaItemID,
+						sampleName,
+						&sampleDescription,
+						&sampleBoolTrue,
+						&sampleBoolTrue,
+						&sampleCoverMediaItemID,
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 			},
 			nil,
@@ -958,9 +1289,18 @@ func TestGetAlbums(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(append(albumCols, mediaitemCols...)),
+					)
 			},
 			nil,
 			nil,
@@ -980,9 +1320,18 @@ func TestGetAlbums(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
 			nil,
@@ -1002,15 +1351,62 @@ func TestGetAlbums(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
-							&sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-							"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-							"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
-							480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-							&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						pgxmock.NewRows(append(albumCols, mediaitemCols...)).
+							AddRow(
+								"invalid",
+								"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+								"name",
+								&sampleDescription,
+								&sampleBoolTrue,
+								&sampleBoolFalse,
+								&sampleMediaItemsCount,
+								&sampleCoverMediaItemID,
+								sampleTime,
+								sampleTime,
+								"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+								"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+								"filename",
+								nil,
+								&sampleDescription,
+								"mime_type",
+								"source_url",
+								"preview_url",
+								"thumbnail_url",
+								"placeholder",
+								&sampleBoolTrue,
+								&sampleBoolFalse,
+								&sampleBoolFalse,
+								"status",
+								"mediaitem_type",
+								"mediaitem_category",
+								720,
+								480,
+								sampleTime,
+								&sampleCameraMake,
+								&sampleCameraModel,
+								&sampleFocalLength,
+								&sampleApertureFnumber,
+								&sampleIsoEquivalent,
+								&sampleExposureTime,
+								&sampleLatitude,
+								&sampleLongitude,
+								&sampleFPS,
+								nil,
+								nil,
+								sampleTime,
+								sampleTime,
+							),
+					)
 			},
 			nil,
 			nil,
@@ -1030,9 +1426,18 @@ func TestGetAlbums(t *testing.T) {
 			map[string]string{},
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(getMockedAlbumRows())
+				mock.ExpectQuery(
+					regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						getMockedAlbumRows(),
+					)
 			},
 			nil,
 			nil,
@@ -1096,7 +1501,9 @@ func TestCreateAlbum(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`),
+			strings.NewReader(
+				`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`,
+			),
 			nil,
 			nil,
 			nil,
@@ -1119,8 +1526,16 @@ func TestCreateAlbum(t *testing.T) {
 			strings.NewReader(`{"name":"name","description":"description"}`),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), "name", &sampleDescription, pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						"name",
+						&sampleDescription,
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -1141,11 +1556,21 @@ func TestCreateAlbum(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`),
+			strings.NewReader(
+				`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO albums`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), "name", &sampleDescription, pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						"name",
+						&sampleDescription,
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 			},
 			nil,
@@ -1162,26 +1587,140 @@ func TestCreateAlbum(t *testing.T) {
 
 func getMockedAlbumRow() *pgxmock.Rows {
 	return pgxmock.NewRows(append(albumCols, mediaitemCols...)).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
-			&sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-			"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
-			480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-			&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name",
+			&sampleDescription,
+			&sampleBoolTrue,
+			&sampleBoolFalse,
+			&sampleMediaItemsCount,
+			&sampleCoverMediaItemID,
+			sampleTime,
+			sampleTime,
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename",
+			nil,
+			&sampleDescription,
+			"mime_type",
+			"source_url",
+			"preview_url",
+			"thumbnail_url",
+			"placeholder",
+			&sampleBoolTrue,
+			&sampleBoolFalse,
+			&sampleBoolFalse,
+			"status",
+			"mediaitem_type",
+			"mediaitem_category",
+			720,
+			480,
+			sampleTime,
+			&sampleCameraMake,
+			&sampleCameraModel,
+			&sampleFocalLength,
+			&sampleApertureFnumber,
+			&sampleIsoEquivalent,
+			&sampleExposureTime,
+			&sampleLatitude,
+			&sampleLongitude,
+			&sampleFPS,
+			nil,
+			nil,
+			sampleTime,
+			sampleTime,
+		)
 }
 
 func getMockedAlbumRows() *pgxmock.Rows {
 	return pgxmock.NewRows(append(albumCols, mediaitemCols...)).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
-			&sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-			"thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720,
-			480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-			&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription,
-			&sampleBoolFalse, &sampleBoolTrue, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			"filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url",
-			"thumbnail_url", "placeholder", &sampleBoolFalse, &sampleBoolTrue, &sampleBoolTrue, "status", "mediaitem_type", "mediaitem_category", 720,
-			480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber,
-			&sampleIsoEquivalent, &sampleExposureTime, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name",
+			&sampleDescription,
+			&sampleBoolTrue,
+			&sampleBoolFalse,
+			&sampleMediaItemsCount,
+			&sampleCoverMediaItemID,
+			sampleTime,
+			sampleTime,
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename",
+			nil,
+			&sampleDescription,
+			"mime_type",
+			"source_url",
+			"preview_url",
+			"thumbnail_url",
+			"placeholder",
+			&sampleBoolTrue,
+			&sampleBoolFalse,
+			&sampleBoolFalse,
+			"status",
+			"mediaitem_type",
+			"mediaitem_category",
+			720,
+			480,
+			sampleTime,
+			&sampleCameraMake,
+			&sampleCameraModel,
+			&sampleFocalLength,
+			&sampleApertureFnumber,
+			&sampleIsoEquivalent,
+			&sampleExposureTime,
+			&sampleLatitude,
+			&sampleLongitude,
+			&sampleFPS,
+			nil,
+			nil,
+			sampleTime,
+			sampleTime,
+		).
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name",
+			&sampleDescription,
+			&sampleBoolFalse,
+			&sampleBoolTrue,
+			&sampleMediaItemsCount,
+			&sampleCoverMediaItemID,
+			sampleTime,
+			sampleTime,
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"filename",
+			nil,
+			&sampleDescription,
+			"mime_type",
+			"source_url",
+			"preview_url",
+			"thumbnail_url",
+			"placeholder",
+			&sampleBoolFalse,
+			&sampleBoolTrue,
+			&sampleBoolTrue,
+			"status",
+			"mediaitem_type",
+			"mediaitem_category",
+			720,
+			480,
+			sampleTime,
+			&sampleCameraMake,
+			&sampleCameraModel,
+			&sampleFocalLength,
+			&sampleApertureFnumber,
+			&sampleIsoEquivalent,
+			&sampleExposureTime,
+			&sampleLatitude,
+			&sampleLongitude,
+			&sampleFPS,
+			nil,
+			nil,
+			sampleTime,
+			sampleTime,
+		)
 }

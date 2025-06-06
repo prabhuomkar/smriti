@@ -31,24 +31,39 @@ const (
 	fileFlag       = os.O_WRONLY | os.O_APPEND | os.O_CREATE
 	filePermission = 0o644
 
-	queryGetMediaItemPlaces         = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT place_id FROM place_mediaitems WHERE mediaitem_id=$2) GROUP BY p.id, m.id ORDER BY p.created_at DESC`
-	queryGetMediaItemThings         = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.is_hidden=false AND t.id IN (SELECT thing_id FROM thing_mediaitems WHERE mediaitem_id=$2) GROUP BY t.id, m.id ORDER BY t.created_at DESC`
-	queryGetMediaItemPeople         = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT people_id FROM people_mediaitems WHERE mediaitem_id=$2) GROUP BY p.id, mf.id ORDER BY p.created_at DESC`
-	queryGetMediaItemAlbums         = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.is_hidden=false AND a.is_hidden=false AND a.id IN (SELECT album_id FROM album_mediaitems WHERE mediaitem_id=$2) GROUP BY a.id, m.id ORDER BY a.created_at DESC`
-	queryGetMediaItem               = `SELECT * FROM mediaitems WHERE user_id=$1 AND id=$2`
-	queryUpdateMediaItem            = `UPDATE mediaitems SET description=$3, is_favourite=$4, is_hidden=$5, updated_at=$6 WHERE user_id=$1 AND id=$2`
-	queryDeleteMediaItem            = `UPDATE mediaitems SET is_deleted=true, updated_at=$3 WHERE user_id=$1 AND id=$2`
-	queryGetMediaItems              = `SELECT * FROM mediaitems WHERE user_id=$1 AND is_hidden=false AND is_deleted=false %s ORDER BY created_at DESC OFFSET $2 LIMIT $3`
-	queryGetPlaceNewCoverMediaItem  = `SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems pm JOIN places p ON p.id = pm.place_id WHERE p.user_id=$1 AND p.cover_mediaitem_id=$2 AND pm.mediaitem_id!=$2`
-	queryGetThingNewCoverMediaItem  = `SELECT DISTINCT ON (tm.thing_id) tm.thing_id, tm.mediaitem_id FROM thing_mediaitems tm JOIN things t ON t.id = tm.thing_id WHERE t.user_id=$1 AND t.cover_mediaitem_id=$2 AND tm.mediaitem_id!=$2`
-	queryGetPeopleNewCoverMediaItem = `SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems pm JOIN people p ON p.id = pm.people_id WHERE p.user_id=$1 AND p.cover_mediaitem_id=$2 AND pm.mediaitem_id!=$2`
-	queryGetAlbumNewCoverMediaItem  = `SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems am JOIN albums a ON a.id = am.album_id WHERE a.user_id=$1 AND a.cover_mediaitem_id=$2 AND am.mediaitem_id!=$2`
+	queryGetMediaItemPlaces = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id` +
+		` WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT place_id FROM place_mediaitems` +
+		` WHERE mediaitem_id=$2) GROUP BY p.id, m.id ORDER BY p.created_at DESC`
+	queryGetMediaItemThings = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id` +
+		` WHERE t.user_id=$1 AND t.is_hidden=false AND t.id IN (SELECT thing_id FROM thing_mediaitems` +
+		` WHERE mediaitem_id=$2) GROUP BY t.id, m.id ORDER BY t.created_at DESC`
+	queryGetMediaItemPeople = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
+		` WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT people_id FROM people_mediaitems` +
+		` WHERE mediaitem_id=$2) GROUP BY p.id, mf.id ORDER BY p.created_at DESC`
+	queryGetMediaItemAlbums = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id` +
+		` WHERE a.user_id=$1 AND a.is_hidden=false AND a.is_hidden=false AND a.id IN (SELECT album_id FROM album_mediaitems` +
+		` WHERE mediaitem_id=$2) GROUP BY a.id, m.id ORDER BY a.created_at DESC`
+	queryGetMediaItem    = `SELECT * FROM mediaitems WHERE user_id=$1 AND id=$2`
+	queryUpdateMediaItem = `UPDATE mediaitems SET description=$3, is_favourite=$4, is_hidden=$5,` +
+		` updated_at=$6 WHERE user_id=$1 AND id=$2`
+	queryDeleteMediaItem = `UPDATE mediaitems SET is_deleted=true, updated_at=$3 WHERE user_id=$1 AND id=$2`
+	queryGetMediaItems   = `SELECT * FROM mediaitems WHERE user_id=$1 AND is_hidden=false AND is_deleted=false` +
+		` %s ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+	queryGetPlaceNewCoverMediaItem = `SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems pm` +
+		` JOIN places p ON p.id = pm.place_id WHERE p.user_id=$1 AND p.cover_mediaitem_id=$2 AND pm.mediaitem_id!=$2`
+	queryGetThingNewCoverMediaItem = `SELECT DISTINCT ON (tm.thing_id) tm.thing_id, tm.mediaitem_id FROM thing_mediaitems tm` +
+		` JOIN things t ON t.id = tm.thing_id WHERE t.user_id=$1 AND t.cover_mediaitem_id=$2 AND tm.mediaitem_id!=$2`
+	queryGetPeopleNewCoverMediaItem = `SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems pm` +
+		` JOIN people p ON p.id = pm.people_id WHERE p.user_id=$1 AND p.cover_mediaitem_id=$2 AND pm.mediaitem_id!=$2`
+	queryGetAlbumNewCoverMediaItem = `SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems am` +
+		` JOIN albums a ON a.id = am.album_id WHERE a.user_id=$1 AND a.cover_mediaitem_id=$2 AND am.mediaitem_id!=$2`
 	queryUpdatePlaceCoverMediaItem  = `UPDATE places SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryUpdateThingCoverMediaItem  = `UPDATE things SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryUpdateAlbumCoverMediaItem  = `UPDATE albums SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryUpdatePeopleCoverMediaItem = `UPDATE people SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
-	queryInsertMediaItem            = `INSERT INTO mediaitems (id, user_id, filename, mediaitem_type, mediaitem_category, status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
-	queryUpdateMediaItemHash        = `UPDATE mediaitems SET hash=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
+	queryInsertMediaItem            = `INSERT INTO mediaitems (id, user_id, filename, mediaitem_type, mediaitem_category,` +
+		` status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+	queryUpdateMediaItemHash = `UPDATE mediaitems SET hash=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
 )
 
 type (
@@ -76,61 +91,25 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	places := []models.Place{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetMediaItemPlaces, userID, uid)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		queryGetMediaItemPlaces,
+		userID,
+		uid,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitem places", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
-		place := models.Place{CoverMediaItem: &models.MediaItem{}}
-		err = rows.Scan(&place.ID,
-			&place.UserID,
-			&place.Name,
-			&place.Postcode,
-			&place.Country,
-			&place.Locality,
-			&place.Area,
-			&place.IsHidden,
-			&place.CoverMediaItemID,
-			&place.CreatedAt,
-			&place.UpdatedAt,
-			&place.CoverMediaItem.ID,
-			&place.CoverMediaItem.UserID,
-			&place.CoverMediaItem.Filename,
-			&place.CoverMediaItem.Hash,
-			&place.CoverMediaItem.Description,
-			&place.CoverMediaItem.MimeType,
-			&place.CoverMediaItem.SourceURL,
-			&place.CoverMediaItem.PreviewURL,
-			&place.CoverMediaItem.ThumbnailURL,
-			&place.CoverMediaItem.Placeholder,
-			&place.CoverMediaItem.IsFavourite,
-			&place.CoverMediaItem.IsHidden,
-			&place.CoverMediaItem.IsDeleted,
-			&place.CoverMediaItem.Status,
-			&place.CoverMediaItem.MediaItemType,
-			&place.CoverMediaItem.MediaItemCategory,
-			&place.CoverMediaItem.Width,
-			&place.CoverMediaItem.Height,
-			&place.CoverMediaItem.CreationTime,
-			&place.CoverMediaItem.CameraMake,
-			&place.CoverMediaItem.CameraModel,
-			&place.CoverMediaItem.FocalLength,
-			&place.CoverMediaItem.ApertureFnumber,
-			&place.CoverMediaItem.IsoEquivalent,
-			&place.CoverMediaItem.ExposureTime,
-			&place.CoverMediaItem.Latitude,
-			&place.CoverMediaItem.Longitude,
-			&place.CoverMediaItem.FPS,
-			&place.CoverMediaItem.EXIFData,
-			&place.CoverMediaItem.Keywords,
-			&place.CoverMediaItem.CreatedAt,
-			&place.CoverMediaItem.UpdatedAt,
-		)
+		place, err := models.ScanRowsToPlace(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem place", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		places = append(places, place)
 	}
@@ -147,57 +126,25 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	things := []models.Thing{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetMediaItemThings, userID, uid)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		queryGetMediaItemThings,
+		userID,
+		uid,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitem things", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
-		thing := models.Thing{CoverMediaItem: &models.MediaItem{}}
-		err = rows.Scan(&thing.ID,
-			&thing.UserID,
-			&thing.Name,
-			&thing.IsHidden,
-			&thing.CoverMediaItemID,
-			&thing.CreatedAt,
-			&thing.UpdatedAt,
-			&thing.CoverMediaItem.ID,
-			&thing.CoverMediaItem.UserID,
-			&thing.CoverMediaItem.Filename,
-			&thing.CoverMediaItem.Hash,
-			&thing.CoverMediaItem.Description,
-			&thing.CoverMediaItem.MimeType,
-			&thing.CoverMediaItem.SourceURL,
-			&thing.CoverMediaItem.PreviewURL,
-			&thing.CoverMediaItem.ThumbnailURL,
-			&thing.CoverMediaItem.Placeholder,
-			&thing.CoverMediaItem.IsFavourite,
-			&thing.CoverMediaItem.IsHidden,
-			&thing.CoverMediaItem.IsDeleted,
-			&thing.CoverMediaItem.Status,
-			&thing.CoverMediaItem.MediaItemType,
-			&thing.CoverMediaItem.MediaItemCategory,
-			&thing.CoverMediaItem.Width,
-			&thing.CoverMediaItem.Height,
-			&thing.CoverMediaItem.CreationTime,
-			&thing.CoverMediaItem.CameraMake,
-			&thing.CoverMediaItem.CameraModel,
-			&thing.CoverMediaItem.FocalLength,
-			&thing.CoverMediaItem.ApertureFnumber,
-			&thing.CoverMediaItem.IsoEquivalent,
-			&thing.CoverMediaItem.ExposureTime,
-			&thing.CoverMediaItem.Latitude,
-			&thing.CoverMediaItem.Longitude,
-			&thing.CoverMediaItem.FPS,
-			&thing.CoverMediaItem.EXIFData,
-			&thing.CoverMediaItem.Keywords,
-			&thing.CoverMediaItem.CreatedAt,
-			&thing.CoverMediaItem.UpdatedAt,
-		)
+		thing, err := models.ScanRowsToThing(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem thing", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		things = append(things, thing)
 	}
@@ -214,31 +161,25 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	people := []models.People{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetMediaItemPeople, userID, uid)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		queryGetMediaItemPeople,
+		userID,
+		uid,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitem people", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
-		person := models.People{CoverMediaItemFace: &models.MediaitemFace{}}
-		err = rows.Scan(&person.ID,
-			&person.UserID,
-			&person.Name,
-			&person.IsHidden,
-			&person.CoverMediaItemID,
-			&person.CoverMediaItemFaceID,
-			&person.CreatedAt,
-			&person.UpdatedAt,
-			&person.CoverMediaItemFace.ID,
-			&person.CoverMediaItemFace.MediaitemID,
-			&person.CoverMediaItemFace.PeopleID,
-			&person.CoverMediaItemFace.Embedding,
-			&person.CoverMediaItemFace.Thumbnail,
-		)
+		person, err := models.ScanRowsToPerson(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem person", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		people = append(people, person)
 	}
@@ -255,61 +196,25 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	albums := []models.Album{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetMediaItemAlbums, userID, uid)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		queryGetMediaItemAlbums,
+		userID,
+		uid,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitem albums", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
 	for rows.Next() {
-		album := models.Album{CoverMediaItem: &models.MediaItem{}}
-		err := rows.Scan(
-			&album.ID,
-			&album.UserID,
-			&album.Name,
-			&album.Description,
-			&album.IsShared,
-			&album.IsHidden,
-			&album.MediaItemsCount,
-			&album.CoverMediaItemID,
-			&album.CreatedAt,
-			&album.UpdatedAt,
-			&album.CoverMediaItem.ID,
-			&album.CoverMediaItem.UserID,
-			&album.CoverMediaItem.Filename,
-			&album.CoverMediaItem.Hash,
-			&album.CoverMediaItem.Description,
-			&album.CoverMediaItem.MimeType,
-			&album.CoverMediaItem.SourceURL,
-			&album.CoverMediaItem.PreviewURL,
-			&album.CoverMediaItem.ThumbnailURL,
-			&album.CoverMediaItem.Placeholder,
-			&album.CoverMediaItem.IsFavourite,
-			&album.CoverMediaItem.IsHidden,
-			&album.CoverMediaItem.IsDeleted,
-			&album.CoverMediaItem.Status,
-			&album.CoverMediaItem.MediaItemType,
-			&album.CoverMediaItem.MediaItemCategory,
-			&album.CoverMediaItem.Width,
-			&album.CoverMediaItem.Height,
-			&album.CoverMediaItem.CreationTime,
-			&album.CoverMediaItem.CameraMake,
-			&album.CoverMediaItem.CameraModel,
-			&album.CoverMediaItem.FocalLength,
-			&album.CoverMediaItem.ApertureFnumber,
-			&album.CoverMediaItem.IsoEquivalent,
-			&album.CoverMediaItem.ExposureTime,
-			&album.CoverMediaItem.Latitude,
-			&album.CoverMediaItem.Longitude,
-			&album.CoverMediaItem.FPS,
-			&album.CoverMediaItem.EXIFData,
-			&album.CoverMediaItem.Keywords,
-			&album.CoverMediaItem.CreatedAt,
-			&album.CoverMediaItem.UpdatedAt,
-		)
+		album, err := models.ScanRowsToAlbum(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem album", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		albums = append(albums, album)
 	}
@@ -326,7 +231,13 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	mediaItem := models.MediaItem{}
-	err = h.DB.QueryRow(ctx.Request().Context(), queryGetMediaItem, userID, uid).Scan(&mediaItem.ID,
+	err = h.DB.QueryRow(
+		ctx.Request().Context(),
+		queryGetMediaItem,
+		userID,
+		uid,
+	).Scan(
+		&mediaItem.ID,
 		&mediaItem.UserID,
 		&mediaItem.Filename,
 		&mediaItem.Hash,
@@ -357,7 +268,8 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 		&mediaItem.EXIFData,
 		&mediaItem.Keywords,
 		&mediaItem.CreatedAt,
-		&mediaItem.UpdatedAt)
+		&mediaItem.UpdatedAt,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitem", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -382,8 +294,17 @@ func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
 	mediaItem.ID = uid
 	mediaItem.UserID = userID
 	mediaItem.UpdatedAt = time.Now()
-	result, err := h.DB.Exec(ctx.Request().Context(), queryUpdateMediaItem, mediaItem.UserID, mediaItem.ID, mediaItem.Description, mediaItem.IsFavourite, mediaItem.IsHidden, mediaItem.UpdatedAt)
-	if !result.Update() || err != nil {
+	_, err = h.DB.Exec(
+		ctx.Request().Context(),
+		queryUpdateMediaItem,
+		mediaItem.UserID,
+		mediaItem.ID,
+		mediaItem.Description,
+		mediaItem.IsFavourite,
+		mediaItem.IsHidden,
+		mediaItem.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error updating mediaItem", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -397,9 +318,19 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	mediaItem := models.MediaItem{ID: uid, UserID: userID, UpdatedAt: time.Now()}
-	result, err := h.DB.Exec(ctx.Request().Context(), queryDeleteMediaItem, mediaItem.UserID, mediaItem.ID, mediaItem.UpdatedAt)
-	if !result.Update() || err != nil {
+	mediaItem := models.MediaItem{
+		ID:        uid,
+		UserID:    userID,
+		UpdatedAt: time.Now(),
+	}
+	_, err = h.DB.Exec(
+		ctx.Request().Context(),
+		queryDeleteMediaItem,
+		mediaItem.UserID,
+		mediaItem.ID,
+		mediaItem.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error deleting mediaItem", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -411,81 +342,104 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (h *Handler) updateCoverMediaItems(ctx context.Context, userID, mediaItemID uuid.UUID) error { //nolint: funlen,cyclop
+func (h *Handler) updateCoverMediaItems(
+	ctx context.Context,
+	userID, mediaItemID uuid.UUID,
+) error {
 	var (
-		albumsToUpdate [][]uuid.UUID
-		placesToUpdate [][]uuid.UUID
-		thingsToUpdate [][]uuid.UUID
-		peopleToUpdate [][]uuid.UUID
-		err            error
+		entities         = []string{"album", "place", "thing", "people"}
+		entityGetQueries = []string{
+			queryGetAlbumNewCoverMediaItem,
+			queryGetPlaceNewCoverMediaItem,
+			queryGetThingNewCoverMediaItem,
+			queryGetPeopleNewCoverMediaItem,
+		}
+		entityUpdateQueries = []string{
+			queryUpdateAlbumCoverMediaItem,
+			queryUpdatePlaceCoverMediaItem,
+			queryUpdateThingCoverMediaItem,
+			queryUpdatePeopleCoverMediaItem,
+		}
+		err error
 	)
+	entityItemsToUpdate := make([][][]uuid.UUID, len(entities))
 	tx, err := h.DB.Begin(ctx)
 	if err != nil {
-		return fmt.Errorf("error starting transaction for updating cover mediaitem: %w", err)
+		return fmt.Errorf(
+			"error starting transaction for updating cover mediaitem: %w",
+			err,
+		)
 	}
 	defer func() {
 		if err != nil {
 			_ = tx.Rollback(ctx)
 		}
 	}()
-	albumsToUpdate, err = h.getEntityToUpdate(ctx, tx, "album", queryGetAlbumNewCoverMediaItem, userID, mediaItemID)
-	if err != nil {
-		return err
-	}
-	placesToUpdate, err = h.getEntityToUpdate(ctx, tx, "place", queryGetPlaceNewCoverMediaItem, userID, mediaItemID)
-	if err != nil {
-		return err
-	}
-	thingsToUpdate, err = h.getEntityToUpdate(ctx, tx, "thing", queryGetThingNewCoverMediaItem, userID, mediaItemID)
-	if err != nil {
-		return err
-	}
-	peopleToUpdate, err = h.getEntityToUpdate(ctx, tx, "people", queryGetPeopleNewCoverMediaItem, userID, mediaItemID)
-	if err != nil {
-		return err
-	}
-	for _, albumToUpdate := range albumsToUpdate {
-		_, err = tx.Exec(ctx, queryUpdateAlbumCoverMediaItem, userID, albumToUpdate[0], albumToUpdate[1])
+	for idx, entity := range entities {
+		entityItemsToUpdate[idx], err = h.getEntityToUpdate(
+			ctx,
+			tx,
+			entity,
+			entityGetQueries[idx],
+			userID,
+			mediaItemID,
+		)
 		if err != nil {
-			return fmt.Errorf("error updating album cover mediaitem: %w", err)
+			return err
 		}
 	}
-	for _, placeToUpdate := range placesToUpdate {
-		_, err = tx.Exec(ctx, queryUpdatePlaceCoverMediaItem, userID, placeToUpdate[0], placeToUpdate[1])
-		if err != nil {
-			return fmt.Errorf("error updating place cover mediaitem: %w", err)
-		}
-	}
-	for _, thingToUpdate := range thingsToUpdate {
-		_, err = tx.Exec(ctx, queryUpdateThingCoverMediaItem, userID, thingToUpdate[0], thingToUpdate[1])
-		if err != nil {
-			return fmt.Errorf("error updating thing cover mediaitem: %w", err)
-		}
-	}
-	for _, personToUpdate := range peopleToUpdate {
-		_, err = tx.Exec(ctx, queryUpdatePeopleCoverMediaItem, userID, personToUpdate[0], personToUpdate[1])
-		if err != nil {
-			return fmt.Errorf("error updating people cover mediaitem: %w", err)
+	for idx, entityItemToUpdate := range entityItemsToUpdate {
+		for _, itemToUpdate := range entityItemToUpdate {
+			_, err = tx.Exec(
+				ctx,
+				entityUpdateQueries[idx],
+				userID,
+				itemToUpdate[0],
+				itemToUpdate[1],
+			)
+			if err != nil {
+				return fmt.Errorf(
+					"error updating %s cover mediaitem: %w",
+					entities[idx],
+					err,
+				)
+			}
 		}
 	}
 	if err = tx.Commit(ctx); err != nil {
-		return fmt.Errorf("error committing transaction for updating cover mediaitem: %w", err)
+		return fmt.Errorf(
+			"error committing transaction for updating cover mediaitem: %w",
+			err,
+		)
 	}
 	return nil
 }
 
-func (h *Handler) getEntityToUpdate(ctx context.Context, tx pgx.Tx, entity, query string, userID, mediaItemID uuid.UUID) ([][]uuid.UUID, error) {
+func (h *Handler) getEntityToUpdate(
+	ctx context.Context,
+	tx pgx.Tx,
+	entity, query string,
+	userID, mediaItemID uuid.UUID,
+) ([][]uuid.UUID, error) {
 	rows, err := tx.Query(ctx, query, userID, mediaItemID)
 	if err != nil {
-		return nil, fmt.Errorf("error getting %s new cover mediaitems: %w", entity, err)
+		return nil, fmt.Errorf(
+			"error getting %s new cover mediaitems: %w",
+			entity,
+			err,
+		)
 	}
 	defer rows.Close()
 	var entitiesToUpdate [][]uuid.UUID
 	for rows.Next() {
-		entityToUpdate := make([]uuid.UUID, 2)
+		entityToUpdate := make([]uuid.UUID, 2) //nolint: mnd
 		err = rows.Scan(&entityToUpdate[0], &entityToUpdate[1])
 		if err != nil {
-			return nil, fmt.Errorf("error scanning %s new cover mediaitem: %w", entity, err)
+			return nil, fmt.Errorf(
+				"error scanning %s new cover mediaitem: %w",
+				entity,
+				err,
+			)
 		}
 		entitiesToUpdate = append(entitiesToUpdate, entityToUpdate)
 	}
@@ -498,7 +452,13 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	offset, limit := getOffsetAndLimit(ctx)
 	filters := getMediaItemFilters(ctx)
 	mediaItems := []models.MediaItem{}
-	rows, err := h.DB.Query(ctx.Request().Context(), fmt.Sprintf(queryGetMediaItems, filters), userID, offset, limit)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		fmt.Sprintf(queryGetMediaItems, filters),
+		userID,
+		offset,
+		limit,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitems", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -506,7 +466,8 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	defer rows.Close()
 	for rows.Next() {
 		mediaItem := models.MediaItem{}
-		err = rows.Scan(&mediaItem.ID,
+		err = rows.Scan(
+			&mediaItem.ID,
 			&mediaItem.UserID,
 			&mediaItem.Filename,
 			&mediaItem.Hash,
@@ -540,7 +501,10 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 			&mediaItem.UpdatedAt)
 		if err != nil {
 			slog.Error("error scanning mediaitems", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
@@ -576,17 +540,33 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 
 	if strings.Contains(command, "start") {
 		mediaItem := createNewMediaItem(userID, file.Filename)
-		result, err := h.DB.Exec(ctx.Request().Context(), queryInsertMediaItem,
-			mediaItem.ID, mediaItem.UserID, mediaItem.Filename,
-			mediaItem.MediaItemType, mediaItem.MediaItemCategory, mediaItem.Status,
-			mediaItem.CreatedAt, mediaItem.UpdatedAt)
-		if !result.Insert() || err != nil {
+		_, err = h.DB.Exec(
+			ctx.Request().Context(),
+			queryInsertMediaItem,
+			mediaItem.ID,
+			mediaItem.UserID,
+			mediaItem.Filename,
+			mediaItem.MediaItemType,
+			mediaItem.MediaItemCategory,
+			mediaItem.Status,
+			mediaItem.CreatedAt,
+			mediaItem.UpdatedAt,
+		)
+		if err != nil {
 			slog.Error("error inserting mediaitem", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 
-		err = h.saveToDisk(ctx.Request().Context(), userID.String(), mediaItem.ID.String(),
-			openedFile, strings.Contains(command, "finish"))
+		err = h.saveToDisk(
+			ctx.Request().Context(),
+			userID.String(),
+			mediaItem.ID.String(),
+			openedFile,
+			strings.Contains(command, "finish"),
+		)
 		if err != nil {
 			return err
 		}
@@ -605,8 +585,17 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
-func (h *Handler) saveToDisk(ctx context.Context, userID, mediaItemID string, openedFile multipart.File, finish bool) error {
-	dstFile, err := os.OpenFile(fmt.Sprintf("%s/%s", h.Config.DiskRoot, mediaItemID), fileFlag, filePermission)
+func (h *Handler) saveToDisk(
+	ctx context.Context,
+	userID, mediaItemID string,
+	openedFile multipart.File,
+	finish bool,
+) error {
+	dstFile, err := os.OpenFile(
+		fmt.Sprintf("%s/%s", h.Config.DiskRoot, mediaItemID),
+		fileFlag,
+		filePermission,
+	)
 	if err != nil {
 		slog.Error("error opening file", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -619,21 +608,39 @@ func (h *Handler) saveToDisk(ctx context.Context, userID, mediaItemID string, op
 	}
 
 	if finish {
-		err = h.generateHashForDuplicates(ctx, userID, mediaItemID, dstFile.Name())
+		err = h.generateHashForDuplicates(
+			ctx,
+			userID,
+			mediaItemID,
+			dstFile.Name(),
+		)
 		if err != nil {
 			if strings.Contains(err.Error(), "violates unique constraint") {
 				slog.Error("error due to duplicate mediaitem", "error", err)
-				return echo.NewHTTPError(http.StatusConflict, "mediaitem already exists")
+				return echo.NewHTTPError(
+					http.StatusConflict,
+					"mediaitem already exists",
+				)
 			}
-			slog.Error("error while generating hash for mediaitem", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			slog.Error(
+				"error while generating hash for mediaitem",
+				"error",
+				err,
+			)
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 	}
 
 	return nil
 }
 
-func (h *Handler) generateHashForDuplicates(ctx context.Context, userID, mediaItemID, filePath string) error {
+func (h *Handler) generateHashForDuplicates(
+	ctx context.Context,
+	userID, mediaItemID, filePath string,
+) error {
 	openedFile, err := os.Open(filePath)
 	if err != nil {
 		slog.Error("error opening file for generating hash", "error", err)
@@ -654,8 +661,15 @@ func (h *Handler) generateHashForDuplicates(ctx context.Context, userID, mediaIt
 	mediaItem.UserID = uuid.FromStringOrNil(userID)
 	mediaItem.Hash = &mediaItemHash
 	mediaItem.UpdatedAt = time.Now()
-	result, err := h.DB.Exec(ctx, queryUpdateMediaItemHash, mediaItem.UserID, mediaItem.ID, mediaItem.Hash, mediaItem.UpdatedAt)
-	if !result.Update() || err != nil {
+	_, err = h.DB.Exec(
+		ctx,
+		queryUpdateMediaItemHash,
+		mediaItem.UserID,
+		mediaItem.ID,
+		mediaItem.Hash,
+		mediaItem.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error updating mediaitem hash", "error", err)
 		return err
 	}
@@ -682,16 +696,25 @@ func validateChunk(ctx echo.Context) (string, string, error) {
 
 	if len(command) == 0 {
 		slog.Error("error getting command for resumable upload")
-		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid command for resumable upload")
+		return "", "", echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid command for resumable upload",
+		)
 	}
 	if command != "start" && offset == 0 {
 		slog.Error("error getting chunk offset for resumable upload")
-		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk offset for resumable upload")
+		return "", "", echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid chunk offset for resumable upload",
+		)
 	}
 	session := ctx.Request().Header.Get(HeaderUploadChunkSession)
 	if command != "start" && len(session) == 0 {
 		slog.Error("error getting chunk session for resumable upload")
-		return "", "", echo.NewHTTPError(http.StatusBadRequest, "invalid chunk session for resumable upload")
+		return "", "", echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid chunk session for resumable upload",
+		)
 	}
 
 	return command, session, nil
@@ -702,7 +725,10 @@ func getMediaItemID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
+		return uuid.Nil, echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid mediaitem id",
+		)
 	}
 	return uid, err
 }
@@ -712,7 +738,10 @@ func getMediaItem(ctx echo.Context) (*models.MediaItem, error) {
 	err := ctx.Bind(mediaItemRequest)
 	if err != nil {
 		slog.Error("error getting mediaitem", "error", err)
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem")
+		return nil, echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid mediaitem",
+		)
 	}
 	mediaItem := models.MediaItem{
 		Description: mediaItemRequest.Description,
@@ -721,7 +750,10 @@ func getMediaItem(ctx echo.Context) (*models.MediaItem, error) {
 		IsDeleted:   mediaItemRequest.IsDeleted,
 	}
 	if reflect.DeepEqual(models.MediaItem{}, mediaItem) {
-		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem")
+		return nil, echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid mediaitem",
+		)
 	}
 	return &mediaItem, nil
 }

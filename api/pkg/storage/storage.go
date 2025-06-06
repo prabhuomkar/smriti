@@ -38,7 +38,8 @@ type (
 	}
 )
 
-func Init(cfg *Config) Provider { //nolint: ireturn
+//nolint:ireturn
+func Init(cfg *Config) Provider {
 	if cfg.Provider == ProviderMinio {
 		minioClient, err := minio.New(cfg.Endpoint, &minio.Options{
 			Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),

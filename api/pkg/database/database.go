@@ -19,11 +19,23 @@ type DBInterface interface {
 }
 
 // Init ...
-func Init(logLevel, host string, port int, username, password, name string, timeout time.Duration) (DBInterface, error) {
+func Init( //nolint: ireturn
+	host string,
+	port int,
+	username, password, name string,
+	timeout time.Duration,
+) (DBInterface, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", username, password, host, port, name)
+	dsn := fmt.Sprintf(
+		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		username,
+		password,
+		host,
+		port,
+		name,
+	)
 
 	conn, err := pgxpool.New(ctx, dsn)
 	if err != nil {

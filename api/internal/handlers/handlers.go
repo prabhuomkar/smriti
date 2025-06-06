@@ -6,6 +6,7 @@ import (
 	"api/pkg/cache"
 	"api/pkg/database"
 	"api/pkg/services/worker"
+	"errors"
 	"fmt"
 	"strconv"
 	"strings"
@@ -21,6 +22,8 @@ type Handler struct {
 	Worker worker.WorkerClient
 	Cache  cache.Provider
 }
+
+var errInvalidMonthDate = errors.New("invalid monthDate")
 
 const (
 	base         = 10
@@ -56,7 +59,7 @@ func getMonthAndDate(ctx echo.Context) (string, string, error) {
 	if len(monthDate) == 4 { // MMDD
 		return monthDate[:2], monthDate[2:], nil
 	}
-	return "", "", fmt.Errorf("invalid monthDate: %s", monthDate)
+	return "", "", fmt.Errorf("%w: %s", errInvalidMonthDate, monthDate)
 }
 
 func getMediaItemFilters(ctx echo.Context) string {
@@ -67,12 +70,16 @@ func getMediaItemFilters(ctx echo.Context) string {
 	}
 	mediaItemCategory := ctx.QueryParam("category")
 	if mediaItemCategory != "" {
-		filterQuery += fmt.Sprintf(" AND mediaitem_category = '%s'", mediaItemCategory)
+		filterQuery += fmt.Sprintf(
+			" AND mediaitem_category = '%s'",
+			mediaItemCategory,
+		)
 	}
 	mediaItemStatus := ctx.QueryParam("status")
-	if mediaItemStatus != "" && (mediaItemStatus == string(models.StatusUnspecified) ||
-		mediaItemStatus == string(models.StatusReady) || mediaItemStatus == string(models.StatusProcessing) ||
-		mediaItemStatus == string(models.StatusFailed)) {
+	if mediaItemStatus != "" &&
+		(mediaItemStatus == string(models.StatusUnspecified) ||
+			mediaItemStatus == string(models.StatusReady) || mediaItemStatus == string(models.StatusProcessing) ||
+			mediaItemStatus == string(models.StatusFailed)) {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", mediaItemStatus)
 	} else {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", string(models.StatusReady))
@@ -89,7 +96,8 @@ func getAlbumSortOrder(ctx echo.Context) string {
 
 func getAlbumShared(ctx echo.Context) bool {
 	queryParam := ctx.QueryParam("shared")
-	if queryParam == "" || strings.ToLower(queryParam) == "false" || strings.ToLower(queryParam) != "true" {
+	if queryParam == "" || strings.ToLower(queryParam) == "false" ||
+		strings.ToLower(queryParam) != "true" {
 		return false
 	}
 	return true

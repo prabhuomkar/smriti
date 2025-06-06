@@ -14,15 +14,38 @@ import (
 )
 
 // StartGRPCServer ...
-func StartGRPCServer(cfg *config.Config, service *service.Service) *grpc.Server {
-	listener, err := net.Listen("tcp", fmt.Sprintf("%s:%d", cfg.GRPC.Host, cfg.GRPC.Port))
+func StartGRPCServer(
+	cfg *config.Config,
+	service *service.Service,
+) *grpc.Server {
+	listener, err := net.Listen(
+		"tcp",
+		fmt.Sprintf("%s:%d", cfg.GRPC.Host, cfg.GRPC.Port),
+	)
 	if err != nil {
 		panic(err)
 	}
 
 	grpcMetrics := grpcprom.NewServerMetrics(
 		grpcprom.WithServerHandlingTimeHistogram(
-			grpcprom.WithHistogramBuckets([]float64{0.001, 0.01, 0.1, 0.3, 0.6, 1, 3, 6, 9, 20, 30, 60, 90, 120}),
+			grpcprom.WithHistogramBuckets(
+				[]float64{
+					0.001,
+					0.01,
+					0.1,
+					0.3,
+					0.6,
+					1,
+					3,
+					6,
+					9,
+					20,
+					30,
+					60,
+					90,
+					120,
+				},
+			),
 		),
 	)
 	prometheus.DefaultRegisterer.MustRegister(grpcMetrics)

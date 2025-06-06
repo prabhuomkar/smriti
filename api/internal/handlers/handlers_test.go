@@ -67,7 +67,12 @@ func executeTests(t *testing.T, tests []Test) {
 			ctx.Set("userID", "4d05b5f6-17c2-475e-87fe-3fc8b9567179")
 			if _, ok := test.Header[echo.HeaderAuthorization]; ok {
 				var features models.Features
-				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true,"things":true,"people":true}`), &features)
+				_ = json.Unmarshal(
+					[]byte(
+						`{"albums":true,"explore":true,"places":true,"things":true,"people":true}`,
+					),
+					&features,
+				)
 				ctx.Set("features", features)
 			}
 			// database
@@ -77,7 +82,9 @@ func executeTests(t *testing.T, tests []Test) {
 			if test.MockDB != nil {
 				test.MockDB(mockDB)
 			}
-			mockCache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
+			mockCache := &cache.InMemoryCache{
+				Connection: gcache.New(1024).LRU().Build(),
+			}
 			if test.mockCache != nil {
 				mockCache = &cache.InMemoryCache{Connection: gcache.New(1024).
 					LRU().
@@ -95,8 +102,20 @@ func executeTests(t *testing.T, tests []Test) {
 				Config: &config.Config{
 					Storage: config.Storage{DiskRoot: os.TempDir()},
 					Auth:    config.Auth{RefreshTTL: 60},
-					Feature: config.Feature{Albums: true, Explore: true, Places: true, Things: true, People: true},
-					ML:      config.ML{Places: true, Classification: true, OCR: true, Faces: true, Search: true},
+					Feature: config.Feature{
+						Albums:  true,
+						Explore: true,
+						Places:  true,
+						Things:  true,
+						People:  true,
+					},
+					ML: config.ML{
+						Places:         true,
+						Classification: true,
+						OCR:            true,
+						Faces:          true,
+						Search:         true,
+					},
 				},
 				DB:     mockDB,
 				Cache:  mockCache,
@@ -104,8 +123,16 @@ func executeTests(t *testing.T, tests []Test) {
 			}
 			err = test.Handler(handler)(ctx)
 			if test.ExpectedResCode >= http.StatusBadRequest {
-				assert.Equal(t, test.ExpectedResCode, err.(*echo.HTTPError).Code)
-				assert.Contains(t, err.(*echo.HTTPError).Message.(string), test.ExpectedResBody)
+				assert.Equal(
+					t,
+					test.ExpectedResCode,
+					err.(*echo.HTTPError).Code,
+				)
+				assert.Contains(
+					t,
+					err.(*echo.HTTPError).Message.(string),
+					test.ExpectedResBody,
+				)
 			} else {
 				assert.Equal(t, test.ExpectedResCode, rec.Code)
 				assert.Contains(t, strings.TrimSpace(rec.Body.String()), test.ExpectedResBody)
@@ -121,7 +148,11 @@ type (
 	}
 )
 
-func (mwc *mockWorkerGRPCClient) GenerateEmbedding(ctx context.Context, request *worker.GenerateEmbeddingRequest, opts ...grpc.CallOption) (*worker.GenerateEmbeddingResponse, error) {
+func (mwc *mockWorkerGRPCClient) GenerateEmbedding(
+	ctx context.Context,
+	request *worker.GenerateEmbeddingRequest,
+	opts ...grpc.CallOption,
+) (*worker.GenerateEmbeddingResponse, error) {
 	if mwc.wantErr {
 		return nil, errors.New("some grpc error")
 	}

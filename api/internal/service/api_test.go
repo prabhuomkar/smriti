@@ -53,12 +53,14 @@ var (
 		Status:      string(models.StatusReady),
 		Placeholder: &placeholder,
 	}
-	country               = "country"
-	postcode              = "postcode"
-	locality              = "locality"
-	area                  = "area"
-	embedding             = pgvector.NewVector([]float32{0.0, 0.42, 0.111})
-	mediaItemEmbedding    = api.MediaItemEmbedding{Embedding: []float32{0.0, 0.42, 0.111}}
+	country            = "country"
+	postcode           = "postcode"
+	locality           = "locality"
+	area               = "area"
+	embedding          = pgvector.NewVector([]float32{0.0, 0.42, 0.111})
+	mediaItemEmbedding = api.MediaItemEmbedding{
+		Embedding: []float32{0.0, 0.42, 0.111},
+	}
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
 		UserId:   "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		Id:       "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
@@ -92,16 +94,24 @@ var (
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
-				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+				FacePeople: map[string]string{
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				},
 			},
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567180": {
-				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567180": "4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
+				FacePeople: map[string]string{
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567180": "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				},
 			},
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567181": {
-				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567181": "1"},
+				FacePeople: map[string]string{
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567181": "1",
+				},
 			},
 			"4d05b5f6-17c2-475e-87fe-3fc8b9567182": {
-				FacePeople: map[string]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567182": "1"},
+				FacePeople: map[string]string{
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567182": "1",
+				},
 			},
 		},
 	}
@@ -128,8 +138,12 @@ func TestGetWorkerConfig(t *testing.T) {
 	}{
 		{
 			"get worker config with success",
-			&config.Config{ML: config.ML{Places: true, PlacesProvider: "openstreetmap"}},
-			[]byte(`[{"name":"METADATA"},{"name":"PLACES","source":"openstreetmap"}]`),
+			&config.Config{
+				ML: config.ML{Places: true, PlacesProvider: "openstreetmap"},
+			},
+			[]byte(
+				`[{"name":"METADATA"},{"name":"PLACES","source":"openstreetmap"}]`,
+			),
 			nil,
 		},
 		{
@@ -142,10 +156,12 @@ func TestGetWorkerConfig(t *testing.T) {
 				Faces: true, FacesParams: `{"face_threshold":"0.9"}`,
 				PreviewThumbnailParams: `{"thumbnail_size":"512"}`,
 			}},
-			[]byte(`[{"name":"METADATA"},{"name":"PREVIEW_THUMBNAIL","params":"{\"thumbnail_size\":\"512\"}"},{"name":"PLACES","source":"openstreetmap"},` +
-				`{"name":"CLASSIFICATION","source":"pytorch","params":"{\"file\":\"model-file-name.pt\"}"},{"name":"OCR","source":"paddlepaddle",` +
-				`"params":"{\"det_model_dir\":\"/det_infer\"}"},{"name":"SEARCH","source":"pytorch","params":"{\"tokenizer_dir\":\"/tokenizer\"}"},` +
-				`{"name":"FACES","params":"{\"face_threshold\":\"0.9\"}"}]`),
+			[]byte(
+				`[{"name":"METADATA"},{"name":"PREVIEW_THUMBNAIL","params":"{\"thumbnail_size\":\"512\"}"},{"name":"PLACES","source":"openstreetmap"},` +
+					`{"name":"CLASSIFICATION","source":"pytorch","params":"{\"file\":\"model-file-name.pt\"}"},{"name":"OCR","source":"paddlepaddle",` +
+					`"params":"{\"det_model_dir\":\"/det_infer\"}"},{"name":"SEARCH","source":"pytorch","params":"{\"tokenizer_dir\":\"/tokenizer\"}"},` +
+					`{"name":"FACES","params":"{\"face_threshold\":\"0.9\"}"}]`,
+			),
 			nil,
 		},
 		{
@@ -163,8 +179,12 @@ func TestGetWorkerConfig(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -199,7 +219,10 @@ func TestGetUsers(t *testing.T) {
 					WillReturnRows(getMockedUserIDRows())
 			},
 			&api.GetUsersResponse{
-				Users: []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180"},
+				Users: []string{
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+				},
 			},
 			nil,
 		},
@@ -220,8 +243,12 @@ func TestGetUsers(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -252,7 +279,10 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		},
 		{
 			"save mediaitem result with invalid mediaitem id",
-			&api.MediaItemMetadataRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			&api.MediaItemMetadataRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "bad-mediaitem-id",
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
@@ -263,30 +293,68 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 				Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime,
 			},
 			nil,
-			status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
+			status.Errorf(
+				codes.InvalidArgument,
+				"invalid mediaitem creation time",
+			),
 		},
 		{
 			"save mediaitem result with error",
 			&mediaItemResultRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
-			status.Error(codes.Internal, "error updating mediaitem result: some db error"),
+			status.Error(
+				codes.Internal,
+				"error updating mediaitem result: some db error",
+			),
 		},
 		{
 			"save mediaitem result with success",
 			&mediaItemResultRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 			},
 			nil,
@@ -310,8 +378,12 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -332,14 +404,19 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 	}{
 		{
 			"save mediaitem preview and thumbnail with invalid mediaitem user id",
-			&api.MediaItemPreviewThumbnailRequest{UserId: "bad-mediaitem-user-id"},
+			&api.MediaItemPreviewThumbnailRequest{
+				UserId: "bad-mediaitem-user-id",
+			},
 			nil,
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
 		{
 			"save mediaitem preview and thumbnail with invalid mediaitem id",
-			&api.MediaItemPreviewThumbnailRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			&api.MediaItemPreviewThumbnailRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "bad-mediaitem-id",
+			},
 			nil,
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
@@ -400,8 +477,15 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 			&mediaItemPreviewThumbnailRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			func(tmpRoot string) (string, string, string, func(), error) {
@@ -425,15 +509,25 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 					defer os.Remove(thumbnailFile.Name())
 				}, nil
 			},
-			status.Error(codes.Internal, "error updating mediaitem result: some db error"),
+			status.Error(
+				codes.Internal,
+				"error updating mediaitem result: some db error",
+			),
 		},
 		{
 			"save mediaitem preview and thumbnail with success",
 			&mediaItemPreviewThumbnailRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 			},
 			func(tmpRoot string) (string, string, string, func(), error) {
@@ -482,7 +576,9 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 			}
 			// mock tmp params
 			if test.MockParams != nil {
-				originalPath, previewPath, thumbnailPath, clear, err := test.MockParams(tmpRoot)
+				originalPath, previewPath, thumbnailPath, clear, err := test.MockParams(
+					tmpRoot,
+				)
 				assert.NoError(t, err)
 				test.Request.SourcePath = &originalPath
 				test.Request.PreviewPath = &previewPath
@@ -491,8 +587,12 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -518,7 +618,10 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		},
 		{
 			"save mediaitem place with invalid mediaitem id",
-			&api.MediaItemPlaceRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			&api.MediaItemPlaceRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "bad-mediaitem-id",
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
@@ -526,9 +629,16 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			"save mediaitem place with error starting transaction",
 			&mediaItemPlaceRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
+				mock.ExpectBeginTx(
+					pgx.TxOptions{},
+				).WillReturnError(
+					errors.New("some db error"),
+				)
 			},
-			status.Error(codes.Internal, "error starting transaction for saving mediaitem place: some db error"),
+			status.Error(
+				codes.Internal,
+				"error starting transaction for saving mediaitem place: some db error",
+			),
 		},
 		{
 			"save mediaitem place with error saving place",
@@ -536,9 +646,19 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO places`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 
 			},
@@ -550,16 +670,36 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO places`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO place_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO place_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 
 			},
-			status.Error(codes.Internal, "error saving mediaitem place: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving mediaitem place: some db error",
+			),
 		},
 		{
 			"save mediaitem place with error committing transaction",
@@ -567,17 +707,37 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO places`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO place_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO place_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
 
 			},
-			status.Error(codes.Internal, "error committing transaction for saving mediaitem place: some db error"),
+			status.Error(
+				codes.Internal,
+				"error committing transaction for saving mediaitem place: some db error",
+			),
 		},
 		{
 			"save mediaitem place with all details success",
@@ -585,13 +745,30 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO places`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO place_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO place_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectCommit()
 			},
 			nil,
@@ -602,13 +779,30 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO places`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO place_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO place_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectCommit()
 			},
 			nil,
@@ -619,13 +813,30 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO places`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO place_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO place_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectCommit()
 			},
 			nil,
@@ -647,8 +858,12 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -674,7 +889,10 @@ func TestSaveMediaItemThing(t *testing.T) {
 		},
 		{
 			"save mediaitem thing with invalid mediaitem id",
-			&api.MediaItemThingRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			&api.MediaItemThingRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "bad-mediaitem-id",
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
@@ -682,9 +900,16 @@ func TestSaveMediaItemThing(t *testing.T) {
 			"save mediaitem thing with error starting transaction",
 			&mediaItemThingRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
+				mock.ExpectBeginTx(
+					pgx.TxOptions{},
+				).WillReturnError(
+					errors.New("some db error"),
+				)
 			},
-			status.Error(codes.Internal, "error starting transaction for saving mediaitem thing: some db error"),
+			status.Error(
+				codes.Internal,
+				"error starting transaction for saving mediaitem thing: some db error",
+			),
 		},
 		{
 			"save mediaitem thing with error saving thing",
@@ -692,8 +917,15 @@ func TestSaveMediaItemThing(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO things`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			status.Error(codes.Internal, "error saving thing: some db error"),
@@ -704,14 +936,31 @@ func TestSaveMediaItemThing(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO things`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO thing_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO thing_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
-			status.Error(codes.Internal, "error saving mediaitem thing: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving mediaitem thing: some db error",
+			),
 		},
 		{
 			"save mediaitem thing with error committing transaction",
@@ -719,15 +968,32 @@ func TestSaveMediaItemThing(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO things`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO thing_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO thing_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
 			},
-			status.Error(codes.Internal, "error committing transaction for saving mediaitem thing: some db error"),
+			status.Error(
+				codes.Internal,
+				"error committing transaction for saving mediaitem thing: some db error",
+			),
 		},
 		{
 			"save mediaitem thing with success",
@@ -735,12 +1001,26 @@ func TestSaveMediaItemThing(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO things`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO thing_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO thing_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectCommit()
 			},
 			nil,
@@ -762,8 +1042,12 @@ func TestSaveMediaItemThing(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -789,7 +1073,10 @@ func TestSaveMediaItemFaces(t *testing.T) {
 		},
 		{
 			"save mediaitem faces with invalid mediaitem id",
-			&api.MediaItemFacesRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			&api.MediaItemFacesRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "bad-mediaitem-id",
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
@@ -797,21 +1084,42 @@ func TestSaveMediaItemFaces(t *testing.T) {
 			"save mediaitem faces with error",
 			&mediaItemFacesRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_faces`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO mediaitem_faces`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
-			status.Error(codes.Internal, "error saving mediaitem faces: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving mediaitem faces: some db error",
+			),
 		},
 		{
 			"save mediaitem faces with success",
 			&mediaItemFacesRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_faces`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO mediaitem_faces`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 			},
 			nil,
 		},
@@ -832,8 +1140,12 @@ func TestSaveMediaItemFaces(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -854,7 +1166,9 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 	}{
 		{
 			"get mediaitem face embeddings with invalid mediaitem user id",
-			&api.MediaItemFaceEmbeddingsRequest{UserId: "bad-mediaitem-user-id"},
+			&api.MediaItemFaceEmbeddingsRequest{
+				UserId: "bad-mediaitem-user-id",
+			},
 			nil,
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
@@ -863,20 +1177,41 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			"get mediaitem face embeddings with error",
 			&mediaItemFaceEmbeddingsRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
 			nil,
-			status.Error(codes.Internal, "error getting mediaitem face embeddings: some db error"),
+			status.Error(
+				codes.Internal,
+				"error getting mediaitem face embeddings: some db error",
+			),
 		},
 		{
 			"get mediaitem face embeddings with success",
 			&mediaItemFaceEmbeddingsRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(getMockedMediaItemFaceEmbeddingRows())
+				mock.ExpectQuery(
+					regexp.QuoteMeta(
+						`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`,
+					),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnRows(
+						getMockedMediaItemFaceEmbeddingRows(),
+					)
 			},
 			&api.MediaItemFaceEmbeddingsResponse{
 				MediaItemFaceEmbeddings: []*api.MediaItemFaceEmbedding{
@@ -905,8 +1240,12 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -915,7 +1254,11 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			assert.Equal(t, test.ExpectedErr, err)
 			if test.ExpectedResult != nil {
 				for idx, mediaItemFaceEmbedding := range test.ExpectedResult.MediaItemFaceEmbeddings {
-					assert.Equal(t, mediaItemFaceEmbedding.MediaItemId, res.MediaItemFaceEmbeddings[idx].MediaItemId)
+					assert.Equal(
+						t,
+						mediaItemFaceEmbedding.MediaItemId,
+						res.MediaItemFaceEmbeddings[idx].MediaItemId,
+					)
 				}
 			} else {
 				assert.Equal(t, test.ExpectedResult, res)
@@ -939,15 +1282,27 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		},
 		{
 			"save mediaitem people with invalid mediaitem id",
-			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{"bad-mediaitem-id": nil}},
+			&api.MediaItemPeopleRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
+					"bad-mediaitem-id": nil,
+				},
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem people with invalid face id",
-			&api.MediaItemPeopleRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
-				FacePeople: map[string]string{"bad-face-id": "bad-people-id"},
-			}}},
+			&api.MediaItemPeopleRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
+					"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
+						FacePeople: map[string]string{
+							"bad-face-id": "bad-people-id",
+						},
+					},
+				},
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid face id"),
 		},
@@ -955,9 +1310,16 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			"save mediaitem people with error starting transaction",
 			&mediaItemPeopleRequest,
 			func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
+				mock.ExpectBeginTx(
+					pgx.TxOptions{},
+				).WillReturnError(
+					errors.New("some db error"),
+				)
 			},
-			status.Error(codes.Internal, "error starting transaction for saving mediaitem people: some db error"),
+			status.Error(
+				codes.Internal,
+				"error starting transaction for saving mediaitem people: some db error",
+			),
 		},
 		{
 			"save mediaitem people with error saving people",
@@ -965,8 +1327,16 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			status.Error(codes.Internal, "error saving people: some db error"),
@@ -977,14 +1347,32 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
-			status.Error(codes.Internal, "error saving people mediaitems: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving people mediaitems: some db error",
+			),
 		},
 		{
 			"save mediaitem people with error saving mediaitem faces",
@@ -992,20 +1380,45 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			},
-			status.Error(codes.Internal, "error saving mediaitem faces: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving mediaitem faces: some db error",
+			),
 		},
 		{
 			"save mediaitem people with error committing transaction",
@@ -1013,15 +1426,37 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -1030,7 +1465,10 @@ func TestSaveMediaItemPeople(t *testing.T) {
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
 			},
-			status.Error(codes.Internal, "error committing transaction for saving mediaitem people: some db error"),
+			status.Error(
+				codes.Internal,
+				"error committing transaction for saving mediaitem people: some db error",
+			),
 		},
 		{
 			"save mediaitem people with success",
@@ -1038,15 +1476,37 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -1056,15 +1516,37 @@ func TestSaveMediaItemPeople(t *testing.T) {
 				mock.ExpectCommit()
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO people_mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO people_mediaitems`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -1092,8 +1574,12 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -1119,7 +1605,10 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 		},
 		{
 			"save mediaitem ml result with invalid mediaitem id",
-			&api.MediaItemFinalResultRequest{UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id"},
+			&api.MediaItemFinalResultRequest{
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "bad-mediaitem-id",
+			},
 			nil,
 			status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
@@ -1128,34 +1617,66 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			&mediaItemFinalResultRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
-			status.Error(codes.Internal, "error saving mediaitem final result keywords: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving mediaitem final result keywords: some db error",
+			),
 		},
 		{
 			"save mediaitem final result with error saving embeddings",
 			&mediaItemFinalResultRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_embeddings`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnError(errors.New("some db error"))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO mediaitem_embeddings`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnError(
+						errors.New("some db error"),
+					)
 			},
-			status.Error(codes.Internal, "error saving mediaitem final result embedding: some db error"),
+			status.Error(
+				codes.Internal,
+				"error saving mediaitem final result embedding: some db error",
+			),
 		},
 		{
 			"save mediaitem final result with success",
 			&mediaItemFinalResultRequest,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_embeddings`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(
+					regexp.QuoteMeta(`INSERT INTO mediaitem_embeddings`),
+				).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
+					WillReturnResult(
+						pgxmock.NewResult("INSERT", 1),
+					)
 			},
 			nil,
 		},
@@ -1176,8 +1697,12 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
-				grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(
+				ctx,
+				"",
+				grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)),
+			)
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -1204,10 +1729,18 @@ func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 
 func getMockedMediaItemFaceEmbeddingRows() *pgxmock.Rows {
 	return pgxmock.NewRows(mediaitemFaceCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			nil, nil).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			nil, nil)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			nil,
+			nil,
+		).
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			nil,
+			nil,
+		)
 }
 
 func getMockedUserIDRows() *pgxmock.Rows {

@@ -13,7 +13,15 @@ import (
 )
 
 var (
-	userCols         = []string{"id", "name", "username", "password", "features", "created_at", "updated_at"}
+	userCols = []string{
+		"id",
+		"name",
+		"username",
+		"password",
+		"features",
+		"created_at",
+		"updated_at",
+	}
 	userResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
 		`"username":"username",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
@@ -77,7 +85,9 @@ func TestGetUser(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg()).WillReturnError(errors.New("some db error"))
+					WithArgs(
+						pgxmock.AnyArg(),
+					).WillReturnError(errors.New("some db error"))
 			},
 			nil,
 			nil,
@@ -98,8 +108,16 @@ func TestGetUser(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols).AddRow(
-					"invalid", "name", "username", "password", "", "invalid", "invalid",
+					WithArgs(
+						pgxmock.AnyArg(),
+					).WillReturnRows(pgxmock.NewRows(userCols).AddRow(
+					"invalid",
+					"name",
+					"username",
+					"password",
+					"",
+					"invalid",
+					"invalid",
 				))
 			},
 			nil,
@@ -121,7 +139,9 @@ func TestGetUser(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg()).WillReturnRows(getMockedUserRow())
+					WithArgs(
+						pgxmock.AnyArg(),
+					).WillReturnRows(getMockedUserRow())
 			},
 			nil,
 			nil,
@@ -203,11 +223,19 @@ func TestUpdateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
+			strings.NewReader(
+				`{"name":"name","username":"username","password":"password"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -228,11 +256,19 @@ func TestUpdateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password"}`),
+			strings.NewReader(
+				`{"name":"name","username":"username","password":"password"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(),
-						pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 			},
 			nil,
@@ -328,7 +364,8 @@ func TestGetUsers(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnError(errors.New("some db error"))
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
 			},
 			nil,
 			nil,
@@ -349,8 +386,17 @@ func TestGetUsers(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols).
-					AddRow("invalid", "name", "username", "password", "", "invalid", "invalid"))
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(userCols).
+						AddRow(
+							"invalid",
+							"name",
+							"username",
+							"password",
+							"",
+							"invalid",
+							"invalid",
+						))
 			},
 			nil,
 			nil,
@@ -371,7 +417,8 @@ func TestGetUsers(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols))
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(userCols))
 			},
 			nil,
 			nil,
@@ -392,7 +439,10 @@ func TestGetUsers(t *testing.T) {
 			nil,
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(getMockedUserRows())
+					WithArgs(
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).WillReturnRows(getMockedUserRows())
 			},
 			nil,
 			nil,
@@ -456,10 +506,20 @@ func TestCreateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
+			strings.NewReader(
+				`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users`)).
-					WithArgs(pgxmock.AnyArg(), "name", "username", pgxmock.AnyArg(), "{\"albums\":true}", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						"name",
+						"username",
+						pgxmock.AnyArg(),
+						"{\"albums\":true}",
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnError(errors.New("some db error"))
 			},
 			nil,
@@ -480,10 +540,20 @@ func TestCreateUser(t *testing.T) {
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`),
+			strings.NewReader(
+				`{"name":"name","username":"username","password":"password","features":"{\"albums\":true}"}`,
+			),
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users`)).
-					WithArgs(pgxmock.AnyArg(), "name", "username", pgxmock.AnyArg(), "{\"albums\":true}", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(
+						pgxmock.AnyArg(),
+						"name",
+						"username",
+						pgxmock.AnyArg(),
+						"{\"albums\":true}",
+						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
+					).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 			},
 			nil,
@@ -500,11 +570,35 @@ func TestCreateUser(t *testing.T) {
 
 func getMockedUserRow() *pgxmock.Rows {
 	return pgxmock.NewRows(userCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", "", sampleTime, sampleTime)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name",
+			"username",
+			"password",
+			"",
+			sampleTime,
+			sampleTime,
+		)
 }
 
 func getMockedUserRows() *pgxmock.Rows {
 	return pgxmock.NewRows(userCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", "", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "username", "password", "", sampleTime, sampleTime)
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+			"name",
+			"username",
+			"password",
+			"",
+			sampleTime,
+			sampleTime,
+		).
+		AddRow(
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+			"name",
+			"username",
+			"password",
+			"",
+			sampleTime,
+			sampleTime,
+		)
 }

@@ -77,7 +77,10 @@ func TestJWTCheckOK(t *testing.T) {
 			AccessTTL: 60,
 		},
 	}
-	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.NewV4(), Username: "username"})
+	accessToken, _ := auth.GetAccessAndRefreshTokens(
+		cfg,
+		models.User{ID: uuid.NewV4(), Username: "username"},
+	)
 	// mock cache
 	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	_ = cache.SetWithExpire(accessToken, nil, 1*time.Minute)
@@ -92,7 +95,12 @@ func TestJWTCheckOK(t *testing.T) {
 		DB:     mockDB,
 	}
 	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+		WithArgs(
+			pgxmock.AnyArg(),
+			pgxmock.AnyArg(),
+			pgxmock.AnyArg(),
+			pgxmock.AnyArg(),
+		).
 		WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
 	checkJWT := JWTCheck(cfg, cache)
 

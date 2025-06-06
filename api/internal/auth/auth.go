@@ -23,16 +23,30 @@ type (
 	}
 )
 
+var errNilUserID = errors.New("got nil user id")
+
 // GetTokens ...
-func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (string, string, error) {
+func GetTokens(
+	cfg *config.Config,
+	cache cache.Provider,
+	user models.User,
+) (string, string, error) {
 	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user)
 
-	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.RefreshTTL)*time.Second)
+	setRefreshErr := cache.SetWithExpire(
+		refreshToken,
+		true,
+		time.Duration(cfg.RefreshTTL)*time.Second,
+	)
 	if setRefreshErr != nil {
 		slog.Error("error caching refresh token", "error", setRefreshErr)
 		return "", "", setRefreshErr
 	}
-	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.AccessTTL)*time.Second)
+	setAccessErr := cache.SetWithExpire(
+		accessToken,
+		refreshToken,
+		time.Duration(cfg.AccessTTL)*time.Second,
+	)
 	if setAccessErr != nil {
 		slog.Error("error caching refresh token", "error", setAccessErr)
 		return "", "", setAccessErr
@@ -42,7 +56,11 @@ func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (stri
 }
 
 // RefreshTokens ...
-func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string) (string, string, error) {
+func RefreshTokens(
+	cfg *config.Config,
+	cache cache.Provider,
+	refreshToken string,
+) (string, string, error) {
 	if _, err := cache.Get(refreshToken); err != nil {
 		slog.Error("error getting refresh token from cache", "error", err)
 		return "", "", err
@@ -57,13 +75,23 @@ func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string
 	userID, err := uuid.FromString(claims.ID)
 	if err != nil || userID == uuid.Nil {
 		if err == nil {
-			err = errors.New("got nil user id")
+			err = errNilUserID
 		}
-		slog.Error("error getting user id from claims", "userId", userID, "error", err)
+		slog.Error(
+			"error getting user id from claims",
+			"userId",
+			userID,
+			"error",
+			err,
+		)
 		return "", "", err
 	}
 
-	return GetTokens(cfg, cache, models.User{ID: userID, Username: claims.Username})
+	return GetTokens(
+		cfg,
+		cache,
+		models.User{ID: userID, Username: claims.Username},
+	)
 }
 
 // RemoveTokens ...
@@ -84,7 +112,11 @@ func RemoveTokens(cache cache.Provider, accessToken string) error {
 }
 
 // VerifyToken ...
-func VerifyToken(cfg *config.Config, cache cache.Provider, accessToken string) (*TokenClaims, error) {
+func VerifyToken(
+	cfg *config.Config,
+	cache cache.Provider,
+	accessToken string,
+) (*TokenClaims, error) {
 	_, err := cache.Get(accessToken)
 	if err != nil {
 		if !errors.Is(err, redis.Nil) {
@@ -102,14 +134,32 @@ func VerifyToken(cfg *config.Config, cache cache.Provider, accessToken string) (
 	return claims, nil
 }
 
-func GetAccessAndRefreshTokens(cfg *config.Config, user models.User) (string, string) {
-	return getSignedToken(cfg, user, "access"), getSignedToken(cfg, user, "refresh")
+func GetAccessAndRefreshTokens(
+	cfg *config.Config,
+	user models.User,
+) (string, string) {
+	return getSignedToken(
+			cfg,
+			user,
+			"access",
+		), getSignedToken(
+			cfg,
+			user,
+			"refresh",
+		)
 }
 
-func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) {
-	parsedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(*jwt.Token) (interface{}, error) {
-		return []byte(cfg.Secret), nil
-	})
+func getClaimsFromToken(
+	cfg *config.Config,
+	token string,
+) (*TokenClaims, error) {
+	parsedToken, err := jwt.ParseWithClaims(
+		token,
+		&TokenClaims{},
+		func(*jwt.Token) (interface{}, error) {
+			return []byte(cfg.Secret), nil
+		},
+	)
 	if err != nil || !parsedToken.Valid {
 		slog.Error("error parsing claims from token", "error", err)
 		return nil, err
@@ -124,7 +174,11 @@ func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) 
 	return claims, nil
 }
 
-func getSignedToken(cfg *config.Config, user models.User, subject string) string {
+func getSignedToken(
+	cfg *config.Config,
+	user models.User,
+	subject string,
+) string {
 	ttl := cfg.AccessTTL
 	if subject == "refresh" {
 		ttl = cfg.RefreshTTL
@@ -135,7 +189,9 @@ func getSignedToken(cfg *config.Config, user models.User, subject string) string
 		user.Username,
 		user.Features,
 		jwt.RegisteredClaims{
-			ExpiresAt: jwt.NewNumericDate(creationTime.Add(time.Duration(ttl) * time.Second)),
+			ExpiresAt: jwt.NewNumericDate(
+				creationTime.Add(time.Duration(ttl) * time.Second),
+			),
 			IssuedAt:  jwt.NewNumericDate(creationTime),
 			NotBefore: jwt.NewNumericDate(creationTime),
 			Issuer:    cfg.Issuer,

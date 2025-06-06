@@ -18,7 +18,15 @@ import (
 )
 
 var (
-	userCols  = []string{"id", "name", "username", "password", "features", "created_at", "updated_at"}
+	userCols = []string{
+		"id",
+		"name",
+		"username",
+		"password",
+		"features",
+		"created_at",
+		"updated_at",
+	}
 	albumCols = []string{
 		"id", "user_id", "name", "description", "is_shared", "is_hidden",
 		"mediaitems_count", "cover_mediaitem_id", "created_at", "updated_at",
@@ -66,7 +74,10 @@ func TestFeatureCheckForbidden(t *testing.T) {
 		req := httptest.NewRequest(http.MethodGet, "/v1/route", nil)
 		rec := httptest.NewRecorder()
 		checkFeature := FeatureCheck(cfg, feature)
-		server.GET("/v1/route", checkFeature(handler.(func(ctx echo.Context) error)))
+		server.GET(
+			"/v1/route",
+			checkFeature(handler.(func(ctx echo.Context) error)),
+		)
 		server.ServeHTTP(rec, req)
 		assert.Equal(t, http.StatusForbidden, rec.Code)
 	}
@@ -88,7 +99,12 @@ func TestFeatureCheckOK(t *testing.T) {
 		DB:     mockDB,
 	}
 	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+		WithArgs(
+			pgxmock.AnyArg(),
+			pgxmock.AnyArg(),
+			pgxmock.AnyArg(),
+			pgxmock.AnyArg(),
+		).
 		WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
 	featureHandlerMap := map[string]interface{}{
 		"albums": handler.GetAlbums,

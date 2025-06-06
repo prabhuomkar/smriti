@@ -34,44 +34,88 @@ type Service struct {
 	enabledComponents *[]api.MediaItemComponent
 }
 
+var errUploadingInvalidFilePath = errors.New("error uploading due to invalid file path")
+
 const (
-	queryGetUsers                           = `SELECT id FROM users`
-	querySaveMediaItemMetadata              = `UPDATE mediaitems SET creation_time=$3, camera_make=$4, camera_model=$5, focal_length=$6, aperture_fnumber=$7, iso_equivalent=$8, exposure_time=$9, fps=$10, latitude=$11, longitude=$12, exif_data=$13, mime_type=$14, mediaitem_type=$15, mediaitem_category=$16, width=$17, height=$18 WHERE user_id=$1 AND id=$2`
-	querySaveMediaItemPreviewThumbnail      = `UPDATE mediaitems SET status=$3, source_url=$4, placeholder=$5, preview_url=$6, thumbnail_url=$7 WHERE user_id=$1 AND id=$2`
-	querySavePlace                          = `INSERT INTO places (id, user_id, name, postcode, country, locality, area, is_hidden, cover_mediaitem_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (user_id, name, postcode) DO UPDATE SET cover_mediaitem_id=$9, updated_at=$11`
-	querySaveMediaItemPlace                 = `INSERT INTO place_mediaitems (mediaitem_id, place_id) VALUES ($1, $2) ON CONFLICT (mediaitem_id, place_id) DO NOTHING`
-	querySaveThing                          = `INSERT INTO things (id, user_id, name, is_hidden, cover_mediaitem_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7) ON CONFLICT (user_id, name) DO UPDATE SET cover_mediaitem_id=$5, updated_at=$7`
-	querySaveMediaItemThing                 = `INSERT INTO thing_mediaitems (mediaitem_id, thing_id) VALUES ($1, $2) ON CONFLICT (mediaitem_id, thing_id) DO NOTHING`
-	querySaveMediaItemFaces                 = `INSERT INTO mediaitem_faces (id, mediaitem_id, people_id, embedding, thumbnail) VALUES ($1, $2, $3, $4, $5) ON CONFLICT (mediaitem_id, people_id) DO UPDATE SET embedding=$4, thumbnail=$5`
-	queryGetMediaItemFaces                  = `SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces WHERE mediaitem_id IN (SELECT id FROM mediaitems WHERE user_id=$1 AND status=$2)`
-	querySaveMediaItemFinalResultKeywords   = `UPDATE mediaitems SET keywords=$3 WHERE user_id=$1 AND id=$2`
+	queryGetUsers              = `SELECT id FROM users`
+	querySaveMediaItemMetadata = `UPDATE mediaitems SET creation_time=$3, camera_make=$4, camera_model=$5,` +
+		` focal_length=$6, aperture_fnumber=$7, iso_equivalent=$8, exposure_time=$9, fps=$10, latitude=$11,` +
+		` longitude=$12, exif_data=$13, mime_type=$14, mediaitem_type=$15, mediaitem_category=$16, width=$17,` +
+		` height=$18 WHERE user_id=$1 AND id=$2`
+	querySaveMediaItemPreviewThumbnail = `UPDATE mediaitems SET status=$3, source_url=$4, placeholder=$5,` +
+		` preview_url=$6, thumbnail_url=$7 WHERE user_id=$1 AND id=$2`
+	querySavePlace = `INSERT INTO places (id, user_id, name, postcode, country,` +
+		` locality, area, is_hidden, cover_mediaitem_id, created_at, updated_at) VALUES` +
+		` ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11) ON CONFLICT (user_id, name, postcode)` +
+		` DO UPDATE SET cover_mediaitem_id=$9, updated_at=$11`
+	querySaveMediaItemPlace = `INSERT INTO place_mediaitems (mediaitem_id, place_id)` +
+		` VALUES ($1, $2) ON CONFLICT (mediaitem_id, place_id) DO NOTHING`
+	querySaveThing = `INSERT INTO things (id, user_id, name, is_hidden,` +
+		` cover_mediaitem_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)` +
+		` ON CONFLICT (user_id, name) DO UPDATE SET cover_mediaitem_id=$5, updated_at=$7`
+	querySaveMediaItemThing = `INSERT INTO thing_mediaitems (mediaitem_id, thing_id)` +
+		` VALUES ($1, $2) ON CONFLICT (mediaitem_id, thing_id) DO NOTHING`
+	querySaveMediaItemFaces = `INSERT INTO mediaitem_faces (id, mediaitem_id,` +
+		` people_id, embedding, thumbnail) VALUES ($1, $2, $3, $4, $5) ON CONFLICT` +
+		` (mediaitem_id, people_id) DO UPDATE SET embedding=$4, thumbnail=$5`
+	queryGetMediaItemFaces = `SELECT id, mediaitem_id, people_id,` +
+		` embedding FROM mediaitem_faces WHERE mediaitem_id IN` +
+		` (SELECT id FROM mediaitems WHERE user_id=$1 AND status=$2)`
+	querySaveMediaItemFinalResultKeywords = `UPDATE mediaitems SET keywords=$3 WHERE` +
+		` user_id=$1 AND id=$2`
 	querySaveMediaItemFinalResultEmbeddings = `INSERT INTO mediaitem_embeddings VALUES($1, $2)`
-	querySavePerson                         = `INSERT INTO people (id, user_id, name, is_hidden, cover_mediaitem_id, cover_mediaitem_face_id, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT(id) DO UPDATE cover_mediaitem_id=$5, cover_mediaitem_face_id=$6, updated_at=$8`
-	querySaveMediaItemPeople                = `INSERT INTO people_mediaitems (mediaitem_id, people_id) VALUES ($1, $2) ON CONFLICT (mediaitem_id, people_id) DO NOTHING`
-	querySaveMediaItemFacePeople            = `UPDATE mediaitem_faces SET people_id=$2 WHERE id=$1`
+	querySavePerson                         = `INSERT INTO people (id, user_id, name,` +
+		` is_hidden, cover_mediaitem_id, cover_mediaitem_face_id, created_at, updated_at)` +
+		` VALUES ($1, $2, $3, $4, $5, $6, $7, $8) ON CONFLICT(id) DO UPDATE cover_mediaitem_id=$5,` +
+		` cover_mediaitem_face_id=$6, updated_at=$8`
+	querySaveMediaItemPeople = `INSERT INTO people_mediaitems (mediaitem_id, people_id)` +
+		` VALUES ($1, $2) ON CONFLICT (mediaitem_id, people_id) DO NOTHING`
+	querySaveMediaItemFacePeople = `UPDATE mediaitem_faces SET people_id=$2 WHERE id=$1`
 )
 
-func Init(cfg *config.Config, db database.DBInterface, storage storage.Provider) *Service {
+func Init(
+	cfg *config.Config,
+	db database.DBInterface,
+	storage storage.Provider,
+) *Service {
 	enabledComponents := []api.MediaItemComponent{
 		api.MediaItemComponent_METADATA,
 	}
 	if len(cfg.PreviewThumbnailParams) > 0 {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_PREVIEW_THUMBNAIL)
+		enabledComponents = append(
+			enabledComponents,
+			api.MediaItemComponent_PREVIEW_THUMBNAIL,
+		)
 	}
 	if cfg.ML.Places {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_PLACES)
+		enabledComponents = append(
+			enabledComponents,
+			api.MediaItemComponent_PLACES,
+		)
 	}
 	if cfg.Classification {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_CLASSIFICATION)
+		enabledComponents = append(
+			enabledComponents,
+			api.MediaItemComponent_CLASSIFICATION,
+		)
 	}
 	if cfg.OCR {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_OCR)
+		enabledComponents = append(
+			enabledComponents,
+			api.MediaItemComponent_OCR,
+		)
 	}
 	if cfg.Search {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_SEARCH)
+		enabledComponents = append(
+			enabledComponents,
+			api.MediaItemComponent_SEARCH,
+		)
 	}
 	if cfg.Faces {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_FACES)
+		enabledComponents = append(
+			enabledComponents,
+			api.MediaItemComponent_FACES,
+		)
 	}
 
 	return &Service{
@@ -82,19 +126,37 @@ func Init(cfg *config.Config, db database.DBInterface, storage storage.Provider)
 	}
 }
 
-func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.ConfigResponse, error) {
+func (s *Service) GetWorkerConfig(
+	_ context.Context,
+	_ *emptypb.Empty,
+) (*api.ConfigResponse, error) {
 	type Component struct {
 		Name   string `json:"name"`
 		Source string `json:"source,omitempty"`
 		Params string `json:"params,omitempty"`
 	}
 	var components []Component
-	components = append(components, Component{Name: api.MediaItemComponent_METADATA.String()})
+	components = append(
+		components,
+		Component{Name: api.MediaItemComponent_METADATA.String()},
+	)
 	if len(s.Config.PreviewThumbnailParams) > 0 {
-		components = append(components, Component{Name: api.MediaItemComponent_PREVIEW_THUMBNAIL.String(), Params: s.Config.PreviewThumbnailParams})
+		components = append(
+			components,
+			Component{
+				Name:   api.MediaItemComponent_PREVIEW_THUMBNAIL.String(),
+				Params: s.Config.PreviewThumbnailParams,
+			},
+		)
 	}
 	if s.Config.ML.Places {
-		components = append(components, Component{Name: api.MediaItemComponent_PLACES.String(), Source: s.Config.PlacesProvider})
+		components = append(
+			components,
+			Component{
+				Name:   api.MediaItemComponent_PLACES.String(),
+				Source: s.Config.PlacesProvider,
+			},
+		)
 	}
 	if s.Config.Classification {
 		components = append(components, Component{
@@ -126,14 +188,21 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.Con
 	}
 	configBytes, err := json.Marshal(&components)
 	if err != nil {
-		return nil, status.Errorf(codes.Internal, "error parsing worker config: %s", err.Error())
+		return nil, status.Errorf(
+			codes.Internal,
+			"error parsing worker config: %s",
+			err.Error(),
+		)
 	}
 	return &api.ConfigResponse{
 		Config: configBytes,
 	}, nil
 }
 
-func (s *Service) GetMediaItemProcess(_ context.Context, _ *emptypb.Empty) (*api.MediaItemProcessResponse, error) {
+func (s *Service) GetMediaItemProcess(
+	_ context.Context,
+	_ *emptypb.Empty,
+) (*api.MediaItemProcessResponse, error) {
 	return &api.MediaItemProcessResponse{
 		UserId:     "",
 		Id:         "",
@@ -143,12 +212,19 @@ func (s *Service) GetMediaItemProcess(_ context.Context, _ *emptypb.Empty) (*api
 	}, nil
 }
 
-func (s *Service) GetUsers(ctx context.Context, _ *emptypb.Empty) (*api.GetUsersResponse, error) {
+func (s *Service) GetUsers(
+	ctx context.Context,
+	_ *emptypb.Empty,
+) (*api.GetUsersResponse, error) {
 	var userUUIDs []uuid.UUID
 	rows, err := s.DB.Query(ctx, queryGetUsers)
 	if err != nil {
 		slog.Error("error getting users", "error", err)
-		return nil, status.Errorf(codes.Internal, "error getting users: %s", err.Error())
+		return nil, status.Errorf(
+			codes.Internal,
+			"error getting users: %s",
+			err.Error(),
+		)
 	}
 
 	defer rows.Close()
@@ -156,7 +232,11 @@ func (s *Service) GetUsers(ctx context.Context, _ *emptypb.Empty) (*api.GetUsers
 		var userUUID uuid.UUID
 		if err := rows.Scan(&userUUID); err != nil {
 			slog.Error("error scanning user", "error", err)
-			return nil, status.Errorf(codes.Internal, "error scanning user UUID: %s", err.Error())
+			return nil, status.Errorf(
+				codes.Internal,
+				"error scanning user UUID: %s",
+				err.Error(),
+			)
 		}
 		userUUIDs = append(userUUIDs, userUUID)
 	}
@@ -171,24 +251,44 @@ func (s *Service) GetUsers(ctx context.Context, _ *emptypb.Empty) (*api.GetUsers
 	}, nil
 }
 
-func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) {
+func (s *Service) SaveMediaItemMetadata(
+	ctx context.Context,
+	req *api.MediaItemMetadataRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem id",
+		)
 	}
-	slog.Info("saving mediaitem metadata", "userId", req.UserId, "mediaitem", req.Id, "body", req.String())
+	slog.Info(
+		"saving mediaitem metadata",
+		"user",
+		req.UserId,
+		"mediaitem",
+		req.Id,
+		"body",
+		req.String(),
+	)
 	creationTime := time.Now()
 	if req.CreationTime != nil {
 		creationTime, err = time.Parse("2006-01-02 15:04:05", *req.CreationTime)
 		if err != nil {
 			slog.Error("error getting mediaitem creation time", "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time")
+			return &emptypb.Empty{}, status.Errorf(
+				codes.InvalidArgument,
+				"invalid mediaitem creation time",
+			)
 		}
 	}
 
@@ -196,78 +296,203 @@ func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemM
 		UserID: userID, ID: uid, CreationTime: creationTime,
 	}
 	parseMediaItem(&mediaItem, req)
-	result, err := s.DB.Exec(ctx, querySaveMediaItemMetadata, userID, uid, mediaItem.CreationTime,
-		mediaItem.CameraMake, mediaItem.CameraModel, mediaItem.FocalLength, mediaItem.ApertureFnumber, mediaItem.IsoEquivalent,
-		mediaItem.ExposureTime, mediaItem.FPS, mediaItem.Latitude, mediaItem.Longitude, mediaItem.EXIFData, mediaItem.MimeType,
-		mediaItem.MediaItemType, mediaItem.MediaItemCategory, mediaItem.Width, mediaItem.Height)
-	if !result.Update() || err != nil {
+	_, err = s.DB.Exec(
+		ctx,
+		querySaveMediaItemMetadata,
+		userID,
+		uid,
+		mediaItem.CreationTime,
+		mediaItem.CameraMake,
+		mediaItem.CameraModel,
+		mediaItem.FocalLength,
+		mediaItem.ApertureFnumber,
+		mediaItem.IsoEquivalent,
+		mediaItem.ExposureTime,
+		mediaItem.FPS,
+		mediaItem.Latitude,
+		mediaItem.Longitude,
+		mediaItem.EXIFData,
+		mediaItem.MimeType,
+		mediaItem.MediaItemType,
+		mediaItem.MediaItemCategory,
+		mediaItem.Width,
+		mediaItem.Height,
+	)
+	if err != nil {
 		slog.Error("error saving mediaitem metadata", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", err.Error())
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error updating mediaitem result: %s",
+			err.Error(),
+		)
 	}
-	slog.Info("saved metadata for mediaitem", "userId", userID.String(), "mediaitem", mediaItem.ID.String())
+	slog.Info(
+		"saved metadata for mediaitem",
+		"user",
+		userID.String(),
+		"mediaitem",
+		mediaItem.ID.String(),
+	)
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemPreviewThumbnail(ctx context.Context, req *api.MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error) { //nolint: cyclop
+//nolint:cyclop
+func (s *Service) SaveMediaItemPreviewThumbnail(
+	ctx context.Context,
+	req *api.MediaItemPreviewThumbnailRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem id",
+		)
 	}
-	slog.Info("saving preview and thumbnail for mediaitem", "userId", req.UserId, "mediaitem", req.Id, "body", req.String())
+	slog.Info(
+		"saving preview and thumbnail for mediaitem",
+		"user",
+		req.UserId,
+		"mediaitem",
+		req.Id,
+		"body",
+		req.String(),
+	)
 	mediaItemUpdates := map[string]interface{}{
 		"status": req.Status,
 	}
 	if req.SourcePath != nil {
-		mediaItemUpdates["source_url"], err = uploadFile(s.Storage, *req.SourcePath, "originals", req.Id)
+		mediaItemUpdates["source_url"], err = uploadFile(
+			s.Storage,
+			*req.SourcePath,
+			"originals",
+			req.Id,
+		)
 		if err != nil {
-			slog.Error("error uploading original file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading original file")
+			slog.Error(
+				"error uploading original file for mediaitem",
+				"id",
+				req.Id,
+				"error",
+				err,
+			)
+			return &emptypb.Empty{}, status.Error(
+				codes.Internal,
+				"error uploading original file",
+			)
 		}
 	}
 	if req.Placeholder != nil {
 		mediaItemUpdates["placeholder"] = *req.Placeholder
 	}
 	if req.PreviewPath != nil {
-		mediaItemUpdates["preview_url"], err = uploadFile(s.Storage, *req.PreviewPath, "previews", req.Id)
+		mediaItemUpdates["preview_url"], err = uploadFile(
+			s.Storage,
+			*req.PreviewPath,
+			"previews",
+			req.Id,
+		)
 		if err != nil {
-			slog.Error("error uploading preview file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading preview file")
+			slog.Error(
+				"error uploading preview file for mediaitem",
+				"id",
+				req.Id,
+				"error",
+				err,
+			)
+			return &emptypb.Empty{}, status.Error(
+				codes.Internal,
+				"error uploading preview file",
+			)
 		}
 	}
 	if req.ThumbnailPath != nil {
-		mediaItemUpdates["thumbnail_url"], err = uploadFile(s.Storage, *req.ThumbnailPath, "thumbnails", req.Id)
+		mediaItemUpdates["thumbnail_url"], err = uploadFile(
+			s.Storage,
+			*req.ThumbnailPath,
+			"thumbnails",
+			req.Id,
+		)
 		if err != nil {
-			slog.Error("error uploading thumbnail file for mediaitem", "id", req.Id, "error", err)
-			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
+			slog.Error(
+				"error uploading thumbnail file for mediaitem",
+				"id",
+				req.Id,
+				"error",
+				err,
+			)
+			return &emptypb.Empty{}, status.Error(
+				codes.Internal,
+				"error uploading thumbnail file",
+			)
 		}
 	}
-	result, err := s.DB.Exec(ctx, querySaveMediaItemPreviewThumbnail, userID, uid, models.StatusReady, mediaItemUpdates["source_url"], mediaItemUpdates["placeholder"], mediaItemUpdates["preview_url"], mediaItemUpdates["thumbnail_url"])
-	if !result.Update() || err != nil {
+	_, err = s.DB.Exec(
+		ctx,
+		querySaveMediaItemPreviewThumbnail,
+		userID,
+		uid,
+		models.StatusReady,
+		mediaItemUpdates["source_url"],
+		mediaItemUpdates["placeholder"],
+		mediaItemUpdates["preview_url"],
+		mediaItemUpdates["thumbnail_url"],
+	)
+	if err != nil {
 		slog.Error("error saving mediaitem preview and thumbnail", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error updating mediaitem result: %s", err.Error())
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error updating mediaitem result: %s",
+			err.Error(),
+		)
 	}
-	slog.Info("saved preview and thumbnail for mediaitem", "userId", userID.String(), "mediaitem", uid.String())
+	slog.Info(
+		"saved preview and thumbnail for mediaitem",
+		"user",
+		userID.String(),
+		"mediaitem",
+		uid.String(),
+	)
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlaceRequest) (*emptypb.Empty, error) {
+func (s *Service) SaveMediaItemPlace(
+	ctx context.Context,
+	req *api.MediaItemPlaceRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem id",
+		)
 	}
-	slog.Info("saving mediaitem place", "userId", req.UserId, "mediaitem", req.Id, "body", req.String())
+	slog.Info(
+		"saving mediaitem place",
+		"user",
+		req.UserId,
+		"mediaitem",
+		req.Id,
+		"body",
+		req.String(),
+	)
 	place := models.Place{
 		UserID:   userID,
 		Postcode: req.Postcode,
@@ -280,16 +505,38 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 	place.UpdatedAt = place.CreatedAt
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
-		slog.Error("error starting transaction for saving mediaitem place", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error starting transaction for saving mediaitem place: %s", err.Error())
+		slog.Error(
+			"error starting transaction for saving mediaitem place",
+			"error",
+			err,
+		)
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error starting transaction for saving mediaitem place: %s",
+			err.Error(),
+		)
 	}
 	defer func() {
 		if err != nil {
 			_ = tx.Rollback(ctx)
 		}
 	}()
-	result, err := tx.Exec(ctx, querySavePlace, uid, userID, place.Name, place.Postcode, place.Country, place.Locality, place.Area, false, uid, place.CreatedAt, place.UpdatedAt)
-	if result.RowsAffected() == 0 || err != nil {
+	_, err = tx.Exec(
+		ctx,
+		querySavePlace,
+		uid,
+		userID,
+		place.Name,
+		place.Postcode,
+		place.Country,
+		place.Locality,
+		place.Area,
+		false,
+		uid,
+		place.CreatedAt,
+		place.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error saving place", "error", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal,
 			"error saving place: %s", err.Error())
@@ -297,28 +544,56 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 	_, err = tx.Exec(ctx, querySaveMediaItemPlace, uid, place.ID)
 	if err != nil {
 		slog.Error("error saving mediaitem place", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem place: %s", err.Error())
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error saving mediaitem place: %s",
+			err.Error(),
+		)
 	}
 	if err = tx.Commit(ctx); err != nil {
-		slog.Error("error committing transaction for saving mediaitem place", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error committing transaction for saving mediaitem place: %s", err.Error())
+		slog.Error(
+			"error committing transaction for saving mediaitem place",
+			"error",
+			err,
+		)
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error committing transaction for saving mediaitem place: %s",
+			err.Error(),
+		)
 	}
-	slog.Info("saved place for mediaitem", "userId", userID.String(), "mediaitem", uid.String())
+	slog.Info(
+		"saved place for mediaitem",
+		"user",
+		userID.String(),
+		"mediaitem",
+		uid.String(),
+	)
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThingRequest) (*emptypb.Empty, error) {
+func (s *Service) SaveMediaItemThing(
+	ctx context.Context,
+	req *api.MediaItemThingRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem id",
+		)
 	}
-	slog.Info("saving mediaitem thing", "userId", req.UserId, "mediaitem", req.Id, "body", req.String())
+	slog.Info("saving mediaitem thing", "user", req.UserId, "mediaitem", req.Id,
+		"body", req.String())
 	thing := models.Thing{
 		UserID: userID,
 		Name:   req.Name,
@@ -327,16 +602,34 @@ func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThin
 	thing.UpdatedAt = thing.CreatedAt
 	tx, err := s.DB.Begin(ctx)
 	if err != nil {
-		slog.Error("error starting transaction for saving mediaitem thing", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error starting transaction for saving mediaitem thing: %s", err.Error())
+		slog.Error(
+			"error starting transaction for saving mediaitem thing",
+			"error",
+			err,
+		)
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error starting transaction for saving mediaitem thing: %s",
+			err.Error(),
+		)
 	}
 	defer func() {
 		if err != nil {
 			_ = tx.Rollback(ctx)
 		}
 	}()
-	result, err := tx.Exec(ctx, querySaveThing, thing.ID, thing.UserID, thing.Name, false, uid, thing.CreatedAt, thing.UpdatedAt)
-	if result.RowsAffected() == 0 || err != nil {
+	_, err = tx.Exec(
+		ctx,
+		querySaveThing,
+		thing.ID,
+		thing.UserID,
+		thing.Name,
+		false,
+		uid,
+		thing.CreatedAt,
+		thing.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error saving thing", "error", err)
 		return &emptypb.Empty{}, status.Errorf(codes.Internal,
 			"error saving thing: %s", err.Error())
@@ -344,28 +637,55 @@ func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThin
 	_, err = tx.Exec(ctx, querySaveMediaItemThing, uid, thing.ID)
 	if err != nil {
 		slog.Error("error saving mediaitem thing", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem thing: %s", err.Error())
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error saving mediaitem thing: %s",
+			err.Error(),
+		)
 	}
 	if err = tx.Commit(ctx); err != nil {
-		slog.Error("error committing transaction for saving mediaitem thing", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.Internal, "error committing transaction for saving mediaitem thing: %s", err.Error())
+		slog.Error(
+			"error committing transaction for saving mediaitem thing",
+			"error",
+			err,
+		)
+		return &emptypb.Empty{}, status.Errorf(
+			codes.Internal,
+			"error committing transaction for saving mediaitem thing: %s",
+			err.Error(),
+		)
 	}
-	slog.Info("saved thing for mediaitem", "userId", userID.String(), "mediaitem", uid.String())
+	slog.Info(
+		"saved thing for mediaitem",
+		"user",
+		userID.String(),
+		"mediaitem",
+		uid.String(),
+	)
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFacesRequest) (*emptypb.Empty, error) {
+func (s *Service) SaveMediaItemFaces(
+	ctx context.Context,
+	req *api.MediaItemFacesRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem id",
+		)
 	}
-	slog.Info("saving mediaitem faces", "userId", req.UserId, "mediaitem", req.Id)
+	slog.Info("saving mediaitem faces", "user", req.UserId, "mediaitem", req.Id)
 
 	mediaItemFaces := make([]models.MediaitemFace, len(req.GetEmbeddings()))
 	faceThumbnails := req.GetThumbnails()
@@ -378,37 +698,75 @@ func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFace
 		}
 	}
 	for idx, mediaItemFace := range mediaItemFaces {
-		result, err := s.DB.Exec(ctx, querySaveMediaItemFaces, mediaItemFace.ID, mediaItemFace.MediaitemID, nil, mediaItemFace.Embedding, mediaItemFace.Thumbnail)
-		if result.RowsAffected() == 0 || err != nil {
+		_, err = s.DB.Exec(
+			ctx,
+			querySaveMediaItemFaces,
+			mediaItemFace.ID,
+			mediaItemFace.MediaitemID,
+			nil,
+			mediaItemFace.Embedding,
+			mediaItemFace.Thumbnail,
+		)
+		if err != nil {
 			slog.Error("error saving mediaitem faces", "idx", idx, "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem faces: %s", err.Error())
+			return &emptypb.Empty{}, status.Errorf(
+				codes.Internal,
+				"error saving mediaitem faces: %s",
+				err.Error(),
+			)
 		}
 	}
 
-	slog.Info("saved faces for mediaitem", "userId", userID.String(), "mediaitem", uid.String())
+	slog.Info(
+		"saved faces for mediaitem",
+		"user",
+		userID.String(),
+		"mediaitem",
+		uid.String(),
+	)
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context, req *api.MediaItemFaceEmbeddingsRequest) (*api.MediaItemFaceEmbeddingsResponse, error) {
+func (s *Service) GetMediaItemFaceEmbeddings(
+	ctx context.Context,
+	req *api.MediaItemFaceEmbeddingsRequest,
+) (*api.MediaItemFaceEmbeddingsResponse, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return nil, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
-	slog.Info("getting mediaitem face embeddings", "userId", req.UserId)
+	slog.Info("getting mediaitem face embeddings", "user", req.UserId)
 
 	mediaItemFaces := []models.MediaitemFace{}
-	rows, err := s.DB.Query(ctx, queryGetMediaItemFaces, userID, models.StatusReady)
+	rows, err := s.DB.Query(
+		ctx,
+		queryGetMediaItemFaces,
+		userID,
+		models.StatusReady,
+	)
 	if err != nil {
 		slog.Error("error getting mediaitem face embeddings", "error", err)
-		return nil, status.Errorf(codes.Internal, "error getting mediaitem face embeddings: %s", err.Error())
+		return nil, status.Errorf(
+			codes.Internal,
+			"error getting mediaitem face embeddings: %s",
+			err.Error(),
+		)
 	}
 	defer rows.Close()
 	for rows.Next() {
 		var mediaItemFace models.MediaitemFace
-		if err := rows.Scan(&mediaItemFace.ID, &mediaItemFace.MediaitemID, &mediaItemFace.PeopleID, &mediaItemFace.Embedding); err != nil {
+		if err := rows.Scan(&mediaItemFace.ID, &mediaItemFace.MediaitemID, &mediaItemFace.PeopleID,
+			&mediaItemFace.Embedding); err != nil {
 			slog.Error("error scanning mediaitem face embedding", "error", err)
-			return nil, status.Errorf(codes.Internal, "error scanning mediaitem face embedding: %s", err.Error())
+			return nil, status.Errorf(
+				codes.Internal,
+				"error scanning mediaitem face embedding: %s",
+				err.Error(),
+			)
 		}
 		mediaItemFaces = append(mediaItemFaces, mediaItemFace)
 	}
@@ -420,12 +778,17 @@ func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context, req *api.Media
 			MediaItemId: mediaItemFace.MediaitemID.String(),
 		}
 		if mediaItemFace.Embedding != nil {
-			mediaItemFaceEmbedding.Embedding = &api.MediaItemEmbedding{Embedding: mediaItemFace.Embedding.Slice()}
+			mediaItemFaceEmbedding.Embedding = &api.MediaItemEmbedding{
+				Embedding: mediaItemFace.Embedding.Slice(),
+			}
 		}
 		if mediaItemFace.PeopleID != nil {
 			mediaItemFaceEmbedding.PeopleId = mediaItemFace.PeopleID.String()
 		}
-		mediaItemFaceEmbeddings = append(mediaItemFaceEmbeddings, mediaItemFaceEmbedding)
+		mediaItemFaceEmbeddings = append(
+			mediaItemFaceEmbeddings,
+			mediaItemFaceEmbedding,
+		)
 	}
 
 	return &api.MediaItemFaceEmbeddingsResponse{
@@ -433,13 +796,20 @@ func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context, req *api.Media
 	}, nil
 }
 
-func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeopleRequest) (*emptypb.Empty, error) { //nolint:gocognit,funlen,cyclop
+//nolint:gocognit,cyclop
+func (s *Service) SaveMediaItemPeople(
+	ctx context.Context,
+	req *api.MediaItemPeopleRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
-	slog.Info("saving mediaitem people", "userId", req.UserId)
+	slog.Info("saving mediaitem people", "user", req.UserId)
 
 	peopleWithFaces := map[uuid.UUID][]uuid.UUID{}
 	peopleWithMediaItems := map[uuid.UUID][]uuid.UUID{}
@@ -448,17 +818,31 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 		mediaItemID, err := uuid.FromString(reqMediaItem)
 		if err != nil {
 			slog.Error("error getting mediaitem id", "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+			return &emptypb.Empty{}, status.Errorf(
+				codes.InvalidArgument,
+				"invalid mediaitem id",
+			)
 		}
 		for reqFace, reqPeople := range reqFacePeople.GetFacePeople() {
 			faceID, err := uuid.FromString(reqFace)
 			if err != nil {
 				slog.Error("error getting face id", "error", err)
-				return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid face id")
+				return &emptypb.Empty{}, status.Errorf(
+					codes.InvalidArgument,
+					"invalid face id",
+				)
 			}
 			peopleID, err := uuid.FromString(reqPeople)
 			if err != nil {
-				slog.Warn("error getting people id", "faceId", faceID, "peopleId", reqPeople, "error", err)
+				slog.Warn(
+					"error getting people id",
+					"faceId",
+					faceID,
+					"peopleId",
+					reqPeople,
+					"error",
+					err,
+				)
 				createdPeopleID, ok := peopleIdxUUIDs[reqPeople]
 				if !ok {
 					peopleID = uuid.NewV4()
@@ -469,13 +853,19 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 			peopleIdxUUIDs[reqPeople] = peopleID
 			_, idxOk := peopleWithFaces[peopleID]
 			if idxOk {
-				peopleWithFaces[peopleID] = append(peopleWithFaces[peopleID], faceID)
+				peopleWithFaces[peopleID] = append(
+					peopleWithFaces[peopleID],
+					faceID,
+				)
 			} else {
 				peopleWithFaces[peopleID] = []uuid.UUID{faceID}
 			}
 			_, idxOk = peopleWithMediaItems[peopleID]
 			if idxOk {
-				peopleWithMediaItems[peopleID] = append(peopleWithMediaItems[peopleID], mediaItemID)
+				peopleWithMediaItems[peopleID] = append(
+					peopleWithMediaItems[peopleID],
+					mediaItemID,
+				)
 			} else {
 				peopleWithMediaItems[peopleID] = []uuid.UUID{mediaItemID}
 			}
@@ -496,108 +886,244 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 		people.UpdatedAt = people.CreatedAt
 		tx, err := s.DB.Begin(ctx)
 		if err != nil {
-			slog.Error("error starting transaction for saving mediaitem people", "idx", idx, "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error starting transaction for saving mediaitem people: %s", err.Error())
+			slog.Error(
+				"error starting transaction for saving mediaitem people",
+				"idx",
+				idx,
+				"error",
+				err,
+			)
+			return &emptypb.Empty{}, status.Errorf(
+				codes.Internal,
+				"error starting transaction for saving mediaitem people: %s",
+				err.Error(),
+			)
 		}
 		defer func() {
 			if err != nil {
 				_ = tx.Rollback(ctx)
 			}
 		}()
-		result, err := tx.Exec(ctx, querySavePerson, peopleID, userID, people.Name, people.IsHidden, people.CoverMediaItemID, people.CoverMediaItemFaceID, people.CreatedAt, people.UpdatedAt)
-		if result.RowsAffected() == 0 || err != nil {
+		_, err = tx.Exec(
+			ctx,
+			querySavePerson,
+			peopleID,
+			userID,
+			people.Name,
+			people.IsHidden,
+			people.CoverMediaItemID,
+			people.CoverMediaItemFaceID,
+			people.CreatedAt,
+			people.UpdatedAt,
+		)
+		if err != nil {
 			slog.Error("error saving people", "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving people: %s", err.Error())
+			return &emptypb.Empty{}, status.Errorf(
+				codes.Internal,
+				"error saving people: %s",
+				err.Error(),
+			)
 		}
 		for midx, mediaItemID := range peopleWithMediaItems[peopleID] {
-			result, err := tx.Exec(ctx, querySaveMediaItemPeople, mediaItemID, peopleID)
-			if result.RowsAffected() == 0 || err != nil {
-				slog.Error("error saving people mediaitems", "idx", idx, "mediaItemIdx", midx, "error", err)
-				return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving people mediaitems: %s", err.Error())
+			_, err = tx.Exec(
+				ctx,
+				querySaveMediaItemPeople,
+				mediaItemID,
+				peopleID,
+			)
+			if err != nil {
+				slog.Error(
+					"error saving people mediaitems",
+					"idx",
+					idx,
+					"mediaItemIdx",
+					midx,
+					"error",
+					err,
+				)
+				return &emptypb.Empty{}, status.Errorf(
+					codes.Internal,
+					"error saving people mediaitems: %s",
+					err.Error(),
+				)
 			}
 		}
 		for fidx, faceID := range peopleWithFaces[peopleID] {
-			result, err := tx.Exec(ctx, querySaveMediaItemFacePeople, faceID, peopleID)
-			if result.RowsAffected() == 0 || err != nil {
-				slog.Error("error saving mediaitem faces", "idx", idx, "faceIdx", fidx, "error", err)
-				return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem faces: %s", err.Error())
+			_, err = tx.Exec(
+				ctx,
+				querySaveMediaItemFacePeople,
+				faceID,
+				peopleID,
+			)
+			if err != nil {
+				slog.Error(
+					"error saving mediaitem faces",
+					"idx",
+					idx,
+					"faceIdx",
+					fidx,
+					"error",
+					err,
+				)
+				return &emptypb.Empty{}, status.Errorf(
+					codes.Internal,
+					"error saving mediaitem faces: %s",
+					err.Error(),
+				)
 			}
 		}
 		if err = tx.Commit(ctx); err != nil {
-			slog.Error("error committing transaction for saving mediaitem people", "idx", idx, "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error committing transaction for saving mediaitem people: %s", err.Error())
+			slog.Error(
+				"error committing transaction for saving mediaitem people",
+				"idx",
+				idx,
+				"error",
+				err,
+			)
+			return &emptypb.Empty{}, status.Errorf(
+				codes.Internal,
+				"error committing transaction for saving mediaitem people: %s",
+				err.Error(),
+			)
 		}
 	}
 
-	slog.Info("saved people for mediaitem", "userId", userID.String())
+	slog.Info("saved people for mediaitem", "user", userID.String())
 	return &emptypb.Empty{}, nil
 }
 
-func (s *Service) SaveMediaItemFinalResult(ctx context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) { //nolint:cyclop,funlen,gocognit
+//nolint:gocognit,cyclop
+func (s *Service) SaveMediaItemFinalResult(
+	ctx context.Context,
+	req *api.MediaItemFinalResultRequest,
+) (*emptypb.Empty, error) {
 	userID, err := uuid.FromString(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem user id",
+		)
 	}
 	uid, err := uuid.FromString(req.Id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
-		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
+		return &emptypb.Empty{}, status.Errorf(
+			codes.InvalidArgument,
+			"invalid mediaitem id",
+		)
 	}
-	slog.Info("saving final mediaitem result", "userId", req.UserId, "mediaitem", req.Id)
+	slog.Info(
+		"saving final mediaitem result",
+		"user",
+		req.UserId,
+		"mediaitem",
+		req.Id,
+	)
 
 	if len(req.GetKeywords()) > 0 {
-		result, err := s.DB.Exec(ctx, querySaveMediaItemFinalResultKeywords, userID, uid, req.GetKeywords())
-		if !result.Update() || err != nil {
+		_, err = s.DB.Exec(
+			ctx,
+			querySaveMediaItemFinalResultKeywords,
+			userID,
+			uid,
+			req.GetKeywords(),
+		)
+		if err != nil {
 			slog.Error("error saving mediaitem keywords", "error", err)
-			return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result keywords: %s", err.Error())
+			return &emptypb.Empty{}, status.Errorf(
+				codes.Internal,
+				"error saving mediaitem final result keywords: %s",
+				err.Error(),
+			)
 		}
 	}
 
 	if len(req.GetEmbeddings()) > 0 {
 		for idx, reqEmbedding := range req.GetEmbeddings() {
 			mediaItemEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
-			result, err := s.DB.Exec(ctx, querySaveMediaItemFinalResultEmbeddings, uid, mediaItemEmbedding)
-			if result.RowsAffected() == 0 || err != nil {
-				slog.Error("error saving mediaitem embedding", "idx", idx, "error", err)
-				return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving mediaitem final result embedding: %s", err.Error())
+			_, err = s.DB.Exec(
+				ctx,
+				querySaveMediaItemFinalResultEmbeddings,
+				uid,
+				mediaItemEmbedding,
+			)
+			if err != nil {
+				slog.Error(
+					"error saving mediaitem embedding",
+					"idx",
+					idx,
+					"error",
+					err,
+				)
+				return &emptypb.Empty{}, status.Errorf(
+					codes.Internal,
+					"error saving mediaitem final result embedding: %s",
+					err.Error(),
+				)
 			}
 		}
 	}
 
 	defer func() {
-		err := filepath.WalkDir(s.Config.DiskRoot, func(path string, d os.DirEntry, err error) error {
-			if err != nil {
-				slog.Error("error iterating over directory for mediaitem", "mediaitem", req.Id, "error", err)
-				return err
-			}
-			if !d.IsDir() && strings.Contains(d.Name(), req.Id) && filepath.Dir(path) == s.Config.DiskRoot {
-				// acquire lock to check if not copied
-				for {
-					slog.Debug("deleting file", "path", path)
-					file, err := os.Open(path)
-					if err != nil {
-						continue
-					}
-					if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
-						continue
-					}
-					if err = os.Remove(path); err != nil {
-						return fmt.Errorf("error removing file for mediaitem %s: %w", req.Id, err)
-					}
-					break
+		err := filepath.WalkDir(
+			s.Config.DiskRoot,
+			func(path string, d os.DirEntry, err error) error {
+				if err != nil {
+					slog.Error(
+						"error iterating over directory for mediaitem",
+						"mediaitem",
+						req.Id,
+						"error",
+						err,
+					)
+					return err
 				}
-			}
-			return nil
-		})
+				if !d.IsDir() && strings.Contains(d.Name(), req.Id) &&
+					filepath.Dir(path) == s.Config.DiskRoot {
+					// acquire lock to check if not copied
+					for {
+						slog.Debug("deleting file", "path", path)
+						file, err := os.Open(path)
+						if err != nil {
+							continue
+						}
+						if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
+							continue
+						}
+						if err = os.Remove(path); err != nil {
+							return fmt.Errorf(
+								"error removing file for mediaitem %s: %w",
+								req.Id,
+								err,
+							)
+						}
+						break
+					}
+				}
+				return nil
+			},
+		)
 		if err != nil {
-			slog.Error("error clearing the files for mediaitem", "mediaitem", req.Id, "error", err)
+			slog.Error(
+				"error clearing the files for mediaitem",
+				"mediaitem",
+				req.Id,
+				"error",
+				err,
+			)
 		} else {
 			slog.Debug("cleared the files for mediaitem", "mediaitem", req.Id)
 		}
 	}()
 
-	slog.Info("saved final mediaitem result", "userId", userID.String(), "mediaitem", uid.String())
+	slog.Info(
+		"saved final mediaitem result",
+		"user",
+		userID.String(),
+		"mediaitem",
+		uid.String(),
+	)
 	return &emptypb.Empty{}, nil
 }
 
@@ -611,7 +1137,10 @@ func getNameForPlace(place models.Place) string {
 	return *place.Country
 }
 
-func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {
+func parseMediaItem(
+	mediaItem *models.MediaItem,
+	req *api.MediaItemMetadataRequest,
+) {
 	mediaItem.Status = models.MediaItemStatus(req.Status)
 	mediaItem.CameraMake = req.CameraMake
 	mediaItem.CameraModel = req.CameraModel
@@ -636,9 +1165,12 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	}
 }
 
-func uploadFile(provider storage.Provider, filePath, fileType, fileID string) (string, error) {
+func uploadFile(
+	provider storage.Provider,
+	filePath, fileType, fileID string,
+) (string, error) {
 	if len(filePath) == 0 {
-		return "", errors.New("error uploading due to invalid file path")
+		return "", errUploadingInvalidFilePath
 	}
 	return provider.Upload(filePath, fileType, fileID)
 }

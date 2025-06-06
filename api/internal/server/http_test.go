@@ -9,7 +9,9 @@ import (
 )
 
 func TestStartStopHTTPServer(t *testing.T) {
-	handler := &handlers.Handler{Config: &config.Config{Storage: config.Storage{Provider: "disk"}}}
+	handler := &handlers.Handler{
+		Config: &config.Config{Storage: config.Storage{Provider: "disk"}},
+	}
 	srv := StartHTTPServer(handler)
 	defer srv.Close()
 	assert.NotNil(t, srv)
@@ -51,7 +53,11 @@ func TestGetMiddlewareFuncs(t *testing.T) {
 	}
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
-			middlewareFuncs := getMiddlewareFuncs(mockConfig, nil, tc.JWTCheck, tc.Features...)
+			middlewareFuncs := getMiddlewareFuncs(
+				mockConfig,
+				nil,
+				tc.JWTCheck,
+				tc.Features...)
 			assert.Equal(t, tc.ExpectedLen, len(middlewareFuncs))
 		})
 	}

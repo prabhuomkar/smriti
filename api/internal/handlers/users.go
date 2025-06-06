@@ -28,8 +28,10 @@ type (
 const (
 	queryGetUser    = `SELECT * FROM users WHERE id=$1`
 	queryGetUsers   = `SELECT * FROM users ORDER BY created_at DESC OFFSET $1 LIMIT $2`
-	queryCreateUser = `INSERT INTO users (id, name, username, password, features, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7)`
-	queryUpdateUser = `UPDATE users SET name = $2, username = $3, password = $4, features = $5, updated_at = $6 WHERE id=$1`
+	queryCreateUser = `INSERT INTO users (id, name, username, password, features, created_at, updated_at)` +
+		` VALUES ($1, $2, $3, $4, $5, $6, $7)`
+	queryUpdateUser = `UPDATE users SET name = $2, username = $3, password = $4, features = $5,` +
+		` updated_at = $6 WHERE id=$1`
 	queryDeleteUser = `DELETE FROM users WHERE id=$1`
 )
 
@@ -41,7 +43,14 @@ func (h *Handler) GetUser(ctx echo.Context) error {
 	}
 	user := models.User{}
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetUser, uid).Scan(
-		&user.ID, &user.Name, &user.Username, &user.Password, &user.Features, &user.CreatedAt, &user.UpdatedAt)
+		&user.ID,
+		&user.Name,
+		&user.Username,
+		&user.Password,
+		&user.Features,
+		&user.CreatedAt,
+		&user.UpdatedAt,
+	)
 	if err != nil {
 		slog.Error("error getting user", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -64,8 +73,17 @@ func (h *Handler) UpdateUser(ctx echo.Context) error {
 	}
 	user.ID = uid
 	user.UpdatedAt = time.Now()
-	result, err := h.DB.Exec(ctx.Request().Context(), queryUpdateUser, user.ID, user.Name, user.Username, user.Password, user.Features, user.UpdatedAt)
-	if !result.Update() || err != nil {
+	_, err = h.DB.Exec(
+		ctx.Request().Context(),
+		queryUpdateUser,
+		user.ID,
+		user.Name,
+		user.Username,
+		user.Password,
+		user.Features,
+		user.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error updating user", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -78,8 +96,8 @@ func (h *Handler) DeleteUser(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	result, err := h.DB.Exec(ctx.Request().Context(), queryDeleteUser, uid)
-	if !result.Delete() || err != nil {
+	_, err = h.DB.Exec(ctx.Request().Context(), queryDeleteUser, uid)
+	if err != nil {
 		slog.Error("error deleting user", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -90,7 +108,12 @@ func (h *Handler) DeleteUser(ctx echo.Context) error {
 func (h *Handler) GetUsers(ctx echo.Context) error {
 	offset, limit := getOffsetAndLimit(ctx)
 	users := []models.User{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetUsers, offset, limit)
+	rows, err := h.DB.Query(
+		ctx.Request().Context(),
+		queryGetUsers,
+		offset,
+		limit,
+	)
 	if err != nil {
 		slog.Error("error getting users", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -100,7 +123,10 @@ func (h *Handler) GetUsers(ctx echo.Context) error {
 		user := models.User{}
 		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Features, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			slog.Error("error scanning user", "error", err)
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+			return echo.NewHTTPError(
+				http.StatusInternalServerError,
+				err.Error(),
+			)
 		}
 		users = append(users, user)
 	}
@@ -116,8 +142,18 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 	user.ID = uuid.NewV4()
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = user.CreatedAt
-	result, err := h.DB.Exec(ctx.Request().Context(), queryCreateUser, user.ID, user.Name, user.Username, user.Password, user.Features, user.CreatedAt, user.UpdatedAt)
-	if !result.Insert() || err != nil {
+	_, err = h.DB.Exec(
+		ctx.Request().Context(),
+		queryCreateUser,
+		user.ID,
+		user.Name,
+		user.Username,
+		user.Password,
+		user.Features,
+		user.CreatedAt,
+		user.UpdatedAt,
+	)
+	if err != nil {
 		slog.Error("error creating user", "error", err)
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -129,7 +165,10 @@ func getUserID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting user id", "error", err)
-		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user id")
+		return uuid.Nil, echo.NewHTTPError(
+			http.StatusBadRequest,
+			"invalid user id",
+		)
 	}
 	return uid, err
 }
