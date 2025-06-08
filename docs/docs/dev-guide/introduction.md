@@ -5,7 +5,7 @@ As a technical user, this guide provides information on various features of Smri
 
 ## Architecture
 
-<img alt="Architecture" src='/img/architecture.jpeg' />
+<img alt="Architecture" src='/img/architecture.png' />
 
 ## Table of Contents
 - [Environment Setup](environment.md)
