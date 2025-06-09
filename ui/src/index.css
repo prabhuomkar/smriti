@@ -1,0 +1,28 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --background: #ffffff;
+  --foreground: #000000;
+  --primary: #2563eb;
+  --primary-foreground: #ffffff;
+  --border: #e5e7eb;
+}
+
+.dark {
+  --background: #000000;
+  --foreground: #ffffff;
+  --primary: #3b82f6;
+  --primary-foreground: #000000;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+@layer base {
+  * {
+    @apply border-border;
+  }
+  body {
+    @apply bg-background text-foreground;
+  }
+}
