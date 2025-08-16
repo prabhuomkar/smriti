@@ -29,24 +29,24 @@ paths:
       description: Get version of Smriti
       operationId: getVersion
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Version'
+                $ref: "#/components/schemas/Version"
   /disk:
     get:
       summary: Get disk usage of Smriti
       description: Get disk usage of Smriti
       operationId: getDisk
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Disk'
+                $ref: "#/components/schemas/Disk"
   /v1/features:
     get:
       summary: Get list of enabled features
@@ -55,12 +55,12 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Features'
+                $ref: "#/components/schemas/Features"
   /v1/yearsAgo/{monthDate}/mediaItems:
     get:
       tags:
@@ -78,19 +78,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/search:
     get:
@@ -107,17 +107,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/mediaItems:
     get:
@@ -160,17 +160,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -181,13 +181,13 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '201':
+        "201":
           description: Created
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/mediaItems/{id}:
     get:
@@ -207,19 +207,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItem'
-        '400':
+                $ref: "#/components/schemas/MediaItem"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     put:
       tags:
@@ -243,17 +243,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MediaItemRequest'
+              $ref: "#/components/schemas/MediaItemRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -272,15 +272,15 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/mediaItems/{id}/places:
     get:
@@ -300,19 +300,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Places'
-        '400':
+                $ref: "#/components/schemas/Places"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/mediaItems/{id}/things:
     get:
@@ -332,19 +332,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Things'
-        '400':
+                $ref: "#/components/schemas/Things"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/mediaItems/{id}/people:
     get:
@@ -364,19 +364,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/People'
-        '400':
+                $ref: "#/components/schemas/People"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/mediaItems/{id}/albums:
     get:
@@ -396,19 +396,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Albums'
-        '400':
+                $ref: "#/components/schemas/Albums"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/favourites:
     get:
@@ -420,17 +420,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -446,15 +446,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MediaItemsRequest'
+              $ref: "#/components/schemas/MediaItemsRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -465,13 +465,13 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/hidden:
     get:
@@ -483,17 +483,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -509,15 +509,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MediaItemsRequest'
+              $ref: "#/components/schemas/MediaItemsRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -528,13 +528,13 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/trash:
     get:
@@ -546,17 +546,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -572,15 +572,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MediaItemsRequest'
+              $ref: "#/components/schemas/MediaItemsRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -591,13 +591,13 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/explore/places:
     get:
@@ -609,17 +609,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Places'
-        '400':
+                $ref: "#/components/schemas/Places"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/explore/places/{id}/mediaItems:
     get:
@@ -639,17 +639,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/explore/things:
     get:
@@ -661,17 +661,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Things'
-        '400':
+                $ref: "#/components/schemas/Things"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/explore/things/{id}/mediaItems:
     get:
@@ -691,17 +691,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/explore/people:
     get:
@@ -713,17 +713,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/People'
-        '400':
+                $ref: "#/components/schemas/People"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/explore/people/{id}:
     put:
@@ -748,17 +748,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/PeopleRequest'
+              $ref: "#/components/schemas/PeopleRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/explore/people/{id}/mediaItems:
     get:
@@ -778,17 +778,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/albums:
     get:
@@ -826,17 +826,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Albums'
-        '400':
+                $ref: "#/components/schemas/Albums"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -852,15 +852,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AlbumRequest'
+              $ref: "#/components/schemas/AlbumRequest"
       responses:
-        '201':
+        "201":
           description: Created
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/albums/{id}:
     get:
@@ -880,19 +880,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Album'
-        '400':
+                $ref: "#/components/schemas/Album"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     put:
       tags:
@@ -916,17 +916,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AlbumRequest'
+              $ref: "#/components/schemas/AlbumRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -945,15 +945,15 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/albums/{id}/mediaItems:
     get:
@@ -973,19 +973,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -1009,17 +1009,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/MediaItemsRequest'
+              $ref: "#/components/schemas/MediaItemsRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -1038,15 +1038,15 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/sharing/{id}:
     get:
@@ -1064,19 +1064,19 @@ paths:
       description: Get an existing shared album
       operationId: getSharedAlbum
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Album'
-        '400':
+                $ref: "#/components/schemas/Album"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/sharing/{id}/mediaItems:
     get:
@@ -1094,19 +1094,19 @@ paths:
       description: Get mediaItems of an existing shared album
       operationId: getSharedAlbumMediaItems
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MediaItems'
-        '400':
+                $ref: "#/components/schemas/MediaItems"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/auth/login:
     post:
@@ -1121,21 +1121,21 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AuthRequest'
+              $ref: "#/components/schemas/AuthRequest"
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '400':
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/auth/refresh:
     post:
@@ -1145,19 +1145,19 @@ paths:
       description: User Refresh Token
       operationId: authRefresh
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AuthResponse'
-        '400':
+                $ref: "#/components/schemas/AuthResponse"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/auth/logout:
     post:
@@ -1167,15 +1167,15 @@ paths:
       description: User Logout
       operationId: authLogout
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/users:
     get:
@@ -1187,17 +1187,17 @@ paths:
       security:
         - basicAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Users'
-        '400':
+                $ref: "#/components/schemas/Users"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -1213,15 +1213,15 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: "#/components/schemas/UserRequest"
       responses:
-        '201':
+        "201":
           description: Created
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
   /v1/users/{id}:
     get:
@@ -1241,19 +1241,19 @@ paths:
       security:
         - basicAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/User'
-        '400':
+                $ref: "#/components/schemas/User"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     put:
       tags:
@@ -1277,17 +1277,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/UserRequest'
+              $ref: "#/components/schemas/UserRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     delete:
       tags:
@@ -1306,15 +1306,15 @@ paths:
       security:
         - basicAuth: []
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
   /v1/jobs:
     get:
@@ -1339,17 +1339,17 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Jobs'
-        '400':
+                $ref: "#/components/schemas/Jobs"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '500':
+        "401":
+          description: Authorization Error
+        "500":
           description: Internal Server Error
     post:
       tags:
@@ -1365,17 +1365,17 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/JobCreateRequest'
+              $ref: "#/components/schemas/JobCreateRequest"
       responses:
-        '201':
+        "201":
           description: Created
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '409':
+        "401":
+          description: Authorization Error
+        "409":
           description: Conflict
-        '500':
+        "500":
           description: Internal Server Error
   /v1/jobs/{id}:
     get:
@@ -1395,19 +1395,19 @@ paths:
       security:
         - bearerAuth: []
       responses:
-        '200':
+        "200":
           description: Success
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/Job'
-        '400':
+                $ref: "#/components/schemas/Job"
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '500':
+        "500":
           description: Internal Server Error
     put:
       tags:
@@ -1431,19 +1431,19 @@ paths:
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/JobUpdateRequest'
+              $ref: "#/components/schemas/JobUpdateRequest"
       responses:
-        '204':
+        "204":
           description: No Content
-        '400':
+        "400":
           description: Bad Request
-        '401':
-          description: Unauthenticated
-        '404':
+        "401":
+          description: Authorization Error
+        "404":
           description: Not Found
-        '409':
+        "409":
           description: Conflict
-        '500':
+        "500":
           description: Internal Server Error
 components:
   securitySchemes:
@@ -1717,7 +1717,7 @@ components:
           format: date-time
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
-          $ref: '#/components/schemas/MediaItem'
+          $ref: "#/components/schemas/MediaItem"
     Place:
       type: object
       properties:
@@ -1754,7 +1754,7 @@ components:
           format: date-time
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
-          $ref: '#/components/schemas/MediaItem'
+          $ref: "#/components/schemas/MediaItem"
     Thing:
       type: object
       properties:
@@ -1779,7 +1779,7 @@ components:
           format: date-time
           example: "2022-09-14T16:58:28Z"
         coverMediaItem:
-          $ref: '#/components/schemas/MediaItem'
+          $ref: "#/components/schemas/MediaItem"
     PeopleRequest:
       type: object
       properties:
@@ -1821,7 +1821,7 @@ components:
           format: date-time
           example: "2022-09-14T16:58:28Z"
         coverMediaItemFace:
-          $ref: '#/components/schemas/MediaItemFace'
+          $ref: "#/components/schemas/MediaItemFace"
     UserRequest:
       type: object
       properties:
@@ -1851,6 +1851,9 @@ components:
         password:
           type: string
           example: somesecrethash
+        features:
+          type: string
+          example: { "key": "value" }
         createdAt:
           readOnly: true
           type: string
@@ -1911,28 +1914,28 @@ components:
     MediaItems:
       type: array
       items:
-        $ref: '#/components/schemas/MediaItem'
+        $ref: "#/components/schemas/MediaItem"
     Places:
       type: array
       items:
-        $ref: '#/components/schemas/Place'
+        $ref: "#/components/schemas/Place"
     Things:
       type: array
       items:
-        $ref: '#/components/schemas/Thing'
+        $ref: "#/components/schemas/Thing"
     People:
       type: array
       items:
-        $ref: '#/components/schemas/Person'
+        $ref: "#/components/schemas/Person"
     Albums:
       type: array
       items:
-        $ref: '#/components/schemas/Album'
+        $ref: "#/components/schemas/Album"
     Users:
       type: array
       items:
-        $ref: '#/components/schemas/User'
+        $ref: "#/components/schemas/User"
     Jobs:
       type: array
       items:
-        $ref: '#/components/schemas/Job'
+        $ref: "#/components/schemas/Job"

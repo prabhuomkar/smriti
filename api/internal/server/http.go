@@ -15,6 +15,7 @@ import (
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus"
 )
 
@@ -41,6 +42,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 			Subsystem:  "server",
 			Registerer: prometheus.DefaultRegisterer,
 		}),
+		middleware.CORS(),
 	)
 	srvHandler.GET("/metrics", echoprometheus.NewHandler())
 	// file server
