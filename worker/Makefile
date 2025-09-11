@@ -1,7 +1,7 @@
 .PHONY: build
 build:
 	@mkdir -p build
-	@cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=ON
+	@cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
 	@cd build && make -j 4
 
 .PHONY: build-with-tests

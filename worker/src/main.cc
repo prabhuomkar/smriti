@@ -23,6 +23,7 @@
 #include "worker/api_client.h"
 #include "worker/components.h"
 #include "worker/config.h"
+#include "worker/metadata.h"
 #include "worker/places.h"
 
 using components::ComponentConfig;
@@ -60,16 +61,34 @@ int main() {
   spdlog::info("worker config: {}", worker_config);
   std::unordered_map<std::string, ComponentConfig> component_configs =
       components::ParseComponentConfig(worker_config);
-  std::shared_ptr<components::places::Places> places;
+  std::shared_ptr<components::metadata::Metadata> metadata_component;
+  std::shared_ptr<components::places::Places> places_component;
   for (const auto& [name, config] : component_configs) {
-    if (name == MediaItemComponent_Name(MediaItemComponent::PLACES)) {
-      places = components::places::Init(config);
+    if (name == MediaItemComponent_Name(MediaItemComponent::METADATA)) {
+      metadata_component = components::metadata::Init(config);
+    } else if (name == MediaItemComponent_Name(MediaItemComponent::PLACES)) {
+      places_component = components::places::Init(config);
+    } else if (name ==
+               MediaItemComponent_Name(MediaItemComponent::PREVIEW_THUMBNAIL)) {
+      // TODO(omkar): initialize this component
+    } else if (name ==
+               MediaItemComponent_Name(MediaItemComponent::CLASSIFICATION)) {
+      // TODO(omkar): initialize this component
+
+    } else if (name == MediaItemComponent_Name(MediaItemComponent::FACES)) {
+      // TODO(omkar): initialize this component
+
+    } else if (name == MediaItemComponent_Name(MediaItemComponent::OCR)) {
+      // TODO(omkar): initialize this component
+
+    } else if (name == MediaItemComponent_Name(MediaItemComponent::SEARCH)) {
+      // TODO(omkar): initialize this component
     }
-    // TODO(omkar): initialize more components
   }
 
   while (!terminating) {
     spdlog::info("worker running");
+    sleep(10);
     // TODO(omkar): fetch mediaitem to process
   }
 
