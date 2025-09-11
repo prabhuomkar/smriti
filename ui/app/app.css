@@ -13,6 +13,14 @@ body {
   background-color: #005fd5;
 }
 
+a {
+  color: #0064e0;
+}
+
+a:hover {
+  color: #005fd5;
+}
+
 .smriti-dark-color {
   color: #071320;
 }

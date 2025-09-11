@@ -9,6 +9,8 @@ RUN apt-get update && apt-get install -y \
     libtool \
     pkg-config \
     curl \
+    libraw-dev \
+    libmagick++-dev \
     && rm -rf /var/lib/apt/lists/*
 WORKDIR /opt
 RUN git clone --recurse-submodules -b v1.71.0 https://github.com/grpc/grpc.git && \

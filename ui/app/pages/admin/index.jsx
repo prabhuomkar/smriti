@@ -32,12 +32,21 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-sm space-y-4 p-4">
-        <img src="logo.png" alt="Smriti" width="48" className="block mx-auto" />
-        <div className="smriti-dark-color text-md text-center">Admin Login</div>
+        <div className="flex flex-row items-center justify-between">
+          <div className="smriti-dark-color text-lg font-medium align-center">
+            Admin Login
+          </div>
+          <div className="text-sm font-medium align-center">
+            or{" "}
+            <a href="https://smriti.omkar.xyz/docs/user-guide/deployment">
+              setup an admin
+            </a>
+          </div>
+        </div>
         <form className="flex flex-col space-y-4" onSubmit={handleLogin}>
           <input
             name="username"
-            className="p-2 border border-gray-300 text-sm outline-none"
+            className="py-2 px-3 border border-gray-300 outline-none rounded-md w-full"
             type="text"
             placeholder="Username"
             value={username}
@@ -50,7 +59,7 @@ export default function Login() {
           />
           <input
             name="password"
-            className="p-2 border border-gray-300 text-sm outline-none"
+            className="py-2 px-3 border border-gray-300 outline-none rounded-md"
             type="password"
             placeholder="Password"
             value={password}
@@ -62,12 +71,12 @@ export default function Login() {
             required
           />
           {error && (
-            <div className="text-sm text-red-500 bg-red-100 p-2 flex items-center space-x-1 justify-center">
+            <div className="text-red-500 bg-red-100 border border-red-300 p-2 rounded-md flex items-center space-x-2 justify-center">
               <svg
                 xmlns="http://www.w3.org/2000/svg"
                 fill="none"
                 viewBox="0 0 24 24"
-                strokeWidth={1.5}
+                strokeWidth={1.6}
                 stroke="currentColor"
                 className="size-6"
               >
@@ -81,7 +90,7 @@ export default function Login() {
             </div>
           )}
           <button
-            className="smriti-bg-color text-white text-sm p-2 mt-4 transition"
+            className="smriti-bg-color text-white p-2 mt-4 transition rounded-md"
             type="submit"
             disabled={loading}
           >

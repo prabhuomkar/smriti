@@ -65,10 +65,12 @@ int main() {
     if (name == MediaItemComponent_Name(MediaItemComponent::PLACES)) {
       places = components::places::Init(config);
     }
+    // TODO(omkar): initialize more components
   }
 
   while (!terminating) {
     spdlog::info("worker running");
+    // TODO(omkar): fetch mediaitem to process
   }
 
   return 0;

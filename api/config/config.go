@@ -75,7 +75,7 @@ type (
 		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS"            default:"{"tokenizer_dir":"search_tokenizer","processor_dir":"search_processor","text_file":"search_text_v240624.pt","vision_file":"search_vision_v240624.pt"}"` //nolint:govet,lll
 		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER"           default:"pytorch"`
 		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS"             default:"{"minutes":"1","face_threshold":"0.9","model":"vggface2","clustering":"annoy"}"` //nolint:govet,lll
-		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{"thumbnail_size":"512"}"`                                                       //nolint:govet,lll
+		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{"thumbnail_size":"256"}"`                                                       //nolint:govet,lll
 	}
 
 	// Feature ...
