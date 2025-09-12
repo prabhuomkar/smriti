@@ -50,8 +50,10 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "job not found")
 		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, job)
 }
 
@@ -81,6 +83,7 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 			)
 		if err != nil {
 			slog.Error("error getting existing job count", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -88,6 +91,7 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 		}
 		if existingJobCount > 0 {
 			slog.Error("job already exists", "error", err)
+
 			return echo.NewHTTPError(http.StatusConflict, "job already exists")
 		}
 	}
@@ -101,8 +105,10 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating job", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -120,6 +126,7 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting jobs", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -134,6 +141,7 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 			&job.UpdatedAt)
 		if err != nil {
 			slog.Error("error scanning job", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -141,6 +149,7 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 		}
 		jobs = append(jobs, job)
 	}
+
 	return ctx.JSON(http.StatusOK, jobs)
 }
 
@@ -168,10 +177,12 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 		)
 	if err != nil {
 		slog.Error("error getting existing job count", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if existingJobCount > 0 {
 		slog.Error("job already exists", "error", err)
+
 		return echo.NewHTTPError(http.StatusConflict, "job already exists")
 	}
 	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateJob,
@@ -183,8 +194,10 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 		job.UpdatedAt)
 	if err != nil {
 		slog.Error("error creating job", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusCreated, job)
 }
 
@@ -193,11 +206,13 @@ func getJobID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting job id", "error", err)
+
 		return uuid.Nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid job id",
 		)
 	}
+
 	return uid, err
 }
 
@@ -206,6 +221,7 @@ func getJob(ctx echo.Context) (*models.Job, error) {
 	err := ctx.Bind(jobRequest)
 	if err != nil {
 		slog.Error("error getting job", "error", err)
+
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid job")
 	}
 	job := models.Job{}
@@ -218,5 +234,6 @@ func getJob(ctx echo.Context) (*models.Job, error) {
 	if reflect.DeepEqual(models.Job{}, job) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid job")
 	}
+
 	return &job, nil
 }

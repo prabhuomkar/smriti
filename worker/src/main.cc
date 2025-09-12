@@ -59,10 +59,12 @@ int main() {
                                            grpc::InsecureChannelCredentials()));
   std::string worker_config = api_client.GetWorkerConfig();
   spdlog::info("worker config: {}", worker_config);
-  std::unordered_map<std::string, ComponentConfig> component_configs =
-      components::ParseComponentConfig(worker_config);
+
   std::shared_ptr<components::metadata::Metadata> metadata_component;
   std::shared_ptr<components::places::Places> places_component;
+
+  std::unordered_map<std::string, ComponentConfig> component_configs =
+      components::ParseComponentConfig(worker_config);
   for (const auto& [name, config] : component_configs) {
     if (name == MediaItemComponent_Name(MediaItemComponent::METADATA)) {
       metadata_component = components::metadata::Init(config);

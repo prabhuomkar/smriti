@@ -21,6 +21,7 @@ func GetDisk(cfg *config.Config) *Disk {
 	err := syscall.Statfs(cfg.DiskRoot, &diskStat)
 	if err != nil {
 		slog.Error("error getting disk stats", slog.Any("error", err))
+
 		return nil
 	}
 	disk := &Disk{
@@ -28,5 +29,6 @@ func GetDisk(cfg *config.Config) *Disk {
 		Free:  diskStat.Bfree * uint64(diskStat.Bsize),
 	}
 	disk.Used = disk.Total - disk.Free
+
 	return disk
 }

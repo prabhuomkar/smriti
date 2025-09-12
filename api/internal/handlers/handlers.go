@@ -45,11 +45,13 @@ func getOffsetAndLimit(ctx echo.Context) (int, int) {
 	if err != nil {
 		limit = defaultLimit
 	}
+
 	return int((page - 1) * limit), int(limit) //nolint: gosec
 }
 
 func getRequestingUserID(ctx echo.Context) uuid.UUID {
 	userID, _ := ctx.Get("userID").(string)
+
 	return uuid.FromStringOrNil(userID)
 }
 
@@ -59,6 +61,7 @@ func getMonthAndDate(ctx echo.Context) (string, string, error) {
 	if len(monthDate) == 4 { // MMDD
 		return monthDate[:2], monthDate[2:], nil
 	}
+
 	return "", "", fmt.Errorf("%w: %s", errInvalidMonthDate, monthDate)
 }
 
@@ -84,6 +87,7 @@ func getMediaItemFilters(ctx echo.Context) string {
 	} else {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", string(models.StatusReady))
 	}
+
 	return filterQuery
 }
 
@@ -91,6 +95,7 @@ func getAlbumSortOrder(ctx echo.Context) string {
 	if ctx.QueryParam("sort") == "name" {
 		return "name asc"
 	}
+
 	return "updated_at desc"
 }
 
@@ -100,5 +105,6 @@ func getAlbumShared(ctx echo.Context) bool {
 		strings.ToLower(queryParam) != "true" {
 		return false
 	}
+
 	return true
 }

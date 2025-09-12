@@ -56,8 +56,10 @@ func (h *Handler) GetUser(ctx echo.Context) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "user not found")
 		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, user)
 }
 
@@ -85,8 +87,10 @@ func (h *Handler) UpdateUser(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating user", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -99,8 +103,10 @@ func (h *Handler) DeleteUser(ctx echo.Context) error {
 	_, err = h.DB.Exec(ctx.Request().Context(), queryDeleteUser, uid)
 	if err != nil {
 		slog.Error("error deleting user", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -116,6 +122,7 @@ func (h *Handler) GetUsers(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting users", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -123,6 +130,7 @@ func (h *Handler) GetUsers(ctx echo.Context) error {
 		user := models.User{}
 		if err := rows.Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Features, &user.CreatedAt, &user.UpdatedAt); err != nil {
 			slog.Error("error scanning user", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -130,6 +138,7 @@ func (h *Handler) GetUsers(ctx echo.Context) error {
 		}
 		users = append(users, user)
 	}
+
 	return ctx.JSON(http.StatusOK, users)
 }
 
@@ -155,8 +164,10 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error creating user", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusCreated, user)
 }
 
@@ -165,11 +176,13 @@ func getUserID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting user id", "error", err)
+
 		return uuid.Nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid user id",
 		)
 	}
+
 	return uid, err
 }
 
@@ -177,6 +190,7 @@ func getUser(ctx echo.Context) (*models.User, error) {
 	UserRequest := new(UserRequest)
 	if err := ctx.Bind(UserRequest); err != nil {
 		slog.Error("error getting user", "error", err)
+
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user")
 	}
 	user := models.User{}
@@ -195,11 +209,13 @@ func getUser(ctx echo.Context) (*models.User, error) {
 	if reflect.DeepEqual(models.User{}, user) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid user")
 	}
+
 	return &user, nil
 }
 
 func getPasswordHash(password string) string {
 	passwordHash := sha512.New()
 	passwordHash.Write([]byte(password))
+
 	return hex.EncodeToString(passwordHash.Sum(nil))
 }

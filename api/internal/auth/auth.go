@@ -16,10 +16,11 @@ import (
 type (
 	// TokenClaims ...
 	TokenClaims struct {
+		jwt.RegisteredClaims
+
 		ID       string `json:"id"`
 		Username string `json:"username"`
 		Features string `json:"features"`
-		jwt.RegisteredClaims
 	}
 )
 
@@ -40,6 +41,7 @@ func GetTokens(
 	)
 	if setRefreshErr != nil {
 		slog.Error("error caching refresh token", "error", setRefreshErr)
+
 		return "", "", setRefreshErr
 	}
 	setAccessErr := cache.SetWithExpire(
@@ -49,6 +51,7 @@ func GetTokens(
 	)
 	if setAccessErr != nil {
 		slog.Error("error caching refresh token", "error", setAccessErr)
+
 		return "", "", setAccessErr
 	}
 
@@ -63,12 +66,14 @@ func RefreshTokens(
 ) (string, string, error) {
 	if _, err := cache.Get(refreshToken); err != nil {
 		slog.Error("error getting refresh token from cache", "error", err)
+
 		return "", "", err
 	}
 
 	claims, err := getClaimsFromToken(cfg, refreshToken)
 	if err != nil {
 		slog.Error("error getting claims from token", "error", err)
+
 		return "", "", err
 	}
 
@@ -84,6 +89,7 @@ func RefreshTokens(
 			"error",
 			err,
 		)
+
 		return "", "", err
 	}
 
@@ -101,6 +107,7 @@ func RemoveTokens(cache cache.Provider, accessToken string) error {
 		if !errors.Is(err, redis.Nil) {
 			slog.Error("error getting access token from cache", "error", err)
 		}
+
 		return err
 	}
 
@@ -122,12 +129,14 @@ func VerifyToken(
 		if !errors.Is(err, redis.Nil) {
 			slog.Error("error getting access token from cache", "error", err)
 		}
+
 		return nil, err
 	}
 
 	claims, err := getClaimsFromToken(cfg, accessToken)
 	if err != nil {
 		slog.Error("error getting claims from token", "error", err)
+
 		return nil, err
 	}
 
@@ -162,12 +171,14 @@ func getClaimsFromToken(
 	)
 	if err != nil || !parsedToken.Valid {
 		slog.Error("error parsing claims from token", "error", err)
+
 		return nil, err
 	}
 
 	claims, ok := parsedToken.Claims.(*TokenClaims)
 	if !ok {
 		slog.Error("error getting claims from token", "error", err)
+
 		return nil, err
 	}
 
@@ -185,9 +196,6 @@ func getSignedToken(
 	}
 	creationTime := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
-		user.ID.String(),
-		user.Username,
-		user.Features,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(
 				creationTime.Add(time.Duration(ttl) * time.Second),
@@ -199,7 +207,11 @@ func getSignedToken(
 			Subject:   subject,
 			ID:        user.ID.String(),
 		},
+		user.ID.String(),
+		user.Username,
+		user.Features,
 	})
 	signedToken, _ := token.SignedString([]byte(cfg.Secret))
+
 	return signedToken
 }

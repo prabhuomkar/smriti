@@ -75,5 +75,6 @@ func ScanRowsToAlbum(rows pgx.Rows) (Album, error) {
 		&album.CoverMediaItem.CreatedAt,
 		&album.CoverMediaItem.UpdatedAt,
 	)
+
 	return album, err
 }

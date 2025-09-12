@@ -24,8 +24,10 @@ func JWTCheck(cfg *config.Config, cache cache.Provider) echo.MiddlewareFunc {
 				var features models.Features
 				_ = json.Unmarshal([]byte(claims.Features), &features)
 				ctx.Set("features", features)
+
 				return next(ctx)
 			}
+
 			return echo.ErrUnauthorized
 		}
 	}

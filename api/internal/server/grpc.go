@@ -4,6 +4,7 @@ import (
 	"api/config"
 	"api/internal/service"
 	"api/pkg/services/api"
+	"context"
 	"fmt"
 	"log/slog"
 	"net"
@@ -18,7 +19,8 @@ func StartGRPCServer(
 	cfg *config.Config,
 	service *service.Service,
 ) *grpc.Server {
-	listener, err := net.Listen(
+	listener, err := (&net.ListenConfig{}).Listen(
+		context.Background(),
 		"tcp",
 		fmt.Sprintf("%s:%d", cfg.GRPC.Host, cfg.GRPC.Port),
 	)

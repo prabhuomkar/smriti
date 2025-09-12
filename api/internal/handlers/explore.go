@@ -24,6 +24,7 @@ type (
 	// MemoryMediaItem ...
 	MemoryMediaItem struct {
 		models.MediaItem
+
 		Year string `json:"year"`
 	}
 )
@@ -60,6 +61,7 @@ func (h *Handler) GetYearsAgoMediaItems(ctx echo.Context) error {
 	month, date, err := getMonthAndDate(ctx)
 	if err != nil {
 		slog.Error("error getting month and date", "error", err)
+
 		return echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid month and date",
@@ -75,6 +77,7 @@ func (h *Handler) GetYearsAgoMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting years ago mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -115,6 +118,7 @@ func (h *Handler) GetYearsAgoMediaItems(ctx echo.Context) error {
 			&memoryItem.Year)
 		if err != nil {
 			slog.Error("error scanning years ago mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -122,6 +126,7 @@ func (h *Handler) GetYearsAgoMediaItems(ctx echo.Context) error {
 		}
 		memoryMediaItems = append(memoryMediaItems, memoryItem)
 	}
+
 	return ctx.JSON(http.StatusOK, memoryMediaItems)
 }
 
@@ -139,6 +144,7 @@ func (h *Handler) GetPlaces(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting places", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -146,6 +152,7 @@ func (h *Handler) GetPlaces(ctx echo.Context) error {
 		place, err := models.ScanRowsToPlace(rows)
 		if err != nil {
 			slog.Error("error scanning place", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -153,6 +160,7 @@ func (h *Handler) GetPlaces(ctx echo.Context) error {
 		}
 		places = append(places, place)
 	}
+
 	return ctx.JSON(http.StatusOK, places)
 }
 
@@ -163,6 +171,7 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting place id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	place := models.Place{CoverMediaItem: &models.MediaItem{}}
@@ -221,8 +230,10 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "place not found")
 		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, place)
 }
 
@@ -234,6 +245,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting place id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
 	mediaItems := []models.MediaItem{}
@@ -247,6 +259,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting place mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -254,6 +267,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning place mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -261,6 +275,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -278,6 +293,7 @@ func (h *Handler) GetThings(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting things", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -285,6 +301,7 @@ func (h *Handler) GetThings(ctx echo.Context) error {
 		thing, err := models.ScanRowsToThing(rows)
 		if err != nil {
 			slog.Error("error scanning thing", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -292,6 +309,7 @@ func (h *Handler) GetThings(ctx echo.Context) error {
 		}
 		things = append(things, thing)
 	}
+
 	return ctx.JSON(http.StatusOK, things)
 }
 
@@ -302,6 +320,7 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting thing id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	thing := models.Thing{CoverMediaItem: &models.MediaItem{}}
@@ -356,8 +375,10 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
 		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, thing)
 }
 
@@ -369,6 +390,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting thing id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
 	mediaItems := []models.MediaItem{}
@@ -382,6 +404,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting thing mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -389,6 +412,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning thing mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -396,6 +420,7 @@ func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -406,6 +431,7 @@ func (h *Handler) UpdatePerson(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting people id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
 	}
 	people, err := getPeople(ctx)
@@ -428,8 +454,10 @@ func (h *Handler) UpdatePerson(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating person", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -447,6 +475,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting people", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -454,6 +483,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 		person, err := models.ScanRowsToPerson(rows)
 		if err != nil {
 			slog.Error("error scanning person", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -461,6 +491,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 		}
 		people = append(people, person)
 	}
+
 	return ctx.JSON(http.StatusOK, people)
 }
 
@@ -471,6 +502,7 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting person id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid person id")
 	}
 	person := models.People{CoverMediaItemFace: &models.MediaitemFace{}}
@@ -499,8 +531,10 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "person not found")
 		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, person)
 }
 
@@ -512,6 +546,7 @@ func (h *Handler) GetPersonMediaItems(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting person id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid people id")
 	}
 	mediaItems := []models.MediaItem{}
@@ -525,6 +560,7 @@ func (h *Handler) GetPersonMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting person mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -532,6 +568,7 @@ func (h *Handler) GetPersonMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning person mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -539,6 +576,7 @@ func (h *Handler) GetPersonMediaItems(ctx echo.Context) error {
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -547,6 +585,7 @@ func getPeople(ctx echo.Context) (*models.People, error) {
 	err := ctx.Bind(peopleRequest)
 	if err != nil {
 		slog.Error("error getting people", "error", err)
+
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people")
 	}
 	people := models.People{
@@ -570,5 +609,6 @@ func getPeople(ctx echo.Context) (*models.People, error) {
 	if reflect.DeepEqual(models.People{}, people) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people")
 	}
+
 	return &people, nil
 }

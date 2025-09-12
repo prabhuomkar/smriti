@@ -76,5 +76,6 @@ func ScanRowsToPlace(rows pgx.Rows) (Place, error) {
 		&place.CoverMediaItem.Keywords,
 		&place.CoverMediaItem.CreatedAt,
 		&place.CoverMediaItem.UpdatedAt)
+
 	return place, err
 }

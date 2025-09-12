@@ -141,6 +141,7 @@ func ScanRowsToMediaItem(rows pgx.Rows) (MediaItem, error) {
 		&mediaItem.Keywords,
 		&mediaItem.CreatedAt,
 		&mediaItem.UpdatedAt)
+
 	return mediaItem, err
 }
 
@@ -247,6 +248,7 @@ func (m *MediaItemURLPlugin) getMediaItemURL(
 			"error getting mediaitem url from storage",
 			slog.Any("error", err),
 		)
+
 		return ""
 	}
 
@@ -270,5 +272,6 @@ func getFileType(fieldName string) string {
 	case "ThumbnailURL":
 		return "thumbnails"
 	}
+
 	return "unknown"
 }

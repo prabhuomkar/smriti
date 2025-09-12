@@ -88,6 +88,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	places := []models.Place{}
@@ -99,6 +100,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting mediaitem places", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -106,6 +108,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 		place, err := models.ScanRowsToPlace(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem place", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -113,6 +116,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 		}
 		places = append(places, place)
 	}
+
 	return ctx.JSON(http.StatusOK, places)
 }
 
@@ -123,6 +127,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	things := []models.Thing{}
@@ -134,6 +139,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting mediaitem things", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -141,6 +147,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 		thing, err := models.ScanRowsToThing(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem thing", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -148,6 +155,7 @@ func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
 		}
 		things = append(things, thing)
 	}
+
 	return ctx.JSON(http.StatusOK, things)
 }
 
@@ -158,6 +166,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	people := []models.People{}
@@ -169,6 +178,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting mediaitem people", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -176,6 +186,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 		person, err := models.ScanRowsToPerson(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem person", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -183,6 +194,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 		}
 		people = append(people, person)
 	}
+
 	return ctx.JSON(http.StatusOK, people)
 }
 
@@ -193,6 +205,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	albums := []models.Album{}
@@ -204,6 +217,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting mediaitem albums", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -211,6 +225,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 		album, err := models.ScanRowsToAlbum(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem album", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -218,6 +233,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 		}
 		albums = append(albums, album)
 	}
+
 	return ctx.JSON(http.StatusOK, albums)
 }
 
@@ -228,6 +244,7 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 	}
 	mediaItem := models.MediaItem{}
@@ -275,8 +292,10 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "mediaitem not found")
 		}
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItem)
 }
 
@@ -306,8 +325,10 @@ func (h *Handler) UpdateMediaItem(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating mediaItem", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -332,13 +353,16 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error deleting mediaItem", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	err = h.updateCoverMediaItems(ctx.Request().Context(), userID, uid)
 	if err != nil {
 		slog.Error("error updating associated cover mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -363,7 +387,7 @@ func (h *Handler) updateCoverMediaItems(
 		err error
 	)
 	entityItemsToUpdate := make([][][]uuid.UUID, len(entities))
-	tx, err := h.DB.Begin(ctx)
+	mtx, err := h.DB.Begin(ctx)
 	if err != nil {
 		return fmt.Errorf(
 			"error starting transaction for updating cover mediaitem: %w",
@@ -372,13 +396,13 @@ func (h *Handler) updateCoverMediaItems(
 	}
 	defer func() {
 		if err != nil {
-			_ = tx.Rollback(ctx)
+			_ = mtx.Rollback(ctx)
 		}
 	}()
 	for idx, entity := range entities {
 		entityItemsToUpdate[idx], err = h.getEntityToUpdate(
 			ctx,
-			tx,
+			mtx,
 			entity,
 			entityGetQueries[idx],
 			userID,
@@ -390,7 +414,7 @@ func (h *Handler) updateCoverMediaItems(
 	}
 	for idx, entityItemToUpdate := range entityItemsToUpdate {
 		for _, itemToUpdate := range entityItemToUpdate {
-			_, err = tx.Exec(
+			_, err = mtx.Exec(
 				ctx,
 				entityUpdateQueries[idx],
 				userID,
@@ -406,12 +430,13 @@ func (h *Handler) updateCoverMediaItems(
 			}
 		}
 	}
-	if err = tx.Commit(ctx); err != nil {
+	if err = mtx.Commit(ctx); err != nil {
 		return fmt.Errorf(
 			"error committing transaction for updating cover mediaitem: %w",
 			err,
 		)
 	}
+
 	return nil
 }
 
@@ -443,6 +468,7 @@ func (h *Handler) getEntityToUpdate(
 		}
 		entitiesToUpdate = append(entitiesToUpdate, entityToUpdate)
 	}
+
 	return entitiesToUpdate, nil
 }
 
@@ -461,6 +487,7 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -501,6 +528,7 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 			&mediaItem.UpdatedAt)
 		if err != nil {
 			slog.Error("error scanning mediaitems", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -508,6 +536,7 @@ func (h *Handler) GetMediaItems(ctx echo.Context) error {
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -528,12 +557,14 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 	file, err := ctx.FormFile("file")
 	if err != nil {
 		slog.Error("error uploading mediaitem", "error", err)
+
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
 	openedFile, err := file.Open()
 	if err != nil {
 		slog.Error("error reading uploaded mediaitem", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer openedFile.Close()
@@ -554,6 +585,7 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 		)
 		if err != nil {
 			slog.Error("error inserting mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -598,12 +630,14 @@ func (h *Handler) saveToDisk(
 	)
 	if err != nil {
 		slog.Error("error opening file", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
 	_, err = io.Copy(dstFile, openedFile)
 	if err != nil {
 		slog.Error("error copying file", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
@@ -617,6 +651,7 @@ func (h *Handler) saveToDisk(
 		if err != nil {
 			if strings.Contains(err.Error(), "violates unique constraint") {
 				slog.Error("error due to duplicate mediaitem", "error", err)
+
 				return echo.NewHTTPError(
 					http.StatusConflict,
 					"mediaitem already exists",
@@ -627,6 +662,7 @@ func (h *Handler) saveToDisk(
 				"error",
 				err,
 			)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -644,6 +680,7 @@ func (h *Handler) generateHashForDuplicates(
 	openedFile, err := os.Open(filePath)
 	if err != nil {
 		slog.Error("error opening file for generating hash", "error", err)
+
 		return err
 	}
 	defer openedFile.Close()
@@ -651,6 +688,7 @@ func (h *Handler) generateHashForDuplicates(
 	fileHash := sha256.New()
 	if _, err := io.Copy(fileHash, openedFile); err != nil {
 		slog.Error("error copying file for generating hash", "error", err)
+
 		return err
 	}
 
@@ -671,6 +709,7 @@ func (h *Handler) generateHashForDuplicates(
 	)
 	if err != nil {
 		slog.Error("error updating mediaitem hash", "error", err)
+
 		return err
 	}
 
@@ -687,6 +726,7 @@ func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {
 	mediaItem.Status = models.StatusUnspecified
 	mediaItem.CreatedAt = time.Now()
 	mediaItem.UpdatedAt = mediaItem.CreatedAt
+
 	return mediaItem
 }
 
@@ -696,6 +736,7 @@ func validateChunk(ctx echo.Context) (string, string, error) {
 
 	if len(command) == 0 {
 		slog.Error("error getting command for resumable upload")
+
 		return "", "", echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid command for resumable upload",
@@ -703,6 +744,7 @@ func validateChunk(ctx echo.Context) (string, string, error) {
 	}
 	if command != "start" && offset == 0 {
 		slog.Error("error getting chunk offset for resumable upload")
+
 		return "", "", echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid chunk offset for resumable upload",
@@ -711,6 +753,7 @@ func validateChunk(ctx echo.Context) (string, string, error) {
 	session := ctx.Request().Header.Get(HeaderUploadChunkSession)
 	if command != "start" && len(session) == 0 {
 		slog.Error("error getting chunk session for resumable upload")
+
 		return "", "", echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid chunk session for resumable upload",
@@ -725,11 +768,13 @@ func getMediaItemID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
+
 		return uuid.Nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid mediaitem id",
 		)
 	}
+
 	return uid, err
 }
 
@@ -738,6 +783,7 @@ func getMediaItem(ctx echo.Context) (*models.MediaItem, error) {
 	err := ctx.Bind(mediaItemRequest)
 	if err != nil {
 		slog.Error("error getting mediaitem", "error", err)
+
 		return nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid mediaitem",
@@ -755,5 +801,6 @@ func getMediaItem(ctx echo.Context) (*models.MediaItem, error) {
 			"invalid mediaitem",
 		)
 	}
+
 	return &mediaItem, nil
 }

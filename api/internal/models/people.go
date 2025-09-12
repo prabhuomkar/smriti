@@ -44,5 +44,6 @@ func ScanRowsToPerson(rows pgx.Rows) (People, error) {
 		&person.CoverMediaItemFace.PeopleID,
 		&person.CoverMediaItemFace.Embedding,
 		&person.CoverMediaItemFace.Thumbnail)
+
 	return person, err
 }

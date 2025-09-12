@@ -68,5 +68,6 @@ func ScanRowsToThing(rows pgx.Rows) (Thing, error) {
 		&thing.CoverMediaItem.Keywords,
 		&thing.CoverMediaItem.CreatedAt,
 		&thing.CoverMediaItem.UpdatedAt)
+
 	return thing, err
 }

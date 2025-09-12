@@ -224,10 +224,12 @@ func getMiddlewareFuncs(
 			middlewares.FeatureCheck(cfg, feature),
 		)
 	}
+
 	return middlewareFuncs
 }
 
 func getFileRoute(storageDiskRoot string) string {
 	fileRoute := strings.ReplaceAll(storageDiskRoot, "..", "")
+
 	return fileRoute
 }

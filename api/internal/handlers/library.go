@@ -35,6 +35,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting favourite mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -42,6 +43,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning favourite mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -49,6 +51,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 		}
 		favourites = append(favourites, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, favourites)
 }
 
@@ -71,8 +74,10 @@ func (h *Handler) AddFavouriteMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error adding favourite mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -95,8 +100,10 @@ func (h *Handler) RemoveFavouriteMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error removing favourite mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -114,6 +121,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting hidden mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -121,6 +129,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning hidden mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -128,6 +137,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 		}
 		hidden = append(hidden, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, hidden)
 }
 
@@ -150,8 +160,10 @@ func (h *Handler) AddHiddenMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error adding hidden mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -174,8 +186,10 @@ func (h *Handler) RemoveHiddenMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error removing hidden mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -193,6 +207,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting deleted mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -200,6 +215,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning deleted mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -207,6 +223,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 		}
 		deleted = append(deleted, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, deleted)
 }
 
@@ -229,8 +246,10 @@ func (h *Handler) AddDeletedMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error adding deleted mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -253,7 +272,9 @@ func (h *Handler) RemoveDeletedMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error removing deleted mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }

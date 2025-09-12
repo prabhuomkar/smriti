@@ -15,6 +15,7 @@ func BasicAuthCheck(cfg *config.Config) echo.MiddlewareFunc {
 				password == cfg.Admin.Password {
 				return next(ctx)
 			}
+
 			return echo.ErrUnauthorized
 		}
 	}

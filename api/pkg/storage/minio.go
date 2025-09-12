@@ -61,6 +61,7 @@ func (m *Minio) Upload(filePath, fileType, fileID string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error uploading file to minio: %w", err)
 	}
+
 	return fmt.Sprintf("/%s/%s", fileType, fileID), nil
 }
 
@@ -75,6 +76,7 @@ func (m *Minio) Download(filePath, fileType, fileID string) error {
 	if err != nil {
 		return fmt.Errorf("error downloading file from minio: %w", err)
 	}
+
 	return nil
 }
 
@@ -88,6 +90,7 @@ func (m *Minio) Delete(fileType, fileID string) error {
 	if err != nil {
 		return fmt.Errorf("error deleting file from minio: %w", err)
 	}
+
 	return nil
 }
 
@@ -97,5 +100,6 @@ func (m *Minio) Get(fileType, fileID string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error getting file from minio: %w", err)
 	}
+
 	return presignedURL.String(), nil
 }

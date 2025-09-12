@@ -34,6 +34,7 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				"features",
 				features,
 			)
+
 			return echo.ErrForbidden
 		}
 	}

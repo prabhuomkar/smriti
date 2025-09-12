@@ -70,6 +70,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting album mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -77,6 +78,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning album mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -84,6 +86,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItems)
 }
 
@@ -98,22 +101,23 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	tx, err := h.DB.Begin(ctx.Request().Context())
+	atx, err := h.DB.Begin(ctx.Request().Context())
 	if err != nil {
 		slog.Error(
 			"error starting transaction for adding album mediaitems",
 			"error",
 			err,
 		)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer func() {
 		if err != nil {
-			_ = tx.Rollback(ctx.Request().Context())
+			_ = atx.Rollback(ctx.Request().Context())
 		}
 	}()
 	for _, mediaItem := range mediaItems {
-		_, err = tx.Exec(
+		_, err = atx.Exec(
 			ctx.Request().Context(),
 			queryAddAlbumMediaItems,
 			uid,
@@ -121,15 +125,13 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 		)
 		if err != nil {
 			slog.Error("error adding album mediaitem", "error", err)
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
 	coverMediaItemID := uuid.Nil
 	mediaItemsCount := 0
-	err = tx.QueryRow(
+	err = atx.QueryRow(
 		ctx.Request().Context(),
 		queryGetAlbumMediaItemIDAndCount,
 		uid,
@@ -140,9 +142,10 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 		)
 	if err != nil {
 		slog.Error("error getting album mediaitem id and count", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	_, err = tx.Exec(
+	_, err = atx.Exec(
 		ctx.Request().Context(),
 		queryUpdateAlbumMediaItems,
 		mediaItemsCount,
@@ -152,16 +155,19 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating album", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	if err = tx.Commit(ctx.Request().Context()); err != nil {
+	if err = atx.Commit(ctx.Request().Context()); err != nil {
 		slog.Error(
 			"error committing transaction for adding album mediaitems",
 			"error",
 			err,
 		)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -176,22 +182,23 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	tx, err := h.DB.Begin(ctx.Request().Context())
+	atx, err := h.DB.Begin(ctx.Request().Context())
 	if err != nil {
 		slog.Error(
 			"error starting transaction for removing album mediaitems",
 			"error",
 			err,
 		)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer func() {
 		if err != nil {
-			_ = tx.Rollback(ctx.Request().Context())
+			_ = atx.Rollback(ctx.Request().Context())
 		}
 	}()
 	for _, mediaItem := range mediaItems {
-		_, err = tx.Exec(
+		_, err = atx.Exec(
 			ctx.Request().Context(),
 			queryRemoveAlbumMediaItems,
 			uid,
@@ -199,6 +206,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 		)
 		if err != nil {
 			slog.Error("error removing album mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -207,7 +215,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	}
 	coverMediaItemID := uuid.Nil
 	mediaItemsCount := 0
-	err = tx.QueryRow(
+	err = atx.QueryRow(
 		ctx.Request().Context(),
 		queryGetAlbumMediaItemIDAndCount,
 		uid,
@@ -218,9 +226,10 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 		)
 	if err != nil {
 		slog.Error("error getting album mediaitem id and count", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	_, err = tx.Exec(
+	_, err = atx.Exec(
 		ctx.Request().Context(),
 		queryUpdateAlbumMediaItems,
 		mediaItemsCount,
@@ -230,16 +239,19 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating album", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	if err = tx.Commit(ctx.Request().Context()); err != nil {
+	if err = atx.Commit(ctx.Request().Context()); err != nil {
 		slog.Error(
 			"error committing transaction for removing album mediaitems",
 			"error",
 			err,
 		)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -305,8 +317,10 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
 		}
 		slog.Error("error getting album", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusOK, album)
 }
 
@@ -338,8 +352,10 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error updating album", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -358,8 +374,10 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error deleting album", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -380,6 +398,7 @@ func (h *Handler) GetAlbums(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error getting albums", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -387,13 +406,12 @@ func (h *Handler) GetAlbums(ctx echo.Context) error {
 		album, err := models.ScanRowsToAlbum(rows)
 		if err != nil {
 			slog.Error("error scanning album", "error", err)
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		albums = append(albums, album)
 	}
+
 	return ctx.JSON(http.StatusOK, albums)
 }
 
@@ -420,8 +438,10 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error creating album", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
 	return ctx.JSON(http.StatusCreated, album)
 }
 
@@ -430,11 +450,13 @@ func getAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	uid, err := uuid.FromString(id)
 	if err != nil {
 		slog.Error("error getting album id", "error", err)
+
 		return uuid.Nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid album id",
 		)
 	}
+
 	return uid, err
 }
 
@@ -443,6 +465,7 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 	err := ctx.Bind(mediaItemsRequest)
 	if err != nil || len(mediaItemsRequest.MediaItems) == 0 {
 		slog.Error("error getting album mediaitems", "error", err)
+
 		return nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid mediaitems",
@@ -453,6 +476,7 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 		uid, err := uuid.FromString(mediaItem)
 		if err != nil {
 			slog.Error("error getting album mediaitem id", "error", err)
+
 			return nil, echo.NewHTTPError(
 				http.StatusBadRequest,
 				"invalid mediaitem id",
@@ -460,6 +484,7 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 		}
 		mediaItems[idx] = &models.MediaItem{ID: uid}
 	}
+
 	return mediaItems, nil
 }
 
@@ -468,6 +493,7 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 	err := ctx.Bind(albumRequest)
 	if err != nil {
 		slog.Error("error getting album", "error", err)
+
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
 	album := models.Album{
@@ -491,5 +517,6 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 	if reflect.DeepEqual(models.Album{}, album) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
+
 	return &album, nil
 }

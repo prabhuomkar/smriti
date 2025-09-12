@@ -32,5 +32,6 @@ func (imc *InMemoryCache) Remove(key string) error {
 	if !result {
 		return fmt.Errorf("%w for key: %+v", errRemovingFromCache, key)
 	}
+
 	return nil
 }

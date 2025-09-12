@@ -18,6 +18,7 @@ const (
 // GetVersion ...
 func (h *Handler) GetVersion(ctx echo.Context) error {
 	version := models.GetVersion()
+
 	return ctx.JSON(http.StatusOK, version)
 }
 
@@ -45,6 +46,7 @@ func (h *Handler) GetFeatures(ctx echo.Context) error {
 // GetDisk ...
 func (h *Handler) GetDisk(ctx echo.Context) error {
 	disk := models.GetDisk(h.Config)
+
 	return ctx.JSON(http.StatusOK, disk)
 }
 
@@ -62,6 +64,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		)
 		if err != nil {
 			slog.Error("error getting search query embedding", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -75,6 +78,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		)
 		if err != nil {
 			slog.Error("error searching mediaitems", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -116,6 +120,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 				&mediaItem.CreatedAt,
 				&mediaItem.UpdatedAt); err != nil {
 				slog.Error("error scanning mediaitem", "error", err)
+
 				return echo.NewHTTPError(
 					http.StatusInternalServerError,
 					err.Error(),
@@ -123,6 +128,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 			}
 			mediaItems = append(mediaItems, mediaItem)
 		}
+
 		return ctx.JSON(http.StatusOK, mediaItems)
 	}
 	rows, err := h.DB.Query(
@@ -133,6 +139,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error searching mediaitems", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	defer rows.Close()
@@ -140,6 +147,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning mediaitem", "error", err)
+
 			return echo.NewHTTPError(
 				http.StatusInternalServerError,
 				err.Error(),
@@ -147,5 +155,6 @@ func (h *Handler) Search(ctx echo.Context) error {
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
+
 	return ctx.JSON(http.StatusOK, mediaItems)
 }

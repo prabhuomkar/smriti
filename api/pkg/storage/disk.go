@@ -31,6 +31,7 @@ func (d *Disk) Upload(filePath, fileType, fileID string) (string, error) {
 	if err != nil {
 		return "", fmt.Errorf("error uploading file to disk as cannot copy contents: %w", err)
 	}
+
 	return result, nil
 }
 
@@ -50,6 +51,7 @@ func (d *Disk) Download(filePath, fileType, fileID string) error {
 	if err != nil {
 		return fmt.Errorf("error downloading file to disk as cannot copy contents: %w", err)
 	}
+
 	return nil
 }
 
@@ -58,6 +60,7 @@ func (d *Disk) Delete(fileType, fileID string) error {
 	if err != nil {
 		return fmt.Errorf("error deleting file from disk: %w", err)
 	}
+
 	return nil
 }
 

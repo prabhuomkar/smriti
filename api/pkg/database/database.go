@@ -3,6 +3,8 @@ package database
 import (
 	"context"
 	"fmt"
+	"net"
+	"strconv"
 	"time"
 
 	"github.com/jackc/pgx/v5"
@@ -19,21 +21,15 @@ type DBInterface interface {
 }
 
 // Init ...
-func Init( //nolint: ireturn
-	host string,
-	port int,
-	username, password, name string,
-	timeout time.Duration,
-) (DBInterface, error) {
+func Init(host string, port int, username, password, name string, timeout time.Duration) (DBInterface, error) { //nolint:ireturn
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
 	dsn := fmt.Sprintf(
-		"postgres://%s:%s@%s:%d/%s?sslmode=disable",
+		"postgres://%s:%s@%s/%s?sslmode=disable",
 		username,
 		password,
-		host,
-		port,
+		net.JoinHostPort(host, strconv.Itoa(port)),
 		name,
 	)
 
@@ -45,6 +41,7 @@ func Init( //nolint: ireturn
 	err = conn.Ping(ctx)
 	if err != nil {
 		conn.Close()
+
 		return nil, err //nolint: wrapcheck
 	}
 

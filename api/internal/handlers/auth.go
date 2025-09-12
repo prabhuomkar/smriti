@@ -60,11 +60,13 @@ func (h *Handler) Login(ctx echo.Context) error {
 			)
 		}
 		slog.Error("error getting user", "error", err)
+
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	accessToken, refreshToken, err := auth.GetTokens(h.Config, h.Cache, user)
 	if err != nil {
 		slog.Error("error getting tokens", "error", err)
+
 		return echo.NewHTTPError(
 			http.StatusInternalServerError,
 			"error getting tokens",
@@ -74,6 +76,7 @@ func (h *Handler) Login(ctx echo.Context) error {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 	}
+
 	return ctx.JSON(http.StatusOK, authResponse)
 }
 
@@ -88,6 +91,7 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 	)
 	if err != nil {
 		slog.Error("error refreshing tokens", "error", err)
+
 		return echo.NewHTTPError(
 			http.StatusInternalServerError,
 			"error refreshing tokens",
@@ -97,6 +101,7 @@ func (h *Handler) Refresh(ctx echo.Context) error {
 		AccessToken:  newAccessToken,
 		RefreshToken: newRefreshToken,
 	}
+
 	return ctx.JSON(http.StatusOK, authResponse)
 }
 
@@ -105,6 +110,7 @@ func (h *Handler) Logout(ctx echo.Context) error {
 	accessToken := ctx.Request().Header.Get("Authorization")
 	accessToken = strings.ReplaceAll(accessToken, "Bearer ", "")
 	_ = auth.RemoveTokens(h.Cache, accessToken)
+
 	return ctx.JSON(http.StatusNoContent, nil)
 }
 
@@ -113,6 +119,7 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 	err := ctx.Bind(loginRequest)
 	if err != nil {
 		slog.Error("error getting username and password", "error", err)
+
 		return nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid username or password",
@@ -120,10 +127,12 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 	}
 	if loginRequest.Username == nil || loginRequest.Password == nil {
 		slog.Error("error getting username and password", "error", err)
+
 		return nil, echo.NewHTTPError(
 			http.StatusBadRequest,
 			"invalid username or password",
 		)
 	}
+
 	return loginRequest, nil
 }

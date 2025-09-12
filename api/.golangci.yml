@@ -7,13 +7,12 @@ linters:
     - depguard
     - exhaustruct
     - dupl
-    - nlreturn
-    - nosprintfhostport
     - protogetter
     - tagalign
     - wrapcheck
+    - wsl_v5
+    - noinlineerr
     - wsl
-    - varnamelen
     - funlen
   settings:
     lll:
