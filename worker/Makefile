@@ -17,7 +17,7 @@ run:
 .PHONY: test
 test: 
 	@cd build/tests && \
-		./worker_tests && \
+		./worker_tests  && \
 		./worker_benchmarks
 
 .PHONY: cover

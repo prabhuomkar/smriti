@@ -47,22 +47,80 @@ TEST(MetadataTest, EmptyData) {
       .WillOnce(::testing::Return(mock_data));
   std::unordered_map<std::string, std::string> result =
       metadata.Extract("", "", "");
-  assertMetadataResult({}, result);
+  assertMetadataResult(
+      {
+          {"status", "PROCESSING"},
+          {"type", "unknown"},
+          {"category", "default"},
+          {"latitude", "0.000000"},
+          {"longitude", "0.000000"},
+          {"fps", ""},
+          {"height", ""},
+          {"width", ""},
+          {"camera_make", ""},
+          {"camera_model", ""},
+          {"focal_length", ""},
+          {"aperture_fnumber", ""},
+          {"iso_equivalent", ""},
+          {"exposure_time", ""},
+          {"mime_type", ""},
+          {"creation_time", ""},
+          {"exifdata", "{}"},
+      },
+      result);
 }
 
 TEST(MetadataTest, Success) {
   spdlog::set_level(spdlog::level::off);
   auto mock_client = std::make_shared<MockExifToolClient>();
   Metadata metadata(mock_client);
-  std::unordered_map<std::string, std::string> mock_data;
-  mock_data["key"] = "value";
+  std::unordered_map<std::string, std::string> mock_data = {
+      {"VideoFrameRate", "30"},
+      {"GPSLatitude", "19 deg 13' 11.99\" N"},
+      {"GPSLongitude", "73 deg 6' 19.19\" E"},
+      {"ExifImageWidth", "4032"},
+      {"ImageWidth", "226"},
+      {"ExifImageHeight", "3024"},
+      {"ImageHeight", "4032"},
+      {"Make", "Apple"},
+      {"Model", "iPhone 15 Pro"},
+      {"FocalLength", "4.2 mm"},
+      {"FNumber", "1.6"},
+      {"ISO", "640"},
+      {"MIMEType", "image/heic"},
+      {"ExposureTime", "1/25"},
+      {"LivePhotoVideoIndex", "1112547328"},
+      {"DateCreated", "2022:04:03 12:56:11"}};
   EXPECT_CALL(*mock_client, Extract(::testing::_))
       .WillOnce(::testing::Return(mock_data));
   std::unordered_map<std::string, std::string> result =
       metadata.Extract("", "", "");
-  assertMetadataResult(
-      {
-          {"key", "value"},
-      },
-      result);
+  assertMetadataResult({{"status", "PROCESSING"},
+                        {"type", "photo"},
+                        {"category", "live"},
+                        {"latitude", "19.219997"},
+                        {"longitude", "73.105331"},
+                        {"fps", "30"},
+                        {"height", "3024"},
+                        {"width", "4032"},
+                        {"camera_make", "Apple"},
+                        {"camera_model", "iPhone 15 Pro"},
+                        {"focal_length", "4.2 mm"},
+                        {"aperture_fnumber", "1.6"},
+                        {"iso_equivalent", "640"},
+                        {"exposure_time", "1/25"},
+                        {"mime_type", "image/heic"},
+                        {"creation_time", "2022-04-03 12:56:11"},
+                        {"exifdata",
+                         "{\"VideoFrameRate\":\"30\",\"ExifImageWidth\":"
+                         "\"4032\",\"GPSLatitude\":\"19 deg 13' 11.99\" "
+                         "N\",\"GPSLongitude\":\"73 deg 6' 19.19\" "
+                         "E\",\"ImageWidth\":\"226\",\"Make\":\"Apple\","
+                         "\"Model\":\"iPhone 15 Pro\",\"FocalLength\":\"4.2 "
+                         "mm\",\"ExifImageHeight\":\"3024\",\"FNumber\":\"1."
+                         "6\",\"ImageHeight\":\"4032\",\"ISO\":\"640\","
+                         "\"MIMEType\":\"image/heic\",\"ExposureTime\":\"1/"
+                         "25\",\"LivePhotoVideoIndex\":\"1112547328\","
+                         "\"DateCreated\":\"2022:04:03 12:56:11\"}"}},
+                       result);
 }

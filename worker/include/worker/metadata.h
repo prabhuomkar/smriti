@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "worker/components.h"
 
@@ -113,6 +114,11 @@ class Metadata {
  private:
   std::shared_ptr<ExifToolClientInterface> exif_tool_client_;
 };
+
+std::string GetValue(const std::unordered_map<std::string, std::string>& data,
+                     const std::vector<std::string>& keys);
+
+std::string GetCoordinates(const std::string& location);
 
 std::shared_ptr<Metadata> Init(const ComponentConfig& config);
 } // namespace metadata
