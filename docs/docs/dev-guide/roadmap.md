@@ -1,4 +1,5 @@
 # Roadmap
+
 - [x] Album Creation & Its CRUD (v2022.09.30)
 - [x] Library APIs with Favourites, Hidden & Trash (v2022.09.30)
 - [x] Get All Places from Photos & its Collection (v2022.10.31)
@@ -15,5 +16,6 @@
 - [x] Open up for contributions to build Mobile & Web Application (v2023.08.31)
 - [x] Enhance Image & Video Support (v2024.03.09)
 - [x] Improvements to E2E Test Suite (v2024.03.09)
-- [ ] Sync content from Social Media Websites (v2024.07.31)
-- [ ] Generation of Memories (v2024.07.31)
+- [ ] Faster Worker using C++ (v2025.12.31)
+- [ ] Sync content from other providers: Apple iCloud, Google Photos (v2026.01.31)
+- [ ] Generation of Memories (v2025.03.31)
