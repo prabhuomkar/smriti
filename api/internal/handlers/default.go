@@ -86,40 +86,9 @@ func (h *Handler) Search(ctx echo.Context) error {
 		}
 		defer rows.Close()
 		for rows.Next() {
-			mediaItem := models.MediaItem{}
-			if err := rows.Scan(&mediaItem.ID,
-				&mediaItem.UserID,
-				&mediaItem.Filename,
-				&mediaItem.Hash,
-				&mediaItem.Description,
-				&mediaItem.MimeType,
-				&mediaItem.SourceURL,
-				&mediaItem.PreviewURL,
-				&mediaItem.ThumbnailURL,
-				&mediaItem.Placeholder,
-				&mediaItem.IsFavourite,
-				&mediaItem.IsHidden,
-				&mediaItem.IsDeleted,
-				&mediaItem.Status,
-				&mediaItem.MediaItemType,
-				&mediaItem.MediaItemCategory,
-				&mediaItem.Width,
-				&mediaItem.Height,
-				&mediaItem.CreationTime,
-				&mediaItem.CameraMake,
-				&mediaItem.CameraModel,
-				&mediaItem.FocalLength,
-				&mediaItem.ApertureFnumber,
-				&mediaItem.IsoEquivalent,
-				&mediaItem.ExposureTime,
-				&mediaItem.Latitude,
-				&mediaItem.Longitude,
-				&mediaItem.FPS,
-				&mediaItem.EXIFData,
-				&mediaItem.Keywords,
-				&mediaItem.CreatedAt,
-				&mediaItem.UpdatedAt); err != nil {
-				slog.Error("error scanning mediaitem", "error", err)
+			mediaItem, err := models.ScanRowsToMediaItem(rows)
+			if err != nil {
+				slog.Error("error scanning album mediaitem", "error", err)
 
 				return echo.NewHTTPError(
 					http.StatusInternalServerError,
