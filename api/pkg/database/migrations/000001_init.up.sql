@@ -67,6 +67,7 @@ CREATE TABLE mediaitems (
     aperture_fnumber text,
     iso_equivalent text,
     exposure_time text,
+    megapixels text,
     latitude numeric,
     longitude numeric,
     fps text,

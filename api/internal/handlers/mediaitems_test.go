@@ -32,6 +32,7 @@ var (
 	sampleApertureFnumber = "aperture_fnumber"
 	sampleIsoEquivalent   = "iso_equivalent"
 	sampleExposureTime    = "exposure_time"
+	sampleMegapixels      = "18.4"
 	sampleLatitude        = 17.580249
 	sampleLongitude       = -70.278493
 	sampleFPS             = "fps"
@@ -40,7 +41,7 @@ var (
 		"id", "user_id", "filename", "hash", "description", "mime_type", "source_url", "preview_url", "thumbnail_url",
 		"placeholder", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
 		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "exif_data", "keywords", "created_at", "updated_at",
+		"iso_equivalent", "exposure_time", "megapixels", "latitude", "longitude", "fps", "exif_data", "keywords", "created_at", "updated_at",
 	}
 	mediaitemFaceCols = []string{
 		"id",
@@ -56,7 +57,7 @@ var (
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
 	mediaitemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
@@ -65,7 +66,7 @@ var (
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
@@ -73,7 +74,7 @@ var (
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
@@ -217,6 +218,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 								&sampleApertureFnumber,
 								&sampleIsoEquivalent,
 								&sampleExposureTime,
+								&sampleMegapixels,
 								&sampleLatitude,
 								&sampleLongitude,
 								&sampleFPS,
@@ -407,6 +409,7 @@ func TestGetMediaItemThings(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -766,6 +769,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 								&sampleApertureFnumber,
 								&sampleIsoEquivalent,
 								&sampleExposureTime,
+								&sampleMegapixels,
 								&sampleLatitude,
 								&sampleLongitude,
 								&sampleFPS,
@@ -923,6 +927,7 @@ func TestGetMediaItem(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -2511,6 +2516,7 @@ func TestGetMediaItems(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -2917,6 +2923,7 @@ func getMockedMediaItemRow() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2955,6 +2962,7 @@ func getMockedMediaItemRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2989,6 +2997,7 @@ func getMockedMediaItemRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,

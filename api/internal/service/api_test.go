@@ -322,6 +322,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 						pgxmock.AnyArg(),
 						pgxmock.AnyArg(),
 						pgxmock.AnyArg(),
+						pgxmock.AnyArg(),
 					).
 					WillReturnError(errors.New("some db error"))
 			},
@@ -336,6 +337,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(
+						pgxmock.AnyArg(),
 						pgxmock.AnyArg(),
 						pgxmock.AnyArg(),
 						pgxmock.AnyArg(),

@@ -223,6 +223,7 @@ func TestSearch(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,

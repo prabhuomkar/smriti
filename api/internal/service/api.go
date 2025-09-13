@@ -40,9 +40,9 @@ var errUploadingInvalidFilePath = errors.New("error uploading due to invalid fil
 const (
 	queryGetUsers              = `SELECT id FROM users`
 	querySaveMediaItemMetadata = `UPDATE mediaitems SET creation_time=$3, camera_make=$4, camera_model=$5,` +
-		` focal_length=$6, aperture_fnumber=$7, iso_equivalent=$8, exposure_time=$9, fps=$10, latitude=$11,` +
-		` longitude=$12, exif_data=$13, mime_type=$14, mediaitem_type=$15, mediaitem_category=$16, width=$17,` +
-		` height=$18 WHERE user_id=$1 AND id=$2`
+		` focal_length=$6, aperture_fnumber=$7, iso_equivalent=$8, exposure_time=$9, megapixels=$10, fps=$11,` +
+		` latitude=$12, longitude=$13, exif_data=$14, mime_type=$15, mediaitem_type=$16, mediaitem_category=$17,` +
+		` width=$18, height=$19 WHERE user_id=$1 AND id=$2`
 	querySaveMediaItemPreviewThumbnail = `UPDATE mediaitems SET status=$3, source_url=$4, placeholder=$5,` +
 		` preview_url=$6, thumbnail_url=$7 WHERE user_id=$1 AND id=$2`
 	querySavePlace = `INSERT INTO places (id, user_id, name, postcode, country,` +
@@ -156,7 +156,8 @@ func (s *Service) GetMediaItemProcess(_ context.Context, _ *emptypb.Empty) (*api
 	slog.Info("getting mediaitem to process")
 
 	return &api.MediaItemProcessResponse{
-		UserId: "", Id: "", FilePath: "", Components: *s.enabledComponents, Payload: nil,
+		UserId: "", Id: "", FilePath: "",
+		Components: *s.enabledComponents, Payload: nil,
 	}, nil
 }
 
@@ -212,13 +213,11 @@ func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemM
 		}
 	}
 
-	mediaItem := models.MediaItem{
-		UserID: userID, ID: uid, CreationTime: creationTime,
-	}
+	mediaItem := models.MediaItem{UserID: userID, ID: uid, CreationTime: creationTime}
 	parseMediaItem(&mediaItem, req)
 	_, err = s.DB.Exec(ctx, querySaveMediaItemMetadata, userID, uid, mediaItem.CreationTime, mediaItem.CameraMake,
 		mediaItem.CameraModel, mediaItem.FocalLength, mediaItem.ApertureFnumber, mediaItem.IsoEquivalent,
-		mediaItem.ExposureTime, mediaItem.FPS, mediaItem.Latitude, mediaItem.Longitude, mediaItem.EXIFData,
+		mediaItem.ExposureTime, mediaItem.Megapixels, mediaItem.FPS, mediaItem.Latitude, mediaItem.Longitude, mediaItem.EXIFData,
 		mediaItem.MimeType, mediaItem.MediaItemType, mediaItem.MediaItemCategory, mediaItem.Width, mediaItem.Height)
 	if err != nil {
 		slog.Error("error saving mediaitem metadata", "error", err)
@@ -248,9 +247,7 @@ func (s *Service) SaveMediaItemPreviewThumbnail(ctx context.Context,
 	}
 	slog.Info("saving preview and thumbnail for mediaitem", "user", req.UserId, "mediaitem", req.Id,
 		"body", req.String())
-	mediaItemUpdates := map[string]interface{}{
-		"status": req.Status,
-	}
+	mediaItemUpdates := map[string]interface{}{"status": req.Status}
 	if req.SourcePath != nil {
 		mediaItemUpdates["source_url"], err = uploadFile(s.Storage, *req.SourcePath, "originals", req.Id)
 		if err != nil {
@@ -306,7 +303,8 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 	}
 	slog.Info("saving mediaitem place", "user", req.UserId, "mediaitem", req.Id, "body", req.String())
 	place := models.Place{
-		UserID: userID, Postcode: req.Postcode, Country: req.Country, Locality: req.Locality, Area: req.Area,
+		UserID: userID, Postcode: req.Postcode, Country: req.Country,
+		Locality: req.Locality, Area: req.Area,
 	}
 	place.Name = getNameForPlace(place)
 	place.CreatedAt = time.Now()
@@ -361,9 +359,7 @@ func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThin
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	slog.Info("saving mediaitem thing", "user", req.UserId, "mediaitem", req.Id, "body", req.String())
-	thing := models.Thing{
-		UserID: userID, Name: req.Name,
-	}
+	thing := models.Thing{UserID: userID, Name: req.Name}
 	thing.CreatedAt = time.Now()
 	thing.UpdatedAt = thing.CreatedAt
 	ttx, err := s.DB.Begin(ctx)
@@ -422,7 +418,8 @@ func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFace
 	for idx, reqEmbedding := range req.GetEmbeddings() {
 		faceEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
 		mediaItemFaces[idx] = models.MediaitemFace{
-			MediaitemID: uid, ID: uuid.NewV4(), Embedding: &faceEmbedding, Thumbnail: faceThumbnails[idx],
+			MediaitemID: uid, ID: uuid.NewV4(),
+			Embedding: &faceEmbedding, Thumbnail: faceThumbnails[idx],
 		}
 	}
 	for idx, mediaItemFace := range mediaItemFaces {
@@ -473,12 +470,11 @@ func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context,
 	mediaItemFaceEmbeddings := []*api.MediaItemFaceEmbedding{}
 	for _, mediaItemFace := range mediaItemFaces {
 		mediaItemFaceEmbedding := &api.MediaItemFaceEmbedding{
-			Id: mediaItemFace.ID.String(), MediaItemId: mediaItemFace.MediaitemID.String(),
+			Id:          mediaItemFace.ID.String(),
+			MediaItemId: mediaItemFace.MediaitemID.String(),
 		}
 		if mediaItemFace.Embedding != nil {
-			mediaItemFaceEmbedding.Embedding = &api.MediaItemEmbedding{
-				Embedding: mediaItemFace.Embedding.Slice(),
-			}
+			mediaItemFaceEmbedding.Embedding = &api.MediaItemEmbedding{Embedding: mediaItemFace.Embedding.Slice()}
 		}
 		if mediaItemFace.PeopleID != nil {
 			mediaItemFaceEmbedding.PeopleId = mediaItemFace.PeopleID.String()
@@ -486,9 +482,7 @@ func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context,
 		mediaItemFaceEmbeddings = append(mediaItemFaceEmbeddings, mediaItemFaceEmbedding)
 	}
 
-	return &api.MediaItemFaceEmbeddingsResponse{
-		MediaItemFaceEmbeddings: mediaItemFaceEmbeddings,
-	}, nil
+	return &api.MediaItemFaceEmbeddingsResponse{MediaItemFaceEmbeddings: mediaItemFaceEmbeddings}, nil
 }
 
 //nolint:gocognit,cyclop
@@ -549,7 +543,8 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 		defaultCoverMediaItemID := peopleWithMediaItems[peopleID][0]
 		defaultCoverMediaItemFaceID := peopleWithFaces[peopleID][0]
 		people := models.People{
-			IsHidden: &defaultPeopleVisibility, Name: "", CoverMediaItemID: &defaultCoverMediaItemID,
+			IsHidden: &defaultPeopleVisibility, Name: "",
+			CoverMediaItemID:     &defaultCoverMediaItemID,
 			CoverMediaItemFaceID: &defaultCoverMediaItemFaceID,
 		}
 		people.CreatedAt = time.Now()
@@ -578,7 +573,8 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 			if err != nil {
 				slog.Error("error saving people mediaitems", "idx", idx, "mediaItemIdx", midx, "error", err)
 
-				return &emptypb.Empty{}, status.Errorf(codes.Internal, "error saving people mediaitems: %s", err.Error())
+				return &emptypb.Empty{}, status.Errorf(codes.Internal,
+					"error saving people mediaitems: %s", err.Error())
 			}
 		}
 		for fidx, faceID := range peopleWithFaces[peopleID] {
@@ -651,8 +647,7 @@ func (s *Service) SaveMediaItemFinalResult(ctx context.Context,
 				return err
 			}
 			if !dir.IsDir() && strings.Contains(dir.Name(), req.Id) &&
-				filepath.Dir(path) == s.Config.DiskRoot {
-				// acquire lock to check if not copied
+				filepath.Dir(path) == s.Config.DiskRoot { // acquire lock to check if not copied
 				for {
 					slog.Debug("deleting file", "path", path)
 					file, err := os.Open(path)
@@ -703,6 +698,7 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	mediaItem.ApertureFnumber = req.ApertureFNumber
 	mediaItem.IsoEquivalent = req.IsoEquivalent
 	mediaItem.ExposureTime = req.ExposureTime
+	mediaItem.Megapixels = req.Megapixels
 	mediaItem.FPS = req.Fps
 	mediaItem.Latitude = req.Latitude
 	mediaItem.Longitude = req.Longitude

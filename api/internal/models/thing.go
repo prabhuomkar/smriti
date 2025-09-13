@@ -61,6 +61,7 @@ func ScanRowsToThing(rows pgx.Rows) (Thing, error) {
 		&thing.CoverMediaItem.ApertureFnumber,
 		&thing.CoverMediaItem.IsoEquivalent,
 		&thing.CoverMediaItem.ExposureTime,
+		&thing.CoverMediaItem.Megapixels,
 		&thing.CoverMediaItem.Latitude,
 		&thing.CoverMediaItem.Longitude,
 		&thing.CoverMediaItem.FPS,

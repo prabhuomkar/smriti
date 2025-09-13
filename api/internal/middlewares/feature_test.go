@@ -35,7 +35,7 @@ var (
 		"id", "user_id", "filename", "hash", "description", "mime_type", "source_url", "preview_url", "thumbnail_url",
 		"placeholder", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category",
 		"width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber",
-		"iso_equivalent", "exposure_time", "latitude", "longitude", "fps", "exif_data", "keywords", "created_at", "updated_at",
+		"iso_equivalent", "exposure_time", "megapixels", "latitude", "longitude", "fps", "exif_data", "keywords", "created_at", "updated_at",
 	}
 )
 

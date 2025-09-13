@@ -18,8 +18,7 @@ import (
 
 const MediaItemsTable = "mediaitems"
 
-type (
-	// MediaItemStatus ...
+type ( // MediaItemStatus ...
 	MediaItemStatus string
 
 	// MediaItemType ...
@@ -70,6 +69,7 @@ type (
 		ApertureFnumber   *string           `json:"apertureFNumber,omitempty"`
 		IsoEquivalent     *string           `json:"isoEquivalent,omitempty"`
 		ExposureTime      *string           `json:"exposureTime,omitempty"`
+		Megapixels        *string           `json:"megapixels,omitempty"`
 		Latitude          *float64          `json:"latitude,omitempty"`
 		Longitude         *float64          `json:"longitude,omitempty"`
 		FPS               *string           `json:"fps,omitempty"`
@@ -108,39 +108,14 @@ func (MediaItem) TableName() string {
 
 func ScanRowsToMediaItem(rows pgx.Rows) (MediaItem, error) {
 	mediaItem := MediaItem{}
-	err := rows.Scan(
-		&mediaItem.ID,
-		&mediaItem.UserID,
-		&mediaItem.Filename,
-		&mediaItem.Hash,
-		&mediaItem.Description,
-		&mediaItem.MimeType,
-		&mediaItem.SourceURL,
-		&mediaItem.PreviewURL,
-		&mediaItem.ThumbnailURL,
-		&mediaItem.Placeholder,
-		&mediaItem.IsFavourite,
-		&mediaItem.IsHidden,
-		&mediaItem.IsDeleted,
-		&mediaItem.Status,
-		&mediaItem.MediaItemType,
-		&mediaItem.MediaItemCategory,
-		&mediaItem.Width,
-		&mediaItem.Height,
-		&mediaItem.CreationTime,
-		&mediaItem.CameraMake,
-		&mediaItem.CameraModel,
-		&mediaItem.FocalLength,
-		&mediaItem.ApertureFnumber,
-		&mediaItem.IsoEquivalent,
-		&mediaItem.ExposureTime,
-		&mediaItem.Latitude,
-		&mediaItem.Longitude,
-		&mediaItem.FPS,
-		&mediaItem.EXIFData,
-		&mediaItem.Keywords,
-		&mediaItem.CreatedAt,
-		&mediaItem.UpdatedAt)
+	err := rows.Scan(&mediaItem.ID, &mediaItem.UserID, &mediaItem.Filename, &mediaItem.Hash,
+		&mediaItem.Description, &mediaItem.MimeType, &mediaItem.SourceURL, &mediaItem.PreviewURL,
+		&mediaItem.ThumbnailURL, &mediaItem.Placeholder, &mediaItem.IsFavourite, &mediaItem.IsHidden,
+		&mediaItem.IsDeleted, &mediaItem.Status, &mediaItem.MediaItemType, &mediaItem.MediaItemCategory,
+		&mediaItem.Width, &mediaItem.Height, &mediaItem.CreationTime, &mediaItem.CameraMake,
+		&mediaItem.CameraModel, &mediaItem.FocalLength, &mediaItem.ApertureFnumber, &mediaItem.IsoEquivalent,
+		&mediaItem.ExposureTime, &mediaItem.Megapixels, &mediaItem.Latitude, &mediaItem.Longitude, &mediaItem.FPS,
+		&mediaItem.EXIFData, &mediaItem.Keywords, &mediaItem.CreatedAt, &mediaItem.UpdatedAt)
 
 	return mediaItem, err
 }
@@ -168,34 +143,20 @@ func (m *MediaItemURLPlugin) TransformMediaItemURL(gormDB *gorm.DB) {
 }
 
 //nolint:gocognit,cyclop
-func (m *MediaItemURLPlugin) transformMediaItemURL(
-	wg *sync.WaitGroup,
-	gormDB *gorm.DB,
-	fieldName string,
-) {
+func (m *MediaItemURLPlugin) transformMediaItemURL(wg *sync.WaitGroup, gormDB *gorm.DB, fieldName string) {
 	defer wg.Done()
 	field := gormDB.Statement.Schema.LookUpField(fieldName)
 	if field != nil { //nolint: nestif
 		switch gormDB.Statement.ReflectValue.Kind() { //nolint: exhaustive
 		case reflect.Slice, reflect.Array:
 			for i := range gormDB.Statement.ReflectValue.Len() {
-				if fieldValue, isZero := field.ValueOf(gormDB.Statement.Context, gormDB.Statement.ReflectValue.Index(i)); !isZero {
+				if fieldValue, isZero := field.ValueOf(gormDB.Statement.Context,
+					gormDB.Statement.ReflectValue.Index(i)); !isZero {
 					if val, ok := fieldValue.(string); ok {
-						err := field.Set(
-							gormDB.Statement.Context,
-							gormDB.Statement.ReflectValue.Index(i),
-							m.getMediaItemURL(fieldName, val),
-						)
+						err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue.Index(i),
+							m.getMediaItemURL(fieldName, val))
 						if err != nil {
-							slog.Error(
-								"error setting field value",
-								"field",
-								fieldName,
-								"value",
-								val,
-								"error",
-								err,
-							)
+							slog.Error("error setting field value", "field", fieldName, "value", val, "error", err)
 						}
 					}
 				}
@@ -203,21 +164,10 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(
 		case reflect.Struct:
 			if fieldValue, isZero := field.ValueOf(gormDB.Statement.Context, gormDB.Statement.ReflectValue); !isZero {
 				if val, ok := fieldValue.(string); ok {
-					err := field.Set(
-						gormDB.Statement.Context,
-						gormDB.Statement.ReflectValue,
-						m.getMediaItemURL(fieldName, val),
-					)
+					err := field.Set(gormDB.Statement.Context, gormDB.Statement.ReflectValue,
+						m.getMediaItemURL(fieldName, val))
 					if err != nil {
-						slog.Error(
-							"error setting value for field",
-							"field",
-							fieldName,
-							"value",
-							val,
-							"error",
-							err,
-						)
+						slog.Error("error setting value for field", "field", fieldName, "value", val, "error", err)
 					}
 				}
 			}
@@ -225,9 +175,7 @@ func (m *MediaItemURLPlugin) transformMediaItemURL(
 	}
 }
 
-func (m *MediaItemURLPlugin) getMediaItemURL(
-	fieldName, filePath string,
-) string {
+func (m *MediaItemURLPlugin) getMediaItemURL(fieldName, filePath string) string {
 	// get from cache if exists
 	preFetchedVal, err := m.Cache.Get(filePath)
 	if err == nil {
@@ -244,20 +192,14 @@ func (m *MediaItemURLPlugin) getMediaItemURL(
 
 	fetchedURL, err := m.Storage.Get(fileType, fileID)
 	if err != nil {
-		slog.Error(
-			"error getting mediaitem url from storage",
-			slog.Any("error", err),
-		)
+		slog.Error("error getting mediaitem url from storage", slog.Any("error", err))
 
 		return ""
 	}
 
 	err = m.Cache.SetWithExpire(filePath, fetchedURL, preFetchTime*time.Hour)
 	if err != nil {
-		slog.Error(
-			"error caching mediaitem url from storage",
-			slog.Any("error", err),
-		)
+		slog.Error("error caching mediaitem url from storage", slog.Any("error", err))
 	}
 
 	return fetchedURL

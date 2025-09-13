@@ -67,6 +67,7 @@ func ScanRowsToAlbum(rows pgx.Rows) (Album, error) {
 		&album.CoverMediaItem.ApertureFnumber,
 		&album.CoverMediaItem.IsoEquivalent,
 		&album.CoverMediaItem.ExposureTime,
+		&album.CoverMediaItem.Megapixels,
 		&album.CoverMediaItem.Latitude,
 		&album.CoverMediaItem.Longitude,
 		&album.CoverMediaItem.FPS,

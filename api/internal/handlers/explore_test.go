@@ -47,7 +47,7 @@ var (
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30","year":"2023"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
@@ -55,7 +55,7 @@ var (
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30","year":"2022"}]`
 	coverMediaItemResponseBody = `"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
@@ -64,7 +64,7 @@ var (
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
-		`"latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
 	coverFaceResponseBody = `"coverMediaItemFace":{"thumbnail":"thumbnail"}`
 	placeResponseBody     = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
@@ -211,6 +211,7 @@ func TestGetYearsAgoMediaItems(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -375,6 +376,7 @@ func TestGetPlaces(t *testing.T) {
 								&sampleApertureFnumber,
 								&sampleIsoEquivalent,
 								&sampleExposureTime,
+								&sampleMegapixels,
 								&sampleLatitude,
 								&sampleLongitude,
 								&sampleFPS,
@@ -561,6 +563,7 @@ func TestGetPlace(t *testing.T) {
 								&sampleApertureFnumber,
 								&sampleIsoEquivalent,
 								&sampleExposureTime,
+								&sampleMegapixels,
 								&sampleLatitude,
 								&sampleLongitude,
 								&sampleFPS,
@@ -730,6 +733,7 @@ func TestGetPlaceMediaItems(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -895,6 +899,7 @@ func TestGetThings(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -1049,6 +1054,7 @@ func TestGetThing(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -1218,6 +1224,7 @@ func TestGetThingMediaItems(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -1839,6 +1846,7 @@ func TestGetPersonMediaItems(t *testing.T) {
 							&sampleApertureFnumber,
 							&sampleIsoEquivalent,
 							&sampleExposureTime,
+							&sampleMegapixels,
 							&sampleLatitude,
 							&sampleLongitude,
 							&sampleFPS,
@@ -1927,6 +1935,7 @@ func getMockedPlaceRow() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -1976,6 +1985,7 @@ func getMockedPlaceRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2021,6 +2031,7 @@ func getMockedPlaceRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2066,6 +2077,7 @@ func getMockedThingRow() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2111,6 +2123,7 @@ func getMockedThingRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2152,6 +2165,7 @@ func getMockedThingRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2243,6 +2257,7 @@ func getMockedMemoryMediaItemRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,
@@ -2278,6 +2293,7 @@ func getMockedMemoryMediaItemRows() *pgxmock.Rows {
 			&sampleApertureFnumber,
 			&sampleIsoEquivalent,
 			&sampleExposureTime,
+			&sampleMegapixels,
 			&sampleLatitude,
 			&sampleLongitude,
 			&sampleFPS,

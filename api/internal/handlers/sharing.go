@@ -102,6 +102,7 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 		&sharedAlbum.CoverMediaItem.ApertureFnumber,
 		&sharedAlbum.CoverMediaItem.IsoEquivalent,
 		&sharedAlbum.CoverMediaItem.ExposureTime,
+		&sharedAlbum.CoverMediaItem.Megapixels,
 		&sharedAlbum.CoverMediaItem.Latitude,
 		&sharedAlbum.CoverMediaItem.Longitude,
 		&sharedAlbum.CoverMediaItem.FPS,

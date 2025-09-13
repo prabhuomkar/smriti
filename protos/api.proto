@@ -42,10 +42,11 @@ message MediaItemMetadataRequest {
   optional string apertureFNumber = 13;
   optional string isoEquivalent = 14;
   optional string exposureTime = 15;
-  optional string fps = 16;
-  optional double latitude = 17;
-  optional double longitude = 18;
-  optional string exifData = 19;
+  optional string megapixels = 16;
+  optional string fps = 17;
+  optional double latitude = 18;
+  optional double longitude = 19;
+  optional string exifData = 20;
 }
 
 message MediaItemPreviewThumbnailRequest {
