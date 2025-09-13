@@ -27,37 +27,21 @@ func TestGetMiddlewareFuncs(t *testing.T) {
 		ExpectedLen int
 	}{
 		{
-			Name:        "without jwt check and no features",
-			JWTCheck:    false,
-			Features:    []string{},
-			ExpectedLen: 0,
+			Name: "without jwt check and no features", JWTCheck: false, Features: []string{}, ExpectedLen: 0,
 		},
 		{
-			Name:        "without jwt check and features",
-			JWTCheck:    false,
-			Features:    []string{"places", "favourites"},
-			ExpectedLen: 2,
+			Name: "without jwt check and features", JWTCheck: false, Features: []string{"places", "favourites"}, ExpectedLen: 2,
 		},
 		{
-			Name:        "with jwt check and no features",
-			JWTCheck:    true,
-			Features:    []string{},
-			ExpectedLen: 1,
+			Name: "with jwt check and no features", JWTCheck: true, Features: []string{}, ExpectedLen: 1,
 		},
 		{
-			Name:        "with jwt check and features",
-			JWTCheck:    true,
-			Features:    []string{"places", "favourites"},
-			ExpectedLen: 3,
+			Name: "with jwt check and features", JWTCheck: true, Features: []string{"places", "favourites"}, ExpectedLen: 3,
 		},
 	}
 	for _, tc := range tests {
 		t.Run(tc.Name, func(t *testing.T) {
-			middlewareFuncs := getMiddlewareFuncs(
-				mockConfig,
-				nil,
-				tc.JWTCheck,
-				tc.Features...)
+			middlewareFuncs := getMiddlewareFuncs(mockConfig, nil, tc.JWTCheck, tc.Features...)
 			assert.Equal(t, tc.ExpectedLen, len(middlewareFuncs))
 		})
 	}

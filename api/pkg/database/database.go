@@ -21,17 +21,13 @@ type DBInterface interface {
 }
 
 // Init ...
-func Init(host string, port int, username, password, name string, timeout time.Duration) (DBInterface, error) { //nolint:ireturn
+//
+//nolint:ireturn
+func Init(host string, port int, username, password, name string, timeout time.Duration) (DBInterface, error) {
 	ctx, cancel := context.WithTimeout(context.Background(), timeout)
 	defer cancel()
 
-	dsn := fmt.Sprintf(
-		"postgres://%s:%s@%s/%s?sslmode=disable",
-		username,
-		password,
-		net.JoinHostPort(host, strconv.Itoa(port)),
-		name,
-	)
+	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", username, password, net.JoinHostPort(host, strconv.Itoa(port)), name)
 
 	conn, err := pgxpool.New(ctx, dsn)
 	if err != nil {

@@ -6,8 +6,7 @@ import (
 	"syscall"
 )
 
-type (
-	// Disk ...
+type ( // Disk ...
 	Disk struct {
 		Total uint64 `json:"total,omitempty"`
 		Used  uint64 `json:"used,omitempty"`
@@ -24,10 +23,7 @@ func GetDisk(cfg *config.Config) *Disk {
 
 		return nil
 	}
-	disk := &Disk{
-		Total: diskStat.Blocks * uint64(diskStat.Bsize),
-		Free:  diskStat.Bfree * uint64(diskStat.Bsize),
-	}
+	disk := &Disk{Total: diskStat.Blocks * uint64(diskStat.Bsize), Free: diskStat.Bfree * uint64(diskStat.Bsize)}
 	disk.Used = disk.Total - disk.Free
 
 	return disk

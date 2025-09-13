@@ -26,13 +26,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	favourites := []models.MediaItem{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		queryGetFavouriteMediaItems,
-		userID,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetFavouriteMediaItems, userID, offset, limit)
 	if err != nil {
 		slog.Error("error getting favourite mediaitems", "error", err)
 
@@ -44,10 +38,7 @@ func (h *Handler) GetFavouriteMediaItems(ctx echo.Context) error {
 		if err != nil {
 			slog.Error("error scanning favourite mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		favourites = append(favourites, mediaItem)
 	}
@@ -66,12 +57,7 @@ func (h *Handler) AddFavouriteMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryAddFavouriteMediaItems,
-		userID,
-		mediaItemIDs,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryAddFavouriteMediaItems, userID, mediaItemIDs)
 	if err != nil {
 		slog.Error("error adding favourite mediaitems", "error", err)
 
@@ -92,12 +78,7 @@ func (h *Handler) RemoveFavouriteMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryRemoveFavouriteMediaItems,
-		userID,
-		mediaItemIDs,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryRemoveFavouriteMediaItems, userID, mediaItemIDs)
 	if err != nil {
 		slog.Error("error removing favourite mediaitems", "error", err)
 
@@ -112,13 +93,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	hidden := []models.MediaItem{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		queryGetHiddenMediaItems,
-		userID,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetHiddenMediaItems, userID, offset, limit)
 	if err != nil {
 		slog.Error("error getting hidden mediaitems", "error", err)
 
@@ -130,10 +105,7 @@ func (h *Handler) GetHiddenMediaItems(ctx echo.Context) error {
 		if err != nil {
 			slog.Error("error scanning hidden mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		hidden = append(hidden, mediaItem)
 	}
@@ -152,12 +124,7 @@ func (h *Handler) AddHiddenMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryAddHiddenMediaItems,
-		userID,
-		mediaItemIDs,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryAddHiddenMediaItems, userID, mediaItemIDs)
 	if err != nil {
 		slog.Error("error adding hidden mediaitems", "error", err)
 
@@ -178,12 +145,7 @@ func (h *Handler) RemoveHiddenMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryRemoveHiddenMediaItems,
-		userID,
-		mediaItemIDs,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryRemoveHiddenMediaItems, userID, mediaItemIDs)
 	if err != nil {
 		slog.Error("error removing hidden mediaitems", "error", err)
 
@@ -198,13 +160,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	deleted := []models.MediaItem{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		queryGetDeletedMediaItems,
-		userID,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetDeletedMediaItems, userID, offset, limit)
 	if err != nil {
 		slog.Error("error getting deleted mediaitems", "error", err)
 
@@ -216,10 +172,7 @@ func (h *Handler) GetDeletedMediaItems(ctx echo.Context) error {
 		if err != nil {
 			slog.Error("error scanning deleted mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		deleted = append(deleted, mediaItem)
 	}
@@ -238,12 +191,7 @@ func (h *Handler) AddDeletedMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryAddDeletedMediaItems,
-		userID,
-		mediaItemIDs,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryAddDeletedMediaItems, userID, mediaItemIDs)
 	if err != nil {
 		slog.Error("error adding deleted mediaitems", "error", err)
 
@@ -264,12 +212,7 @@ func (h *Handler) RemoveDeletedMediaItems(ctx echo.Context) error {
 	for idx, mediaItem := range mediaItems {
 		mediaItemIDs[idx] = mediaItem.ID
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryRemoveDeletedMediaItems,
-		userID,
-		mediaItemIDs,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryRemoveDeletedMediaItems, userID, mediaItemIDs)
 	if err != nil {
 		slog.Error("error removing deleted mediaitems", "error", err)
 

@@ -30,20 +30,10 @@ func (People) TableName() string {
 
 func ScanRowsToPerson(rows pgx.Rows) (People, error) {
 	person := People{CoverMediaItemFace: &MediaitemFace{}}
-	err := rows.Scan(
-		&person.ID,
-		&person.UserID,
-		&person.Name,
-		&person.IsHidden,
-		&person.CoverMediaItemID,
-		&person.CoverMediaItemFaceID,
-		&person.CreatedAt,
-		&person.UpdatedAt,
-		&person.CoverMediaItemFace.ID,
-		&person.CoverMediaItemFace.MediaitemID,
-		&person.CoverMediaItemFace.PeopleID,
-		&person.CoverMediaItemFace.Embedding,
-		&person.CoverMediaItemFace.Thumbnail)
+	err := rows.Scan(&person.ID, &person.UserID, &person.Name, &person.IsHidden, &person.CoverMediaItemID,
+		&person.CoverMediaItemFaceID, &person.CreatedAt, &person.UpdatedAt, &person.CoverMediaItemFace.ID,
+		&person.CoverMediaItemFace.MediaitemID, &person.CoverMediaItemFace.PeopleID,
+		&person.CoverMediaItemFace.Embedding, &person.CoverMediaItemFace.Thumbnail)
 
 	return person, err
 }

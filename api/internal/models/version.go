@@ -6,8 +6,7 @@ var (
 	DefaultGitSHA  = "-"
 )
 
-type (
-	// Version ...
+type ( // Version ...
 	Version struct {
 		Version string `json:"version"`
 		GitSHA  string `json:"gitSha"`
@@ -16,8 +15,5 @@ type (
 
 // GetVersion ...
 func GetVersion() *Version {
-	return &Version{
-		Version: DefaultVersion,
-		GitSHA:  DefaultGitSHA,
-	}
+	return &Version{Version: DefaultVersion, GitSHA: DefaultGitSHA}
 }

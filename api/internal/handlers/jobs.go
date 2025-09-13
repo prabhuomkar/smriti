@@ -12,8 +12,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type (
-	// JobRequest ...
+type ( // JobRequest ...
 	JobRequest struct {
 		Components *string `json:"components"`
 		Status     *string `json:"status"`
@@ -26,7 +25,8 @@ const (
 	queryCheckJobExists = `SELECT COUNT(*) FROM jobs WHERE user_id=$1 AND status IN ($2, $3, $4)`
 	queryCreateJob      = `INSERT INTO jobs (id, user_id, status, components, created_at, updated_at)` +
 		` VALUES ($1, $2, $3, $4, $5, $6)`
-	queryUpdateJob = `UPDATE jobs SET status=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
+	queryUpdateJob       = `UPDATE jobs SET status=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
+	queryQueueMediaItems = `INSERT INTO queue (id, components, status) SELECT id, $1, $2 FROM mediaitems`
 )
 
 // GetJob ...
@@ -37,14 +37,8 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 		return err
 	}
 	job := models.Job{}
-	err = h.DB.QueryRow(ctx.Request().Context(), queryGetJob, userID, uid).Scan(
-		&job.ID,
-		&job.UserID,
-		&job.Status,
-		&job.Components,
-		&job.LastMediItemID,
-		&job.CreatedAt,
-		&job.UpdatedAt)
+	err = h.DB.QueryRow(ctx.Request().Context(), queryGetJob, userID, uid).Scan(&job.ID, &job.UserID,
+		&job.Status, &job.Components, &job.LastMediItemID, &job.CreatedAt, &job.UpdatedAt)
 	if err != nil {
 		slog.Error("error getting job", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -70,24 +64,13 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 	}
 	if job.Status == models.JobRunning {
 		existingJobCount := 0
-		err = h.DB.QueryRow(
-			ctx.Request().Context(),
-			queryCheckJobExists,
-			userID,
-			string(models.JobPaused),
-			string(models.JobScheduled),
-			string(models.JobRunning),
-		).
-			Scan(
-				&existingJobCount,
-			)
+		err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused),
+			string(models.JobScheduled), string(models.JobRunning)).
+			Scan(&existingJobCount)
 		if err != nil {
 			slog.Error("error getting existing job count", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		if existingJobCount > 0 {
 			slog.Error("job already exists", "error", err)
@@ -95,14 +78,7 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 			return echo.NewHTTPError(http.StatusConflict, "job already exists")
 		}
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryUpdateJob,
-		userID,
-		uid,
-		job.Status,
-		job.UpdatedAt,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryUpdateJob, userID, uid, job.Status, job.UpdatedAt)
 	if err != nil {
 		slog.Error("error updating job", "error", err)
 
@@ -117,13 +93,7 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	jobs := []models.Job{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		queryGetJobs,
-		userID,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetJobs, userID, offset, limit)
 	if err != nil {
 		slog.Error("error getting jobs", "error", err)
 
@@ -132,20 +102,12 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 	defer rows.Close()
 	for rows.Next() {
 		job := models.Job{}
-		err = rows.Scan(&job.ID,
-			&job.UserID,
-			&job.Status,
-			&job.Components,
-			&job.LastMediItemID,
-			&job.CreatedAt,
-			&job.UpdatedAt)
+		err = rows.Scan(&job.ID, &job.UserID, &job.Status, &job.Components, &job.LastMediItemID,
+			&job.CreatedAt, &job.UpdatedAt)
 		if err != nil {
 			slog.Error("error scanning job", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		jobs = append(jobs, job)
 	}
@@ -164,17 +126,9 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 	job.UserID = userID
 	job.Status = models.JobScheduled
 	existingJobCount := 0
-	err = h.DB.QueryRow(
-		ctx.Request().Context(),
-		queryCheckJobExists,
-		userID,
-		string(models.JobPaused),
-		string(models.JobScheduled),
-		string(models.JobRunning),
-	).
-		Scan(
-			&existingJobCount,
-		)
+	err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused),
+		string(models.JobScheduled), string(models.JobRunning)).
+		Scan(&existingJobCount)
 	if err != nil {
 		slog.Error("error getting existing job count", "error", err)
 
@@ -185,15 +139,17 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 
 		return echo.NewHTTPError(http.StatusConflict, "job already exists")
 	}
-	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateJob,
-		job.ID,
-		job.UserID,
-		job.Status,
-		job.Components,
-		job.CreatedAt,
-		job.UpdatedAt)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateJob, job.ID, job.UserID, job.Status,
+		job.Components, job.CreatedAt, job.UpdatedAt)
 	if err != nil {
 		slog.Error("error creating job", "error", err)
+
+		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	_, err = h.DB.Exec(ctx.Request().Context(), queryQueueMediaItems, job.Components, models.StatusUnspecified)
+	if err != nil {
+		slog.Error("error queuing job mediaitems", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -207,10 +163,7 @@ func getJobID(ctx echo.Context) (uuid.UUID, error) {
 	if err != nil {
 		slog.Error("error getting job id", "error", err)
 
-		return uuid.Nil, echo.NewHTTPError(
-			http.StatusBadRequest,
-			"invalid job id",
-		)
+		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid job id")
 	}
 
 	return uid, err

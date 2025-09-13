@@ -19,42 +19,19 @@ type mockMinioClient struct {
 	wantErr bool
 }
 
-func (m *mockMinioClient) FPutObject(
-	_ context.Context,
-	_ string,
-	_ string,
-	_ string,
-	_ minio.PutObjectOptions,
-) (minio.UploadInfo, error) {
+func (m *mockMinioClient) FPutObject(_ context.Context, _ string, _ string, _ string, _ minio.PutObjectOptions) (minio.UploadInfo, error) {
 	return minio.UploadInfo{}, nil
 }
 
-func (m *mockMinioClient) FGetObject(
-	_ context.Context,
-	_ string,
-	_ string,
-	_ string,
-	_ minio.GetObjectOptions,
-) error {
+func (m *mockMinioClient) FGetObject(_ context.Context, _ string, _ string, _ string, _ minio.GetObjectOptions) error {
 	return nil
 }
 
-func (m *mockMinioClient) RemoveObject(
-	_ context.Context,
-	_ string,
-	_ string,
-	_ minio.RemoveObjectOptions,
-) error {
+func (m *mockMinioClient) RemoveObject(_ context.Context, _ string, _ string, _ minio.RemoveObjectOptions) error {
 	return nil
 }
 
-func (m *mockMinioClient) PresignedGetObject(
-	_ context.Context,
-	bucket string,
-	object string,
-	_ time.Duration,
-	_ url.Values,
-) (*url.URL, error) {
+func (m *mockMinioClient) PresignedGetObject(_ context.Context, bucket string, object string, _ time.Duration, _ url.Values) (*url.URL, error) {
 	if m.wantErr {
 		return nil, errors.New("some error")
 	}
@@ -75,42 +52,25 @@ func TestMediaItemURLPluginGetMediaItemURL(t *testing.T) {
 		Args        []string
 	}{
 		{
-			"success getting from cache",
-			func() cache.Provider {
+			"success getting from cache", func() cache.Provider {
 				mockCache := &cache.InMemoryCache{
 					Connection: gcache.New(1024).LRU().Build(),
 				}
-				mockCache.SetWithExpire(
-					"/originals/fileID",
-					"cachedURL",
-					1*time.Minute,
-				)
+				mockCache.SetWithExpire("/originals/fileID", "cachedURL", 1*time.Minute)
 				return mockCache
-			},
-			nil,
-			"cachedURL",
-			[]string{"SourceURL", "/originals/fileID"},
+			}, nil, "cachedURL", []string{"SourceURL", "/originals/fileID"},
 		},
 		{
-			"error getting from storage",
-			func() cache.Provider { return &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()} },
-			&storage.Minio{Client: &mockMinioClient{wantErr: true}},
-			"",
-			[]string{"PreviewURL", "/previews/fileID"},
+			"error getting from storage", func() cache.Provider { return &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()} }, &storage.Minio{Client: &mockMinioClient{wantErr: true}}, "", []string{"PreviewURL", "/previews/fileID"},
 		},
 		{
-			"success getting from storage",
-			func() cache.Provider { return &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()} },
-			&storage.Minio{Client: &mockMinioClient{wantErr: false}},
-			"https://minio/previews/fileID",
-			[]string{"PreviewURL", "/previews/fileID"},
+			"success getting from storage", func() cache.Provider { return &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()} }, &storage.Minio{Client: &mockMinioClient{wantErr: false}}, "https://minio/previews/fileID", []string{"PreviewURL", "/previews/fileID"},
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			assert.Equal(t, test.ExpectedURL, (&MediaItemURLPlugin{
-				Storage: test.MockStorage,
-				Cache:   test.MockCache(),
+				Storage: test.MockStorage, Cache: test.MockCache(),
 			}).getMediaItemURL(test.Args[0], test.Args[1]))
 		})
 	}

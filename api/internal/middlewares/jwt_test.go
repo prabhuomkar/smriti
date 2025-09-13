@@ -1,18 +1,17 @@
 package middlewares
 
 import (
+	"api/config"
+	"api/internal/auth"
+	"api/internal/handlers"
+	"api/internal/models"
+	"api/pkg/cache"
 	"fmt"
 	"net/http"
 	"net/http/httptest"
 	"regexp"
 	"testing"
 	"time"
-
-	"api/config"
-	"api/internal/auth"
-	"api/internal/handlers"
-	"api/internal/models"
-	"api/pkg/cache"
 
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo/v4"
@@ -30,8 +29,7 @@ func TestJWTCheckUnauthorizedWithNoToken(t *testing.T) {
 	// mock cache
 	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	handler := &handlers.Handler{
-		Config: cfg,
-		Cache:  cache,
+		Config: cfg, Cache: cache,
 	}
 	checkJWT := JWTCheck(cfg, cache)
 
@@ -52,8 +50,7 @@ func TestJWTCheckUnauthorizedWithBadToken(t *testing.T) {
 	// mock cache
 	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	handler := &handlers.Handler{
-		Config: cfg,
-		Cache:  cache,
+		Config: cfg, Cache: cache,
 	}
 	checkJWT := JWTCheck(cfg, cache)
 
@@ -72,15 +69,11 @@ func TestJWTCheckOK(t *testing.T) {
 	cfg := &config.Config{
 		Feature: config.Feature{
 			Albums: true,
-		},
-		Auth: config.Auth{
+		}, Auth: config.Auth{
 			AccessTTL: 60,
 		},
 	}
-	accessToken, _ := auth.GetAccessAndRefreshTokens(
-		cfg,
-		models.User{ID: uuid.NewV4(), Username: "username"},
-	)
+	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.NewV4(), Username: "username"})
 	// mock cache
 	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	_ = cache.SetWithExpire(accessToken, nil, 1*time.Minute)
@@ -91,16 +84,10 @@ func TestJWTCheckOK(t *testing.T) {
 	defer mockDB.Close()
 	// handler
 	handler := &handlers.Handler{
-		Config: cfg,
-		DB:     mockDB,
+		Config: cfg, DB: mockDB,
 	}
 	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
-		WithArgs(
-			pgxmock.AnyArg(),
-			pgxmock.AnyArg(),
-			pgxmock.AnyArg(),
-			pgxmock.AnyArg(),
-		).
+		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 		WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
 	checkJWT := JWTCheck(cfg, cache)
 

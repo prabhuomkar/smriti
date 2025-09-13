@@ -73,10 +73,7 @@ func getMediaItemFilters(ctx echo.Context) string {
 	}
 	mediaItemCategory := ctx.QueryParam("category")
 	if mediaItemCategory != "" {
-		filterQuery += fmt.Sprintf(
-			" AND mediaitem_category = '%s'",
-			mediaItemCategory,
-		)
+		filterQuery += fmt.Sprintf(" AND mediaitem_category = '%s'", mediaItemCategory)
 	}
 	mediaItemStatus := ctx.QueryParam("status")
 	if mediaItemStatus != "" &&

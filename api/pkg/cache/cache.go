@@ -22,16 +22,14 @@ func Init(config *config.Config) Provider { //nolint: ireturn
 	switch config.Type {
 	case "redis":
 		return &RedisCache{
-			Connection: &redisClient{client: redis.NewClient(&redis.Options{
-				Addr:     fmt.Sprintf("%s:%d", config.Cache.Host, config.Cache.Port),
-				Password: config.Cache.Password,
-			})},
+			Connection: &redisClient{
+				client: redis.NewClient(&redis.Options{
+					Addr:     fmt.Sprintf("%s:%d", config.Cache.Host, config.Cache.Port),
+					Password: config.Cache.Password,
+				}),
+			},
 		}
 	default:
-		return &InMemoryCache{
-			Connection: gcache.New(math.MaxInt).
-				LRU().
-				Build(),
-		}
+		return &InMemoryCache{Connection: gcache.New(math.MaxInt).LRU().Build()}
 	}
 }

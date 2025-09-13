@@ -58,31 +58,19 @@ func (h *Handler) Search(ctx echo.Context) error {
 	}
 	mediaItems := []models.MediaItem{}
 	if h.Config.Search {
-		searchEmbedding, err := h.Worker.GenerateEmbedding(
-			ctx.Request().Context(),
-			&worker.GenerateEmbeddingRequest{Text: searchQuery},
-		)
+		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
 		if err != nil {
 			slog.Error("error getting search query embedding", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
-		rows, err := h.DB.Query(
-			ctx.Request().Context(),
+		rows, err := h.DB.Query(ctx.Request().Context(),
 			"SELECT * FROM mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> $1) LIMIT $2",
-			pgvector.NewVector(searchEmbedding.Embedding),
-			searchDefaultLimit,
-		)
+			pgvector.NewVector(searchEmbedding.Embedding), searchDefaultLimit)
 		if err != nil {
 			slog.Error("error searching mediaitems", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		defer rows.Close()
 		for rows.Next() {
@@ -90,22 +78,16 @@ func (h *Handler) Search(ctx echo.Context) error {
 			if err != nil {
 				slog.Error("error scanning album mediaitem", "error", err)
 
-				return echo.NewHTTPError(
-					http.StatusInternalServerError,
-					err.Error(),
-				)
+				return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 			}
 			mediaItems = append(mediaItems, mediaItem)
 		}
 
 		return ctx.JSON(http.StatusOK, mediaItems)
 	}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
+	rows, err := h.DB.Query(ctx.Request().Context(),
 		"SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', $1) LIMIT $2",
-		searchQuery,
-		searchDefaultLimit,
-	)
+		searchQuery, searchDefaultLimit)
 	if err != nil {
 		slog.Error("error searching mediaitems", "error", err)
 
@@ -117,10 +99,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		if err != nil {
 			slog.Error("error scanning mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}

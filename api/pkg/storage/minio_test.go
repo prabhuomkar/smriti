@@ -16,51 +16,28 @@ type mockMinioClient struct {
 	wantErr bool
 }
 
-func (m *mockMinioClient) FPutObject(
-	_ context.Context,
-	_ string,
-	_ string,
-	_ string,
-	_ minio.PutObjectOptions,
-) (minio.UploadInfo, error) {
+func (m *mockMinioClient) FPutObject(_ context.Context, _ string, _ string, _ string, _ minio.PutObjectOptions) (minio.UploadInfo, error) {
 	if m.wantErr {
 		return minio.UploadInfo{}, errors.New("some error")
 	}
 	return minio.UploadInfo{}, nil
 }
 
-func (m *mockMinioClient) FGetObject(
-	_ context.Context,
-	_ string,
-	_ string,
-	_ string,
-	_ minio.GetObjectOptions,
-) error {
+func (m *mockMinioClient) FGetObject(_ context.Context, _ string, _ string, _ string, _ minio.GetObjectOptions) error {
 	if m.wantErr {
 		return errors.New("some error")
 	}
 	return nil
 }
 
-func (m *mockMinioClient) RemoveObject(
-	_ context.Context,
-	_ string,
-	_ string,
-	_ minio.RemoveObjectOptions,
-) error {
+func (m *mockMinioClient) RemoveObject(_ context.Context, _ string, _ string, _ minio.RemoveObjectOptions) error {
 	if m.wantErr {
 		return errors.New("some error")
 	}
 	return nil
 }
 
-func (m *mockMinioClient) PresignedGetObject(
-	_ context.Context,
-	bucket string,
-	object string,
-	_ time.Duration,
-	_ url.Values,
-) (*url.URL, error) {
+func (m *mockMinioClient) PresignedGetObject(_ context.Context, bucket string, object string, _ time.Duration, _ url.Values) (*url.URL, error) {
 	if m.wantErr {
 		return nil, errors.New("some error")
 	}
@@ -79,14 +56,10 @@ func TestMinioUpload(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			"error",
-			true,
-			"error uploading file to minio",
+			"error", true, "error uploading file to minio",
 		},
 		{
-			"success",
-			false,
-			"",
+			"success", false, "",
 		},
 	}
 	for _, test := range tests {
@@ -111,14 +84,10 @@ func TestMinioDownload(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			"error",
-			true,
-			"error downloading file from minio",
+			"error", true, "error downloading file from minio",
 		},
 		{
-			"success",
-			false,
-			"",
+			"success", false, "",
 		},
 	}
 	for _, test := range tests {
@@ -142,14 +111,10 @@ func TestMinioDelete(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			"error",
-			true,
-			"error deleting file from minio",
+			"error", true, "error deleting file from minio",
 		},
 		{
-			"success",
-			false,
-			"",
+			"success", false, "",
 		},
 	}
 	for _, test := range tests {
@@ -173,14 +138,10 @@ func TestMinioGet(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			"error",
-			true,
-			"error getting file from minio",
+			"error", true, "error getting file from minio",
 		},
 		{
-			"success",
-			false,
-			"",
+			"success", false, "",
 		},
 	}
 	for _, test := range tests {

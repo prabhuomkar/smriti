@@ -14,24 +14,20 @@ func TestConfig(t *testing.T) {
 		WantErr  bool
 	}{
 		{
-			"error due to invalid feature boolean value",
-			func() func() {
+			"error due to invalid feature boolean value", func() func() {
 				os.Setenv("SMRITI_FEATURE_FAVOURITES", "invalid")
 				return func() {
 					os.Setenv("SMRITI_FEATURE_FAVOURITES", "")
 				}
-			},
-			true,
+			}, true,
 		},
 		{
-			"success",
-			func() func() {
+			"success", func() func() {
 				os.Setenv("SMRITI_FEATURE_FAVOURITES", "true")
 				return func() {
 					os.Setenv("SMRITI_FEATURE_FAVOURITES", "")
 				}
-			},
-			false,
+			}, false,
 		},
 	}
 

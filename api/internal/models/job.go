@@ -8,8 +8,7 @@ import (
 
 const JobsTable = "jobs"
 
-type (
-	// JobStatus ...
+type ( // JobStatus ...
 	JobStatus string
 )
 

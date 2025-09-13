@@ -2,8 +2,7 @@ package models
 
 import "api/config"
 
-type (
-	// Features ...
+type ( // Features ...
 	Features struct {
 		Favourites bool `json:"favourites,omitempty"`
 		Hidden     bool `json:"hidden,omitempty"`
@@ -21,14 +20,8 @@ type (
 // GetFeatures ...
 func GetFeatures(cfg *config.Config) *Features {
 	return &Features{
-		Favourites: cfg.Favourites,
-		Hidden:     cfg.Hidden,
-		Trash:      cfg.Trash,
-		Albums:     cfg.Albums,
-		Explore:    cfg.Explore,
-		Places:     cfg.Feature.Places,
-		Things:     cfg.Things,
-		People:     cfg.People,
-		Sharing:    cfg.Sharing,
+		Favourites: cfg.Favourites, Hidden: cfg.Hidden, Trash: cfg.Trash,
+		Albums: cfg.Albums, Explore: cfg.Explore, Places: cfg.Feature.Places,
+		Things: cfg.Things, People: cfg.People, Sharing: cfg.Sharing,
 	}
 }

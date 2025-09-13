@@ -27,13 +27,7 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "sharing" && cfg.Sharing) {
 				return next(ctx)
 			}
-			slog.Error(
-				"feature disabled or not accessible",
-				"config",
-				cfg.Feature,
-				"features",
-				features,
-			)
+			slog.Error("feature disabled or not accessible", "config", cfg.Feature, "features", features)
 
 			return echo.ErrForbidden
 		}

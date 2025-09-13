@@ -6,8 +6,7 @@ import (
 	"github.com/kelseyhightower/envconfig"
 )
 
-type (
-	// Log ...
+type ( // Log ...
 	Log struct {
 		Level string `envconfig:"SMRITI_LOG_LEVEL" default:"INFO"`
 	}

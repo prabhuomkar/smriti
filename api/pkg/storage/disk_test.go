@@ -23,37 +23,25 @@ func TestDiskUpload(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			"error due to cannot open file",
-			&Config{Provider: "disk", Root: os.TempDir()},
-			func() (string, func()) {
+			"error due to cannot open file", &Config{Provider: "disk", Root: os.TempDir()}, func() (string, func()) {
 				return "", func() {}
-			},
-			true,
-			"error uploading file to disk as cannot open file",
+			}, true, "error uploading file to disk as cannot open file",
 		},
 		{
-			"error due to cannot create file",
-			&Config{Provider: "disk", Root: "invalid"},
-			func() (string, func()) {
+			"error due to cannot create file", &Config{Provider: "disk", Root: "invalid"}, func() (string, func()) {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return file.Name(), func() {
 					os.Remove(file.Name())
 				}
-			},
-			true,
-			"error uploading file to disk as cannot create file",
+			}, true, "error uploading file to disk as cannot create file",
 		},
 		{
-			"success",
-			&Config{Provider: "disk", Root: os.TempDir()},
-			func() (string, func()) {
+			"success", &Config{Provider: "disk", Root: os.TempDir()}, func() (string, func()) {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return file.Name(), func() {
 					os.Remove(file.Name())
 				}
-			},
-			false,
-			"",
+			}, false, "",
 		},
 	}
 	for _, test := range tests {
@@ -83,40 +71,25 @@ func TestDiskDownload(t *testing.T) {
 		ErrContains  string
 	}{
 		{
-			"error due to cannot open file",
-			&Config{Provider: "disk", Root: os.TempDir()},
-			func() (string, func()) {
+			"error due to cannot open file", &Config{Provider: "disk", Root: os.TempDir()}, func() (string, func()) {
 				return "", func() {}
-			},
-			"",
-			true,
-			"error downloading file to disk as cannot open file",
+			}, "", true, "error downloading file to disk as cannot open file",
 		},
 		{
-			"error due to cannot create file",
-			&Config{Provider: "disk", Root: os.TempDir()},
-			func() (string, func()) {
+			"error due to cannot create file", &Config{Provider: "disk", Root: os.TempDir()}, func() (string, func()) {
 				file, _ := os.CreateTemp(os.TempDir()+"/originals", "file")
 				return file.Name(), func() {
 					os.Remove(file.Name())
 				}
-			},
-			"invalid/invalid",
-			true,
-			"error downloading file to disk as cannot create file",
+			}, "invalid/invalid", true, "error downloading file to disk as cannot create file",
 		},
 		{
-			"success",
-			&Config{Provider: "disk", Root: os.TempDir()},
-			func() (string, func()) {
+			"success", &Config{Provider: "disk", Root: os.TempDir()}, func() (string, func()) {
 				file, _ := os.CreateTemp(os.TempDir()+"/originals", "file")
 				return file.Name(), func() {
 					os.Remove(file.Name())
 				}
-			},
-			"file",
-			false,
-			"",
+			}, "file", false, "",
 		},
 	}
 	for _, test := range tests {
@@ -149,28 +122,20 @@ func TestDiskDelete(t *testing.T) {
 		ErrContains string
 	}{
 		{
-			"error",
-			&Config{Provider: "disk", Root: "invalid"},
-			func() func() {
+			"error", &Config{Provider: "disk", Root: "invalid"}, func() func() {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return func() {
 					os.Remove(file.Name())
 				}
-			},
-			true,
-			"error deleting file from disk",
+			}, true, "error deleting file from disk",
 		},
 		{
-			"success",
-			&Config{Provider: "disk", Root: os.TempDir()},
-			func() func() {
+			"success", &Config{Provider: "disk", Root: os.TempDir()}, func() func() {
 				file, _ := os.CreateTemp(os.TempDir(), "file")
 				return func() {
 					os.Remove(file.Name())
 				}
-			},
-			false,
-			"",
+			}, false, "",
 		},
 	}
 	for _, test := range tests {

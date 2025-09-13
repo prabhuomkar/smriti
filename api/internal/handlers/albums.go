@@ -14,8 +14,7 @@ import (
 	uuid "github.com/satori/go.uuid"
 )
 
-type (
-	// AlbumRequest ...
+type ( // AlbumRequest ...
 	AlbumRequest struct {
 		Name             *string `json:"name"`
 		Description      *string `json:"description"`
@@ -60,14 +59,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 		return err
 	}
 	mediaItems := []models.MediaItem{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		queryGetAlbumMediaItems,
-		userID,
-		uid,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetAlbumMediaItems, userID, uid, offset, limit)
 	if err != nil {
 		slog.Error("error getting album mediaitems", "error", err)
 
@@ -79,10 +71,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 		if err != nil {
 			slog.Error("error scanning album mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
@@ -103,11 +92,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	}
 	atx, err := h.DB.Begin(ctx.Request().Context())
 	if err != nil {
-		slog.Error(
-			"error starting transaction for adding album mediaitems",
-			"error",
-			err,
-		)
+		slog.Error("error starting transaction for adding album mediaitems", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -117,12 +102,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 		}
 	}()
 	for _, mediaItem := range mediaItems {
-		_, err = atx.Exec(
-			ctx.Request().Context(),
-			queryAddAlbumMediaItems,
-			uid,
-			mediaItem.ID,
-		)
+		_, err = atx.Exec(ctx.Request().Context(), queryAddAlbumMediaItems, uid, mediaItem.ID)
 		if err != nil {
 			slog.Error("error adding album mediaitem", "error", err)
 
@@ -131,39 +111,21 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	}
 	coverMediaItemID := uuid.Nil
 	mediaItemsCount := 0
-	err = atx.QueryRow(
-		ctx.Request().Context(),
-		queryGetAlbumMediaItemIDAndCount,
-		uid,
-	).
-		Scan(
-			&coverMediaItemID,
-			&mediaItemsCount,
-		)
+	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
+		Scan(&coverMediaItemID, &mediaItemsCount)
 	if err != nil {
 		slog.Error("error getting album mediaitem id and count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	_, err = atx.Exec(
-		ctx.Request().Context(),
-		queryUpdateAlbumMediaItems,
-		mediaItemsCount,
-		coverMediaItemID,
-		userID,
-		uid,
-	)
+	_, err = atx.Exec(ctx.Request().Context(), queryUpdateAlbumMediaItems, mediaItemsCount, coverMediaItemID, userID, uid)
 	if err != nil {
 		slog.Error("error updating album", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if err = atx.Commit(ctx.Request().Context()); err != nil {
-		slog.Error(
-			"error committing transaction for adding album mediaitems",
-			"error",
-			err,
-		)
+		slog.Error("error committing transaction for adding album mediaitems", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -184,11 +146,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	}
 	atx, err := h.DB.Begin(ctx.Request().Context())
 	if err != nil {
-		slog.Error(
-			"error starting transaction for removing album mediaitems",
-			"error",
-			err,
-		)
+		slog.Error("error starting transaction for removing album mediaitems", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -198,56 +156,31 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 		}
 	}()
 	for _, mediaItem := range mediaItems {
-		_, err = atx.Exec(
-			ctx.Request().Context(),
-			queryRemoveAlbumMediaItems,
-			uid,
-			mediaItem.ID,
-		)
+		_, err = atx.Exec(ctx.Request().Context(), queryRemoveAlbumMediaItems, uid, mediaItem.ID)
 		if err != nil {
 			slog.Error("error removing album mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
 	coverMediaItemID := uuid.Nil
 	mediaItemsCount := 0
-	err = atx.QueryRow(
-		ctx.Request().Context(),
-		queryGetAlbumMediaItemIDAndCount,
-		uid,
-	).
-		Scan(
-			&coverMediaItemID,
-			&mediaItemsCount,
-		)
+	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
+		Scan(&coverMediaItemID, &mediaItemsCount)
 	if err != nil {
 		slog.Error("error getting album mediaitem id and count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
-	_, err = atx.Exec(
-		ctx.Request().Context(),
-		queryUpdateAlbumMediaItems,
-		mediaItemsCount,
-		coverMediaItemID,
-		userID,
-		uid,
-	)
+	_, err = atx.Exec(ctx.Request().Context(), queryUpdateAlbumMediaItems, mediaItemsCount,
+		coverMediaItemID, userID, uid)
 	if err != nil {
 		slog.Error("error updating album", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 	if err = atx.Commit(ctx.Request().Context()); err != nil {
-		slog.Error(
-			"error committing transaction for removing album mediaitems",
-			"error",
-			err,
-		)
+		slog.Error("error committing transaction for removing album mediaitems", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -263,56 +196,20 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 		return err
 	}
 	album := models.Album{CoverMediaItem: &models.MediaItem{}}
-	err = h.DB.QueryRow(
-		ctx.Request().Context(),
-		queryGetAlbum,
-		userID,
-		uid,
-	).Scan(
-		&album.ID,
-		&album.UserID,
-		&album.Name,
-		&album.Description,
-		&album.IsShared,
-		&album.IsHidden,
-		&album.MediaItemsCount,
-		&album.CoverMediaItemID,
-		&album.CreatedAt,
-		&album.UpdatedAt,
-		&album.CoverMediaItem.ID,
-		&album.CoverMediaItem.UserID,
-		&album.CoverMediaItem.Filename,
-		&album.CoverMediaItem.Hash,
-		&album.CoverMediaItem.Description,
-		&album.CoverMediaItem.MimeType,
-		&album.CoverMediaItem.SourceURL,
-		&album.CoverMediaItem.PreviewURL,
-		&album.CoverMediaItem.ThumbnailURL,
-		&album.CoverMediaItem.Placeholder,
-		&album.CoverMediaItem.IsFavourite,
-		&album.CoverMediaItem.IsHidden,
-		&album.CoverMediaItem.IsDeleted,
-		&album.CoverMediaItem.Status,
-		&album.CoverMediaItem.MediaItemType,
-		&album.CoverMediaItem.MediaItemCategory,
-		&album.CoverMediaItem.Width,
-		&album.CoverMediaItem.Height,
-		&album.CoverMediaItem.CreationTime,
-		&album.CoverMediaItem.CameraMake,
-		&album.CoverMediaItem.CameraModel,
-		&album.CoverMediaItem.FocalLength,
-		&album.CoverMediaItem.ApertureFnumber,
-		&album.CoverMediaItem.IsoEquivalent,
-		&album.CoverMediaItem.ExposureTime,
-		&album.CoverMediaItem.Megapixels,
-		&album.CoverMediaItem.Latitude,
-		&album.CoverMediaItem.Longitude,
-		&album.CoverMediaItem.FPS,
-		&album.CoverMediaItem.EXIFData,
-		&album.CoverMediaItem.Keywords,
-		&album.CoverMediaItem.CreatedAt,
-		&album.CoverMediaItem.UpdatedAt,
-	)
+	err = h.DB.QueryRow(ctx.Request().Context(), queryGetAlbum, userID, uid).Scan(&album.ID, &album.UserID,
+		&album.Name, &album.Description, &album.IsShared, &album.IsHidden, &album.MediaItemsCount,
+		&album.CoverMediaItemID, &album.CreatedAt, &album.UpdatedAt, &album.CoverMediaItem.ID,
+		&album.CoverMediaItem.UserID, &album.CoverMediaItem.Filename, &album.CoverMediaItem.Hash,
+		&album.CoverMediaItem.Description, &album.CoverMediaItem.MimeType, &album.CoverMediaItem.SourceURL,
+		&album.CoverMediaItem.PreviewURL, &album.CoverMediaItem.ThumbnailURL, &album.CoverMediaItem.Placeholder,
+		&album.CoverMediaItem.IsFavourite, &album.CoverMediaItem.IsHidden, &album.CoverMediaItem.IsDeleted,
+		&album.CoverMediaItem.Status, &album.CoverMediaItem.MediaItemType, &album.CoverMediaItem.MediaItemCategory,
+		&album.CoverMediaItem.Width, &album.CoverMediaItem.Height, &album.CoverMediaItem.CreationTime,
+		&album.CoverMediaItem.CameraMake, &album.CoverMediaItem.CameraModel, &album.CoverMediaItem.FocalLength,
+		&album.CoverMediaItem.ApertureFnumber, &album.CoverMediaItem.IsoEquivalent, &album.CoverMediaItem.ExposureTime,
+		&album.CoverMediaItem.Megapixels, &album.CoverMediaItem.Latitude, &album.CoverMediaItem.Longitude,
+		&album.CoverMediaItem.FPS, &album.CoverMediaItem.EXIFData, &album.CoverMediaItem.Keywords,
+		&album.CoverMediaItem.CreatedAt, &album.CoverMediaItem.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
@@ -339,18 +236,7 @@ func (h *Handler) UpdateAlbum(ctx echo.Context) error {
 	album.ID = uid
 	album.UserID = userID
 	album.UpdatedAt = time.Now()
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryUpdateAlbum,
-		userID,
-		uid,
-		album.Name,
-		album.Description,
-		album.IsShared,
-		album.IsHidden,
-		album.CoverMediaItemID,
-		album.UpdatedAt,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryUpdateAlbum, userID, uid, album.Name, album.Description, album.IsShared, album.IsHidden, album.CoverMediaItemID, album.UpdatedAt)
 	if err != nil {
 		slog.Error("error updating album", "error", err)
 
@@ -367,12 +253,7 @@ func (h *Handler) DeleteAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryDeleteAlbum,
-		userID,
-		uid,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryDeleteAlbum, userID, uid)
 	if err != nil {
 		slog.Error("error deleting album", "error", err)
 
@@ -389,14 +270,7 @@ func (h *Handler) GetAlbums(ctx echo.Context) error {
 	shared := getAlbumShared(ctx)
 	order := getAlbumSortOrder(ctx)
 	albums := []models.Album{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		fmt.Sprintf(queryGetAlbums, order),
-		userID,
-		shared,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), fmt.Sprintf(queryGetAlbums, order), userID, shared, offset, limit)
 	if err != nil {
 		slog.Error("error getting albums", "error", err)
 
@@ -425,18 +299,8 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	}
 	album.ID = uuid.NewV4()
 	album.UserID = userID
-	_, err = h.DB.Exec(
-		ctx.Request().Context(),
-		queryCreateAlbum,
-		album.ID,
-		album.UserID,
-		album.Name,
-		album.Description,
-		album.IsShared,
-		album.IsHidden,
-		album.CreatedAt,
-		album.UpdatedAt,
-	)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateAlbum, album.ID, album.UserID, album.Name,
+		album.Description, album.IsShared, album.IsHidden, album.CreatedAt, album.UpdatedAt)
 	if err != nil {
 		slog.Error("error creating album", "error", err)
 
@@ -452,10 +316,7 @@ func getAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	if err != nil {
 		slog.Error("error getting album id", "error", err)
 
-		return uuid.Nil, echo.NewHTTPError(
-			http.StatusBadRequest,
-			"invalid album id",
-		)
+		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album id")
 	}
 
 	return uid, err
@@ -467,10 +328,7 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 	if err != nil || len(mediaItemsRequest.MediaItems) == 0 {
 		slog.Error("error getting album mediaitems", "error", err)
 
-		return nil, echo.NewHTTPError(
-			http.StatusBadRequest,
-			"invalid mediaitems",
-		)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitems")
 	}
 	mediaItems := make([]*models.MediaItem, len(mediaItemsRequest.MediaItems))
 	for idx, mediaItem := range mediaItemsRequest.MediaItems {
@@ -478,10 +336,7 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 		if err != nil {
 			slog.Error("error getting album mediaitem id", "error", err)
 
-			return nil, echo.NewHTTPError(
-				http.StatusBadRequest,
-				"invalid mediaitem id",
-			)
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
 		}
 		mediaItems[idx] = &models.MediaItem{ID: uid}
 	}
@@ -498,9 +353,7 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
 	album := models.Album{
-		Description: albumRequest.Description,
-		IsShared:    albumRequest.IsShared,
-		IsHidden:    albumRequest.IsHidden,
+		Description: albumRequest.Description, IsShared: albumRequest.IsShared, IsHidden: albumRequest.IsHidden,
 	}
 	if albumRequest.Name != nil {
 		album.Name = *albumRequest.Name
@@ -508,10 +361,7 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 	if albumRequest.CoverMediaItemID != nil {
 		coverMediaItemID, err := uuid.FromString(*albumRequest.CoverMediaItemID)
 		if err != nil {
-			return nil, echo.NewHTTPError(
-				http.StatusBadRequest,
-				"invalid album cover mediaitem id",
-			)
+			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album cover mediaitem id")
 		}
 		album.CoverMediaItemID = &coverMediaItemID
 	}

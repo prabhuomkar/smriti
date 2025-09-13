@@ -12,8 +12,7 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
-type (
-	// LoginRequest ...
+type ( // LoginRequest ...
 	LoginRequest struct {
 		Username *string `json:"username"`
 		Password *string `json:"password"`
@@ -37,27 +36,11 @@ func (h *Handler) Login(ctx echo.Context) error {
 		return err
 	}
 	user := models.User{}
-	err = h.DB.QueryRow(
-		ctx.Request().Context(),
-		queryAuthLogin,
-		*loginRequest.Username,
-		*loginRequest.Password,
-	).
-		Scan(
-			&user.ID,
-			&user.Name,
-			&user.Username,
-			&user.Password,
-			&user.Features,
-			&user.CreatedAt,
-			&user.UpdatedAt,
-		)
+	err = h.DB.QueryRow(ctx.Request().Context(), queryAuthLogin, *loginRequest.Username, *loginRequest.Password).
+		Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Features, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(
-				http.StatusNotFound,
-				"incorrect username or password",
-			)
+			return echo.NewHTTPError(http.StatusNotFound, "incorrect username or password")
 		}
 		slog.Error("error getting user", "error", err)
 
@@ -67,15 +50,9 @@ func (h *Handler) Login(ctx echo.Context) error {
 	if err != nil {
 		slog.Error("error getting tokens", "error", err)
 
-		return echo.NewHTTPError(
-			http.StatusInternalServerError,
-			"error getting tokens",
-		)
+		return echo.NewHTTPError(http.StatusInternalServerError, "error getting tokens")
 	}
-	authResponse := AuthResponse{
-		AccessToken:  accessToken,
-		RefreshToken: refreshToken,
-	}
+	authResponse := AuthResponse{AccessToken: accessToken, RefreshToken: refreshToken}
 
 	return ctx.JSON(http.StatusOK, authResponse)
 }
@@ -84,23 +61,13 @@ func (h *Handler) Login(ctx echo.Context) error {
 func (h *Handler) Refresh(ctx echo.Context) error {
 	refreshToken := ctx.Request().Header.Get("Authorization")
 	refreshToken = strings.ReplaceAll(refreshToken, "Bearer ", "")
-	newAccessToken, newRefreshToken, err := auth.RefreshTokens(
-		h.Config,
-		h.Cache,
-		refreshToken,
-	)
+	newAccessToken, newRefreshToken, err := auth.RefreshTokens(h.Config, h.Cache, refreshToken)
 	if err != nil {
 		slog.Error("error refreshing tokens", "error", err)
 
-		return echo.NewHTTPError(
-			http.StatusInternalServerError,
-			"error refreshing tokens",
-		)
+		return echo.NewHTTPError(http.StatusInternalServerError, "error refreshing tokens")
 	}
-	authResponse := AuthResponse{
-		AccessToken:  newAccessToken,
-		RefreshToken: newRefreshToken,
-	}
+	authResponse := AuthResponse{AccessToken: newAccessToken, RefreshToken: newRefreshToken}
 
 	return ctx.JSON(http.StatusOK, authResponse)
 }
@@ -120,18 +87,12 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 	if err != nil {
 		slog.Error("error getting username and password", "error", err)
 
-		return nil, echo.NewHTTPError(
-			http.StatusBadRequest,
-			"invalid username or password",
-		)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 	if loginRequest.Username == nil || loginRequest.Password == nil {
 		slog.Error("error getting username and password", "error", err)
 
-		return nil, echo.NewHTTPError(
-			http.StatusBadRequest,
-			"invalid username or password",
-		)
+		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 
 	return loginRequest, nil

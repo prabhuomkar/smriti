@@ -18,8 +18,7 @@ const (
 	filePermission = 0o644
 )
 
-type (
-	// Provider ...
+type ( // Provider ...
 	Provider interface {
 		Type() string
 		Upload(filePath string, fileType string, fileID string) (string, error)
@@ -42,8 +41,7 @@ type (
 func Init(cfg *Config) Provider {
 	if cfg.Provider == ProviderMinio {
 		minioClient, err := minio.New(cfg.Endpoint, &minio.Options{
-			Creds:  credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""),
-			Secure: false,
+			Creds: credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""), Secure: false,
 		})
 		if err != nil {
 			slog.Error("error creating storage client", "error", err)

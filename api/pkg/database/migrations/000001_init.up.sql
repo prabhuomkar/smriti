@@ -28,6 +28,12 @@ CREATE TABLE jobs (
     updated_at timestamp with time zone
 );
 
+CREATE TABLE queue (
+    id uuid NOT NULL,
+    components text,
+    status text
+);
+
 CREATE TABLE mediaitem_embeddings (
     mediaitem_id uuid,
     embedding vector

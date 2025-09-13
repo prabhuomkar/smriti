@@ -25,8 +25,8 @@ func main() {
 		panic(err)
 	}
 
-	pgDB, err := database.Init(cfg.Database.Host, cfg.Database.Port,
-		cfg.Database.Username, cfg.Database.Password, cfg.Name, cfg.Timeout)
+	pgDB, err := database.Init(cfg.Database.Host, cfg.Database.Port, cfg.Database.Username,
+		cfg.Database.Password, cfg.Name, cfg.Timeout)
 	if err != nil {
 		panic(err)
 	}
@@ -34,17 +34,15 @@ func main() {
 	cache := cache.Init(cfg)
 
 	storageProvider := storage.Init(&storage.Config{
-		Provider: cfg.Provider, Root: cfg.DiskRoot,
-		Endpoint: cfg.Endpoint, AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey,
+		Provider: cfg.Provider, Root: cfg.DiskRoot, Endpoint: cfg.Endpoint,
+		AccessKey: cfg.AccessKey, SecretKey: cfg.SecretKey,
 	})
 
 	service := service.Init(cfg, pgDB, storageProvider)
 	grpcServer := server.StartGRPCServer(cfg, service)
 
 	handler := &handlers.Handler{
-		Config: cfg,
-		DB:     pgDB,
-		Cache:  cache,
+		Config: cfg, DB: pgDB, Cache: cache,
 	}
 	httpServer := server.StartHTTPServer(handler)
 

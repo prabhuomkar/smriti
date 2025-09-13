@@ -26,13 +26,7 @@ func (h *Handler) GetSharedAlbumMediaItems(ctx echo.Context) error {
 		return err
 	}
 	mediaItems := []models.MediaItem{}
-	rows, err := h.DB.Query(
-		ctx.Request().Context(),
-		queryGetSharedAlbumMediaItems,
-		uid,
-		offset,
-		limit,
-	)
+	rows, err := h.DB.Query(ctx.Request().Context(), queryGetSharedAlbumMediaItems, uid, offset, limit)
 	if err != nil {
 		slog.Error("error getting shared album mediaitems", "error", err)
 
@@ -44,10 +38,7 @@ func (h *Handler) GetSharedAlbumMediaItems(ctx echo.Context) error {
 		if err != nil {
 			slog.Error("error scanning shared album mediaitem", "error", err)
 
-			return echo.NewHTTPError(
-				http.StatusInternalServerError,
-				err.Error(),
-			)
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		mediaItems = append(mediaItems, mediaItem)
 	}
@@ -62,61 +53,27 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 		return err
 	}
 	sharedAlbum := models.Album{CoverMediaItem: &models.MediaItem{}}
-	err = h.DB.QueryRow(
-		ctx.Request().Context(),
-		queryGetSharedAlbum,
-		uid,
-	).Scan(
-		&sharedAlbum.ID,
-		&sharedAlbum.UserID,
-		&sharedAlbum.Name,
-		&sharedAlbum.Description,
-		&sharedAlbum.IsShared,
-		&sharedAlbum.IsHidden,
-		&sharedAlbum.MediaItemsCount,
-		&sharedAlbum.CoverMediaItemID,
-		&sharedAlbum.CreatedAt,
-		&sharedAlbum.UpdatedAt,
-		&sharedAlbum.CoverMediaItem.ID,
-		&sharedAlbum.CoverMediaItem.UserID,
-		&sharedAlbum.CoverMediaItem.Filename,
-		&sharedAlbum.CoverMediaItem.Hash,
-		&sharedAlbum.CoverMediaItem.Description,
-		&sharedAlbum.CoverMediaItem.MimeType,
-		&sharedAlbum.CoverMediaItem.SourceURL,
-		&sharedAlbum.CoverMediaItem.PreviewURL,
-		&sharedAlbum.CoverMediaItem.ThumbnailURL,
-		&sharedAlbum.CoverMediaItem.Placeholder,
-		&sharedAlbum.CoverMediaItem.IsFavourite,
-		&sharedAlbum.CoverMediaItem.IsHidden,
-		&sharedAlbum.CoverMediaItem.IsDeleted,
-		&sharedAlbum.CoverMediaItem.Status,
-		&sharedAlbum.CoverMediaItem.MediaItemType,
-		&sharedAlbum.CoverMediaItem.MediaItemCategory,
-		&sharedAlbum.CoverMediaItem.Width,
-		&sharedAlbum.CoverMediaItem.Height,
-		&sharedAlbum.CoverMediaItem.CreationTime,
-		&sharedAlbum.CoverMediaItem.CameraMake,
-		&sharedAlbum.CoverMediaItem.CameraModel,
-		&sharedAlbum.CoverMediaItem.FocalLength,
-		&sharedAlbum.CoverMediaItem.ApertureFnumber,
-		&sharedAlbum.CoverMediaItem.IsoEquivalent,
-		&sharedAlbum.CoverMediaItem.ExposureTime,
-		&sharedAlbum.CoverMediaItem.Megapixels,
-		&sharedAlbum.CoverMediaItem.Latitude,
-		&sharedAlbum.CoverMediaItem.Longitude,
-		&sharedAlbum.CoverMediaItem.FPS,
-		&sharedAlbum.CoverMediaItem.EXIFData,
-		&sharedAlbum.CoverMediaItem.Keywords,
-		&sharedAlbum.CoverMediaItem.CreatedAt,
-		&sharedAlbum.CoverMediaItem.UpdatedAt,
-	)
+	err = h.DB.QueryRow(ctx.Request().Context(), queryGetSharedAlbum, uid).Scan(&sharedAlbum.ID,
+		&sharedAlbum.UserID, &sharedAlbum.Name, &sharedAlbum.Description, &sharedAlbum.IsShared,
+		&sharedAlbum.IsHidden, &sharedAlbum.MediaItemsCount, &sharedAlbum.CoverMediaItemID, &sharedAlbum.CreatedAt,
+		&sharedAlbum.UpdatedAt, &sharedAlbum.CoverMediaItem.ID, &sharedAlbum.CoverMediaItem.UserID,
+		&sharedAlbum.CoverMediaItem.Filename, &sharedAlbum.CoverMediaItem.Hash, &sharedAlbum.CoverMediaItem.Description,
+		&sharedAlbum.CoverMediaItem.MimeType, &sharedAlbum.CoverMediaItem.SourceURL,
+		&sharedAlbum.CoverMediaItem.PreviewURL, &sharedAlbum.CoverMediaItem.ThumbnailURL,
+		&sharedAlbum.CoverMediaItem.Placeholder, &sharedAlbum.CoverMediaItem.IsFavourite,
+		&sharedAlbum.CoverMediaItem.IsHidden, &sharedAlbum.CoverMediaItem.IsDeleted,
+		&sharedAlbum.CoverMediaItem.Status, &sharedAlbum.CoverMediaItem.MediaItemType,
+		&sharedAlbum.CoverMediaItem.MediaItemCategory, &sharedAlbum.CoverMediaItem.Width,
+		&sharedAlbum.CoverMediaItem.Height, &sharedAlbum.CoverMediaItem.CreationTime,
+		&sharedAlbum.CoverMediaItem.CameraMake, &sharedAlbum.CoverMediaItem.CameraModel,
+		&sharedAlbum.CoverMediaItem.FocalLength, &sharedAlbum.CoverMediaItem.ApertureFnumber,
+		&sharedAlbum.CoverMediaItem.IsoEquivalent, &sharedAlbum.CoverMediaItem.ExposureTime,
+		&sharedAlbum.CoverMediaItem.Megapixels, &sharedAlbum.CoverMediaItem.Latitude,
+		&sharedAlbum.CoverMediaItem.Longitude, &sharedAlbum.CoverMediaItem.FPS, &sharedAlbum.CoverMediaItem.EXIFData,
+		&sharedAlbum.CoverMediaItem.Keywords, &sharedAlbum.CoverMediaItem.CreatedAt, &sharedAlbum.CoverMediaItem.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(
-				http.StatusNotFound,
-				"shared link not found",
-			)
+			return echo.NewHTTPError(http.StatusNotFound, "shared link not found")
 		}
 		slog.Error("error getting shared album", "error", err)
 
@@ -132,10 +89,7 @@ func getSharedAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	if err != nil {
 		slog.Error("error getting shared album id", "error", err)
 
-		return uuid.Nil, echo.NewHTTPError(
-			http.StatusBadRequest,
-			"invalid shared link",
-		)
+		return uuid.Nil, echo.NewHTTPError(http.StatusBadRequest, "invalid shared link")
 	}
 
 	return uid, err

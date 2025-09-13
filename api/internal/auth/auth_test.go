@@ -1,13 +1,12 @@
 package auth
 
 import (
-	"errors"
-	"testing"
-	"time"
-
 	"api/config"
 	"api/internal/models"
 	"api/pkg/cache"
+	"errors"
+	"testing"
+	"time"
 
 	"github.com/bluele/gcache"
 	uuid "github.com/satori/go.uuid"
@@ -21,52 +20,36 @@ func TestGetTokens(t *testing.T) {
 		WantErr       bool
 	}{
 		{
-			"success",
-			nil,
-			false,
+			"success", nil, false,
 		},
 		{
-			"error caching refresh token",
-			func(a interface{}, b interface{}) (interface{}, error) {
+			"error caching refresh token", func(a interface{}, b interface{}) (interface{}, error) {
 				val, ok := b.(bool)
 				if ok && val == true {
 					return nil, errors.New("some cache error")
 				}
 				return b, nil
-			},
-			true,
+			}, true,
 		},
 		{
-			"error caching access token",
-			func(a interface{}, b interface{}) (interface{}, error) {
+			"error caching access token", func(a interface{}, b interface{}) (interface{}, error) {
 				val, ok := b.(bool)
 				if ok && val == true {
 					return b, nil
 				}
 				return nil, errors.New("some cache error")
-			},
-			true,
+			}, true,
 		},
 	}
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			cfg := &config.Config{}
 			cache := &cache.InMemoryCache{
-				Connection: gcache.New(
-					1024,
-				).LRU().SerializeFunc(
-					test.SerializeFunc,
-				).Build(),
+				Connection: gcache.New(1024).LRU().SerializeFunc(test.SerializeFunc).Build(),
 			}
-			atoken, rtoken, err := GetTokens(
-				cfg,
-				cache,
-				models.User{
-					ID: uuid.FromStringOrNil(
-						"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-					),
-				},
-			)
+			atoken, rtoken, err := GetTokens(cfg, cache, models.User{
+				ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"),
+			})
 			if test.WantErr {
 				assert.Empty(t, atoken)
 				assert.Empty(t, rtoken)
@@ -89,59 +72,33 @@ func TestRefreshTokens(t *testing.T) {
 		WantErr         bool
 	}{
 		{
-			"success",
-			func(cfg *config.Config, cache cache.Provider) string {
-				_, oldRToken := GetAccessAndRefreshTokens(
-					cfg,
-					models.User{
-						ID: uuid.FromStringOrNil(
-							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						),
-						Username: "username",
-					},
-				)
+			"success", func(cfg *config.Config, cache cache.Provider) string {
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{
+					ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username",
+				})
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
-			},
-			nil,
-			nil,
-			false,
+			}, nil, nil, false,
 		},
 		{
-			"error getting refresh token",
-			func(cfg *config.Config, cache cache.Provider) string {
+			"error getting refresh token", func(cfg *config.Config, cache cache.Provider) string {
 				return "badToken"
-			},
-			nil,
-			nil,
-			true,
+			}, nil, nil, true,
 		},
 		{
-			"error parsing claims from token",
-			func(cfg *config.Config, cache cache.Provider) string {
+			"error parsing claims from token", func(cfg *config.Config, cache cache.Provider) string {
 				_ = cache.SetWithExpire("badToken", true, 1*time.Minute)
 				return "badToken"
-			},
-			nil,
-			nil,
-			true,
+			}, nil, nil, true,
 		},
 		{
-			"error getting user id from claims",
-			func(cfg *config.Config, cache cache.Provider) string {
-				_, oldRToken := GetAccessAndRefreshTokens(
-					cfg,
-					models.User{
-						ID:       uuid.FromStringOrNil("invalid-user-id"),
-						Username: "username",
-					},
-				)
+			"error getting user id from claims", func(cfg *config.Config, cache cache.Provider) string {
+				_, oldRToken := GetAccessAndRefreshTokens(cfg, models.User{
+					ID: uuid.FromStringOrNil("invalid-user-id"), Username: "username",
+				})
 				_ = cache.SetWithExpire(oldRToken, true, 1*time.Minute)
 				return oldRToken
-			},
-			nil,
-			nil,
-			true,
+			}, nil, nil, true,
 		},
 	}
 	for _, test := range tests {
@@ -177,32 +134,18 @@ func TestRemoveTokens(t *testing.T) {
 		WantErr         bool
 	}{
 		{
-			"success",
-			func(cfg *config.Config, cache cache.Provider) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(
-					cfg,
-					models.User{
-						ID: uuid.FromStringOrNil(
-							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						),
-						Username: "username",
-					},
-				)
+			"success", func(cfg *config.Config, cache cache.Provider) string {
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{
+					ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username",
+				})
 				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
-			},
-			nil,
-			nil,
-			false,
+			}, nil, nil, false,
 		},
 		{
-			"error getting refresh token",
-			func(cfg *config.Config, cache cache.Provider) string {
+			"error getting refresh token", func(cfg *config.Config, cache cache.Provider) string {
 				return "badToken"
-			},
-			nil,
-			nil,
-			true,
+			}, nil, nil, true,
 		},
 	}
 	for _, test := range tests {
@@ -234,42 +177,24 @@ func TestVerifyToken(t *testing.T) {
 		WantErr         bool
 	}{
 		{
-			"success",
-			func(cfg *config.Config, cache cache.Provider) string {
-				oldAToken, _ := GetAccessAndRefreshTokens(
-					cfg,
-					models.User{
-						ID: uuid.FromStringOrNil(
-							"4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-						),
-						Username: "username",
-					},
-				)
+			"success", func(cfg *config.Config, cache cache.Provider) string {
+				oldAToken, _ := GetAccessAndRefreshTokens(cfg, models.User{
+					ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username",
+				})
 				_ = cache.SetWithExpire(oldAToken, true, 1*time.Minute)
 				return oldAToken
-			},
-			nil,
-			nil,
-			false,
+			}, nil, nil, false,
 		},
 		{
-			"error getting access token",
-			func(cfg *config.Config, cache cache.Provider) string {
+			"error getting access token", func(cfg *config.Config, cache cache.Provider) string {
 				return "badToken"
-			},
-			nil,
-			nil,
-			true,
+			}, nil, nil, true,
 		},
 		{
-			"error parsing claims from token",
-			func(cfg *config.Config, cache cache.Provider) string {
+			"error parsing claims from token", func(cfg *config.Config, cache cache.Provider) string {
 				_ = cache.SetWithExpire("badToken", true, 1*time.Minute)
 				return "badToken"
-			},
-			nil,
-			nil,
-			true,
+			}, nil, nil, true,
 		},
 	}
 	for _, test := range tests {
