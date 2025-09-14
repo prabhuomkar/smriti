@@ -80,7 +80,7 @@ func (h *Handler) GetAlbumMediaItems(ctx echo.Context) error {
 }
 
 // AddAlbumMediaItems ...
-func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
+func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error { //nolint:cyclop
 	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
@@ -113,7 +113,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	mediaItemsCount := 0
 	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
 		Scan(&coverMediaItemID, &mediaItemsCount)
-	if err != nil && err != pgx.ErrNoRows {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		slog.Error("error getting album mediaitem id and count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -134,7 +134,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 }
 
 // RemoveAlbumMediaItems ...
-func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
+func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error { //nolint:cyclop
 	userID := getRequestingUserID(ctx)
 	uid, err := getAlbumID(ctx)
 	if err != nil {
@@ -167,7 +167,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	mediaItemsCount := 0
 	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
 		Scan(&coverMediaItemID, &mediaItemsCount)
-	if err != nil && err != pgx.ErrNoRows {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		slog.Error("error getting album mediaitem id and count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

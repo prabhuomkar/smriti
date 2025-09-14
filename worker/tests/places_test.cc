@@ -13,12 +13,19 @@
 #include <unordered_map>
 #include <utility>
 
+#include "protos/api.pb.h"
+#include "protos/api_mock.grpc.pb.h"
 #include "worker/components.h"
 
 using components::ComponentConfig;
 using components::places::HttpClientInterface;
 using components::places::OpenStreetMap;
 using components::places::Places;
+using services::api::APIClient;
+using ::testing::_;
+using ::testing::Invoke;
+using ::testing::NiceMock;
+using ::testing::Return;
 
 class MockHttpClient : public HttpClientInterface {
  public:
@@ -36,12 +43,13 @@ void assertPlacesResult(std::unordered_map<std::string, std::string> expected,
 
 TEST(PlacesTest, Init) {
   spdlog::set_level(spdlog::level::off);
-  auto places =
-      components::places::Init(ComponentConfig("openstreetmap", "params"));
+  auto places = components::places::Init(
+      ComponentConfig("openstreetmap", "params"), nullptr);
   ASSERT_TRUE(places != nullptr);
   auto osm = std::dynamic_pointer_cast<OpenStreetMap>(places);
   ASSERT_TRUE(osm != nullptr);
-  places = components::places::Init(ComponentConfig("unknown", "params"));
+  places =
+      components::places::Init(ComponentConfig("unknown", "params"), nullptr);
   ASSERT_TRUE(places == nullptr);
 }
 
@@ -49,60 +57,96 @@ TEST(PlacesTest, EmptyInput) {
   spdlog::set_level(spdlog::level::off);
   Places places;
   std::unordered_map<std::string, std::string> result =
-      places.ReverseGeocode("", "", "", "");
+      places.ReverseGeocode("", "", "", "", "");
   assertPlacesResult({}, result);
 }
 
 TEST(OpenStreetMapTest, EmptyInput) {
   spdlog::set_level(spdlog::level::off);
-  auto mock_client = std::make_shared<MockHttpClient>();
-  OpenStreetMap osm(mock_client);
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemPlace(_, _, _))
+      .WillRepeatedly(
+          Invoke([&](grpc::ClientContext*, const MediaItemPlaceRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockHttpClient> mock_http_client =
+      std::make_shared<MockHttpClient>();
+  OpenStreetMap osm(mock_http_client, mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", "", "");
+      osm.ReverseGeocode("", "", "", "", "");
   assertPlacesResult({}, result);
 }
 
 TEST(OpenStreetMapTest, ErrorResponse) {
   spdlog::set_level(spdlog::level::off);
-  auto mock_client = std::make_shared<MockHttpClient>();
-  OpenStreetMap osm(mock_client);
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemPlace(_, _, _))
+      .WillRepeatedly(
+          Invoke([&](grpc::ClientContext*, const MediaItemPlaceRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockHttpClient> mock_http_client =
+      std::make_shared<MockHttpClient>();
   cpr::Response mock_response;
   mock_response.error.message = "mock error";
   mock_response.status_code = 200;
   mock_response.text = "{}";
-  EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
+  EXPECT_CALL(*mock_http_client, Get(::testing::_, ::testing::_))
       .WillOnce(::testing::Return(mock_response));
+  OpenStreetMap osm(mock_http_client, mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", "1.23", "4.56");
+      osm.ReverseGeocode("", "", "", "1.23", "4.56");
   assertPlacesResult({}, result);
 }
 
 TEST(OpenStreetMapTest, IncorrectStatusCode) {
   spdlog::set_level(spdlog::level::off);
-  auto mock_client = std::make_shared<MockHttpClient>();
-  OpenStreetMap osm(mock_client);
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemPlace(_, _, _))
+      .WillRepeatedly(
+          Invoke([&](grpc::ClientContext*, const MediaItemPlaceRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockHttpClient> mock_http_client =
+      std::make_shared<MockHttpClient>();
   cpr::Response mock_response;
   mock_response.status_code = 500;
   mock_response.text = "{}";
-  EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
+  EXPECT_CALL(*mock_http_client, Get(::testing::_, ::testing::_))
       .WillOnce(::testing::Return(mock_response));
+  OpenStreetMap osm(mock_http_client, mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", "0.0", "0.0");
+      osm.ReverseGeocode("", "", "", "0.0", "0.0");
   assertPlacesResult({}, result);
 }
 
 TEST(OpenStreetMapTest, Success) {
   spdlog::set_level(spdlog::level::off);
-  auto mock_client = std::make_shared<MockHttpClient>();
-  OpenStreetMap osm(mock_client);
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemPlace(_, _, _))
+      .WillRepeatedly(
+          Invoke([&](grpc::ClientContext*, const MediaItemPlaceRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockHttpClient> mock_http_client =
+      std::make_shared<MockHttpClient>();
   cpr::Response mock_response;
   mock_response.status_code = 200;
   mock_response.text =
       R"({"address":{"suburb":"K/W Ward","city":"Mumbai","state":"Maharashtra","postcode":"402205","country":"India"}})";
-  EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
+  EXPECT_CALL(*mock_http_client, Get(::testing::_, ::testing::_))
       .WillOnce(::testing::Return(mock_response));
+  OpenStreetMap osm(mock_http_client, mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", "1.23", "4.56");
+      osm.ReverseGeocode("", "", "", "1.23", "4.56");
   assertPlacesResult(
       {
           {"postcode", "402205"},

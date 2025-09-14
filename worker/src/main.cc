@@ -55,9 +55,10 @@ int main() {
   std::signal(SIGTERM, gracefulShutdown);
   std::signal(SIGINT, gracefulShutdown);
 
-  APIClient api_client(grpc::CreateChannel(cfg->api_host + ":" + cfg->api_port,
-                                           grpc::InsecureChannelCredentials()));
-  std::string worker_config = api_client.GetWorkerConfig();
+  std::shared_ptr<APIClient> api_client = std::make_shared<APIClient>(
+      grpc::CreateChannel(cfg->api_host + ":" + cfg->api_port,
+                          grpc::InsecureChannelCredentials()));
+  std::string worker_config = api_client->GetWorkerConfig();
   spdlog::info("worker config: {}", worker_config);
 
   std::shared_ptr<components::metadata::Metadata> metadata_component;
@@ -67,9 +68,9 @@ int main() {
       components::ParseComponentConfig(worker_config);
   for (const auto& [name, config] : component_configs) {
     if (name == MediaItemComponent_Name(MediaItemComponent::METADATA)) {
-      metadata_component = components::metadata::Init(config);
+      metadata_component = components::metadata::Init(config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::PLACES)) {
-      places_component = components::places::Init(config);
+      places_component = components::places::Init(config, api_client);
     } else if (name ==
                MediaItemComponent_Name(MediaItemComponent::PREVIEW_THUMBNAIL)) {
       // TODO(omkar): initialize this component
@@ -90,18 +91,22 @@ int main() {
 
   while (!terminating) {
     spdlog::info("worker running");
-    sleep(10);
-    MediaItemProcessResponse response = api_client.GetMediaItemProcess();
+    sleep(5);
+    MediaItemProcessResponse response = api_client->GetMediaItemProcess();
     spdlog::info("id {}", response.id());
-    spdlog::info("user_id {}", response.userid());
-    spdlog::info("mediaitem_id {}", response.mediaitemid());
-    auto mediaitem_components = response.components();
-    for (const auto& component : mediaitem_components) {
-      spdlog::info("component {}", component);
-    }
-    auto mediaitem_payload = response.payload();
-    for (const auto& [key, value] : mediaitem_payload) {
-      spdlog::info("payload {}: {}", key, value);
+    if (response.id() != "") {
+      auto metadata_result = metadata_component->Extract(
+          response.id(), response.userid(), response.mediaitemid(),
+          response.payload().at("source_url"));
+      for (const auto& [key, value] : metadata_result) {
+        spdlog::info("metadata result {}: {}", key, value);
+      }
+      auto place_result = places_component->ReverseGeocode(
+          response.id(), response.userid(), response.mediaitemid(),
+          metadata_result["latitude"], metadata_result["longitude"]);
+      for (const auto& [key, value] : place_result) {
+        spdlog::info("place result {}: {}", key, value);
+      }
     }
   }
 

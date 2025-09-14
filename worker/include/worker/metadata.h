@@ -1,6 +1,7 @@
 // Copyright 2025 Omkar Prabhu
 #pragma once
 
+#include <spdlog/spdlog.h>
 #include <unistd.h>
 
 #include <cstdio>
@@ -12,7 +13,10 @@
 #include <utility>
 #include <vector>
 
+#include "worker/api_client.h"
 #include "worker/components.h"
+
+using services::api::APIClient;
 
 namespace components {
 
@@ -105,14 +109,16 @@ class ExifToolClient : public ExifToolClientInterface {
 
 class Metadata {
  public:
-  explicit Metadata(std::shared_ptr<ExifToolClientInterface> exif_tool_client)
-      : exif_tool_client_(exif_tool_client) {}
+  explicit Metadata(std::shared_ptr<ExifToolClientInterface> exif_tool_client,
+                    std::shared_ptr<APIClient> api_client)
+      : exif_tool_client_(exif_tool_client), api_client_(api_client) {}
   std::unordered_map<std::string, std::string> Extract(
-      const std::string& id, const std::string& mediaitem_id,
-      const std::string& file_path);
+      const std::string& id, const std::string& user_id,
+      const std::string& mediaitem_id, const std::string& file_path);
 
  private:
   std::shared_ptr<ExifToolClientInterface> exif_tool_client_;
+  std::shared_ptr<APIClient> api_client_;
 };
 
 std::string GetValue(const std::unordered_map<std::string, std::string>& data,
@@ -120,7 +126,8 @@ std::string GetValue(const std::unordered_map<std::string, std::string>& data,
 
 std::string GetCoordinates(const std::string& location);
 
-std::shared_ptr<Metadata> Init(const ComponentConfig& config);
+std::shared_ptr<Metadata> Init(const ComponentConfig& config,
+                               std::shared_ptr<APIClient> api_client);
 } // namespace metadata
 
 } // namespace components

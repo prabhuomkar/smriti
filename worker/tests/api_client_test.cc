@@ -25,8 +25,7 @@ class APIClientTest : public ::testing::Test {
     spdlog::set_level(spdlog::level::off);
     auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
     mock_stub_ = mock_api_stub.get();
-    client_ =
-        std::make_unique<APIClient>(std::move(mock_api_stub)); // move ownership
+    client_ = std::make_unique<APIClient>(std::move(mock_api_stub));
   }
 
   MockAPIStub* mock_stub_;

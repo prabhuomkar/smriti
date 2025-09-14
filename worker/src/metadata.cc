@@ -1,9 +1,11 @@
 // Copyright 2025 Omkar Prabhu
 #include "worker/metadata.h"
 
+#include <grpcpp/grpcpp.h>
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <cstdio>
 #include <memory>
 #include <optional>
 #include <regex>
@@ -13,15 +15,18 @@
 #include <vector>
 
 #include "protos/api.pb.h"
+#include "worker/api_client.h"
 #include "worker/components.h"
+
+using services::api::APIClient;
 
 namespace components {
 
 namespace metadata {
 
 std::unordered_map<std::string, std::string> Metadata::Extract(
-    const std::string& id, const std::string& mediaitem_id,
-    const std::string& file_path) {
+    const std::string& id, const std::string& user_id,
+    const std::string& mediaitem_id, const std::string& file_path) {
   std::unordered_map<std::string, std::string> result;
 
   // default values
@@ -32,6 +37,10 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
 
   std::unordered_map<std::string, std::string> exif_data =
       exif_tool_client_->Extract(file_path);
+
+  for (const auto& [key, value] : exif_data) {
+    spdlog::debug("exiftool response: {}={}", key, value);
+  }
 
   std::string raw_exifdata = "{";
   for (auto it = exif_data.begin(); it != exif_data.end();) {
@@ -81,6 +90,7 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
   result["iso_equivalent"] = GetValue(exif_data, {"ISO"});
   result["exposure_time"] = GetValue(exif_data, {"ExposureTime"});
   result["fps"] = GetValue(exif_data, {"VideoFrameRate"});
+  result["megapixels"] = GetValue(exif_data, {"Megapixels"});
 
   // gps
   result["longitude"] = GetCoordinates(GetValue(exif_data, {"GPSLongitude"}));
@@ -120,6 +130,37 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
     }
   }
 
+  MediaItemMetadataRequest request;
+  request.set_userid(user_id);
+  request.set_mediaitemid(mediaitem_id);
+  request.set_status(result["status"]);
+  request.set_mimetype(result["mime_type"]);
+  request.set_type(result["type"]);
+  request.set_category(result["category"]);
+  if (result["width"] != "") {
+    request.set_width(std::stoi(result["width"]));
+  }
+  if (result["height"] != "") {
+    request.set_height(std::stoi(result["height"]));
+  }
+  request.set_creationtime(result["creation_time"]);
+  request.set_cameramake(result["camera_make"]);
+  request.set_cameramodel(result["camera_model"]);
+  request.set_focallength(result["focal_length"]);
+  request.set_aperturefnumber(result["aperture_fnumber"]);
+  request.set_isoequivalent(result["iso_equivalent"]);
+  request.set_exposuretime(result["exposure_time"]);
+  request.set_megapixels(result["megapixels"]);
+  request.set_fps(result["fps"]);
+  if (result["latitude"] != "") {
+    request.set_latitude(std::stod(result["latitude"]));
+  }
+  if (result["longitude"] != "") {
+    request.set_longitude(std::stod(result["longitude"]));
+  }
+  request.set_exifdata(result["exifdata"]);
+  bool ok = api_client_->SaveMediaItemMetadata(request);
+
   return result;
 }
 
@@ -150,8 +191,10 @@ std::string GetValue(const std::unordered_map<std::string, std::string>& data,
   return "";
 }
 
-std::shared_ptr<Metadata> Init(const ComponentConfig& config) {
-  return std::make_shared<Metadata>(std::make_shared<ExifToolClient>());
+std::shared_ptr<Metadata> Init(const ComponentConfig& config,
+                               std::shared_ptr<APIClient> api_client) {
+  return std::make_shared<Metadata>(std::make_shared<ExifToolClient>(),
+                                    api_client);
 }
 
 } // namespace metadata

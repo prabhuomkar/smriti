@@ -9,7 +9,10 @@
 #include <unordered_map>
 #include <utility>
 
+#include "worker/api_client.h"
 #include "worker/components.h"
+
+using services::api::APIClient;
 
 namespace components {
 
@@ -33,25 +36,32 @@ class Places {
  public:
   Places() {}
   virtual std::unordered_map<std::string, std::string> ReverseGeocode(
-      const std::string& id, const std::string& mediaitem_id,
-      const std::string& latitude, const std::string& longitude);
+      const std::string& id, const std::string& user_id,
+      const std::string& mediaitem_id, const std::string& latitude,
+      const std::string& longitude);
 };
 
 class OpenStreetMap : public Places {
  public:
   explicit OpenStreetMap(
       std::shared_ptr<HttpClientInterface> http_client,
+      std::shared_ptr<APIClient> api_client,
       std::string url =
           "https://nominatim.openstreetmap.org/"
           "reverse.php?zoom=18&format=jsonv2&lat={lat}&lon={lon}",
       int timeout = 60)
-      : http_client_(http_client), url_(std::move(url)), timeout_(timeout) {}
+      : http_client_(http_client),
+        api_client_(api_client),
+        url_(std::move(url)),
+        timeout_(timeout) {}
   std::unordered_map<std::string, std::string> ReverseGeocode(
-      const std::string& id, const std::string& mediaitem_id,
-      const std::string& latitude, const std::string& longitude) override;
+      const std::string& id, const std::string& user_id,
+      const std::string& mediaitem_id, const std::string& latitude,
+      const std::string& longitude) override;
 
  private:
   std::shared_ptr<HttpClientInterface> http_client_;
+  std::shared_ptr<APIClient> api_client_;
   std::string url_;
   int timeout_;
 };
@@ -59,7 +69,8 @@ class OpenStreetMap : public Places {
 std::string Format(std::string input,
                    const std::unordered_map<std::string, std::string>& values);
 
-std::shared_ptr<Places> Init(const ComponentConfig& config);
+std::shared_ptr<Places> Init(const ComponentConfig& config,
+                             std::shared_ptr<APIClient> api_client);
 } // namespace places
 
 } // namespace components

@@ -44,7 +44,7 @@ const (
 	querySaveMediaItemMetadata = `UPDATE mediaitems SET creation_time=$3, camera_make=$4, camera_model=$5,` +
 		` focal_length=$6, aperture_fnumber=$7, iso_equivalent=$8, exposure_time=$9, megapixels=$10, fps=$11,` +
 		` latitude=$12, longitude=$13, exif_data=$14, mime_type=$15, mediaitem_type=$16, mediaitem_category=$17,` +
-		` width=$18, height=$19 WHERE user_id=$1 AND id=$2`
+		` width=$18, height=$19, status=$20 WHERE user_id=$1 AND id=$2`
 	querySaveMediaItemPreviewThumbnail = `UPDATE mediaitems SET status=$3, source_url=$4, placeholder=$5,` +
 		` preview_url=$6, thumbnail_url=$7 WHERE user_id=$1 AND id=$2`
 	querySavePlace = `INSERT INTO places (id, user_id, name, postcode, country,` +
@@ -151,9 +151,7 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.Con
 	return &api.ConfigResponse{Config: configBytes}, nil
 }
 
-func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*api.MediaItemProcessResponse, error) {
-	slog.Info("getting mediaitem to process")
-
+func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*api.MediaItemProcessResponse, error) { //nolint:cyclop
 	var (
 		queueID           uuid.UUID
 		userID            uuid.UUID
@@ -274,7 +272,7 @@ func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemM
 		mediaItem.CameraModel, mediaItem.FocalLength, mediaItem.ApertureFnumber, mediaItem.IsoEquivalent,
 		mediaItem.ExposureTime, mediaItem.Megapixels, mediaItem.FPS, mediaItem.Latitude, mediaItem.Longitude,
 		mediaItem.EXIFData, mediaItem.MimeType, mediaItem.MediaItemType, mediaItem.MediaItemCategory,
-		mediaItem.Width, mediaItem.Height)
+		mediaItem.Width, mediaItem.Height, mediaItem.Status)
 	if err != nil {
 		slog.Error("error saving mediaitem metadata", "error", err)
 
@@ -356,6 +354,7 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 	}
 	slog.Info("saving mediaitem place", "user", req.UserId, "mediaitem", req.MediaItemId, "body", req.String())
 	place := models.Place{
+		ID:     uuid.NewV4(),
 		UserID: userID, Postcode: req.Postcode, Country: req.Country, Locality: req.Locality, Area: req.Area,
 	}
 	place.Name = getNameForPlace(place)
@@ -372,7 +371,7 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 			_ = ptx.Rollback(ctx)
 		}
 	}()
-	_, err = ptx.Exec(ctx, querySavePlace, mediaItemID, userID, place.Name, place.Postcode,
+	_, err = ptx.Exec(ctx, querySavePlace, place.ID, userID, place.Name, place.Postcode,
 		place.Country, place.Locality, place.Area, false, mediaItemID, place.CreatedAt, place.UpdatedAt)
 	if err != nil {
 		slog.Error("error saving place", "error", err)
@@ -409,7 +408,7 @@ func (s *Service) SaveMediaItemThing(ctx context.Context, req *api.MediaItemThin
 		return &emptypb.Empty{}, status.Errorf(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	slog.Info("saving mediaitem thing", "user", req.UserId, "mediaitem", req.MediaItemId, "body", req.String())
-	thing := models.Thing{UserID: userID, Name: req.Name}
+	thing := models.Thing{ID: uuid.NewV4(), UserID: userID, Name: req.Name}
 	thing.CreatedAt = time.Now()
 	thing.UpdatedAt = thing.CreatedAt
 	ttx, err := s.DB.Begin(ctx)
