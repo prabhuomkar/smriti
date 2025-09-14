@@ -26,7 +26,7 @@ const (
 	queryCreateJob      = `INSERT INTO jobs (id, user_id, status, components, created_at, updated_at)` +
 		` VALUES ($1, $2, $3, $4, $5, $6)`
 	queryUpdateJob       = `UPDATE jobs SET status=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
-	queryQueueMediaItems = `INSERT INTO queue (id, components, status) SELECT id, $1, $2 FROM mediaitems`
+	queryQueueMediaItems = `INSERT INTO queue (id, user_id, mediaitem_id, components, status) SELECT gen_random_uuid(), user_id, id, $1, $2 FROM mediaitems`
 )
 
 // GetJob ...
@@ -38,7 +38,7 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 	}
 	job := models.Job{}
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetJob, userID, uid).Scan(&job.ID, &job.UserID,
-		&job.Status, &job.Components, &job.LastMediItemID, &job.CreatedAt, &job.UpdatedAt)
+		&job.Status, &job.Components, &job.CreatedAt, &job.UpdatedAt)
 	if err != nil {
 		slog.Error("error getting job", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -102,8 +102,7 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 	defer rows.Close()
 	for rows.Next() {
 		job := models.Job{}
-		err = rows.Scan(&job.ID, &job.UserID, &job.Status, &job.Components, &job.LastMediItemID,
-			&job.CreatedAt, &job.UpdatedAt)
+		err = rows.Scan(&job.ID, &job.UserID, &job.Status, &job.Components, &job.CreatedAt, &job.UpdatedAt)
 		if err != nil {
 			slog.Error("error scanning job", "error", err)
 

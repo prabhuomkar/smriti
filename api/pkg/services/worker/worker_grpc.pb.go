@@ -8,7 +8,6 @@ package worker
 
 import (
 	context "context"
-
 	grpc "google.golang.org/grpc"
 	codes "google.golang.org/grpc/codes"
 	status "google.golang.org/grpc/status"
@@ -96,7 +95,9 @@ func _Worker_GenerateEmbedding_Handler(srv interface{}, ctx context.Context, dec
 		return srv.(WorkerServer).GenerateEmbedding(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
-		Server: srv, FullMethod: Worker_GenerateEmbedding_FullMethodName}
+		Server:     srv,
+		FullMethod: Worker_GenerateEmbedding_FullMethodName,
+	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(WorkerServer).GenerateEmbedding(ctx, req.(*GenerateEmbeddingRequest))
 	}
@@ -104,8 +105,17 @@ func _Worker_GenerateEmbedding_Handler(srv interface{}, ctx context.Context, dec
 }
 
 // Worker_ServiceDesc is the grpc.ServiceDesc for Worker service.
-// It's only intended for direct use with grpc.RegisterService,// and not to be introspected or modified (even as a copy)
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
 var Worker_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "Worker", HandlerType: (*WorkerServer)(nil), Methods: []grpc.MethodDesc{
+	ServiceName: "Worker",
+	HandlerType: (*WorkerServer)(nil),
+	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "GenerateEmbedding", Handler: _Worker_GenerateEmbedding_Handler}}, Streams: []grpc.StreamDesc{}, Metadata: "worker.proto"}
+			MethodName: "GenerateEmbedding",
+			Handler:    _Worker_GenerateEmbedding_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "worker.proto",
+}

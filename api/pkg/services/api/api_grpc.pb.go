@@ -40,7 +40,7 @@ type APIClient interface {
 	GetWorkerConfig(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*ConfigResponse, error)
 	GetMediaItemProcess(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*MediaItemProcessResponse, error)
 	GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaItemFaceEmbeddingsRequest, opts ...grpc.CallOption) (*MediaItemFaceEmbeddingsResponse, error)
-	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error)
+	GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersResponse, error)
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemPreviewThumbnail(ctx context.Context, in *MediaItemPreviewThumbnailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -88,9 +88,9 @@ func (c *aPIClient) GetMediaItemFaceEmbeddings(ctx context.Context, in *MediaIte
 	return out, nil
 }
 
-func (c *aPIClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*GetUsersResponse, error) {
+func (c *aPIClient) GetUsers(ctx context.Context, in *emptypb.Empty, opts ...grpc.CallOption) (*UsersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(GetUsersResponse)
+	out := new(UsersResponse)
 	err := c.cc.Invoke(ctx, API_GetUsers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -175,7 +175,7 @@ type APIServer interface {
 	GetWorkerConfig(context.Context, *emptypb.Empty) (*ConfigResponse, error)
 	GetMediaItemProcess(context.Context, *emptypb.Empty) (*MediaItemProcessResponse, error)
 	GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error)
-	GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error)
+	GetUsers(context.Context, *emptypb.Empty) (*UsersResponse, error)
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*emptypb.Empty, error)
 	SaveMediaItemPreviewThumbnail(context.Context, *MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*emptypb.Empty, error)
@@ -202,7 +202,7 @@ func (UnimplementedAPIServer) GetMediaItemProcess(context.Context, *emptypb.Empt
 func (UnimplementedAPIServer) GetMediaItemFaceEmbeddings(context.Context, *MediaItemFaceEmbeddingsRequest) (*MediaItemFaceEmbeddingsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetMediaItemFaceEmbeddings not implemented")
 }
-func (UnimplementedAPIServer) GetUsers(context.Context, *emptypb.Empty) (*GetUsersResponse, error) {
+func (UnimplementedAPIServer) GetUsers(context.Context, *emptypb.Empty) (*UsersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetUsers not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*emptypb.Empty, error) {

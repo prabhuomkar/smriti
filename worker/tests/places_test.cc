@@ -49,7 +49,7 @@ TEST(PlacesTest, EmptyInput) {
   spdlog::set_level(spdlog::level::off);
   Places places;
   std::unordered_map<std::string, std::string> result =
-      places.ReverseGeocode("", "", std::nullopt, std::nullopt);
+      places.ReverseGeocode("", "", "", "");
   assertPlacesResult({}, result);
 }
 
@@ -58,7 +58,7 @@ TEST(OpenStreetMapTest, EmptyInput) {
   auto mock_client = std::make_shared<MockHttpClient>();
   OpenStreetMap osm(mock_client);
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", std::nullopt, std::nullopt);
+      osm.ReverseGeocode("", "", "", "");
   assertPlacesResult({}, result);
 }
 
@@ -73,7 +73,7 @@ TEST(OpenStreetMapTest, ErrorResponse) {
   EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
       .WillOnce(::testing::Return(mock_response));
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", 1.23, 4.56);
+      osm.ReverseGeocode("", "", "1.23", "4.56");
   assertPlacesResult({}, result);
 }
 
@@ -87,7 +87,7 @@ TEST(OpenStreetMapTest, IncorrectStatusCode) {
   EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
       .WillOnce(::testing::Return(mock_response));
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", 0.0, 0.0);
+      osm.ReverseGeocode("", "", "0.0", "0.0");
   assertPlacesResult({}, result);
 }
 
@@ -102,7 +102,7 @@ TEST(OpenStreetMapTest, Success) {
   EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
       .WillOnce(::testing::Return(mock_response));
   std::unordered_map<std::string, std::string> result =
-      osm.ReverseGeocode("", "", 1.23, 4.56);
+      osm.ReverseGeocode("", "", "1.23", "4.56");
   assertPlacesResult(
       {
           {"postcode", "402205"},

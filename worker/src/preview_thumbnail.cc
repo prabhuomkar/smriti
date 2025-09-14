@@ -25,14 +25,14 @@ std::shared_ptr<PreviewThumbnail> Init(const ComponentConfig& config) {
 }
 
 std::unordered_map<std::string, std::string> GenerateImage(
-    const std::string& user_id, const std::string& mediaitem_id,
+    const std::string& id, const std::string& mediaitem_id,
     const std::string& file_path, const std::string& type) {
   std::unordered_map<std::string, std::string> result;
   return result;
 }
 
 std::unordered_map<std::string, std::string> GenerateVideo(
-    const std::string& user_id, const std::string& mediaitem_id,
+    const std::string& id, const std::string& mediaitem_id,
     const std::string& file_path, const std::string& type) {
   std::unordered_map<std::string, std::string> result;
   return result;

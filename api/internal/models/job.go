@@ -14,13 +14,12 @@ type ( // JobStatus ...
 
 // Job ...
 type Job struct {
-	ID             uuid.UUID  `json:"id"`
-	UserID         uuid.UUID  `json:"userId"`
-	Status         JobStatus  `json:"status"`
-	Components     string     `json:"components"`
-	LastMediItemID *uuid.UUID `json:"lastMediaItemId,omitempty"`
-	CreatedAt      time.Time  `json:"createdAt"`
-	UpdatedAt      time.Time  `json:"updatedAt"`
+	ID         uuid.UUID `json:"id"`
+	UserID     uuid.UUID `json:"userId"`
+	Status     JobStatus `json:"status"`
+	Components string    `json:"components"`
+	CreatedAt  time.Time `json:"createdAt"`
+	UpdatedAt  time.Time `json:"updatedAt"`
 }
 
 const (

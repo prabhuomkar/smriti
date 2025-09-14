@@ -33,8 +33,8 @@ class Places {
  public:
   Places() {}
   virtual std::unordered_map<std::string, std::string> ReverseGeocode(
-      const std::string& user_id, const std::string& mediaitem_id,
-      std::optional<double> latitude, std::optional<double> longitude);
+      const std::string& id, const std::string& mediaitem_id,
+      const std::string& latitude, const std::string& longitude);
 };
 
 class OpenStreetMap : public Places {
@@ -47,8 +47,8 @@ class OpenStreetMap : public Places {
       int timeout = 60)
       : http_client_(http_client), url_(std::move(url)), timeout_(timeout) {}
   std::unordered_map<std::string, std::string> ReverseGeocode(
-      const std::string& user_id, const std::string& mediaitem_id,
-      std::optional<double> latitude, std::optional<double> longitude) override;
+      const std::string& id, const std::string& mediaitem_id,
+      const std::string& latitude, const std::string& longitude) override;
 
  private:
   std::shared_ptr<HttpClientInterface> http_client_;

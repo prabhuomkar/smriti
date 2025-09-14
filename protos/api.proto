@@ -19,16 +19,16 @@ enum MediaItemComponent {
 }
 
 message MediaItemProcessResponse {
-  string userId = 1;
-  string id = 2;
-  string filePath = 3;
+  string id = 1;
+  string userId = 2;
+  string mediaItemId = 3;
   repeated MediaItemComponent components = 4;
   map<string, string> payload = 5;
 }
 
 message MediaItemMetadataRequest {
   string userId = 1;
-  string id = 2;
+  string mediaItemId = 2;
   string status = 3;
   optional string mimeType = 4;
   string type = 5;
@@ -51,7 +51,7 @@ message MediaItemMetadataRequest {
 
 message MediaItemPreviewThumbnailRequest {
   string userId = 1;
-  string id = 2;
+  string mediaItemId = 2;
   string status = 3;
   optional string sourcePath = 4;
   optional string previewPath = 5;
@@ -61,7 +61,7 @@ message MediaItemPreviewThumbnailRequest {
 
 message MediaItemPlaceRequest {
   string userId = 1;
-  string id = 2;
+  string mediaItemId = 2;
   optional string postcode = 3;
   optional string country = 4;
   optional string locality = 5;  // city, town, village, municipality
@@ -70,7 +70,7 @@ message MediaItemPlaceRequest {
 
 message MediaItemThingRequest {
   string userId = 1;
-  string id = 2;
+  string mediaItemId = 2;
   string name = 3;
 }
 
@@ -80,16 +80,17 @@ message MediaItemEmbedding {
 
 message MediaItemFacesRequest {
   string userId = 1;
-  string id = 2;
+  string mediaItemId = 2;
   repeated MediaItemEmbedding embeddings = 3;
   repeated string thumbnails = 4;
 }
 
 message MediaItemFinalResultRequest {
-  string userId = 1;
-  string id = 2;
-  string keywords = 3;
-  repeated MediaItemEmbedding embeddings = 4;
+  string id = 1;
+  string userId = 2;
+  string mediaItemId = 3;
+  string keywords = 4;
+  repeated MediaItemEmbedding embeddings = 5;
 }
 
 message MediaItemFaceEmbeddingsRequest {
@@ -107,7 +108,7 @@ message MediaItemFaceEmbeddingsResponse {
   repeated MediaItemFaceEmbedding mediaItemFaceEmbeddings = 1;
 }
 
-message GetUsersResponse {
+message UsersResponse {
   repeated string users = 1;
 }
 
@@ -126,7 +127,7 @@ service API {
       returns (MediaItemProcessResponse) {}
   rpc GetMediaItemFaceEmbeddings(MediaItemFaceEmbeddingsRequest)
       returns (MediaItemFaceEmbeddingsResponse) {}
-  rpc GetUsers(google.protobuf.Empty) returns (GetUsersResponse) {}
+  rpc GetUsers(google.protobuf.Empty) returns (UsersResponse) {}
   rpc SaveMediaItemMetadata(MediaItemMetadataRequest)
       returns (google.protobuf.Empty) {}
   rpc SaveMediaItemPreviewThumbnail(MediaItemPreviewThumbnailRequest)

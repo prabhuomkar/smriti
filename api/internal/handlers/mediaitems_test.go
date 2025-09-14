@@ -851,7 +851,7 @@ func TestUploadMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UploadMediaItems
@@ -868,7 +868,7 @@ func TestUploadMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UploadMediaItems
@@ -882,7 +882,7 @@ func TestUploadMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
-					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UploadMediaItems

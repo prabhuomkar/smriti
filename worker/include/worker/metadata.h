@@ -108,7 +108,7 @@ class Metadata {
   explicit Metadata(std::shared_ptr<ExifToolClientInterface> exif_tool_client)
       : exif_tool_client_(exif_tool_client) {}
   std::unordered_map<std::string, std::string> Extract(
-      const std::string& user_id, const std::string& mediaitem_id,
+      const std::string& id, const std::string& mediaitem_id,
       const std::string& file_path);
 
  private:

@@ -14,16 +14,16 @@ import (
 
 var (
 	jobCols = []string{
-		"id", "user_id", "components", "status", "last_mediaitem_id", "created_at", "updated_at",
+		"id", "user_id", "components", "status", "created_at", "updated_at",
 	}
 	jobResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"SCHEDULED","components":"metadata,places","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"status":"SCHEDULED","components":"METADATA,PLACES",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
 	jobsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"RUNNING","components":"metadata,places","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"status":"RUNNING","components":"METADATA,PLACES",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"},` +
 		`{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"RUNNING","components":"faces","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"status":"RUNNING","components":"faces",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
@@ -56,7 +56,7 @@ func TestGetJob(t *testing.T) {
 			"get job with error in scanning", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(jobCols).AddRow(pgxmock.AnyArg(), pgxmock.AnyArg(), "SCHEDULED", "metadata,places", pgxmock.AnyArg(), sampleTime, sampleTime))
+					WillReturnRows(pgxmock.NewRows(jobCols).AddRow(pgxmock.AnyArg(), pgxmock.AnyArg(), "SCHEDULED", "METADATA,PLACES", sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -171,7 +171,7 @@ func TestGetJobs(t *testing.T) {
 			"get jobs with error in scanning", http.MethodGet, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(jobCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "SCHEDULED", "metadata,places", &sampleCoverMediaItemID, sampleTime, sampleTime))
+					WillReturnRows(pgxmock.NewRows(jobCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "SCHEDULED", "METADATA,PLACES", sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -283,11 +283,11 @@ func TestCreateJob(t *testing.T) {
 
 func getMockedJobRow() *pgxmock.Rows {
 	return pgxmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "SCHEDULED", "metadata,places", &sampleCoverMediaItemID, sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "SCHEDULED", "METADATA,PLACES", sampleTime, sampleTime)
 }
 
 func getMockedJobRows() *pgxmock.Rows {
 	return pgxmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "RUNNING", "metadata,places", &sampleCoverMediaItemID, sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "RUNNING", "faces", &sampleCoverMediaItemID, sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "RUNNING", "METADATA,PLACES", sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "RUNNING", "faces", sampleTime, sampleTime)
 }

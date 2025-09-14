@@ -17,10 +17,10 @@ class PreviewThumbnail {
   explicit PreviewThumbnail(int thumbnail_size = 256, int placeholder_size = 4)
       : thumbnail_size_(thumbnail_size), placeholder_size_(placeholder_size) {}
   std::unordered_map<std::string, std::string> GenerateImage(
-      const std::string& user_id, const std::string& mediaitem_id,
+      const std::string& id, const std::string& mediaitem_id,
       const std::string& file_path, const std::string& type);
   std::unordered_map<std::string, std::string> GenerateVideo(
-      const std::string& user_id, const std::string& mediaitem_id,
+      const std::string& id, const std::string& mediaitem_id,
       const std::string& file_path, const std::string& type);
 
  private:

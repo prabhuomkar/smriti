@@ -8,9 +8,12 @@ const QueueTable = "queue"
 
 // Queue ...
 type Queue struct {
-	ID         uuid.UUID       `json:"id"`
-	Components string          `json:"components"`
-	Status     MediaItemStatus `json:"status"`
+	ID          uuid.UUID
+	UserID      uuid.UUID
+	MediaItemID uuid.UUID
+	Type        string
+	Components  string
+	Status      MediaItemStatus
 }
 
 // TableName ...

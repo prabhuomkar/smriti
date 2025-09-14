@@ -64,7 +64,7 @@ const (
 	queryUpdatePeopleCoverMediaItem = `UPDATE people SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryInsertMediaItem            = `INSERT INTO mediaitems (id, user_id, filename, mediaitem_type, mediaitem_category,` +
 		` status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
-	queryQueueMediaItem      = `INSERT INTO queue(id, components, status) VALUES ($1, $2, $3)`
+	queryQueueMediaItem      = `INSERT INTO queue(id, user_id, mediaitem_id, components, status) VALUES (gen_random_uuid(), $1, $2, $3, $4)`
 	queryUpdateMediaItemHash = `UPDATE mediaitems SET hash=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
 )
 
@@ -475,7 +475,7 @@ func (h *Handler) saveToDisk(ctx context.Context, userID, mediaItemID string, fe
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 
-		err = h.queueMediaItemForProcessing(ctx, mediaItemID, features)
+		err = h.queueMediaItemForProcessing(ctx, userID, mediaItemID, features)
 		if err != nil {
 			slog.Error("error queuing mediaitem for processing", "error", err)
 
@@ -486,7 +486,7 @@ func (h *Handler) saveToDisk(ctx context.Context, userID, mediaItemID string, fe
 	return nil
 }
 
-func (h *Handler) queueMediaItemForProcessing(ctx context.Context, mediaItemID string, features models.Features) error { //nolint: cyclop
+func (h *Handler) queueMediaItemForProcessing(ctx context.Context, userID, mediaItemID string, features models.Features) error { //nolint: cyclop
 	components := fmt.Sprintf("%s,%s", api.MediaItemComponent_METADATA.String(), api.MediaItemComponent_PREVIEW_THUMBNAIL.String())
 	if h.Config.ML.Places && features.Places {
 		components += ("," + api.MediaItemComponent_PLACES.String())
@@ -503,7 +503,7 @@ func (h *Handler) queueMediaItemForProcessing(ctx context.Context, mediaItemID s
 	if h.Config.Search && features.Explore {
 		components += ("," + api.MediaItemComponent_SEARCH.String())
 	}
-	_, err := h.DB.Exec(ctx, queryQueueMediaItem, mediaItemID, components, models.StatusUnspecified)
+	_, err := h.DB.Exec(ctx, queryQueueMediaItem, userID, mediaItemID, components, models.StatusUnspecified)
 	if err != nil {
 		return err
 	}

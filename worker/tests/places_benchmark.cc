@@ -30,7 +30,7 @@ static void BM_PlacesEmptyInput(benchmark::State& state) { // NOLINT
   for (auto _ : state) {
     Places places;
     std::unordered_map<std::string, std::string> output =
-        places.ReverseGeocode("", "", std::nullopt, std::nullopt);
+        places.ReverseGeocode("", "", "", "");
     benchmark::DoNotOptimize(output);
   }
 }
@@ -40,7 +40,7 @@ static void BM_OpenStreetMapEmptyInput(benchmark::State& state) { // NOLINT
   for (auto _ : state) {
     Places places;
     std::unordered_map<std::string, std::string> output =
-        places.ReverseGeocode("", "", std::nullopt, std::nullopt);
+        places.ReverseGeocode("", "", "", "");
     benchmark::DoNotOptimize(output);
   }
 }
@@ -57,7 +57,7 @@ static void BM_OpenStreetMapErrorResponse(benchmark::State& state) { // NOLINT
     EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
         .WillOnce(::testing::Return(mock_response));
     std::unordered_map<std::string, std::string> output =
-        osm.ReverseGeocode("", "", 1.23, 4.56);
+        osm.ReverseGeocode("", "", "1.23", "4.56");
     benchmark::DoNotOptimize(output);
   }
 }
@@ -74,7 +74,7 @@ static void BM_OpenStreetMapIncorrectStatusCode(
     EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
         .WillOnce(::testing::Return(mock_response));
     std::unordered_map<std::string, std::string> output =
-        osm.ReverseGeocode("", "", 0.0, 0.0);
+        osm.ReverseGeocode("", "", "0.0", "0.0");
     benchmark::DoNotOptimize(output);
   }
 }
@@ -91,7 +91,7 @@ static void BM_OpenStreetMapSuccess(benchmark::State& state) { // NOLINT
     EXPECT_CALL(*mock_client, Get(::testing::_, ::testing::_))
         .WillOnce(::testing::Return(mock_response));
     std::unordered_map<std::string, std::string> output =
-        osm.ReverseGeocode("", "", 1.23, 4.56);
+        osm.ReverseGeocode("", "", "1.23", "4.56");
     benchmark::DoNotOptimize(output);
   }
 }

@@ -18,21 +18,20 @@ namespace components {
 namespace places {
 
 std::unordered_map<std::string, std::string> Places::ReverseGeocode(
-    const std::string& user_id, const std::string& mediaitem_id,
-    std::optional<double> latitude, std::optional<double> longitude) {
+    const std::string& id, const std::string& mediaitem_id,
+    const std::string& latitude, const std::string& longitude) {
   return {};
 }
 
 std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
-    const std::string& user_id, const std::string& mediaitem_id,
-    std::optional<double> latitude, std::optional<double> longitude) {
-  if (latitude == std::nullopt && longitude == std::nullopt) {
+    const std::string& id, const std::string& mediaitem_id,
+    const std::string& latitude, const std::string& longitude) {
+  if (latitude == "" && longitude == "") {
     return {};
   }
 
   cpr::Response r = http_client_->Get(
-      cpr::Url{Format(url_, {{"lat", std::to_string(latitude.value())},
-                             {"lon", std::to_string(longitude.value())}})},
+      cpr::Url{Format(url_, {{"lat", latitude}, {"lon", longitude}})},
       cpr::Header{{"User-Agent", "smriti-worker"},
                   {"Accept-Language", "en-GB,en-US"}});
   if (r.error.message != "") {

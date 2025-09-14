@@ -15,7 +15,6 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
-	"github.com/pgvector/pgvector-go"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -34,36 +33,41 @@ var (
 	creationtime                 = "2022-09-22 11:22:33"
 	width                  int32 = 1080
 	height                 int32 = 720
-	existingPlaceKeywords        = "placecity placepostcode"
 	placeholder                  = "placeholder"
 	mediaItemResultRequest       = api.MediaItemMetadataRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MimeType: &mimetype, Type: mediaitemType, Category: mediaitemCategory, Width: &width, Height: &height, CreationTime: &creationtime,
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		MimeType: &mimetype, Type: mediaitemType, Category: mediaitemCategory, Width: &width, Height: &height, CreationTime: &creationtime,
 	}
 	mediaItemPreviewThumbnailRequest = api.MediaItemPreviewThumbnailRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Status: string(models.StatusReady), Placeholder: &placeholder,
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Status: string(models.StatusReady), Placeholder: &placeholder,
 	}
 	country            = "country"
 	postcode           = "postcode"
 	locality           = "locality"
 	area               = "area"
-	embedding          = pgvector.NewVector([]float32{0.0, 0.42, 0.111})
 	mediaItemEmbedding = api.MediaItemEmbedding{
 		Embedding: []float32{0.0, 0.42, 0.111},
 	}
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Country: &country, Postcode: &postcode, Locality: &locality, Area: &area,
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Country: &country, Postcode: &postcode, Locality: &locality, Area: &area,
 	}
 	mediaItemPlaceLocalityRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Locality: &locality,
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Locality: &locality,
 	}
 	mediaItemPlaceAreaRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Area: &area,
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Area: &area,
 	}
 	mediaItemThingRequest = api.MediaItemThingRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Name: "Pizza",
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Name: "Pizza",
 	}
 	mediaItemFacesRequest = api.MediaItemFacesRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding}, Thumbnails: []string{"thumbnail"},
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding}, Thumbnails: []string{"thumbnail"},
 	}
 	mediaItemPeopleRequest = api.MediaItemPeopleRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
@@ -90,7 +94,9 @@ var (
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 	}
 	mediaItemFinalResultRequest = api.MediaItemFinalResultRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Keywords: "some keywords", Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
+		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Keywords: "some keywords", Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
 	}
 	mediaitemFaceCols = []string{
 		"id", "mediaitem_id", "people_id", "embedding",
@@ -111,7 +117,11 @@ func TestGetWorkerConfig(t *testing.T) {
 		},
 		{
 			"get worker config with success with all config", &config.Config{ML: config.ML{
-				Places: true, PlacesProvider: "openstreetmap", Classification: true, ClassificationProvider: "pytorch", ClassificationParams: `{"file":"model-file-name.pt"}`, OCR: true, OCRProvider: "paddlepaddle", OCRParams: `{"det_model_dir":"/det_infer"}`, Search: true, SearchProvider: "pytorch", SearchParams: `{"tokenizer_dir":"/tokenizer"}`, Faces: true, FacesParams: `{"face_threshold":"0.9"}`, PreviewThumbnailParams: `{"thumbnail_size":"256"}`,
+				Places: true, PlacesProvider: "openstreetmap", Classification: true, ClassificationProvider: "pytorch",
+				ClassificationParams: `{"file":"model-file-name.pt"}`, OCR: true, OCRProvider: "paddlepaddle",
+				OCRParams: `{"det_model_dir":"/det_infer"}`, Search: true, SearchProvider: "pytorch",
+				SearchParams: `{"tokenizer_dir":"/tokenizer"}`, Faces: true, FacesParams: `{"face_threshold":"0.9"}`,
+				PreviewThumbnailParams: `{"thumbnail_size":"256"}`,
 			}}, []byte(`[{"name":"METADATA"},{"name":"PREVIEW_THUMBNAIL","params":"{\"thumbnail_size\":\"256\"}"},{"name":"PLACES","source":"openstreetmap"},` +
 				`{"name":"CLASSIFICATION","source":"pytorch","params":"{\"file\":\"model-file-name.pt\"}"},{"name":"OCR","source":"paddlepaddle",` +
 				`"params":"{\"det_model_dir\":\"/det_infer\"}"},{"name":"SEARCH","source":"pytorch","params":"{\"tokenizer_dir\":\"/tokenizer\"}"},` +
@@ -129,7 +139,8 @@ func TestGetWorkerConfig(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -141,11 +152,74 @@ func TestGetWorkerConfig(t *testing.T) {
 	}
 }
 
+func TestGetMediaItemProcess(t *testing.T) {
+	tests := []struct {
+		Name           string
+		MockDB         func(mock pgxmock.PgxPoolIface)
+		ExpectedResult *api.MediaItemProcessResponse
+		ExpectedErr    error
+	}{
+		{
+			"get mediaitem to process with error", func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`WITH`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, nil, status.Error(codes.Internal, "error getting mediaitem to process: some db error"),
+		},
+		{
+			"get mediaitem to process with success", func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`WITH`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemToProcessRow())
+			}, &api.MediaItemProcessResponse{
+				Id:          "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				UserId:      "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+				MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567181",
+				Components:  []api.MediaItemComponent{api.MediaItemComponent_METADATA, api.MediaItemComponent_PLACES},
+				Payload: map[string]string{"category": "live", "latitude": "latitude",
+					"longitude": "longitude", "mime_type": "mime_type",
+					"preview_url": "preview_url", "source_url": "source_url", "type": "photo"},
+			}, nil,
+		},
+	}
+	for _, test := range tests {
+		t.Run(test.Name, func(t *testing.T) {
+			// database
+			mockDB, err := pgxmock.NewPool()
+			require.NoError(t, err)
+			defer mockDB.Close()
+			if test.MockDB != nil {
+				test.MockDB(mockDB)
+			}
+			// service
+			service := Init(&config.Config{ML: config.ML{Places: true}}, mockDB, nil)
+			// server
+			ctx := context.Background()
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
+			assert.Nil(t, err)
+			defer conn.Close()
+			client := api.NewAPIClient(conn)
+			res, err := client.GetMediaItemProcess(ctx, &emptypb.Empty{})
+			// assert
+			assert.Equal(t, test.ExpectedErr, err)
+			if test.ExpectedResult != nil {
+				assert.Equal(t, test.ExpectedResult.Id, res.Id)
+				assert.Equal(t, test.ExpectedResult.UserId, res.UserId)
+				assert.Equal(t, test.ExpectedResult.MediaItemId, res.MediaItemId)
+				assert.Equal(t, test.ExpectedResult.Components, res.Components)
+				assert.Equal(t, test.ExpectedResult.Payload, res.Payload)
+			} else {
+				assert.Equal(t, test.ExpectedResult, res)
+			}
+		})
+	}
+}
 func TestGetUsers(t *testing.T) {
 	tests := []struct {
 		Name           string
 		MockDB         func(mock pgxmock.PgxPoolIface)
-		ExpectedResult *api.GetUsersResponse
+		ExpectedResult *api.UsersResponse
 		ExpectedErr    error
 	}{
 		{
@@ -158,7 +232,7 @@ func TestGetUsers(t *testing.T) {
 			"get users with success", func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id FROM users`)).
 					WillReturnRows(getMockedUserIDRows())
-			}, &api.GetUsersResponse{
+			}, &api.UsersResponse{
 				Users: []string{
 					"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
 				},
@@ -180,7 +254,8 @@ func TestGetUsers(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -208,12 +283,12 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		},
 		{
 			"save mediaitem result with invalid mediaitem id", &api.MediaItemMetadataRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id",
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem result with incorrect creation time", &api.MediaItemMetadataRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime,
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime,
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
 		},
 		{
@@ -247,7 +322,8 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -273,16 +349,18 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 		},
 		{
 			"save mediaitem preview and thumbnail with invalid mediaitem id", &api.MediaItemPreviewThumbnailRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id",
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
 			}, nil, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
-			"save mediaitem preview and thumbnail with error uploading original file", &mediaItemPreviewThumbnailRequest, nil, func(tmpRoot string) (string, string, string, func(), error) {
+			"save mediaitem preview and thumbnail with error uploading original file",
+			&mediaItemPreviewThumbnailRequest, nil, func(tmpRoot string) (string, string, string, func(), error) {
 				return "", "", "", func() {}, nil
 			}, status.Errorf(codes.Internal, "error uploading original file"),
 		},
 		{
-			"save mediaitem preview and thumbnail with error uploading preview file", &mediaItemPreviewThumbnailRequest, nil, func(tmpRoot string) (string, string, string, func(), error) {
+			"save mediaitem preview and thumbnail with error uploading preview file",
+			&mediaItemPreviewThumbnailRequest, nil, func(tmpRoot string) (string, string, string, func(), error) {
 				os.Mkdir(tmpRoot+"/originals/", 0o777)
 				originalFile, err := os.CreateTemp(tmpRoot, "original")
 				if err != nil {
@@ -296,7 +374,8 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 			}, status.Errorf(codes.Internal, "error uploading preview file"),
 		},
 		{
-			"save mediaitem preview and thumbnail with error uploading thumbnail file", &mediaItemPreviewThumbnailRequest, nil, func(tmpRoot string) (string, string, string, func(), error) {
+			"save mediaitem preview and thumbnail with error uploading thumbnail file",
+			&mediaItemPreviewThumbnailRequest, nil, func(tmpRoot string) (string, string, string, func(), error) {
 				os.Mkdir(tmpRoot+"/originals/", 0o777)
 				originalFile, err := os.CreateTemp(tmpRoot, "original")
 				if err != nil {
@@ -399,7 +478,8 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -422,7 +502,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		},
 		{
 			"save mediaitem place with invalid mediaitem id", &api.MediaItemPlaceRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id",
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -513,7 +593,8 @@ func TestSaveMediaItemPlace(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -536,7 +617,7 @@ func TestSaveMediaItemThing(t *testing.T) {
 		},
 		{
 			"save mediaitem thing with invalid mediaitem id", &api.MediaItemThingRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id",
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -603,7 +684,8 @@ func TestSaveMediaItemThing(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -626,7 +708,7 @@ func TestSaveMediaItemFaces(t *testing.T) {
 		},
 		{
 			"save mediaitem faces with invalid mediaitem id", &api.MediaItemFacesRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id",
+				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -659,7 +741,8 @@ func TestSaveMediaItemFaces(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -719,7 +802,8 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -881,7 +965,8 @@ func TestSaveMediaItemPeople(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -900,11 +985,19 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 		ExpectedErr error
 	}{
 		{
-			"save mediaitem ml result with invalid mediaitem user id", &api.MediaItemFinalResultRequest{UserId: "bad-mediaitem-id"}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+			"save mediaitem ml result with invalid queue id", &api.MediaItemFinalResultRequest{Id: "bad-queue-id"}, nil, status.Errorf(codes.InvalidArgument, "invalid queue id"),
+		},
+		{
+			"save mediaitem ml result with invalid user id", &api.MediaItemFinalResultRequest{
+				Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				UserId: "bad-mediaitem-user-id",
+			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
 		{
 			"save mediaitem ml result with invalid mediaitem id", &api.MediaItemFinalResultRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Id: "bad-mediaitem-id",
+				Id:          "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				UserId:      "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -925,13 +1018,31 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			}, status.Error(codes.Internal, "error saving mediaitem final result embedding: some db error"),
 		},
 		{
-			"save mediaitem final result with success", &mediaItemFinalResultRequest, func(mock pgxmock.PgxPoolIface) {
+			"save mediaitem final result with error unqueuing mediaitem from processing", &mediaItemFinalResultRequest,
+			func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_embeddings`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, status.Error(codes.Internal, "error unqueuing mediaitem from processing: some db error"),
+		},
+		{
+			"save mediaitem final result with success", &mediaItemFinalResultRequest,
+			func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_embeddings`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
+					WithArgs(pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("DELETE", 1))
 			}, nil,
 		},
 	}
@@ -950,7 +1061,8 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 			}
 			// server
 			ctx := context.Background()
-			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()), grpc.WithContextDialer(dialer(service)))
+			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
+				grpc.WithContextDialer(dialer(service)))
 			assert.Nil(t, err)
 			defer conn.Close()
 			client := api.NewAPIClient(conn)
@@ -979,6 +1091,15 @@ func getMockedMediaItemFaceEmbeddingRows() *pgxmock.Rows {
 	return pgxmock.NewRows(mediaitemFaceCols).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", nil, nil).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", nil, nil)
+}
+
+func getMockedMediaItemToProcessRow() *pgxmock.Rows {
+	return pgxmock.NewRows([]string{"id", "user_id", "mediaitem_id", "components", "mime_type", "source_url",
+		"preview_url", "mediaitem_type", "mediaitem_category", "latitude", "longitude"}).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567181", "METADATA,PLACES", "mime_type", "source_url",
+			"preview_url", "photo", "live", "latitude", "longitude")
+
 }
 
 func getMockedUserIDRows() *pgxmock.Rows {

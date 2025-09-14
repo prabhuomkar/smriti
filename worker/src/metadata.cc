@@ -20,7 +20,7 @@ namespace components {
 namespace metadata {
 
 std::unordered_map<std::string, std::string> Metadata::Extract(
-    const std::string& user_id, const std::string& mediaitem_id,
+    const std::string& id, const std::string& mediaitem_id,
     const std::string& file_path) {
   std::unordered_map<std::string, std::string> result;
 
