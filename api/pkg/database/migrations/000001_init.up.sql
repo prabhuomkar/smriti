@@ -210,6 +210,8 @@ CREATE UNIQUE INDEX idx_things_id ON things USING btree (id);
 
 CREATE UNIQUE INDEX idx_things_user_id_name ON things USING btree (user_id, name);
 
+CREATE INDEX idx_queue_unspecified_id ON queue (id) WHERE status = 'UNSPECIFIED';
+
 ALTER TABLE ONLY album_mediaitems
 ADD CONSTRAINT fk_album_mediaitems_album FOREIGN KEY (album_id) REFERENCES albums(id) ON DELETE CASCADE;
 

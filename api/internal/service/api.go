@@ -74,10 +74,10 @@ const (
 		` VALUES ($1, $2) ON CONFLICT (mediaitem_id, people_id) DO NOTHING`
 	querySaveMediaItemFacePeople = `UPDATE mediaitem_faces SET people_id=$2 WHERE id=$1`
 	queryUnqueueMediaItem        = `DELETE FROM queue WHERE id=$1`
-	queryGetMediaItemProcess     = `WITH queue_item AS (SELECT id, mediaitem_id FROM queue WHERE status IS DISTINCT` +
-		` FROM $1 ORDER BY id LIMIT 1 FOR UPDATE SKIP LOCKED) UPDATE queue q SET status = $1 FROM queue_item` +
-		` JOIN mediaitems m ON m.id = queue_item.mediaitem_id RETURNING q.id, q.user_id, q.mediaitem_id, q.components,` +
-		` m.mime_type, m.source_url, m.preview_url, m.mediaitem_type, m.mediaitem_category, m.latitude, m.longitude`
+	queryGetMediaItemProcess     = `UPDATE queue q SET status='PROCESSING' FROM mediaitems m WHERE` +
+		` q.id=(SELECT id FROM queue WHERE status='UNSPECIFIED' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1)` +
+		` AND m.id = q.mediaitem_id RETURNING q.*, m.mime_type, m.source_url, m.preview_url, m.mediaitem_type,` +
+		` m.mediaitem_category, m.latitude, m.longitude`
 )
 
 func Init(cfg *config.Config, dbi database.DBInterface, storage storage.Provider) *Service {
@@ -154,7 +154,7 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 	slog.Info("getting mediaitem to process")
 
 	var (
-		id                uuid.UUID
+		queueID           uuid.UUID
 		userID            uuid.UUID
 		mediaItemID       uuid.UUID
 		components        string
@@ -166,8 +166,8 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 		latitude          string
 		longitude         string
 	)
-	err := s.DB.QueryRow(ctx, queryGetMediaItemProcess, models.StatusProcessing).
-		Scan(&id, &userID, &mediaItemID, &components, &mimeType, &sourceURL, &previewURL, &mediaItemType,
+	err := s.DB.QueryRow(ctx, queryGetMediaItemProcess).
+		Scan(&queueID, &userID, &mediaItemID, &components, &mimeType, &sourceURL, &previewURL, &mediaItemType,
 			&mediaItemCategory, &latitude, &longitude)
 	if err != nil {
 		slog.Error("error getting mediaitem to process", "error", err)
@@ -179,13 +179,13 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 	queueComponents := strings.Split(components, ",")
 	for _, queueComponent := range queueComponents {
 		component := api.MediaItemComponent(api.MediaItemComponent_value[queueComponent])
-		if slices.Contains(*s.enabledComponents, api.MediaItemComponent(component)) {
-			filteredComponents = append(filteredComponents, api.MediaItemComponent(component))
+		if slices.Contains(*s.enabledComponents, component) {
+			filteredComponents = append(filteredComponents, component)
 		}
 	}
 
 	return &api.MediaItemProcessResponse{
-		Id: id.String(), UserId: userID.String(), MediaItemId: mediaItemID.String(), Components: filteredComponents,
+		Id: queueID.String(), UserId: userID.String(), MediaItemId: mediaItemID.String(), Components: filteredComponents,
 		Payload: map[string]string{
 			"mime_type": mimeType, "source_url": sourceURL, "preview_url": previewURL,
 			"type": mediaItemType, "category": mediaItemCategory, "latitude": latitude, "longitude": longitude,

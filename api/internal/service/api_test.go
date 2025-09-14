@@ -161,15 +161,13 @@ func TestGetMediaItemProcess(t *testing.T) {
 	}{
 		{
 			"get mediaitem to process with error", func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`WITH`)).
-					WithArgs(pgxmock.AnyArg()).
+				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE queue`)).
 					WillReturnError(errors.New("some db error"))
 			}, nil, status.Error(codes.Internal, "error getting mediaitem to process: some db error"),
 		},
 		{
 			"get mediaitem to process with success", func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`WITH`)).
-					WithArgs(pgxmock.AnyArg()).
+				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE queue`)).
 					WillReturnRows(getMockedMediaItemToProcessRow())
 			}, &api.MediaItemProcessResponse{
 				Id:          "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
