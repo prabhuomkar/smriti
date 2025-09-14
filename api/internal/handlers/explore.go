@@ -144,10 +144,10 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 		&place.CoverMediaItem.FPS, &place.CoverMediaItem.EXIFData, &place.CoverMediaItem.Keywords,
 		&place.CoverMediaItem.CreatedAt, &place.CoverMediaItem.UpdatedAt)
 	if err != nil {
-		slog.Error("error getting place", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "place not found")
 		}
+		slog.Error("error getting place", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -237,10 +237,10 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 		&thing.CoverMediaItem.Longitude, &thing.CoverMediaItem.FPS, &thing.CoverMediaItem.EXIFData,
 		&thing.CoverMediaItem.Keywords, &thing.CoverMediaItem.CreatedAt, &thing.CoverMediaItem.UpdatedAt)
 	if err != nil {
-		slog.Error("error getting thing", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
 		}
+		slog.Error("error getting thing", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -349,10 +349,10 @@ func (h *Handler) GetPerson(ctx echo.Context) error {
 		&person.UpdatedAt, &person.CoverMediaItemFace.ID, &person.CoverMediaItemFace.MediaitemID,
 		&person.CoverMediaItemFace.PeopleID, &person.CoverMediaItemFace.Embedding, &person.CoverMediaItemFace.Thumbnail)
 	if err != nil {
-		slog.Error("error getting person", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "person not found")
 		}
+		slog.Error("error getting person", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

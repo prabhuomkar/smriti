@@ -113,7 +113,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error {
 	mediaItemsCount := 0
 	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
 		Scan(&coverMediaItemID, &mediaItemsCount)
-	if err != nil {
+	if err != nil && err != pgx.ErrNoRows {
 		slog.Error("error getting album mediaitem id and count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -167,7 +167,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error {
 	mediaItemsCount := 0
 	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
 		Scan(&coverMediaItemID, &mediaItemsCount)
-	if err != nil {
+	if err != nil && err != pgx.ErrNoRows {
 		slog.Error("error getting album mediaitem id and count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())

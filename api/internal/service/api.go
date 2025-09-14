@@ -18,6 +18,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/jackc/pgx/v5"
 	"github.com/pgvector/pgvector-go"
 	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
@@ -170,6 +171,10 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 		Scan(&queueID, &userID, &mediaItemID, &components, &mimeType, &sourceURL, &previewURL, &mediaItemType,
 			&mediaItemCategory, &latitude, &longitude)
 	if err != nil {
+		if errors.Is(err, pgx.ErrNoRows) {
+			return &api.MediaItemProcessResponse{}, nil
+		}
+
 		slog.Error("error getting mediaitem to process", "error", err)
 
 		return nil, status.Errorf(codes.Internal, "error getting mediaitem to process: %s", err.Error())

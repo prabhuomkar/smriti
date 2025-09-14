@@ -43,10 +43,10 @@ func (h *Handler) GetUser(ctx echo.Context) error {
 	user := models.User{}
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetUser, uid).Scan(&user.ID, &user.Name, &user.Username, &user.Password, &user.Features, &user.CreatedAt, &user.UpdatedAt)
 	if err != nil {
-		slog.Error("error getting user", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "user not found")
 		}
+		slog.Error("error getting user", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}

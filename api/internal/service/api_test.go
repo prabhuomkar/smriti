@@ -166,6 +166,13 @@ func TestGetMediaItemProcess(t *testing.T) {
 			}, nil, status.Error(codes.Internal, "error getting mediaitem to process: some db error"),
 		},
 		{
+			"get mediaitem to process with error due to empty rows", func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE queue`)).
+					WillReturnRows(pgxmock.NewRows([]string{"id", "user_id", "mediaitem_id", "components", "mime_type", "source_url",
+						"preview_url", "mediaitem_type", "mediaitem_category", "latitude", "longitude"}))
+			}, &api.MediaItemProcessResponse{}, nil,
+		},
+		{
 			"get mediaitem to process with success", func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE queue`)).
 					WillReturnRows(getMockedMediaItemToProcessRow())
@@ -201,14 +208,12 @@ func TestGetMediaItemProcess(t *testing.T) {
 			res, err := client.GetMediaItemProcess(ctx, &emptypb.Empty{})
 			// assert
 			assert.Equal(t, test.ExpectedErr, err)
-			if test.ExpectedResult != nil {
+			if test.ExpectedErr == nil {
 				assert.Equal(t, test.ExpectedResult.Id, res.Id)
 				assert.Equal(t, test.ExpectedResult.UserId, res.UserId)
 				assert.Equal(t, test.ExpectedResult.MediaItemId, res.MediaItemId)
 				assert.Equal(t, test.ExpectedResult.Components, res.Components)
 				assert.Equal(t, test.ExpectedResult.Payload, res.Payload)
-			} else {
-				assert.Equal(t, test.ExpectedResult, res)
 			}
 		})
 	}

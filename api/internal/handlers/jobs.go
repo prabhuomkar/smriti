@@ -40,10 +40,10 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetJob, userID, uid).Scan(&job.ID, &job.UserID,
 		&job.Status, &job.Components, &job.CreatedAt, &job.UpdatedAt)
 	if err != nil {
-		slog.Error("error getting job", "error", err)
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "job not found")
 		}
+		slog.Error("error getting job", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
@@ -67,7 +67,7 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 		err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused),
 			string(models.JobScheduled), string(models.JobRunning)).
 			Scan(&existingJobCount)
-		if err != nil {
+		if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 			slog.Error("error getting existing job count", "error", err)
 
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
@@ -128,7 +128,7 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 	err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused),
 		string(models.JobScheduled), string(models.JobRunning)).
 		Scan(&existingJobCount)
-	if err != nil {
+	if err != nil && !errors.Is(err, pgx.ErrNoRows) {
 		slog.Error("error getting existing job count", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
