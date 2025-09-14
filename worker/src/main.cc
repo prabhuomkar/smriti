@@ -91,7 +91,18 @@ int main() {
   while (!terminating) {
     spdlog::info("worker running");
     sleep(10);
-    // TODO(omkar): fetch mediaitem to process
+    MediaItemProcessResponse response = api_client.GetMediaItemProcess();
+    spdlog::info("id {}", response.id());
+    spdlog::info("user_id {}", response.userid());
+    spdlog::info("mediaitem_id {}", response.mediaitemid());
+    auto mediaitem_components = response.components();
+    for (const auto& component : mediaitem_components) {
+      spdlog::info("component {}", component);
+    }
+    auto mediaitem_payload = response.payload();
+    for (const auto& [key, value] : mediaitem_payload) {
+      spdlog::info("payload {}: {}", key, value);
+    }
   }
 
   return 0;

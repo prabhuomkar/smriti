@@ -125,7 +125,8 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 	user.ID = uuid.NewV4()
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = user.CreatedAt
-	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateUser, user.ID, user.Name, user.Username, user.Password, user.Features, user.CreatedAt, user.UpdatedAt)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateUser, user.ID, user.Name,
+		user.Username, user.Password, user.Features, user.CreatedAt, user.UpdatedAt)
 	if err != nil {
 		slog.Error("error creating user", "error", err)
 

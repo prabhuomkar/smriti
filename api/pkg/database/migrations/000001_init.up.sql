@@ -222,7 +222,7 @@ ALTER TABLE ONLY albums
 ADD CONSTRAINT fk_albums_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
 
 ALTER TABLE ONLY albums
-ADD CONSTRAINT fk_albums_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ADD CONSTRAINT fk_albums_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY mediaitem_embeddings
 ADD CONSTRAINT fk_mediaitems_embeddings FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
@@ -234,7 +234,7 @@ ALTER TABLE ONLY people
 ADD CONSTRAINT fk_people_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
 
 ALTER TABLE ONLY people
-ADD CONSTRAINT fk_people_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ADD CONSTRAINT fk_people_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY people
 ADD CONSTRAINT fk_people_cover_media_item_face FOREIGN KEY (cover_mediaitem_face_id) REFERENCES mediaitem_faces(id);
@@ -255,13 +255,13 @@ ALTER TABLE ONLY places
 ADD CONSTRAINT fk_places_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
 
 ALTER TABLE ONLY places
-ADD CONSTRAINT fk_places_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ADD CONSTRAINT fk_places_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY queue
-ADD CONSTRAINT fk_queue_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ADD CONSTRAINT fk_queue_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY queue
-ADD CONSTRAINT fk_queue_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_queue_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY thing_mediaitems
 ADD CONSTRAINT fk_thing_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
@@ -270,4 +270,4 @@ ALTER TABLE ONLY thing_mediaitems
 ADD CONSTRAINT fk_thing_mediaitems_thing FOREIGN KEY (thing_id) REFERENCES things(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY things
-ADD CONSTRAINT fk_things_user_id FOREIGN KEY (user_id) REFERENCES users(id);
+ADD CONSTRAINT fk_things_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

@@ -20,7 +20,7 @@ test:
 
 .PHONY: cover
 cover: 
-	@go test $$(go list ./... | grep -v api/pkg/services) -race -coverprofile=coverage.txt -covermode=atomic ./...
+	@go test -race -coverprofile=coverage.txt -covermode=atomic -coverpkg=$($$(go list ./... | grep -v api/pkg/services) | tr ' ' ',') $$(go list ./... | grep -v api/pkg/services)
 	@go tool cover -func coverage.txt | grep total
 
 .PHONY: cover-html

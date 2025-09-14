@@ -95,5 +95,7 @@ func getUsernameAndPassword(ctx echo.Context) (*LoginRequest, error) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid username or password")
 	}
 
+	*loginRequest.Password = getPasswordHash(*loginRequest.Password)
+
 	return loginRequest, nil
 }

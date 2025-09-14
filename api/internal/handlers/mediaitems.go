@@ -63,9 +63,9 @@ const (
 	queryUpdateAlbumCoverMediaItem  = `UPDATE albums SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryUpdatePeopleCoverMediaItem = `UPDATE people SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryInsertMediaItem            = `INSERT INTO mediaitems (id, user_id, filename, mediaitem_type, mediaitem_category,` +
-		` status, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8)`
+		` status, source_url, created_at, updated_at) VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9)`
 	queryQueueMediaItem      = `INSERT INTO queue(id, user_id, mediaitem_id, components, status) VALUES (gen_random_uuid(), $1, $2, $3, $4)`
-	queryUpdateMediaItemHash = `UPDATE mediaitems SET hash=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
+	queryUpdateMediaItemHash = `UPDATE mediaitems SET hash=$3 WHERE user_id=$1 AND id=$2`
 )
 
 type ( // MediaItemRequest ...
@@ -412,9 +412,10 @@ func (h *Handler) UploadMediaItems(ctx echo.Context) error {
 
 	if strings.Contains(command, "start") {
 		mediaItem := createNewMediaItem(userID, file.Filename)
+		mediaItem.SourceURL = fmt.Sprintf("%s/%s", h.Config.DiskRoot, mediaItem.ID)
 		_, err = h.DB.Exec(ctx.Request().Context(), queryInsertMediaItem, mediaItem.ID, mediaItem.UserID,
 			mediaItem.Filename, mediaItem.MediaItemType, mediaItem.MediaItemCategory,
-			mediaItem.Status, mediaItem.CreatedAt, mediaItem.UpdatedAt)
+			mediaItem.Status, mediaItem.SourceURL, mediaItem.CreatedAt, mediaItem.UpdatedAt)
 		if err != nil {
 			slog.Error("error inserting mediaitem", "error", err)
 
@@ -525,8 +526,7 @@ func (h *Handler) generateHashForDuplicates(ctx context.Context, userID, mediaIt
 	mediaItem.ID = uuid.FromStringOrNil(mediaItemID)
 	mediaItem.UserID = uuid.FromStringOrNil(userID)
 	mediaItem.Hash = &mediaItemHash
-	mediaItem.UpdatedAt = time.Now()
-	_, err = h.DB.Exec(ctx, queryUpdateMediaItemHash, mediaItem.UserID, mediaItem.ID, mediaItem.Hash, mediaItem.UpdatedAt)
+	_, err = h.DB.Exec(ctx, queryUpdateMediaItemHash, mediaItem.UserID, mediaItem.ID, mediaItem.Hash)
 	if err != nil {
 		slog.Error("error updating mediaitem hash", "error", err)
 

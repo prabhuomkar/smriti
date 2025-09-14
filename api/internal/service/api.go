@@ -77,8 +77,8 @@ const (
 	queryUnqueueMediaItem        = `DELETE FROM queue WHERE id=$1`
 	queryGetMediaItemProcess     = `UPDATE queue q SET status='PROCESSING' FROM mediaitems m WHERE` +
 		` q.id=(SELECT id FROM queue WHERE status='UNSPECIFIED' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1)` +
-		` AND m.id = q.mediaitem_id RETURNING q.*, m.mime_type, m.source_url, m.preview_url, m.mediaitem_type,` +
-		` m.mediaitem_category, m.latitude, m.longitude`
+		` AND m.id = q.mediaitem_id RETURNING q.id, q.user_id, q.mediaitem_id, q.components,` +
+		` m.mime_type, m.source_url, m.preview_url, m.mediaitem_type, m.mediaitem_category, m.latitude, m.longitude`
 )
 
 func Init(cfg *config.Config, dbi database.DBInterface, storage storage.Provider) *Service {
@@ -159,13 +159,13 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 		userID            uuid.UUID
 		mediaItemID       uuid.UUID
 		components        string
-		mimeType          string
+		mimeType          *string
 		sourceURL         string
-		previewURL        string
-		mediaItemType     string
-		mediaItemCategory string
-		latitude          string
-		longitude         string
+		previewURL        *string
+		mediaItemType     *string
+		mediaItemCategory *string
+		latitude          *string
+		longitude         *string
 	)
 	err := s.DB.QueryRow(ctx, queryGetMediaItemProcess).
 		Scan(&queueID, &userID, &mediaItemID, &components, &mimeType, &sourceURL, &previewURL, &mediaItemType,
@@ -189,12 +189,30 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 		}
 	}
 
+	payload := map[string]string{"source_url": sourceURL}
+	if mimeType != nil {
+		payload["mime_type"] = *mimeType
+	}
+	if previewURL != nil {
+		payload["preview_url"] = *previewURL
+	}
+	if mediaItemType != nil {
+		payload["type"] = *mediaItemType
+	}
+	if mediaItemCategory != nil {
+		payload["category"] = *mediaItemCategory
+	}
+	if latitude != nil {
+		payload["latitude"] = *latitude
+	}
+	if longitude != nil {
+		payload["longitude"] = *longitude
+	}
+
 	return &api.MediaItemProcessResponse{
-		Id: queueID.String(), UserId: userID.String(), MediaItemId: mediaItemID.String(), Components: filteredComponents,
-		Payload: map[string]string{
-			"mime_type": mimeType, "source_url": sourceURL, "preview_url": previewURL,
-			"type": mediaItemType, "category": mediaItemCategory, "latitude": latitude, "longitude": longitude,
-		},
+		Id: queueID.String(), UserId: userID.String(),
+		MediaItemId: mediaItemID.String(), Components: filteredComponents,
+		Payload: payload,
 	}, nil
 }
 
@@ -213,7 +231,7 @@ func (s *Service) GetUsers(ctx context.Context, _ *emptypb.Empty) (*api.UsersRes
 		if err := rows.Scan(&userUUID); err != nil {
 			slog.Error("error scanning user", "error", err)
 
-			return nil, status.Errorf(codes.Internal, "error scanning user UUID: %s", err.Error())
+			return nil, status.Errorf(codes.Internal, "error scanning user: %s", err.Error())
 		}
 		userUUIDs = append(userUUIDs, userUUID)
 	}

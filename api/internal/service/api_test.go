@@ -15,6 +15,8 @@ import (
 
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
+	"github.com/pgvector/pgvector-go"
+	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -29,11 +31,18 @@ var (
 	mimetype                     = "mimetype"
 	mediaitemType                = "photo"
 	mediaitemCategory            = "default"
+	previewUrl                   = "preview_url"
+	sourceUrl                    = "source_url"
+	latitude                     = "latitude"
+	longitude                    = "longitude"
+	components                   = "METADATA,PLACES"
 	badcreationtime              = "bad-creation-time"
 	creationtime                 = "2022-09-22 11:22:33"
 	width                  int32 = 1080
 	height                 int32 = 720
 	placeholder                  = "placeholder"
+	sampleId                     = uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")
+	sampleEmbedding              = pgvector.NewVector([]float32{0.42})
 	mediaItemResultRequest       = api.MediaItemMetadataRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
 		MimeType: &mimetype, Type: mediaitemType, Category: mediaitemCategory, Width: &width, Height: &height, CreationTime: &creationtime,
@@ -134,9 +143,7 @@ func TestGetWorkerConfig(t *testing.T) {
 	for _, test := range tests {
 		t.Run(test.Name, func(t *testing.T) {
 			// service
-			service := &Service{
-				Config: test.Config,
-			}
+			service := Init(test.Config, nil, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -181,8 +188,8 @@ func TestGetMediaItemProcess(t *testing.T) {
 				UserId:      "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
 				MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567181",
 				Components:  []api.MediaItemComponent{api.MediaItemComponent_METADATA, api.MediaItemComponent_PLACES},
-				Payload: map[string]string{"category": "live", "latitude": "latitude",
-					"longitude": "longitude", "mime_type": "mime_type",
+				Payload: map[string]string{"category": mediaitemCategory, "latitude": "latitude",
+					"longitude": "longitude", "mime_type": "mimetype",
 					"preview_url": "preview_url", "source_url": "source_url", "type": "photo"},
 			}, nil,
 		},
@@ -218,6 +225,7 @@ func TestGetMediaItemProcess(t *testing.T) {
 		})
 	}
 }
+
 func TestGetUsers(t *testing.T) {
 	tests := []struct {
 		Name           string
@@ -232,9 +240,15 @@ func TestGetUsers(t *testing.T) {
 			}, nil, status.Error(codes.Internal, "error getting users: some db error"),
 		},
 		{
+			"get users with error due to scanning", func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id FROM users`)).
+					WillReturnRows(getMockedUserIDRows(true))
+			}, nil, status.Error(codes.Internal, "error scanning user: Scanning value error for column 'id': uuid: incorrect UUID length: invalid"),
+		},
+		{
 			"get users with success", func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id FROM users`)).
-					WillReturnRows(getMockedUserIDRows())
+					WillReturnRows(getMockedUserIDRows(false))
 			}, &api.UsersResponse{
 				Users: []string{
 					"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
@@ -252,9 +266,7 @@ func TestGetUsers(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -320,9 +332,7 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 			}
 			// service
 			tmpRoot := os.TempDir()
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB, Storage: &storage.Disk{Root: tmpRoot},
-			}
+			service := Init(&config.Config{}, mockDB, &storage.Disk{Root: tmpRoot})
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -467,9 +477,7 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 			}
 			// service
 			tmpRoot := os.TempDir()
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB, Storage: &storage.Disk{Root: tmpRoot},
-			}
+			service := Init(&config.Config{}, mockDB, &storage.Disk{Root: tmpRoot})
 			// mock tmp params
 			if test.MockParams != nil {
 				originalPath, previewPath, thumbnailPath, clear, err := test.MockParams(tmpRoot)
@@ -591,9 +599,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -682,9 +688,7 @@ func TestSaveMediaItemThing(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -739,9 +743,7 @@ func TestSaveMediaItemFaces(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -777,10 +779,17 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			}, nil, status.Error(codes.Internal, "error getting mediaitem face embeddings: some db error"),
 		},
 		{
+			"get mediaitem face embeddings with error due to scanning", &mediaItemFaceEmbeddingsRequest, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemFaceEmbeddingRows(true))
+			}, nil, status.Error(codes.Internal, "error scanning mediaitem face embedding: Scanning value error for column 'id': uuid: incorrect UUID length: invalid"),
+		},
+		{
 			"get mediaitem face embeddings with success", &mediaItemFaceEmbeddingsRequest, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(getMockedMediaItemFaceEmbeddingRows())
+					WillReturnRows(getMockedMediaItemFaceEmbeddingRows(false))
 			}, &api.MediaItemFaceEmbeddingsResponse{
 				MediaItemFaceEmbeddings: []*api.MediaItemFaceEmbedding{
 					{
@@ -800,9 +809,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -963,9 +970,7 @@ func TestSaveMediaItemPeople(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -1059,9 +1064,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := &Service{
-				Config: &config.Config{}, DB: mockDB,
-			}
+			service := Init(&config.Config{}, mockDB, nil)
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),
@@ -1090,22 +1093,30 @@ func dialer(service *Service) func(context.Context, string) (net.Conn, error) {
 	}
 }
 
-func getMockedMediaItemFaceEmbeddingRows() *pgxmock.Rows {
+func getMockedMediaItemFaceEmbeddingRows(bad bool) *pgxmock.Rows {
+	if bad {
+		return pgxmock.NewRows(mediaitemFaceCols).
+			AddRow("invalid", "invalid", nil, nil)
+	}
 	return pgxmock.NewRows(mediaitemFaceCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", nil, nil).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", nil, nil)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleId, &sampleEmbedding).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleId, &sampleEmbedding)
 }
 
 func getMockedMediaItemToProcessRow() *pgxmock.Rows {
 	return pgxmock.NewRows([]string{"id", "user_id", "mediaitem_id", "components", "mime_type", "source_url",
 		"preview_url", "mediaitem_type", "mediaitem_category", "latitude", "longitude"}).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
-			"4d05b5f6-17c2-475e-87fe-3fc8b9567181", "METADATA,PLACES", "mime_type", "source_url",
-			"preview_url", "photo", "live", "latitude", "longitude")
+			"4d05b5f6-17c2-475e-87fe-3fc8b9567181", components, &mimetype, sourceUrl,
+			&previewUrl, &mediaitemType, &mediaitemCategory, &latitude, &longitude)
 
 }
 
-func getMockedUserIDRows() *pgxmock.Rows {
+func getMockedUserIDRows(bad bool) *pgxmock.Rows {
+	if bad {
+		return pgxmock.NewRows([]string{"id"}).
+			AddRow("invalid")
+	}
 	return pgxmock.NewRows([]string{"id"}).
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
 		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180")
