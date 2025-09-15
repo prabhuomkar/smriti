@@ -61,7 +61,7 @@ class ExifToolClient : public ExifToolClientInterface {
     }
   }
 
-  ~ExifToolClient() {
+  ~ExifToolClient() override {
     if (in_stream) {
       fprintf(in_stream, "-stay_open\nFalse\n");
       fflush(in_stream);

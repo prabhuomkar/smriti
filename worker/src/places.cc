@@ -35,21 +35,24 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
     return {};
   }
 
+  SPDLOG_DEBUG("reverse geocoding with lat: {} and lon: {}", latitude,
+               longitude);
+
   cpr::Response r = http_client_->Get(
       cpr::Url{Format(url_, {{"lat", latitude}, {"lon", longitude}})},
       cpr::Header{{"User-Agent", "smriti-worker"},
                   {"Accept-Language", "en-GB,en-US"}});
   if (r.error.message != "") {
-    spdlog::error("error in openstreetmap response: {}", r.error.message);
+    SPDLOG_ERROR("error in openstreetmap response: {}", r.error.message);
     return {};
   }
   if (r.status_code != 200) {
-    spdlog::error("error in openstreetmap response: {} {}", r.status_code,
-                  r.text);
+    SPDLOG_ERROR("error in openstreetmap response: {} {}", r.status_code,
+                 r.text);
     return {};
   }
 
-  spdlog::debug("openstreetmap response: {} {}", r.status_code, r.text);
+  SPDLOG_DEBUG("openstreetmap response: {} {}", r.status_code, r.text);
 
   simdjson::ondemand::parser parser;
   simdjson::padded_string padded_body(r.text);
@@ -102,8 +105,8 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
     }
     result["area"] = area;
   } else {
-    spdlog::error("error in openstreetmap response: {}",
-                  simdjson::error_message(doc["address"].error()));
+    SPDLOG_ERROR("error in openstreetmap response: {}",
+                 simdjson::error_message(doc["address"].error()));
     return {};
   }
 
@@ -114,7 +117,7 @@ std::unordered_map<std::string, std::string> OpenStreetMap::ReverseGeocode(
   request.set_country(result["country"]);
   request.set_locality(result["locality"]);
   request.set_area(result["area"]);
-  bool ok = api_client_->SaveMediaItemPlace(request);
+  api_client_->SaveMediaItemPlace(request);
 
   return result;
 }

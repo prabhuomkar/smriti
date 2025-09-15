@@ -33,13 +33,12 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
   result["status"] = "PROCESSING";
   result["type"] = "unknown";
   result["category"] = "default";
-  result["exifdata"] = "";
 
   std::unordered_map<std::string, std::string> exif_data =
       exif_tool_client_->Extract(file_path);
 
   for (const auto& [key, value] : exif_data) {
-    spdlog::debug("exiftool response: {}={}", key, value);
+    SPDLOG_DEBUG("exiftool response: {}: {}", key, value);
   }
 
   std::string raw_exifdata = "{";
@@ -93,8 +92,14 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
   result["megapixels"] = GetValue(exif_data, {"Megapixels"});
 
   // gps
-  result["longitude"] = GetCoordinates(GetValue(exif_data, {"GPSLongitude"}));
-  result["latitude"] = GetCoordinates(GetValue(exif_data, {"GPSLatitude"}));
+  result["longitude"] = GetValue(exif_data, {"GPSLongitude"});
+  if (result["longitude"] != "") {
+    result["longitude"] = GetCoordinates(result["longitude"]);
+  }
+  result["latitude"] = GetValue(exif_data, {"GPSLatitude"});
+  if (result["latitude"] != "") {
+    result["latitude"] = GetCoordinates(result["latitude"]);
+  }
 
   // category
   if (exif_data.find("UserComment") != exif_data.end()) {
@@ -159,7 +164,7 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
     request.set_longitude(std::stod(result["longitude"]));
   }
   request.set_exifdata(result["exifdata"]);
-  bool ok = api_client_->SaveMediaItemMetadata(request);
+  api_client_->SaveMediaItemMetadata(request);
 
   return result;
 }

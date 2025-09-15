@@ -16,7 +16,7 @@ ComponentConfig::ComponentConfig(const std::string& source,
 std::unordered_map<std::string, ComponentConfig> ParseComponentConfig(
     const std::string& config) {
   if (config.empty()) {
-    spdlog::error("empty component config");
+    SPDLOG_ERROR("empty component config");
     return {};
   }
   std::unordered_map<std::string, ComponentConfig> configs;
@@ -25,8 +25,8 @@ std::unordered_map<std::string, ComponentConfig> ParseComponentConfig(
   simdjson::ondemand::document doc = parser.iterate(padded_config);
   auto items = doc.get_array();
   if (items.error() != simdjson::SUCCESS) {
-    spdlog::error("error parsing component config: {}",
-                  simdjson::error_message(items.error()));
+    SPDLOG_ERROR("error parsing component config: {}",
+                 simdjson::error_message(items.error()));
     return {};
   }
   for (auto item : items) {

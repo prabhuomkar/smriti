@@ -1,4 +1,5 @@
 // Copyright 2025 Omkar Prabhu
+#include <Magick++.h>
 #include <simdjson.h>
 #include <spdlog/sinks/stdout_sinks.h>
 #include <spdlog/spdlog.h>
@@ -25,6 +26,7 @@
 #include "worker/config.h"
 #include "worker/metadata.h"
 #include "worker/places.h"
+#include "worker/preview_thumbnail.h"
 
 using components::ComponentConfig;
 using services::api::APIClient;
@@ -35,12 +37,12 @@ constexpr const char kGitSha[] = DEFAULT_GIT_SHA;
 std::atomic<bool> terminating(false);
 
 void gracefulShutdown(int signum) {
-  spdlog::info("stopping worker");
+  SPDLOG_INFO("stopping worker");
   // TODO(omkar): clean up gRPC client
   terminating = true;
 }
 
-int main() {
+int main(int argc, char** argv) {
   std::cout << "Version: " << kVersion << std::endl;
   std::cout << "Git SHA: " << kGitSha << std::endl;
 
@@ -59,10 +61,12 @@ int main() {
       grpc::CreateChannel(cfg->api_host + ":" + cfg->api_port,
                           grpc::InsecureChannelCredentials()));
   std::string worker_config = api_client->GetWorkerConfig();
-  spdlog::info("worker config: {}", worker_config);
+  SPDLOG_INFO("worker config: {}", worker_config);
 
   std::shared_ptr<components::metadata::Metadata> metadata_component;
   std::shared_ptr<components::places::Places> places_component;
+  std::shared_ptr<components::previewthumbnail::PreviewThumbnail>
+      previewthumbnail_component;
 
   std::unordered_map<std::string, ComponentConfig> component_configs =
       components::ParseComponentConfig(worker_config);
@@ -73,7 +77,9 @@ int main() {
       places_component = components::places::Init(config, api_client);
     } else if (name ==
                MediaItemComponent_Name(MediaItemComponent::PREVIEW_THUMBNAIL)) {
-      // TODO(omkar): initialize this component
+      Magick::InitializeMagick(*argv);
+      previewthumbnail_component =
+          components::previewthumbnail::Init(config, api_client);
     } else if (name ==
                MediaItemComponent_Name(MediaItemComponent::CLASSIFICATION)) {
       // TODO(omkar): initialize this component
@@ -90,23 +96,22 @@ int main() {
   }
 
   while (!terminating) {
-    spdlog::info("worker running");
+    SPDLOG_INFO("worker running");
     sleep(5);
     MediaItemProcessResponse response = api_client->GetMediaItemProcess();
-    spdlog::info("id {}", response.id());
+    SPDLOG_INFO("id {}", response.id());
     if (response.id() != "") {
       auto metadata_result = metadata_component->Extract(
           response.id(), response.userid(), response.mediaitemid(),
           response.payload().at("source_url"));
-      for (const auto& [key, value] : metadata_result) {
-        spdlog::info("metadata result {}: {}", key, value);
-      }
+      std::cout << metadata_result.size() << std::endl;
+      auto preview_thumbnail_result = previewthumbnail_component->Generate(
+          response.id(), response.userid(), response.mediaitemid(),
+          response.payload().at("source_url"), metadata_result["type"]);
+      std::cout << preview_thumbnail_result.size() << std::endl;
       auto place_result = places_component->ReverseGeocode(
           response.id(), response.userid(), response.mediaitemid(),
           metadata_result["latitude"], metadata_result["longitude"]);
-      for (const auto& [key, value] : place_result) {
-        spdlog::info("place result {}: {}", key, value);
-      }
     }
   }
 

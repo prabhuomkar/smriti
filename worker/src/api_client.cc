@@ -28,7 +28,7 @@ std::string APIClient::GetWorkerConfig() {
   grpc::ClientContext context;
   grpc::Status status = stub_->GetWorkerConfig(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error getting worker config: {}", status.error_message());
+    SPDLOG_ERROR("error getting worker config: {}", status.error_message());
     return "";
   }
   return response.config();
@@ -41,8 +41,8 @@ MediaItemProcessResponse APIClient::GetMediaItemProcess() {
   grpc::Status status =
       stub_->GetMediaItemProcess(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error getting media item process: {}",
-                  status.error_message());
+    SPDLOG_ERROR("error getting media item process: {}",
+                 status.error_message());
     return {};
   }
   return response;
@@ -54,8 +54,7 @@ bool APIClient::SaveMediaItemMetadata(const MediaItemMetadataRequest& request) {
   grpc::Status status =
       stub_->SaveMediaItemMetadata(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem metadata: {}",
-                  status.error_message());
+    SPDLOG_ERROR("error saving mediaitem metadata: {}", status.error_message());
     return false;
   }
   return true;
@@ -68,8 +67,8 @@ bool APIClient::SaveMediaItemPreviewThumbnail(
   grpc::Status status =
       stub_->SaveMediaItemPreviewThumbnail(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem preview and thumbnail: {}",
-                  status.error_message());
+    SPDLOG_ERROR("error saving mediaitem preview and thumbnail: {}",
+                 status.error_message());
     return false;
   }
   return true;
@@ -80,7 +79,7 @@ bool APIClient::SaveMediaItemPlace(const MediaItemPlaceRequest& request) {
   grpc::ClientContext context;
   grpc::Status status = stub_->SaveMediaItemPlace(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem place: {}", status.error_message());
+    SPDLOG_ERROR("error saving mediaitem place: {}", status.error_message());
     return false;
   }
   return true;
@@ -91,7 +90,7 @@ bool APIClient::SaveMediaItemThing(const MediaItemThingRequest& request) {
   grpc::ClientContext context;
   grpc::Status status = stub_->SaveMediaItemThing(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem thing: {}", status.error_message());
+    SPDLOG_ERROR("error saving mediaitem thing: {}", status.error_message());
     return false;
   }
   return true;
@@ -102,7 +101,7 @@ bool APIClient::SaveMediaItemFaces(const MediaItemFacesRequest& request) {
   grpc::ClientContext context;
   grpc::Status status = stub_->SaveMediaItemFaces(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem places: {}", status.error_message());
+    SPDLOG_ERROR("error saving mediaitem places: {}", status.error_message());
     return false;
   }
   return true;
@@ -114,7 +113,7 @@ bool APIClient::SaveMediaItemPeople(const MediaItemPeopleRequest& request) {
   grpc::Status status =
       stub_->SaveMediaItemPeople(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem people: {}", status.error_message());
+    SPDLOG_ERROR("error saving mediaitem people: {}", status.error_message());
     return false;
   }
   return true;
@@ -127,8 +126,8 @@ bool APIClient::SaveMediaItemFinalResult(
   grpc::Status status =
       stub_->SaveMediaItemFinalResult(&context, request, &response);
   if (!status.ok()) {
-    spdlog::error("error saving mediaitem final result: {}",
-                  status.error_message());
+    SPDLOG_ERROR("error saving mediaitem final result: {}",
+                 status.error_message());
     return false;
   }
   return true;

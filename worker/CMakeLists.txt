@@ -23,10 +23,18 @@ endif()
 
 include(cmake/Dependencies.cmake)
 
-list(APPEND CMAKE_PREFIX_PATH "/opt/homebrew")
+if(APPLE)
+    set(HOMEBREW_PREFIX "/opt/homebrew")
+    include_directories(${HOMEBREW_PREFIX}/include)
+    link_directories(${HOMEBREW_PREFIX}/lib)
+    set(LIBOMP_ROOT ${HOMEBREW_PREFIX}/opt/libomp)
+endif()
 
 find_package(gRPC REQUIRED)
 find_package(Protobuf REQUIRED)
+find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(LibRaw REQUIRED libraw)
 
 file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
 
@@ -34,12 +42,20 @@ file(GLOB GENERATED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/generated/protos/*.cc)
 
 add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES})
 
+if(APPLE)
+    target_include_directories(worker PRIVATE ${HOMEBREW_PREFIX}/opt/libomp/include)
+    target_link_directories(worker PRIVATE ${HOMEBREW_PREFIX}/opt/libomp/lib)
+    target_link_libraries(worker PRIVATE omp)
+endif()
+
 target_include_directories(worker PRIVATE 
     ${CMAKE_CURRENT_SOURCE_DIR}/generated
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/src
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cpr/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/include)
+    ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${IMAGEMAGICK_INCLUDE_DIRS}
+    ${LIBRAW_INCLUDE_DIRS})
 
 target_compile_definitions(worker PRIVATE
     DEFAULT_VERSION="${VERSION}"
@@ -51,7 +67,9 @@ target_link_libraries(worker PRIVATE
     simdjson::simdjson
     gRPC::grpc++
     gRPC::grpc
-    protobuf::libprotobuf)
+    protobuf::libprotobuf
+    ImageMagick::Magick++
+    ${LIBRAW_LIBRARIES})
 
 set_target_properties(worker PROPERTIES 
     CXX_STANDARD 17 

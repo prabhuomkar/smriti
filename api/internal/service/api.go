@@ -326,7 +326,7 @@ func (s *Service) SaveMediaItemPreviewThumbnail(ctx context.Context, req *api.Me
 			return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading thumbnail file")
 		}
 	}
-	_, err = s.DB.Exec(ctx, querySaveMediaItemPreviewThumbnail, userID, mediaItemID, models.StatusReady,
+	_, err = s.DB.Exec(ctx, querySaveMediaItemPreviewThumbnail, userID, mediaItemID, req.Status,
 		mediaItemUpdates["source_url"], mediaItemUpdates["placeholder"], mediaItemUpdates["preview_url"],
 		mediaItemUpdates["thumbnail_url"])
 	if err != nil {
