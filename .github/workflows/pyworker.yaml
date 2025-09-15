@@ -1,7 +1,7 @@
 name: Smriti PyWorker CI
 on:
   push:
-    branches:    
+    branches:
       - master
     paths:
       - pyworker/**
@@ -23,11 +23,11 @@ jobs:
         working-directory: ./pyworker
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12.x'
+          python-version: "3.12.x"
       - name: Python Version
         run: python -c "import sys; print(sys.version)"
       - name: Install Dependencies
@@ -57,7 +57,7 @@ jobs:
         working-directory: ./pyworker
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
       - name: Setup Docker Buildx

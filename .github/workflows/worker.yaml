@@ -1,7 +1,7 @@
 name: Smriti Worker CI
 on:
   push:
-    branches:    
+    branches:
       - master
     paths:
       - worker/**
@@ -23,11 +23,11 @@ jobs:
         working-directory: ./worker
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v2
         with:
-          cmake-version: '3.30.x'
+          cmake-version: "3.30.x"
       - name: CMake Version
         run: cmake --version
       - name: Run Lint
@@ -36,11 +36,9 @@ jobs:
           cpplint --version
           make lint
       - name: Run Build
-        run: |
-          make build-with-tests
+        run: make build-with-tests
       - name: Run Test & Cover
-        run: |
-          make test
+        run: make test
       - name: Publish Coverage
         uses: codecov/codecov-action@v5
         with:
@@ -57,7 +55,7 @@ jobs:
         working-directory: ./worker
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
       - name: Setup QEMU
         uses: docker/setup-qemu-action@v3
       - name: Setup Docker Buildx
