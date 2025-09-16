@@ -68,7 +68,6 @@ def step_impl(context):
 
 @then('mediaitem is not present in list')
 def step_impl(context):
-    print(context.mediaitems)
     assert len(context.mediaitems) == 0
 
 @then('mediaitem is not present')

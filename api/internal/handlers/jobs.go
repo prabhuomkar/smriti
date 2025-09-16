@@ -8,6 +8,7 @@ import (
 	"net/http"
 	"reflect"
 	"strings"
+	"time"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -131,6 +132,8 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 	job.ID = uuid.NewV4()
 	job.UserID = userID
 	job.Status = models.JobScheduled
+	job.CreatedAt = time.Now()
+	job.UpdatedAt = job.CreatedAt
 	existingJobCount := 0
 	err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused),
 		string(models.JobScheduled), string(models.JobRunning)).

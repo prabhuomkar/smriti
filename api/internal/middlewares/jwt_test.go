@@ -86,9 +86,10 @@ func TestJWTCheckOK(t *testing.T) {
 	handler := &handlers.Handler{
 		Config: cfg, DB: mockDB,
 	}
-	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-		WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
+		WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)))
 	checkJWT := JWTCheck(cfg, cache)
 
 	// test

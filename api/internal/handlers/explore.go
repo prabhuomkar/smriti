@@ -32,22 +32,27 @@ const (
 	queryGetYearsAgoMediaItems = `SELECT *, EXTRACT(year FROM creation_time) as creation_year FROM mediaitems WHERE user_id=$1 AND` +
 		` EXTRACT(month FROM creation_time)=$2 AND EXTRACT(day FROM creation_time)=$3 AND EXTRACT(year FROM creation_time)` +
 		` IN (SELECT EXTRACT(year FROM creation_time) FROM mediaitems) ORDER BY creation_time`
-	queryGetPlace = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id` +
-		` WHERE p.user_id=$1 AND p.id=$2 GROUP BY p.id, m.id`
-	queryGetPlaces = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id` +
-		` WHERE p.user_id=$1 AND p.is_hidden=false GROUP BY p.id, m.id ORDER BY p.created_at DESC OFFSET $2 LIMIT $3`
+	queryGetPlace = `SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems m` +
+		` ON p.cover_mediaitem_id=m.id WHERE p.user_id=$1 AND p.id=$2`
+	queryGetPlaces = `SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems m` +
+		` ON p.cover_mediaitem_id=m.id WHERE p.user_id=$1 AND p.is_hidden=false ORDER BY p.created_at DESC` +
+		` OFFSET $2 LIMIT $3`
 	queryGetPlaceMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM place_mediaitems` +
 		` WHERE user_id=$1 AND place_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
-	queryGetThing = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id` +
-		` WHERE t.user_id=$1 AND t.id=$2 GROUP BY t.id, m.id`
-	queryGetThings = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id` +
-		` WHERE t.user_id=$1 AND t.is_hidden=false GROUP BY t.id, m.id ORDER BY t.created_at DESC OFFSET $2 LIMIT $3`
+	queryGetThing = `SELECT t.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM things t LEFT JOIN mediaitems m` +
+		` ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.id=$2`
+	queryGetThings = `SELECT t.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM things t LEFT JOIN mediaitems m` +
+		` ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.is_hidden=false ORDER BY t.created_at DESC OFFSET $2 LIMIT $3`
 	queryGetThingMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM thing_mediaitems` +
 		` WHERE user_id=$1 AND thing_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
 	queryGetPerson = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
-		` WHERE p.user_id=$1 AND p.id=$2 GROUP BY p.id, mf.id`
+		` WHERE p.user_id=$1 AND p.id=$2`
 	queryGetPeople = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
-		` WHERE p.user_id=$1 AND p.is_hidden=false GROUP BY p.id, mf.id ORDER BY p.created_at DESC OFFSET $2 LIMIT $3`
+		` WHERE p.user_id=$1 AND p.is_hidden=false ORDER BY p.created_at DESC OFFSET $2 LIMIT $3`
 	queryGetPersonMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM people_mediaitems` +
 		` WHERE user_id=$1 AND people_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
 	queryUpdatePerson = `UPDATE people SET name=$3, is_hidden=$4, cover_mediaitem_id=$5, cover_mediaitem_face_id=$6,` +
@@ -128,21 +133,15 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid place id")
 	}
-	place := models.Place{CoverMediaItem: &models.MediaItem{}}
+	place := models.Place{}
+	coverMediaItem := &models.CoverMediaItem{}
+
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetPlace, userID, uid).Scan(&place.ID, &place.UserID,
 		&place.Name, &place.Postcode, &place.Country, &place.Locality, &place.Area, &place.IsHidden,
-		&place.CoverMediaItemID, &place.CreatedAt, &place.UpdatedAt, &place.CoverMediaItem.ID,
-		&place.CoverMediaItem.UserID, &place.CoverMediaItem.Filename, &place.CoverMediaItem.Hash,
-		&place.CoverMediaItem.Description, &place.CoverMediaItem.MimeType, &place.CoverMediaItem.SourceURL,
-		&place.CoverMediaItem.PreviewURL, &place.CoverMediaItem.ThumbnailURL, &place.CoverMediaItem.Placeholder,
-		&place.CoverMediaItem.IsFavourite, &place.CoverMediaItem.IsHidden, &place.CoverMediaItem.IsDeleted,
-		&place.CoverMediaItem.Status, &place.CoverMediaItem.MediaItemType, &place.CoverMediaItem.MediaItemCategory,
-		&place.CoverMediaItem.Width, &place.CoverMediaItem.Height, &place.CoverMediaItem.CreationTime,
-		&place.CoverMediaItem.CameraMake, &place.CoverMediaItem.CameraModel, &place.CoverMediaItem.FocalLength,
-		&place.CoverMediaItem.ApertureFnumber, &place.CoverMediaItem.IsoEquivalent, &place.CoverMediaItem.ExposureTime,
-		&place.CoverMediaItem.Megapixels, &place.CoverMediaItem.Latitude, &place.CoverMediaItem.Longitude,
-		&place.CoverMediaItem.FPS, &place.CoverMediaItem.EXIFData, &place.CoverMediaItem.Keywords,
-		&place.CoverMediaItem.CreatedAt, &place.CoverMediaItem.UpdatedAt)
+		&place.CoverMediaItemID, &place.CreatedAt, &place.UpdatedAt, &coverMediaItem.ID,
+		&coverMediaItem.UserID, &coverMediaItem.SourceURL, &coverMediaItem.PreviewURL,
+		&coverMediaItem.ThumbnailURL, &coverMediaItem.Placeholder, &coverMediaItem.MediaItemType,
+		&coverMediaItem.MediaItemCategory, &coverMediaItem.Width, &coverMediaItem.Height)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "place not found")
@@ -150,6 +149,10 @@ func (h *Handler) GetPlace(ctx echo.Context) error {
 		slog.Error("error getting place", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if place.CoverMediaItemID != nil {
+		place.CoverMediaItem = coverMediaItem
 	}
 
 	return ctx.JSON(http.StatusOK, place)
@@ -222,20 +225,14 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
 	}
-	thing := models.Thing{CoverMediaItem: &models.MediaItem{}}
+	thing := models.Thing{}
+	coverMediaItem := &models.CoverMediaItem{}
+
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetThing, userID, uid).Scan(&thing.ID, &thing.UserID,
 		&thing.Name, &thing.IsHidden, &thing.CoverMediaItemID, &thing.CreatedAt, &thing.UpdatedAt,
-		&thing.CoverMediaItem.ID, &thing.CoverMediaItem.UserID, &thing.CoverMediaItem.Filename,
-		&thing.CoverMediaItem.Hash, &thing.CoverMediaItem.Description, &thing.CoverMediaItem.MimeType,
-		&thing.CoverMediaItem.SourceURL, &thing.CoverMediaItem.PreviewURL, &thing.CoverMediaItem.ThumbnailURL,
-		&thing.CoverMediaItem.Placeholder, &thing.CoverMediaItem.IsFavourite, &thing.CoverMediaItem.IsHidden,
-		&thing.CoverMediaItem.IsDeleted, &thing.CoverMediaItem.Status, &thing.CoverMediaItem.MediaItemType,
-		&thing.CoverMediaItem.MediaItemCategory, &thing.CoverMediaItem.Width, &thing.CoverMediaItem.Height,
-		&thing.CoverMediaItem.CreationTime, &thing.CoverMediaItem.CameraMake, &thing.CoverMediaItem.CameraModel,
-		&thing.CoverMediaItem.FocalLength, &thing.CoverMediaItem.ApertureFnumber, &thing.CoverMediaItem.IsoEquivalent,
-		&thing.CoverMediaItem.ExposureTime, &thing.CoverMediaItem.Megapixels, &thing.CoverMediaItem.Latitude,
-		&thing.CoverMediaItem.Longitude, &thing.CoverMediaItem.FPS, &thing.CoverMediaItem.EXIFData,
-		&thing.CoverMediaItem.Keywords, &thing.CoverMediaItem.CreatedAt, &thing.CoverMediaItem.UpdatedAt)
+		&coverMediaItem.ID, &coverMediaItem.UserID, &coverMediaItem.SourceURL, &coverMediaItem.PreviewURL,
+		&coverMediaItem.ThumbnailURL, &coverMediaItem.Placeholder, &coverMediaItem.MediaItemType,
+		&coverMediaItem.MediaItemCategory, &coverMediaItem.Width, &coverMediaItem.Height)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
@@ -243,6 +240,10 @@ func (h *Handler) GetThing(ctx echo.Context) error {
 		slog.Error("error getting thing", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if thing.CoverMediaItemID != nil {
+		thing.CoverMediaItem = coverMediaItem
 	}
 
 	return ctx.JSON(http.StatusOK, thing)

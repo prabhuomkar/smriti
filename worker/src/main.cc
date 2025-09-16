@@ -97,7 +97,7 @@ int main(int argc, char** argv) {
 
   while (!terminating) {
     SPDLOG_INFO("worker running");
-    sleep(5);
+    sleep(2);
     MediaItemProcessResponse response = api_client->GetMediaItemProcess();
     SPDLOG_INFO("id {}", response.id());
     if (response.id() != "") {

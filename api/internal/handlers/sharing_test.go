@@ -66,7 +66,8 @@ func TestGetSharedAlbum(t *testing.T) {
 		},
 		{
 			"get shared album not found", http.MethodGet, "/v1/sharing/:id", "/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(albumCols))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
@@ -75,7 +76,8 @@ func TestGetSharedAlbum(t *testing.T) {
 		},
 		{
 			"get shared album with error", http.MethodGet, "/v1/sharing/:id", "/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
@@ -84,16 +86,18 @@ func TestGetSharedAlbum(t *testing.T) {
 		},
 		{
 			"get shared album with error in scanning", http.MethodGet, "/v1/sharing/:id", "/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime))
+					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetSharedAlbum
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
 			"get shared album with success", http.MethodGet, "/v1/sharing/:id", "/v1/sharing/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnRows(getMockedAlbumRow())
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {

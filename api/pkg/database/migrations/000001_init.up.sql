@@ -219,7 +219,7 @@ ALTER TABLE ONLY album_mediaitems
 ADD CONSTRAINT fk_album_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY albums
-ADD CONSTRAINT fk_albums_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_albums_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY albums
 ADD CONSTRAINT fk_albums_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
@@ -231,7 +231,7 @@ ALTER TABLE ONLY mediaitem_faces
 ADD CONSTRAINT fk_mediaitems_faces FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY people
-ADD CONSTRAINT fk_people_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_people_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY people
 ADD CONSTRAINT fk_people_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;
@@ -252,7 +252,7 @@ ALTER TABLE ONLY place_mediaitems
 ADD CONSTRAINT fk_place_mediaitems_place FOREIGN KEY (place_id) REFERENCES places(id) ON DELETE CASCADE;
 
 ALTER TABLE ONLY places
-ADD CONSTRAINT fk_places_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id);
+ADD CONSTRAINT fk_places_cover_media_item FOREIGN KEY (cover_mediaitem_id) REFERENCES mediaitems(id) ON DELETE SET NULL;
 
 ALTER TABLE ONLY places
 ADD CONSTRAINT fk_places_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

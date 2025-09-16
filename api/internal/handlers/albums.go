@@ -37,11 +37,13 @@ const (
 	queryGetAlbumMediaItemIDAndCount = `SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems WHERE` +
 		` album_id=$1 LIMIT 1`
 	queryUpdateAlbumMediaItems = `UPDATE albums SET mediaitems_count=$1, cover_mediaitem_id=CASE WHEN cover_mediaitem_id` +
-		` IS NULL THEN $2 ELSE cover_mediaitem_id END WHERE user_id=$3 AND id=$4`
-	queryGetAlbum = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id` +
-		` WHERE a.user_id=$1 AND a.id=$2 GROUP BY a.id, m.id`
-	queryGetAlbums = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id` +
-		` WHERE a.user_id=$1 AND a.is_hidden=false AND is_shared=$2 GROUP BY a.id, m.id ORDER BY %s` +
+		` IS NOT NULL AND $2::uuid IS NULL THEN NULL ELSE COALESCE($2::uuid, cover_mediaitem_id) END WHERE user_id=$3 AND id=$4`
+	queryGetAlbum = `SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems m` +
+		` ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.id=$2`
+	queryGetAlbums = `SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems m` +
+		` ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.is_hidden=false AND is_shared=$2 ORDER BY a.%s` +
 		` OFFSET $3 LIMIT $4`
 	queryUpdateAlbum = `UPDATE albums SET name=$3, description=$4, is_shared=$5, is_hidden=$6,` +
 		` cover_mediaitem_id=$7, updated_at=$8 WHERE user_id=$1 AND id=$2`
@@ -109,7 +111,7 @@ func (h *Handler) AddAlbumMediaItems(ctx echo.Context) error { //nolint:cyclop
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
-	coverMediaItemID := uuid.Nil
+	var coverMediaItemID *uuid.UUID
 	mediaItemsCount := 0
 	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
 		Scan(&coverMediaItemID, &mediaItemsCount)
@@ -163,7 +165,7 @@ func (h *Handler) RemoveAlbumMediaItems(ctx echo.Context) error { //nolint:cyclo
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 	}
-	coverMediaItemID := uuid.Nil
+	var coverMediaItemID *uuid.UUID
 	mediaItemsCount := 0
 	err = atx.QueryRow(ctx.Request().Context(), queryGetAlbumMediaItemIDAndCount, uid).
 		Scan(&coverMediaItemID, &mediaItemsCount)
@@ -195,21 +197,16 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	album := models.Album{CoverMediaItem: &models.MediaItem{}}
+
+	album := models.Album{}
+	coverMediaItem := &models.CoverMediaItem{}
+
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetAlbum, userID, uid).Scan(&album.ID, &album.UserID,
 		&album.Name, &album.Description, &album.IsShared, &album.IsHidden, &album.MediaItemsCount,
-		&album.CoverMediaItemID, &album.CreatedAt, &album.UpdatedAt, &album.CoverMediaItem.ID,
-		&album.CoverMediaItem.UserID, &album.CoverMediaItem.Filename, &album.CoverMediaItem.Hash,
-		&album.CoverMediaItem.Description, &album.CoverMediaItem.MimeType, &album.CoverMediaItem.SourceURL,
-		&album.CoverMediaItem.PreviewURL, &album.CoverMediaItem.ThumbnailURL, &album.CoverMediaItem.Placeholder,
-		&album.CoverMediaItem.IsFavourite, &album.CoverMediaItem.IsHidden, &album.CoverMediaItem.IsDeleted,
-		&album.CoverMediaItem.Status, &album.CoverMediaItem.MediaItemType, &album.CoverMediaItem.MediaItemCategory,
-		&album.CoverMediaItem.Width, &album.CoverMediaItem.Height, &album.CoverMediaItem.CreationTime,
-		&album.CoverMediaItem.CameraMake, &album.CoverMediaItem.CameraModel, &album.CoverMediaItem.FocalLength,
-		&album.CoverMediaItem.ApertureFnumber, &album.CoverMediaItem.IsoEquivalent, &album.CoverMediaItem.ExposureTime,
-		&album.CoverMediaItem.Megapixels, &album.CoverMediaItem.Latitude, &album.CoverMediaItem.Longitude,
-		&album.CoverMediaItem.FPS, &album.CoverMediaItem.EXIFData, &album.CoverMediaItem.Keywords,
-		&album.CoverMediaItem.CreatedAt, &album.CoverMediaItem.UpdatedAt)
+		&album.CoverMediaItemID, &album.CreatedAt, &album.UpdatedAt, &coverMediaItem.ID,
+		&coverMediaItem.UserID, &coverMediaItem.SourceURL, &coverMediaItem.PreviewURL, &coverMediaItem.ThumbnailURL,
+		&coverMediaItem.Placeholder, &coverMediaItem.MediaItemType, &coverMediaItem.MediaItemCategory,
+		&coverMediaItem.Width, &coverMediaItem.Height)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "album not found")
@@ -217,6 +214,10 @@ func (h *Handler) GetAlbum(ctx echo.Context) error {
 		slog.Error("error getting album", "error", err)
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+	}
+
+	if album.CoverMediaItemID != nil {
+		album.CoverMediaItem = coverMediaItem
 	}
 
 	return ctx.JSON(http.StatusOK, album)
@@ -299,6 +300,8 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	}
 	album.ID = uuid.NewV4()
 	album.UserID = userID
+	album.CreatedAt = time.Now()
+	album.UpdatedAt = album.CreatedAt
 	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateAlbum, album.ID, album.UserID, album.Name,
 		album.Description, album.IsShared, album.IsHidden, album.CreatedAt, album.UpdatedAt)
 	if err != nil {
@@ -352,8 +355,12 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album")
 	}
-	album := models.Album{
-		Description: albumRequest.Description, IsShared: albumRequest.IsShared, IsHidden: albumRequest.IsHidden,
+	album := models.Album{Description: albumRequest.Description}
+	if albumRequest.IsShared != nil {
+		album.IsShared = albumRequest.IsShared
+	}
+	if albumRequest.IsHidden != nil {
+		album.IsHidden = albumRequest.IsHidden
 	}
 	if albumRequest.Name != nil {
 		album.Name = *albumRequest.Name

@@ -78,6 +78,20 @@ type ( // MediaItemStatus ...
 		CreatedAt         time.Time `json:"createdAt"`
 		UpdatedAt         time.Time `json:"updatedAt"`
 	}
+
+	// CoverMediaItem ...
+	CoverMediaItem struct {
+		ID                *uuid.UUID `json:"id"`
+		UserID            *uuid.UUID `json:"userId"`
+		SourceURL         *string    `json:"sourceUrl"`
+		PreviewURL        *string    `json:"previewUrl"`
+		ThumbnailURL      *string    `json:"thumbnailUrl"`
+		Placeholder       *string    `json:"placeholder"`
+		MediaItemType     *string    `json:"mediaItemType"`
+		MediaItemCategory *string    `json:"mediaItemCategory"`
+		Width             *int       `json:"width"`
+		Height            *int       `json:"height"`
+	}
 )
 
 const preFetchTime = 24

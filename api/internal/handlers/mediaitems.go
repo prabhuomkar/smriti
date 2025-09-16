@@ -32,18 +32,21 @@ const (
 	fileFlag       = os.O_WRONLY | os.O_APPEND | os.O_CREATE
 	filePermission = 0o644
 
-	queryGetMediaItemPlaces = `SELECT p.*, m.* FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id` +
+	queryGetMediaItemPlaces = `SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id` +
 		` WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT place_id FROM place_mediaitems` +
-		` WHERE mediaitem_id=$2) GROUP BY p.id, m.id ORDER BY p.created_at DESC`
-	queryGetMediaItemThings = `SELECT t.*, m.* FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id` +
+		` WHERE mediaitem_id=$2) ORDER BY p.created_at DESC`
+	queryGetMediaItemThings = `SELECT t.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id` +
 		` WHERE t.user_id=$1 AND t.is_hidden=false AND t.id IN (SELECT thing_id FROM thing_mediaitems` +
-		` WHERE mediaitem_id=$2) GROUP BY t.id, m.id ORDER BY t.created_at DESC`
+		` WHERE mediaitem_id=$2) ORDER BY t.created_at DESC`
 	queryGetMediaItemPeople = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
 		` WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT people_id FROM people_mediaitems` +
-		` WHERE mediaitem_id=$2) GROUP BY p.id, mf.id ORDER BY p.created_at DESC`
-	queryGetMediaItemAlbums = `SELECT a.*, m.* FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id` +
+		` WHERE mediaitem_id=$2) ORDER BY p.created_at DESC`
+	queryGetMediaItemAlbums = `SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems m ON a.cover_mediaitem_id=m.id` +
 		` WHERE a.user_id=$1 AND a.is_hidden=false AND a.is_hidden=false AND a.id IN (SELECT album_id FROM album_mediaitems` +
-		` WHERE mediaitem_id=$2) GROUP BY a.id, m.id ORDER BY a.created_at DESC`
+		` WHERE mediaitem_id=$2) ORDER BY a.created_at DESC`
 	queryGetMediaItem    = `SELECT * FROM mediaitems WHERE user_id=$1 AND id=$2`
 	queryUpdateMediaItem = `UPDATE mediaitems SET description=$3, is_favourite=$4, is_hidden=$5,` +
 		` updated_at=$6 WHERE user_id=$1 AND id=$2`

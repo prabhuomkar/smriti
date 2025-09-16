@@ -21,10 +21,12 @@ var (
 		"id", "name", "username", "password", "features", "created_at", "updated_at",
 	}
 	albumCols = []string{
-		"id", "user_id", "name", "description", "is_shared", "is_hidden", "mediaitems_count", "cover_mediaitem_id", "created_at", "updated_at",
+		"id", "user_id", "name", "description", "is_shared", "is_hidden", "mediaitems_count",
+		"cover_mediaitem_id", "created_at", "updated_at",
 	}
-	mediaitemCols = []string{
-		"id", "user_id", "filename", "hash", "description", "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", "is_favourite", "is_hidden", "is_deleted", "status", "mediaitem_type", "mediaitem_category", "width", "height", "creation_time", "camera_make", "camera_model", "focal_length", "aperture_fnumber", "iso_equivalent", "exposure_time", "megapixels", "latitude", "longitude", "fps", "exif_data", "keywords", "created_at", "updated_at",
+	coverMediaItemCols = []string{
+		"id", "user_id", "source_url", "preview_url", "thumbnail_url", "placeholder", "mediaitem_type",
+		"mediaitem_category", "width", "height",
 	}
 )
 
@@ -65,9 +67,10 @@ func TestFeatureCheckOK(t *testing.T) {
 	handler := &handlers.Handler{
 		Config: cfg, DB: mockDB,
 	}
-	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.* FROM albums`)).
+	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
+		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-		WillReturnRows(pgxmock.NewRows(append(albumCols, mediaitemCols...)))
+		WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)))
 	featureHandlerMap := map[string]interface{}{
 		"albums": handler.GetAlbums,
 	}
