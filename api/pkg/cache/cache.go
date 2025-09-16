@@ -1,7 +1,6 @@
 package cache
 
 import (
-	"api/config"
 	"fmt"
 	"math"
 	"time"
@@ -18,14 +17,16 @@ type Provider interface {
 }
 
 // Init ...
-func Init(config *config.Config) Provider { //nolint: ireturn
-	switch config.Type {
+func Init(cacheType, host string, port int, password string) Provider { //nolint: ireturn
+	switch cacheType {
 	case "redis":
+		addr := fmt.Sprintf("%s:%d", host, port)
+
 		return &RedisCache{
 			Connection: &redisClient{
 				client: redis.NewClient(&redis.Options{
-					Addr:     fmt.Sprintf("%s:%d", config.Cache.Host, config.Cache.Port),
-					Password: config.Cache.Password,
+					Addr:     addr,
+					Password: password,
 				}),
 			},
 		}

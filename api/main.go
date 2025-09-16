@@ -31,7 +31,7 @@ func main() {
 		panic(err)
 	}
 
-	cache := cache.Init(cfg)
+	cache := cache.Init(cfg.Type, cfg.Cache.Host, cfg.Cache.Port, cfg.Cache.Password)
 
 	storageProvider := storage.Init(&storage.Config{
 		Provider: cfg.Provider, Root: cfg.DiskRoot, Endpoint: cfg.Endpoint,

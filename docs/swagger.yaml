@@ -1632,6 +1632,10 @@ components:
           readOnly: true
           type: string
           example: 1/20
+        megapixels:
+          readOnly: true
+          type: string
+          example: 24
         fps:
           readOnly: true
           type: string
@@ -1879,7 +1883,7 @@ components:
           example: 102dc522de-1669-48a4-8270-4950a0237599
         components:
           type: string
-          example: metadata, faces
+          example: METADATA,PLACES
         status:
           readOnly: true
           type: string
@@ -1903,7 +1907,7 @@ components:
       properties:
         components:
           type: string
-          example: metadata,faces
+          example: METADATA,PLACES
     JobUpdateRequest:
       type: object
       properties:
