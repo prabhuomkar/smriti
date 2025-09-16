@@ -46,6 +46,11 @@ TEST(MetadataTest, Init) {
 
 TEST(MetadataTest, EmptyData) {
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockExifToolClient> mock_exif_client =
+      std::make_shared<MockExifToolClient>();
+  std::unordered_map<std::string, std::string> mock_data;
+  EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
+      .WillOnce(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
   std::shared_ptr<APIClient> mock_api_client =
@@ -54,11 +59,6 @@ TEST(MetadataTest, EmptyData) {
       .WillOnce(
           Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
-  std::shared_ptr<MockExifToolClient> mock_exif_client =
-      std::make_shared<MockExifToolClient>();
-  std::unordered_map<std::string, std::string> mock_data;
-  EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
-      .WillOnce(::testing::Return(mock_data));
   Metadata metadata(mock_exif_client, mock_api_client);
   std::unordered_map<std::string, std::string> result =
       metadata.Extract("", "", "", "");
@@ -86,8 +86,12 @@ TEST(MetadataTest, EmptyData) {
       result);
 }
 
-TEST(MetadataTest, Success) {
+TEST(MetadataTest, Failure) {
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockExifToolClient> mock_exif_client =
+      std::make_shared<MockExifToolClient>();
+  EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
+      .WillOnce(::testing::Throw(std::runtime_error("some error")));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
   std::shared_ptr<APIClient> mock_api_client =
@@ -96,6 +100,16 @@ TEST(MetadataTest, Success) {
       .WillOnce(
           Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  Metadata metadata(mock_exif_client, mock_api_client);
+  std::unordered_map<std::string, std::string> result =
+      metadata.Extract("", "", "", "");
+  assertMetadataResult(
+      {{"status", "FAILED"}, {"type", "unknown"}, {"category", "default"}},
+      result);
+}
+
+TEST(MetadataTest, Success) {
+  spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockExifToolClient> mock_exif_client =
       std::make_shared<MockExifToolClient>();
   std::unordered_map<std::string, std::string> mock_data = {
@@ -116,6 +130,14 @@ TEST(MetadataTest, Success) {
       {"ExposureTime", "1/25"},
       {"LivePhotoVideoIndex", "1112547328"},
       {"DateCreated", "2022:04:03 12:56:11"}};
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemMetadata(_, _, _))
+      .WillOnce(
+          Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
   EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
       .WillOnce(::testing::Return(mock_data));
   Metadata metadata(mock_exif_client, mock_api_client);

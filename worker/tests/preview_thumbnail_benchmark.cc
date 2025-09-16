@@ -40,8 +40,13 @@ static void BM_PreviewThumbnailInit(benchmark::State& state) { // NOLINT
   }
 }
 
-static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
+static void BM_PreviewThumbnailFailure(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
+      std::make_shared<MockImageConverterClient>();
+  EXPECT_CALL(*mock_image_converter_client,
+              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+      .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
   std::shared_ptr<APIClient> mock_api_client =
@@ -50,13 +55,31 @@ static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
       .WillRepeatedly(Invoke(
           [&](grpc::ClientContext*, const MediaItemPreviewThumbnailRequest&,
               google::protobuf::Empty*) { return grpc::Status::OK; }));
+  for (auto _ : state) {
+    PreviewThumbnail previewthumbnail(mock_image_converter_client,
+                                      mock_api_client);
+    std::unordered_map<std::string, std::string> output =
+        previewthumbnail.Generate("", "", "", "", "photo");
+    benchmark::DoNotOptimize(output);
+  }
+}
+
+static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
+  spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
       std::make_shared<MockImageConverterClient>();
   std::string mock_data = "path-kind";
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_,
-                      ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Return(mock_data));
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemPreviewThumbnail(_, _, _))
+      .WillRepeatedly(Invoke(
+          [&](grpc::ClientContext*, const MediaItemPreviewThumbnailRequest&,
+              google::protobuf::Empty*) { return grpc::Status::OK; }));
   for (auto _ : state) {
     PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                       mock_api_client);
@@ -68,6 +91,12 @@ static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
 
 static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
+      std::make_shared<MockImageConverterClient>();
+  std::string mock_data = "path-kind";
+  EXPECT_CALL(*mock_image_converter_client,
+              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+      .WillRepeatedly(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
   std::shared_ptr<APIClient> mock_api_client =
@@ -76,13 +105,6 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
       .WillRepeatedly(Invoke(
           [&](grpc::ClientContext*, const MediaItemPreviewThumbnailRequest&,
               google::protobuf::Empty*) { return grpc::Status::OK; }));
-  std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
-      std::make_shared<MockImageConverterClient>();
-  std::string mock_data = "path-kind";
-  EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_,
-                      ::testing::_))
-      .WillRepeatedly(::testing::Return(mock_data));
   for (auto _ : state) {
     PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                       mock_api_client);
@@ -93,5 +115,6 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
 }
 
 BENCHMARK(BM_PreviewThumbnailInit)->ThreadPerCpu();
+BENCHMARK(BM_PreviewThumbnailFailure)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailPhotoSuccess)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailVideoSuccess)->ThreadPerCpu();

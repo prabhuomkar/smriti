@@ -35,6 +35,11 @@ static void BM_MetadataInit(benchmark::State& state) { // NOLINT
 
 static void BM_MetadataEmptyData(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockExifToolClient> mock_exif_client =
+      std::make_shared<MockExifToolClient>();
+  std::unordered_map<std::string, std::string> mock_data;
+  EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
+      .WillRepeatedly(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
   std::shared_ptr<APIClient> mock_api_client =
@@ -43,11 +48,28 @@ static void BM_MetadataEmptyData(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  for (auto _ : state) {
+    Metadata metadata(mock_exif_client, mock_api_client);
+    std::unordered_map<std::string, std::string> output =
+        metadata.Extract("", "", "", "");
+    benchmark::DoNotOptimize(output);
+  }
+}
+
+static void BM_MetadataFailure(benchmark::State& state) { // NOLINT
+  spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockExifToolClient> mock_exif_client =
       std::make_shared<MockExifToolClient>();
-  std::unordered_map<std::string, std::string> mock_data;
   EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
-      .WillRepeatedly(::testing::Return(mock_data));
+      .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemMetadata(_, _, _))
+      .WillRepeatedly(
+          Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
   for (auto _ : state) {
     Metadata metadata(mock_exif_client, mock_api_client);
     std::unordered_map<std::string, std::string> output =
@@ -58,14 +80,6 @@ static void BM_MetadataEmptyData(benchmark::State& state) { // NOLINT
 
 static void BM_MetadataSuccess(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
-  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
-  MockAPIStub* mock_stub = mock_api_stub.get();
-  std::shared_ptr<APIClient> mock_api_client =
-      std::make_shared<APIClient>(std::move(mock_api_stub));
-  EXPECT_CALL(*mock_stub, SaveMediaItemMetadata(_, _, _))
-      .WillRepeatedly(
-          Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
-                     google::protobuf::Empty*) { return grpc::Status::OK; }));
   std::shared_ptr<MockExifToolClient> mock_exif_client =
       std::make_shared<MockExifToolClient>();
   std::unordered_map<std::string, std::string> mock_data = {
@@ -81,12 +95,21 @@ static void BM_MetadataSuccess(benchmark::State& state) { // NOLINT
       {"FocalLength", "4.2 mm"},
       {"FNumber", "1.6"},
       {"ISO", "640"},
+      {"Megapixels", "24"},
       {"MIMEType", "image/heic"},
       {"ExposureTime", "1/25"},
       {"LivePhotoVideoIndex", "1112547328"},
       {"DateCreated", "2022:04:03 12:56:11"}};
   EXPECT_CALL(*mock_exif_client, Extract(::testing::_))
       .WillRepeatedly(::testing::Return(mock_data));
+  auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
+  MockAPIStub* mock_stub = mock_api_stub.get();
+  std::shared_ptr<APIClient> mock_api_client =
+      std::make_shared<APIClient>(std::move(mock_api_stub));
+  EXPECT_CALL(*mock_stub, SaveMediaItemMetadata(_, _, _))
+      .WillRepeatedly(
+          Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
+                     google::protobuf::Empty*) { return grpc::Status::OK; }));
   for (auto _ : state) {
     Metadata metadata(mock_exif_client, mock_api_client);
     std::unordered_map<std::string, std::string> output =
@@ -97,4 +120,5 @@ static void BM_MetadataSuccess(benchmark::State& state) { // NOLINT
 
 BENCHMARK(BM_MetadataInit)->ThreadPerCpu();
 BENCHMARK(BM_MetadataEmptyData)->ThreadPerCpu();
+BENCHMARK(BM_MetadataFailure)->ThreadPerCpu();
 BENCHMARK(BM_MetadataSuccess)->ThreadPerCpu();

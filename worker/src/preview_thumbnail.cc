@@ -37,28 +37,36 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
     const std::string& mediaitem_id, const std::string& file_path,
     const std::string& type) {
   std::unordered_map<std::string, std::string> result;
-
-  if (type == "photo") {
-    result["preview_url"] = image_converter_client_->Convert(
-        file_path, file_path + "-preview", image_quality_, 0, false);
-  } else if (type == "video") {
-    result["preview_url"] = "";
-  }
-  result["thumbnail_url"] = image_converter_client_->Convert(
-      result["preview_url"], file_path + "-thumbnail", image_quality_,
-      thumbnail_size_, false);
-  result["placeholder"] = image_converter_client_->Convert(
-      result["thumbnail_url"], file_path + "-placeholder", image_quality_,
-      placeholder_size_, false);
-
   MediaItemPreviewThumbnailRequest request;
   request.set_userid(user_id);
   request.set_mediaitemid(mediaitem_id);
-  request.set_status("READY");
   request.set_sourcepath(file_path);
-  request.set_previewpath(result["preview_url"]);
-  request.set_thumbnailpath(result["thumbnail_url"]);
-  request.set_placeholder(result["placeholder"]);
+
+  try {
+    if (type == "photo") {
+      result["preview_url"] = image_converter_client_->Convert(
+          file_path, file_path + "-preview", image_quality_, 0);
+    } else if (type == "video") {
+      result["preview_url"] = "";
+    }
+    request.set_previewpath(result["preview_url"]);
+
+    result["thumbnail_url"] = image_converter_client_->Convert(
+        result["preview_url"], file_path + "-thumbnail", image_quality_,
+        thumbnail_size_);
+    request.set_thumbnailpath(result["thumbnail_url"]);
+
+    result["placeholder"] = image_converter_client_->Convert(
+        result["thumbnail_url"], "", image_quality_, placeholder_size_);
+    request.set_placeholder(result["placeholder"]);
+
+    result["status"] = "READY";
+  } catch (const std::exception& e) {
+    SPDLOG_ERROR("error extracting preview thumbnail: {}", e.what());
+    result["status"] = "FAILED";
+  }
+
+  request.set_status(result["status"]);
   api_client_->SaveMediaItemPreviewThumbnail(request);
 
   return result;

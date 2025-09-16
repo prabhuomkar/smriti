@@ -27,7 +27,6 @@ inline std::string Base64Encode(const std::vector<unsigned char>& data) {
       "0123456789+/";
 
   std::string result;
-  size_t i = 0;
   unsigned int val = 0;
   int valb = -6;
 
@@ -56,8 +55,7 @@ class ImageConverterClientInterface {
   virtual ~ImageConverterClientInterface() = default;
   virtual std::string Convert(const std::string& input_file_path,
                               const std::string& output_file_path,
-                              int image_quality, int image_size,
-                              bool encode = false) = 0;
+                              int image_quality, int image_size) = 0;
 };
 
 class ImageConverterClient : public ImageConverterClientInterface {
@@ -68,7 +66,7 @@ class ImageConverterClient : public ImageConverterClientInterface {
 
   std::string Convert(const std::string& input_file_path,
                       const std::string& output_file_path, int image_quality,
-                      int image_size, bool encode) override {
+                      int image_size) override {
     LibRaw raw_processor;
     Magick::Image magick_img;
     Magick::Blob magick_blob;
@@ -121,7 +119,7 @@ class ImageConverterClient : public ImageConverterClientInterface {
     magick_img.quality(image_quality);
     magick_img.magick("JPEG");
 
-    if (encode) {
+    if (output_file_path == "") {
       magick_img.write(&magick_blob, "JPEG");
       const unsigned char* magick_blob_data_ptr =
           static_cast<const unsigned char*>(magick_blob.data());
