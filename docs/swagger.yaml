@@ -1894,8 +1894,20 @@ components:
           format: uuid
           example: 102dc522de-1669-48a4-8270-4950a0237599
         components:
-          type: string
-          example: METADATA,PLACES
+          type: array
+          items:
+            type: string
+            enum:
+              [
+                "METADATA",
+                "PREVIEW_THUMBNAIL",
+                "PLACES",
+                "CLASSIFICATION",
+                "FACES",
+                "OCR",
+                "SEARCH",
+              ]
+          example: ["METADATA", "PREVIEW_THUMBNAIL"]
         status:
           readOnly: true
           type: string
@@ -1918,8 +1930,20 @@ components:
       type: object
       properties:
         components:
-          type: string
-          example: METADATA,PLACES
+          type: array
+          items:
+            type: string
+            enum:
+              [
+                "METADATA",
+                "PREVIEW_THUMBNAIL",
+                "PLACES",
+                "CLASSIFICATION",
+                "FACES",
+                "OCR",
+                "SEARCH",
+              ]
+          example: ["METADATA", "PREVIEW_THUMBNAIL"]
     JobUpdateRequest:
       type: object
       properties:

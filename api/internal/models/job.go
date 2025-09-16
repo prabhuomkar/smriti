@@ -17,7 +17,7 @@ type Job struct {
 	ID         uuid.UUID `json:"id"`
 	UserID     uuid.UUID `json:"userId"`
 	Status     JobStatus `json:"status"`
-	Components string    `json:"components"`
+	Components []string  `json:"components"`
 	CreatedAt  time.Time `json:"createdAt"`
 	UpdatedAt  time.Time `json:"updatedAt"`
 }

@@ -7,6 +7,7 @@ import (
 	"log/slog"
 	"net/http"
 	"reflect"
+	"strings"
 
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
@@ -15,8 +16,8 @@ import (
 
 type ( // JobRequest ...
 	JobRequest struct {
-		Components *string `json:"components"`
-		Status     *string `json:"status"`
+		Components []string `json:"components"`
+		Status     *string  `json:"status"`
 	}
 )
 
@@ -38,8 +39,9 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 		return err
 	}
 	job := models.Job{}
+	jobComponents := ""
 	err = h.DB.QueryRow(ctx.Request().Context(), queryGetJob, userID, uid).Scan(&job.ID, &job.UserID,
-		&job.Status, &job.Components, &job.CreatedAt, &job.UpdatedAt)
+		&job.Status, &jobComponents, &job.CreatedAt, &job.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
 			return echo.NewHTTPError(http.StatusNotFound, "job not found")
@@ -48,6 +50,8 @@ func (h *Handler) GetJob(ctx echo.Context) error {
 
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
+
+	job.Components = strings.Split(jobComponents, ",")
 
 	return ctx.JSON(http.StatusOK, job)
 }
@@ -103,12 +107,14 @@ func (h *Handler) GetJobs(ctx echo.Context) error {
 	defer rows.Close()
 	for rows.Next() {
 		job := models.Job{}
-		err = rows.Scan(&job.ID, &job.UserID, &job.Status, &job.Components, &job.CreatedAt, &job.UpdatedAt)
+		jobComponents := ""
+		err = rows.Scan(&job.ID, &job.UserID, &job.Status, &jobComponents, &job.CreatedAt, &job.UpdatedAt)
 		if err != nil {
 			slog.Error("error scanning job", "error", err)
 
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
+		job.Components = strings.Split(jobComponents, ",")
 		jobs = append(jobs, job)
 	}
 
@@ -140,7 +146,7 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusConflict, "job already exists")
 	}
 	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateJob, job.ID, job.UserID, job.Status,
-		job.Components, job.CreatedAt, job.UpdatedAt)
+		strings.Join(job.Components, ","), job.CreatedAt, job.UpdatedAt)
 	if err != nil {
 		slog.Error("error creating job", "error", err)
 
@@ -178,8 +184,15 @@ func getJob(ctx echo.Context) (*models.Job, error) {
 		return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid job")
 	}
 	job := models.Job{}
-	if jobRequest.Components != nil {
-		job.Components = *jobRequest.Components
+	if len(jobRequest.Components) > 0 {
+		for _, jobComponent := range jobRequest.Components {
+			if _, ok := api.MediaItemComponent_value[jobComponent]; !ok {
+				slog.Error("error getting job component", "error", err)
+
+				return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid job component")
+			}
+		}
+		job.Components = jobRequest.Components
 	}
 	if jobRequest.Status != nil {
 		job.Status = models.JobStatus(*jobRequest.Status)
