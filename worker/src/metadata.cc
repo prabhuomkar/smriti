@@ -28,13 +28,13 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
     const std::string& id, const std::string& user_id,
     const std::string& mediaitem_id, const std::string& file_path) {
   std::unordered_map<std::string, std::string> result;
+  std::unordered_map<std::string, std::string> exif_data;
 
   // default values
-  result["status"] = "PROCESSING";
-  result["type"] = "unknown";
-  result["category"] = "default";
+  MediaItemStatus status = MediaItemStatus::PROCESSING;
+  MediaItemType type = MediaItemType::UNKNOWN;
+  MediaItemCategory category = MediaItemCategory::DEFAULT;
 
-  std::unordered_map<std::string, std::string> exif_data;
   MediaItemMetadataRequest request;
   request.set_userid(user_id);
   request.set_mediaitemid(mediaitem_id);
@@ -67,9 +67,9 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
     result["mime_type"] = GetValue(exif_data, {"MIMEType"});
     request.set_mimetype(result["mime_type"]);
     if (result["mime_type"].find("image") != std::string::npos) {
-      result["type"] = "photo";
+      type = MediaItemType::PHOTO;
     } else if (result["mime_type"].find("video") != std::string::npos) {
-      result["type"] = "video";
+      type = MediaItemType::VIDEO;
     }
     result["width"] = GetValue(
         exif_data, {"ExifImageWidth", "ImageWidth", "SourceImageWidth"});
@@ -135,42 +135,46 @@ std::unordered_map<std::string, std::string> Metadata::Extract(
       std::transform(value.begin(), value.end(), value.begin(),
                      [](unsigned char c) { return std::tolower(c); });
       if (value == "screenshot") {
-        result["category"] = "screenshot";
+        category = MediaItemCategory::SCREENSHOT;
       }
     } else if (exif_data.find("LivePhotoVideoIndex") != exif_data.end()) {
-      result["category"] = "live";
+      category = MediaItemCategory::LIVE;
     } else if (exif_data.find("FullFrameRatePlaybackIntent") !=
                exif_data.end()) {
       if (exif_data["FullFrameRatePlaybackIntent"] == "0") {
-        result["category"] = "timelapse";
+        category = MediaItemCategory::TIMELAPSE;
       }
     } else if (exif_data.find("CaptureMode") != exif_data.end()) {
       std::string value = exif_data["CaptureMode"];
       std::transform(value.begin(), value.end(), value.begin(),
                      [](unsigned char c) { return std::tolower(c); });
       if (value == "time-lapse") {
-        result["category"] = "timelapse";
+        category = MediaItemCategory::TIMELAPSE;
       }
     } else if (result["width"] != "" && result["height"] != "") {
       int width = std::stoi(result["width"]);
       int height = std::stoi(result["height"]);
       if (width >= 10000 && (height * 4 <= width)) {
-        result["category"] = "panorama";
+        category = MediaItemCategory::PANORAMA;
       }
     } else if (result["fps"] != "") {
       int fps = std::stoi(result["fps"]);
       if (fps >= 120) {
-        result["category"] = "slow";
+        category = MediaItemCategory::SLOW;
       }
     }
   } catch (const std::exception& e) {
     SPDLOG_ERROR("error extracting metadata: {}", e.what());
-    result["status"] = "FAILED";
+    status = MediaItemStatus::FAILED;
   }
 
-  request.set_status(result["status"]);
-  request.set_type(result["type"]);
-  request.set_category(result["category"]);
+  result["status"] = MediaItemStatus_Name(status);
+  result["type"] = MediaItemType_Name(type);
+  result["category"] = MediaItemCategory_Name(category);
+
+  request.set_status(status);
+  request.set_type(type);
+  request.set_category(category);
   api_client_->SaveMediaItemMetadata(request);
 
   return result;

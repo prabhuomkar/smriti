@@ -44,62 +44,43 @@ type ( // MediaItemStatus ...
 
 	// MediaItem ...
 	MediaItem struct {
-		ID                uuid.UUID         `json:"id"`
-		UserID            uuid.UUID         `json:"userId"`
-		Filename          string            `json:"filename"`
-		Hash              *string           `json:"hash,omitempty"`
-		Description       *string           `json:"description,omitempty"`
-		MimeType          string            `json:"mimeType"`
-		SourceURL         string            `json:"sourceUrl"`
-		PreviewURL        string            `json:"previewUrl"`
-		ThumbnailURL      string            `json:"thumbnailUrl"`
-		Placeholder       string            `json:"placeholder"`
-		IsFavourite       *bool             `json:"favourite"`
-		IsHidden          *bool             `json:"hidden"`
-		IsDeleted         *bool             `json:"deleted"`
-		Status            MediaItemStatus   `json:"status"`
-		MediaItemType     MediaItemType     `json:"mediaItemType"`
-		MediaItemCategory MediaItemCategory `json:"mediaItemCategory"`
-		Width             int               `json:"width"`
-		Height            int               `json:"height"`
-		CreationTime      time.Time         `json:"creationTime"`
-		CameraMake        *string           `json:"cameraMake,omitempty"`
-		CameraModel       *string           `json:"cameraModel,omitempty"`
-		FocalLength       *string           `json:"focalLength,omitempty"`
-		ApertureFnumber   *string           `json:"apertureFNumber,omitempty"`
-		IsoEquivalent     *string           `json:"isoEquivalent,omitempty"`
-		ExposureTime      *string           `json:"exposureTime,omitempty"`
-		Megapixels        *string           `json:"megapixels,omitempty"`
-		Latitude          *float64          `json:"latitude,omitempty"`
-		Longitude         *float64          `json:"longitude,omitempty"`
-		FPS               *string           `json:"fps,omitempty"`
-		EXIFData          *string           `json:"-"`
-		Keywords          *string           `json:"-"`
-		CreatedAt         time.Time         `json:"createdAt"`
-		UpdatedAt         time.Time         `json:"updatedAt"`
+		ID                uuid.UUID `json:"id"`
+		UserID            uuid.UUID `json:"userId"`
+		Filename          string    `json:"filename"`
+		Hash              *string   `json:"hash,omitempty"`
+		Description       *string   `json:"description,omitempty"`
+		MimeType          string    `json:"mimeType"`
+		SourceURL         string    `json:"sourceUrl"`
+		PreviewURL        string    `json:"previewUrl"`
+		ThumbnailURL      string    `json:"thumbnailUrl"`
+		Placeholder       string    `json:"placeholder"`
+		IsFavourite       *bool     `json:"favourite"`
+		IsHidden          *bool     `json:"hidden"`
+		IsDeleted         *bool     `json:"deleted"`
+		Status            string    `json:"status"`
+		MediaItemType     string    `json:"mediaItemType"`
+		MediaItemCategory string    `json:"mediaItemCategory"`
+		Width             int       `json:"width"`
+		Height            int       `json:"height"`
+		CreationTime      time.Time `json:"creationTime"`
+		CameraMake        *string   `json:"cameraMake,omitempty"`
+		CameraModel       *string   `json:"cameraModel,omitempty"`
+		FocalLength       *string   `json:"focalLength,omitempty"`
+		ApertureFnumber   *string   `json:"apertureFNumber,omitempty"`
+		IsoEquivalent     *string   `json:"isoEquivalent,omitempty"`
+		ExposureTime      *string   `json:"exposureTime,omitempty"`
+		Megapixels        *string   `json:"megapixels,omitempty"`
+		Latitude          *float64  `json:"latitude,omitempty"`
+		Longitude         *float64  `json:"longitude,omitempty"`
+		FPS               *string   `json:"fps,omitempty"`
+		EXIFData          *string   `json:"-"`
+		Keywords          *string   `json:"-"`
+		CreatedAt         time.Time `json:"createdAt"`
+		UpdatedAt         time.Time `json:"updatedAt"`
 	}
 )
 
-const (
-	StatusUnspecified MediaItemStatus = "UNSPECIFIED"
-	StatusProcessing  MediaItemStatus = "PROCESSING"
-	StatusReady       MediaItemStatus = "READY"
-	StatusFailed      MediaItemStatus = "FAILED"
-
-	TypeUnknown MediaItemType = "unknown"
-	TypePhoto   MediaItemType = "photo"
-	TypeVideo   MediaItemType = "video"
-
-	CategoryDefault    MediaItemCategory = "default"
-	CategoryScreenshot MediaItemCategory = "screenshot"
-	CategoryPanorama   MediaItemCategory = "panorama"
-	CategorySlow       MediaItemCategory = "slow"
-	CategoryMotion     MediaItemCategory = "motion"
-	CategoryLive       MediaItemCategory = "live"
-	CategoryTimelapse  MediaItemCategory = "timelapse"
-
-	preFetchTime = 24
-)
+const preFetchTime = 24
 
 // TableName ...
 func (MediaItem) TableName() string {

@@ -7,9 +7,9 @@ Feature: MediaItems
 
     Scenario: Validate Create Photo MediaItem
         Given there are no mediaitems
-        When upload default photo mediaitem without auth and wait 0 seconds
+        When upload default PHOTO mediaitem without auth and wait 0 seconds
         Then auth error is found
-        When upload default photo mediaitem with auth and wait 5 seconds
+        When upload default PHOTO mediaitem with auth and wait 5 seconds
         Then mediaitem is uploaded
         When get mediaitem without auth
         Then auth error is found
@@ -37,7 +37,7 @@ Feature: MediaItems
 
     Scenario: Validate Duplicate Photo MediaItem
         Given a mediaitem exists
-        When upload default photo mediaitem with auth and wait 0 seconds
+        When upload default PHOTO mediaitem with auth and wait 0 seconds
         Then mediaitem already exists
 
     Scenario: Validate Delete Photo MediaItem
@@ -55,11 +55,12 @@ Feature: MediaItems
         When get all mediaitems with auth
         Then mediaitem is not present in list
 
+    @video
     Scenario: Validate Create Video MediaItem
         Given there are no mediaitems
-        When upload default video mediaitem without auth and wait 0 seconds
+        When upload default VIDEO mediaitem without auth and wait 0 seconds
         Then auth error is found
-        When upload default video mediaitem with auth and wait 30 seconds
+        When upload default VIDEO mediaitem with auth and wait 30 seconds
         Then mediaitem is uploaded
         When get mediaitem without auth
         Then auth error is found
@@ -70,6 +71,7 @@ Feature: MediaItems
         When get all mediaitems with auth
         Then mediaitem is present in list
 
+    @video
     Scenario: Validate Delete Video MediaItem
         Given a mediaitem exists
         When delete mediaitem without auth

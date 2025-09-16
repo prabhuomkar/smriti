@@ -65,8 +65,8 @@ TEST(MetadataTest, EmptyData) {
   assertMetadataResult(
       {
           {"status", "PROCESSING"},
-          {"type", "unknown"},
-          {"category", "default"},
+          {"type", "UNKNOWN"},
+          {"category", "DEFAULT"},
           {"latitude", ""},
           {"longitude", ""},
           {"fps", ""},
@@ -104,7 +104,7 @@ TEST(MetadataTest, Failure) {
   std::unordered_map<std::string, std::string> result =
       metadata.Extract("", "", "", "");
   assertMetadataResult(
-      {{"status", "FAILED"}, {"type", "unknown"}, {"category", "default"}},
+      {{"status", "FAILED"}, {"type", "UNKNOWN"}, {"category", "DEFAULT"}},
       result);
 }
 
@@ -145,8 +145,8 @@ TEST(MetadataTest, Success) {
       metadata.Extract("", "", "", "");
   assertMetadataResult(
       {{"status", "PROCESSING"},
-       {"type", "photo"},
-       {"category", "live"},
+       {"type", "PHOTO"},
+       {"category", "LIVE"},
        {"latitude", "19.219997"},
        {"longitude", "73.105331"},
        {"fps", "30"},

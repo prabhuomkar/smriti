@@ -32,22 +32,22 @@ CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description'}
 CREATED_SHARED_ALBUM = {'name': 'Album Name', 'description': 'Album Description', 'shared': True}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description'}
 
-CREATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
-                     'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
-                     'exposureTime': '0.04', 'mediaItemType': 'photo', 'mediaItemCategory': 'default',
+CREATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2 mm', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
+                     'exposureTime': '1/25', 'mediaItemType': 'PHOTO', 'mediaItemCategory': 'LIVE',
                      'description': None, 'favourite': False, 'hidden': False},
-                     'video':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
-                     'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'video', 'mediaItemCategory': 'default',
+                     'VIDEO':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'VIDEO', 'mediaItemCategory': 'DEFAULT',
                      'description': None, 'favourite': False, 'hidden': False}}
-UPDATED_MEDIAITEM = {'photo':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
-                     'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
-                     'exposureTime': '0.04', 'mediaItemType': 'photo', 'mediaItemCategory': 'default',
+UPDATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2 mm', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
+                     'exposureTime': '1/25', 'mediaItemType': 'PHOTO', 'mediaItemCategory': 'LIVE',
                      'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': False},
-                     'video':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
-                     'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'video', 'mediaItemCategory': 'default',
+                     'VIDEO':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'VIDEO', 'mediaItemCategory': 'DEFAULT',
                      'description': None, 'favourite': False, 'hidden': False}}
 
-CREATED_PLACE = {'name': 'Mumbai', 'city': 'Mumbai', 'state': 'Maharashtra', 'postcode': '400050', 'country': 'India'}
+CREATED_PLACE = {'name': 'Mumbai', 'area': 'Zone 3', 'locality': 'Mumbai', 'postcode': '400050', 'country': 'India'}
 
 CREATED_THING = {'name': 'Pizza'}
 

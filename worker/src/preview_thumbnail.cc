@@ -37,16 +37,20 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
     const std::string& mediaitem_id, const std::string& file_path,
     const std::string& type) {
   std::unordered_map<std::string, std::string> result;
+
+  // default value
+  MediaItemStatus status = MediaItemStatus::FAILED;
+
   MediaItemPreviewThumbnailRequest request;
   request.set_userid(user_id);
   request.set_mediaitemid(mediaitem_id);
   request.set_sourcepath(file_path);
 
   try {
-    if (type == "photo") {
+    if (type == MediaItemType_Name(MediaItemType::PHOTO)) {
       result["preview_url"] = image_converter_client_->Convert(
           file_path, file_path + "-preview", image_quality_, 0);
-    } else if (type == "video") {
+    } else if (type == MediaItemType_Name(MediaItemType::VIDEO)) {
       result["preview_url"] = "";
     }
     request.set_previewpath(result["preview_url"]);
@@ -60,13 +64,13 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
         result["thumbnail_url"], "", image_quality_, placeholder_size_);
     request.set_placeholder(result["placeholder"]);
 
-    result["status"] = "READY";
+    status = MediaItemStatus::READY;
   } catch (const std::exception& e) {
     SPDLOG_ERROR("error extracting preview thumbnail: {}", e.what());
-    result["status"] = "FAILED";
   }
 
-  request.set_status(result["status"]);
+  result["status"] = MediaItemStatus_Name(status);
+  request.set_status(status);
   api_client_->SaveMediaItemPreviewThumbnail(request);
 
   return result;

@@ -491,7 +491,7 @@ func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context, req *api.Media
 	slog.Info("getting mediaitem face embeddings", "user", req.UserId)
 
 	mediaItemFaces := []models.MediaitemFace{}
-	rows, err := s.DB.Query(ctx, queryGetMediaItemFaces, userID, models.StatusReady)
+	rows, err := s.DB.Query(ctx, queryGetMediaItemFaces, userID, api.MediaItemStatus_READY.String())
 	if err != nil {
 		slog.Error("error getting mediaitem face embeddings", "error", err)
 
@@ -734,7 +734,7 @@ func getNameForPlace(place models.Place) string {
 }
 
 func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataRequest) {
-	mediaItem.Status = models.MediaItemStatus(req.Status)
+	mediaItem.Status = req.Status.String()
 	mediaItem.CameraMake = req.CameraMake
 	mediaItem.CameraModel = req.CameraModel
 	mediaItem.FocalLength = req.FocalLength
@@ -749,8 +749,8 @@ func parseMediaItem(mediaItem *models.MediaItem, req *api.MediaItemMetadataReque
 	if req.MimeType != nil {
 		mediaItem.MimeType = *req.MimeType
 	}
-	mediaItem.MediaItemType = models.MediaItemType(req.Type)
-	mediaItem.MediaItemCategory = models.MediaItemCategory(req.Category)
+	mediaItem.MediaItemType = req.Type.String()
+	mediaItem.MediaItemCategory = req.Category.String()
 	if req.Width != nil {
 		mediaItem.Width = int(*req.Width)
 	}

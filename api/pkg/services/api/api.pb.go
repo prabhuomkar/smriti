@@ -83,6 +83,168 @@ func (MediaItemComponent) EnumDescriptor() ([]byte, []int) {
 	return file_api_proto_rawDescGZIP(), []int{0}
 }
 
+type MediaItemStatus int32
+
+const (
+	MediaItemStatus_UNSPECIFIED MediaItemStatus = 0
+	MediaItemStatus_PROCESSING  MediaItemStatus = 1
+	MediaItemStatus_READY       MediaItemStatus = 2
+	MediaItemStatus_FAILED      MediaItemStatus = 3
+)
+
+// Enum value maps for MediaItemStatus.
+var (
+	MediaItemStatus_name = map[int32]string{
+		0: "UNSPECIFIED",
+		1: "PROCESSING",
+		2: "READY",
+		3: "FAILED",
+	}
+	MediaItemStatus_value = map[string]int32{
+		"UNSPECIFIED": 0,
+		"PROCESSING":  1,
+		"READY":       2,
+		"FAILED":      3,
+	}
+)
+
+func (x MediaItemStatus) Enum() *MediaItemStatus {
+	p := new(MediaItemStatus)
+	*p = x
+	return p
+}
+
+func (x MediaItemStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MediaItemStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_enumTypes[1].Descriptor()
+}
+
+func (MediaItemStatus) Type() protoreflect.EnumType {
+	return &file_api_proto_enumTypes[1]
+}
+
+func (x MediaItemStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MediaItemStatus.Descriptor instead.
+func (MediaItemStatus) EnumDescriptor() ([]byte, []int) {
+	return file_api_proto_rawDescGZIP(), []int{1}
+}
+
+type MediaItemType int32
+
+const (
+	MediaItemType_UNKNOWN MediaItemType = 0
+	MediaItemType_PHOTO   MediaItemType = 1
+	MediaItemType_VIDEO   MediaItemType = 2
+)
+
+// Enum value maps for MediaItemType.
+var (
+	MediaItemType_name = map[int32]string{
+		0: "UNKNOWN",
+		1: "PHOTO",
+		2: "VIDEO",
+	}
+	MediaItemType_value = map[string]int32{
+		"UNKNOWN": 0,
+		"PHOTO":   1,
+		"VIDEO":   2,
+	}
+)
+
+func (x MediaItemType) Enum() *MediaItemType {
+	p := new(MediaItemType)
+	*p = x
+	return p
+}
+
+func (x MediaItemType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MediaItemType) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_enumTypes[2].Descriptor()
+}
+
+func (MediaItemType) Type() protoreflect.EnumType {
+	return &file_api_proto_enumTypes[2]
+}
+
+func (x MediaItemType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MediaItemType.Descriptor instead.
+func (MediaItemType) EnumDescriptor() ([]byte, []int) {
+	return file_api_proto_rawDescGZIP(), []int{2}
+}
+
+type MediaItemCategory int32
+
+const (
+	MediaItemCategory_DEFAULT    MediaItemCategory = 0
+	MediaItemCategory_SCREENSHOT MediaItemCategory = 1
+	MediaItemCategory_PANORAMA   MediaItemCategory = 2
+	MediaItemCategory_SLOW       MediaItemCategory = 3
+	MediaItemCategory_MOTION     MediaItemCategory = 4
+	MediaItemCategory_LIVE       MediaItemCategory = 5
+	MediaItemCategory_TIMELAPSE  MediaItemCategory = 6
+)
+
+// Enum value maps for MediaItemCategory.
+var (
+	MediaItemCategory_name = map[int32]string{
+		0: "DEFAULT",
+		1: "SCREENSHOT",
+		2: "PANORAMA",
+		3: "SLOW",
+		4: "MOTION",
+		5: "LIVE",
+		6: "TIMELAPSE",
+	}
+	MediaItemCategory_value = map[string]int32{
+		"DEFAULT":    0,
+		"SCREENSHOT": 1,
+		"PANORAMA":   2,
+		"SLOW":       3,
+		"MOTION":     4,
+		"LIVE":       5,
+		"TIMELAPSE":  6,
+	}
+)
+
+func (x MediaItemCategory) Enum() *MediaItemCategory {
+	p := new(MediaItemCategory)
+	*p = x
+	return p
+}
+
+func (x MediaItemCategory) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (MediaItemCategory) Descriptor() protoreflect.EnumDescriptor {
+	return file_api_proto_enumTypes[3].Descriptor()
+}
+
+func (MediaItemCategory) Type() protoreflect.EnumType {
+	return &file_api_proto_enumTypes[3]
+}
+
+func (x MediaItemCategory) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use MediaItemCategory.Descriptor instead.
+func (MediaItemCategory) EnumDescriptor() ([]byte, []int) {
+	return file_api_proto_rawDescGZIP(), []int{3}
+}
+
 type ConfigResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Config        []byte                 `protobuf:"bytes,1,opt,name=config,proto3" json:"config,omitempty"`
@@ -207,10 +369,10 @@ type MediaItemMetadataRequest struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	UserId          string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	MediaItemId     string                 `protobuf:"bytes,2,opt,name=mediaItemId,proto3" json:"mediaItemId,omitempty"`
-	Status          string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	Status          MediaItemStatus        `protobuf:"varint,3,opt,name=status,proto3,enum=MediaItemStatus" json:"status,omitempty"`
 	MimeType        *string                `protobuf:"bytes,4,opt,name=mimeType,proto3,oneof" json:"mimeType,omitempty"`
-	Type            string                 `protobuf:"bytes,5,opt,name=type,proto3" json:"type,omitempty"`
-	Category        string                 `protobuf:"bytes,6,opt,name=category,proto3" json:"category,omitempty"`
+	Type            MediaItemType          `protobuf:"varint,5,opt,name=type,proto3,enum=MediaItemType" json:"type,omitempty"`
+	Category        MediaItemCategory      `protobuf:"varint,6,opt,name=category,proto3,enum=MediaItemCategory" json:"category,omitempty"`
 	Width           *int32                 `protobuf:"varint,7,opt,name=width,proto3,oneof" json:"width,omitempty"`
 	Height          *int32                 `protobuf:"varint,8,opt,name=height,proto3,oneof" json:"height,omitempty"`
 	CreationTime    *string                `protobuf:"bytes,9,opt,name=creationTime,proto3,oneof" json:"creationTime,omitempty"`
@@ -273,11 +435,11 @@ func (x *MediaItemMetadataRequest) GetMediaItemId() string {
 	return ""
 }
 
-func (x *MediaItemMetadataRequest) GetStatus() string {
+func (x *MediaItemMetadataRequest) GetStatus() MediaItemStatus {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return MediaItemStatus_UNSPECIFIED
 }
 
 func (x *MediaItemMetadataRequest) GetMimeType() string {
@@ -287,18 +449,18 @@ func (x *MediaItemMetadataRequest) GetMimeType() string {
 	return ""
 }
 
-func (x *MediaItemMetadataRequest) GetType() string {
+func (x *MediaItemMetadataRequest) GetType() MediaItemType {
 	if x != nil {
 		return x.Type
 	}
-	return ""
+	return MediaItemType_UNKNOWN
 }
 
-func (x *MediaItemMetadataRequest) GetCategory() string {
+func (x *MediaItemMetadataRequest) GetCategory() MediaItemCategory {
 	if x != nil {
 		return x.Category
 	}
-	return ""
+	return MediaItemCategory_DEFAULT
 }
 
 func (x *MediaItemMetadataRequest) GetWidth() int32 {
@@ -403,7 +565,7 @@ type MediaItemPreviewThumbnailRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        string                 `protobuf:"bytes,1,opt,name=userId,proto3" json:"userId,omitempty"`
 	MediaItemId   string                 `protobuf:"bytes,2,opt,name=mediaItemId,proto3" json:"mediaItemId,omitempty"`
-	Status        string                 `protobuf:"bytes,3,opt,name=status,proto3" json:"status,omitempty"`
+	Status        MediaItemStatus        `protobuf:"varint,3,opt,name=status,proto3,enum=MediaItemStatus" json:"status,omitempty"`
 	SourcePath    *string                `protobuf:"bytes,4,opt,name=sourcePath,proto3,oneof" json:"sourcePath,omitempty"`
 	PreviewPath   *string                `protobuf:"bytes,5,opt,name=previewPath,proto3,oneof" json:"previewPath,omitempty"`
 	ThumbnailPath *string                `protobuf:"bytes,6,opt,name=thumbnailPath,proto3,oneof" json:"thumbnailPath,omitempty"`
@@ -456,11 +618,11 @@ func (x *MediaItemPreviewThumbnailRequest) GetMediaItemId() string {
 	return ""
 }
 
-func (x *MediaItemPreviewThumbnailRequest) GetStatus() string {
+func (x *MediaItemPreviewThumbnailRequest) GetStatus() MediaItemStatus {
 	if x != nil {
 		return x.Status
 	}
-	return ""
+	return MediaItemStatus_UNSPECIFIED
 }
 
 func (x *MediaItemPreviewThumbnailRequest) GetSourcePath() string {
@@ -1136,14 +1298,14 @@ const file_api_proto_rawDesc = "" +
 	"\apayload\x18\x05 \x03(\v2&.MediaItemProcessResponse.PayloadEntryR\apayload\x1a:\n" +
 	"\fPayloadEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x8d\a\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xc3\a\n" +
 	"\x18MediaItemMetadataRequest\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12 \n" +
-	"\vmediaItemId\x18\x02 \x01(\tR\vmediaItemId\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12\x1f\n" +
-	"\bmimeType\x18\x04 \x01(\tH\x00R\bmimeType\x88\x01\x01\x12\x12\n" +
-	"\x04type\x18\x05 \x01(\tR\x04type\x12\x1a\n" +
-	"\bcategory\x18\x06 \x01(\tR\bcategory\x12\x19\n" +
+	"\vmediaItemId\x18\x02 \x01(\tR\vmediaItemId\x12(\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x10.MediaItemStatusR\x06status\x12\x1f\n" +
+	"\bmimeType\x18\x04 \x01(\tH\x00R\bmimeType\x88\x01\x01\x12\"\n" +
+	"\x04type\x18\x05 \x01(\x0e2\x0e.MediaItemTypeR\x04type\x12.\n" +
+	"\bcategory\x18\x06 \x01(\x0e2\x12.MediaItemCategoryR\bcategory\x12\x19\n" +
 	"\x05width\x18\a \x01(\x05H\x01R\x05width\x88\x01\x01\x12\x1b\n" +
 	"\x06height\x18\b \x01(\x05H\x02R\x06height\x88\x01\x01\x12'\n" +
 	"\fcreationTime\x18\t \x01(\tH\x03R\fcreationTime\x88\x01\x01\x12#\n" +
@@ -1179,11 +1341,11 @@ const file_api_proto_rawDesc = "" +
 	"\t_latitudeB\f\n" +
 	"\n" +
 	"_longitudeB\v\n" +
-	"\t_exifData\"\xd3\x02\n" +
+	"\t_exifData\"\xe5\x02\n" +
 	" MediaItemPreviewThumbnailRequest\x12\x16\n" +
 	"\x06userId\x18\x01 \x01(\tR\x06userId\x12 \n" +
-	"\vmediaItemId\x18\x02 \x01(\tR\vmediaItemId\x12\x16\n" +
-	"\x06status\x18\x03 \x01(\tR\x06status\x12#\n" +
+	"\vmediaItemId\x18\x02 \x01(\tR\vmediaItemId\x12(\n" +
+	"\x06status\x18\x03 \x01(\x0e2\x10.MediaItemStatusR\x06status\x12#\n" +
 	"\n" +
 	"sourcePath\x18\x04 \x01(\tH\x00R\n" +
 	"sourcePath\x88\x01\x01\x12%\n" +
@@ -1262,7 +1424,28 @@ const file_api_proto_rawDesc = "" +
 	"\x05FACES\x10\x04\x12\a\n" +
 	"\x03OCR\x10\x05\x12\n" +
 	"\n" +
-	"\x06SEARCH\x10\x062\xca\x06\n" +
+	"\x06SEARCH\x10\x06*I\n" +
+	"\x0fMediaItemStatus\x12\x0f\n" +
+	"\vUNSPECIFIED\x10\x00\x12\x0e\n" +
+	"\n" +
+	"PROCESSING\x10\x01\x12\t\n" +
+	"\x05READY\x10\x02\x12\n" +
+	"\n" +
+	"\x06FAILED\x10\x03*2\n" +
+	"\rMediaItemType\x12\v\n" +
+	"\aUNKNOWN\x10\x00\x12\t\n" +
+	"\x05PHOTO\x10\x01\x12\t\n" +
+	"\x05VIDEO\x10\x02*m\n" +
+	"\x11MediaItemCategory\x12\v\n" +
+	"\aDEFAULT\x10\x00\x12\x0e\n" +
+	"\n" +
+	"SCREENSHOT\x10\x01\x12\f\n" +
+	"\bPANORAMA\x10\x02\x12\b\n" +
+	"\x04SLOW\x10\x03\x12\n" +
+	"\n" +
+	"\x06MOTION\x10\x04\x12\b\n" +
+	"\x04LIVE\x10\x05\x12\r\n" +
+	"\tTIMELAPSE\x10\x062\xca\x06\n" +
 	"\x03API\x12<\n" +
 	"\x0fGetWorkerConfig\x12\x16.google.protobuf.Empty\x1a\x0f.ConfigResponse\"\x00\x12J\n" +
 	"\x13GetMediaItemProcess\x12\x16.google.protobuf.Empty\x1a\x19.MediaItemProcessResponse\"\x00\x12a\n" +
@@ -1288,67 +1471,74 @@ func file_api_proto_rawDescGZIP() []byte {
 	return file_api_proto_rawDescData
 }
 
-var file_api_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
+var file_api_proto_enumTypes = make([]protoimpl.EnumInfo, 4)
 var file_api_proto_msgTypes = make([]protoimpl.MessageInfo, 18)
 var file_api_proto_goTypes = []any{
 	(MediaItemComponent)(0),                  // 0: MediaItemComponent
-	(*ConfigResponse)(nil),                   // 1: ConfigResponse
-	(*MediaItemProcessResponse)(nil),         // 2: MediaItemProcessResponse
-	(*MediaItemMetadataRequest)(nil),         // 3: MediaItemMetadataRequest
-	(*MediaItemPreviewThumbnailRequest)(nil), // 4: MediaItemPreviewThumbnailRequest
-	(*MediaItemPlaceRequest)(nil),            // 5: MediaItemPlaceRequest
-	(*MediaItemThingRequest)(nil),            // 6: MediaItemThingRequest
-	(*MediaItemEmbedding)(nil),               // 7: MediaItemEmbedding
-	(*MediaItemFacesRequest)(nil),            // 8: MediaItemFacesRequest
-	(*MediaItemFinalResultRequest)(nil),      // 9: MediaItemFinalResultRequest
-	(*MediaItemFaceEmbeddingsRequest)(nil),   // 10: MediaItemFaceEmbeddingsRequest
-	(*MediaItemFaceEmbedding)(nil),           // 11: MediaItemFaceEmbedding
-	(*MediaItemFaceEmbeddingsResponse)(nil),  // 12: MediaItemFaceEmbeddingsResponse
-	(*UsersResponse)(nil),                    // 13: UsersResponse
-	(*MediaItemFacePeople)(nil),              // 14: MediaItemFacePeople
-	(*MediaItemPeopleRequest)(nil),           // 15: MediaItemPeopleRequest
-	nil,                                      // 16: MediaItemProcessResponse.PayloadEntry
-	nil,                                      // 17: MediaItemFacePeople.FacePeopleEntry
-	nil,                                      // 18: MediaItemPeopleRequest.MediaItemFacePeopleEntry
-	(*emptypb.Empty)(nil),                    // 19: google.protobuf.Empty
+	(MediaItemStatus)(0),                     // 1: MediaItemStatus
+	(MediaItemType)(0),                       // 2: MediaItemType
+	(MediaItemCategory)(0),                   // 3: MediaItemCategory
+	(*ConfigResponse)(nil),                   // 4: ConfigResponse
+	(*MediaItemProcessResponse)(nil),         // 5: MediaItemProcessResponse
+	(*MediaItemMetadataRequest)(nil),         // 6: MediaItemMetadataRequest
+	(*MediaItemPreviewThumbnailRequest)(nil), // 7: MediaItemPreviewThumbnailRequest
+	(*MediaItemPlaceRequest)(nil),            // 8: MediaItemPlaceRequest
+	(*MediaItemThingRequest)(nil),            // 9: MediaItemThingRequest
+	(*MediaItemEmbedding)(nil),               // 10: MediaItemEmbedding
+	(*MediaItemFacesRequest)(nil),            // 11: MediaItemFacesRequest
+	(*MediaItemFinalResultRequest)(nil),      // 12: MediaItemFinalResultRequest
+	(*MediaItemFaceEmbeddingsRequest)(nil),   // 13: MediaItemFaceEmbeddingsRequest
+	(*MediaItemFaceEmbedding)(nil),           // 14: MediaItemFaceEmbedding
+	(*MediaItemFaceEmbeddingsResponse)(nil),  // 15: MediaItemFaceEmbeddingsResponse
+	(*UsersResponse)(nil),                    // 16: UsersResponse
+	(*MediaItemFacePeople)(nil),              // 17: MediaItemFacePeople
+	(*MediaItemPeopleRequest)(nil),           // 18: MediaItemPeopleRequest
+	nil,                                      // 19: MediaItemProcessResponse.PayloadEntry
+	nil,                                      // 20: MediaItemFacePeople.FacePeopleEntry
+	nil,                                      // 21: MediaItemPeopleRequest.MediaItemFacePeopleEntry
+	(*emptypb.Empty)(nil),                    // 22: google.protobuf.Empty
 }
 var file_api_proto_depIdxs = []int32{
 	0,  // 0: MediaItemProcessResponse.components:type_name -> MediaItemComponent
-	16, // 1: MediaItemProcessResponse.payload:type_name -> MediaItemProcessResponse.PayloadEntry
-	7,  // 2: MediaItemFacesRequest.embeddings:type_name -> MediaItemEmbedding
-	7,  // 3: MediaItemFinalResultRequest.embeddings:type_name -> MediaItemEmbedding
-	7,  // 4: MediaItemFaceEmbedding.embedding:type_name -> MediaItemEmbedding
-	11, // 5: MediaItemFaceEmbeddingsResponse.mediaItemFaceEmbeddings:type_name -> MediaItemFaceEmbedding
-	17, // 6: MediaItemFacePeople.facePeople:type_name -> MediaItemFacePeople.FacePeopleEntry
-	18, // 7: MediaItemPeopleRequest.mediaItemFacePeople:type_name -> MediaItemPeopleRequest.MediaItemFacePeopleEntry
-	14, // 8: MediaItemPeopleRequest.MediaItemFacePeopleEntry.value:type_name -> MediaItemFacePeople
-	19, // 9: API.GetWorkerConfig:input_type -> google.protobuf.Empty
-	19, // 10: API.GetMediaItemProcess:input_type -> google.protobuf.Empty
-	10, // 11: API.GetMediaItemFaceEmbeddings:input_type -> MediaItemFaceEmbeddingsRequest
-	19, // 12: API.GetUsers:input_type -> google.protobuf.Empty
-	3,  // 13: API.SaveMediaItemMetadata:input_type -> MediaItemMetadataRequest
-	4,  // 14: API.SaveMediaItemPreviewThumbnail:input_type -> MediaItemPreviewThumbnailRequest
-	5,  // 15: API.SaveMediaItemPlace:input_type -> MediaItemPlaceRequest
-	6,  // 16: API.SaveMediaItemThing:input_type -> MediaItemThingRequest
-	8,  // 17: API.SaveMediaItemFaces:input_type -> MediaItemFacesRequest
-	15, // 18: API.SaveMediaItemPeople:input_type -> MediaItemPeopleRequest
-	9,  // 19: API.SaveMediaItemFinalResult:input_type -> MediaItemFinalResultRequest
-	1,  // 20: API.GetWorkerConfig:output_type -> ConfigResponse
-	2,  // 21: API.GetMediaItemProcess:output_type -> MediaItemProcessResponse
-	12, // 22: API.GetMediaItemFaceEmbeddings:output_type -> MediaItemFaceEmbeddingsResponse
-	13, // 23: API.GetUsers:output_type -> UsersResponse
-	19, // 24: API.SaveMediaItemMetadata:output_type -> google.protobuf.Empty
-	19, // 25: API.SaveMediaItemPreviewThumbnail:output_type -> google.protobuf.Empty
-	19, // 26: API.SaveMediaItemPlace:output_type -> google.protobuf.Empty
-	19, // 27: API.SaveMediaItemThing:output_type -> google.protobuf.Empty
-	19, // 28: API.SaveMediaItemFaces:output_type -> google.protobuf.Empty
-	19, // 29: API.SaveMediaItemPeople:output_type -> google.protobuf.Empty
-	19, // 30: API.SaveMediaItemFinalResult:output_type -> google.protobuf.Empty
-	20, // [20:31] is the sub-list for method output_type
-	9,  // [9:20] is the sub-list for method input_type
-	9,  // [9:9] is the sub-list for extension type_name
-	9,  // [9:9] is the sub-list for extension extendee
-	0,  // [0:9] is the sub-list for field type_name
+	19, // 1: MediaItemProcessResponse.payload:type_name -> MediaItemProcessResponse.PayloadEntry
+	1,  // 2: MediaItemMetadataRequest.status:type_name -> MediaItemStatus
+	2,  // 3: MediaItemMetadataRequest.type:type_name -> MediaItemType
+	3,  // 4: MediaItemMetadataRequest.category:type_name -> MediaItemCategory
+	1,  // 5: MediaItemPreviewThumbnailRequest.status:type_name -> MediaItemStatus
+	10, // 6: MediaItemFacesRequest.embeddings:type_name -> MediaItemEmbedding
+	10, // 7: MediaItemFinalResultRequest.embeddings:type_name -> MediaItemEmbedding
+	10, // 8: MediaItemFaceEmbedding.embedding:type_name -> MediaItemEmbedding
+	14, // 9: MediaItemFaceEmbeddingsResponse.mediaItemFaceEmbeddings:type_name -> MediaItemFaceEmbedding
+	20, // 10: MediaItemFacePeople.facePeople:type_name -> MediaItemFacePeople.FacePeopleEntry
+	21, // 11: MediaItemPeopleRequest.mediaItemFacePeople:type_name -> MediaItemPeopleRequest.MediaItemFacePeopleEntry
+	17, // 12: MediaItemPeopleRequest.MediaItemFacePeopleEntry.value:type_name -> MediaItemFacePeople
+	22, // 13: API.GetWorkerConfig:input_type -> google.protobuf.Empty
+	22, // 14: API.GetMediaItemProcess:input_type -> google.protobuf.Empty
+	13, // 15: API.GetMediaItemFaceEmbeddings:input_type -> MediaItemFaceEmbeddingsRequest
+	22, // 16: API.GetUsers:input_type -> google.protobuf.Empty
+	6,  // 17: API.SaveMediaItemMetadata:input_type -> MediaItemMetadataRequest
+	7,  // 18: API.SaveMediaItemPreviewThumbnail:input_type -> MediaItemPreviewThumbnailRequest
+	8,  // 19: API.SaveMediaItemPlace:input_type -> MediaItemPlaceRequest
+	9,  // 20: API.SaveMediaItemThing:input_type -> MediaItemThingRequest
+	11, // 21: API.SaveMediaItemFaces:input_type -> MediaItemFacesRequest
+	18, // 22: API.SaveMediaItemPeople:input_type -> MediaItemPeopleRequest
+	12, // 23: API.SaveMediaItemFinalResult:input_type -> MediaItemFinalResultRequest
+	4,  // 24: API.GetWorkerConfig:output_type -> ConfigResponse
+	5,  // 25: API.GetMediaItemProcess:output_type -> MediaItemProcessResponse
+	15, // 26: API.GetMediaItemFaceEmbeddings:output_type -> MediaItemFaceEmbeddingsResponse
+	16, // 27: API.GetUsers:output_type -> UsersResponse
+	22, // 28: API.SaveMediaItemMetadata:output_type -> google.protobuf.Empty
+	22, // 29: API.SaveMediaItemPreviewThumbnail:output_type -> google.protobuf.Empty
+	22, // 30: API.SaveMediaItemPlace:output_type -> google.protobuf.Empty
+	22, // 31: API.SaveMediaItemThing:output_type -> google.protobuf.Empty
+	22, // 32: API.SaveMediaItemFaces:output_type -> google.protobuf.Empty
+	22, // 33: API.SaveMediaItemPeople:output_type -> google.protobuf.Empty
+	22, // 34: API.SaveMediaItemFinalResult:output_type -> google.protobuf.Empty
+	24, // [24:35] is the sub-list for method output_type
+	13, // [13:24] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_api_proto_init() }
@@ -1364,7 +1554,7 @@ func file_api_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_proto_rawDesc), len(file_api_proto_rawDesc)),
-			NumEnums:      1,
+			NumEnums:      4,
 			NumMessages:   18,
 			NumExtensions: 0,
 			NumServices:   1,

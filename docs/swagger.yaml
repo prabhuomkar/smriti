@@ -1579,14 +1579,26 @@ components:
           readOnly: true
           type: string
           enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
+          example: READY
         mediaItemType:
           readOnly: true
           type: string
-          enum: ["photo", "video"]
+          enum: ["UNKNOWN", "PHOTO", "VIDEO"]
+          example: PHOTO
         mediaItemCategory:
           readOnly: true
           type: string
-          enum: ["default", "screenshot", "panorama", "slow", "motion", "live"]
+          enum:
+            [
+              "DEFAULT",
+              "SCREENSHOT",
+              "PANORAMA",
+              "SLOW",
+              "MOTION",
+              "LIVE",
+              "TIMELAPSE",
+            ]
+          example: SCREENSHOT
         width:
           readOnly: true
           type: integer

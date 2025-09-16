@@ -2,7 +2,6 @@ package service
 
 import (
 	"api/config"
-	"api/internal/models"
 	"api/pkg/services/api"
 	"api/pkg/storage"
 	"context"
@@ -29,8 +28,8 @@ import (
 
 var (
 	mimetype                     = "mimetype"
-	mediaitemType                = "photo"
-	mediaitemCategory            = "default"
+	mediaitemType                = api.MediaItemType_PHOTO.String()
+	mediaitemCategory            = api.MediaItemCategory_DEFAULT.String()
 	previewUrl                   = "preview_url"
 	sourceUrl                    = "source_url"
 	latitude                     = "latitude"
@@ -45,11 +44,11 @@ var (
 	sampleEmbedding              = pgvector.NewVector([]float32{0.42})
 	mediaItemResultRequest       = api.MediaItemMetadataRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		MimeType: &mimetype, Type: mediaitemType, Category: mediaitemCategory, Width: &width, Height: &height, CreationTime: &creationtime,
+		MimeType: &mimetype, Type: api.MediaItemType_PHOTO, Category: api.MediaItemCategory_DEFAULT, Width: &width, Height: &height, CreationTime: &creationtime,
 	}
 	mediaItemPreviewThumbnailRequest = api.MediaItemPreviewThumbnailRequest{
 		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		Status: string(models.StatusReady), Placeholder: &placeholder,
+		Status: api.MediaItemStatus_READY, Placeholder: &placeholder,
 	}
 	country            = "country"
 	postcode           = "postcode"
@@ -190,7 +189,7 @@ func TestGetMediaItemProcess(t *testing.T) {
 				Components:  []api.MediaItemComponent{api.MediaItemComponent_METADATA, api.MediaItemComponent_PLACES},
 				Payload: map[string]string{"category": mediaitemCategory, "latitude": "latitude",
 					"longitude": "longitude", "mime_type": "mimetype",
-					"preview_url": "preview_url", "source_url": "source_url", "type": "photo"},
+					"preview_url": "preview_url", "source_url": "source_url", "type": mediaitemType},
 			}, nil,
 		},
 	}

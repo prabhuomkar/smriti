@@ -70,7 +70,8 @@ TEST(PreviewThumbnailTest, Failure) {
   PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                     mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      previewthumbnail.Generate("", "", "", "", "photo");
+      previewthumbnail.Generate("", "", "", "",
+                                MediaItemType_Name(MediaItemType::PHOTO));
   assertPreviewThumbnailResult({{"status", "FAILED"}}, result);
 }
 
@@ -93,7 +94,8 @@ TEST(PreviewThumbnailTest, PhotoSuccess) {
   PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                     mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      previewthumbnail.Generate("", "", "", "", "photo");
+      previewthumbnail.Generate("", "", "", "",
+                                MediaItemType_Name(MediaItemType::PHOTO));
   assertPreviewThumbnailResult({{"preview_url", "path-kind"},
                                 {"thumbnail_url", "path-kind"},
                                 {"placeholder", "path-kind"},
@@ -120,7 +122,8 @@ TEST(PreviewThumbnailTest, VideoSuccess) {
   PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                     mock_api_client);
   std::unordered_map<std::string, std::string> result =
-      previewthumbnail.Generate("", "", "", "", "video");
+      previewthumbnail.Generate("", "", "", "",
+                                MediaItemType_Name(MediaItemType::VIDEO));
   assertPreviewThumbnailResult({{"preview_url", ""},
                                 {"thumbnail_url", "path-kind"},
                                 {"placeholder", "path-kind"},

@@ -496,7 +496,7 @@ func (h *Handler) queueMediaItemForProcessing(ctx context.Context, userID, media
 	if h.Config.Search && features.Explore {
 		components += ("," + api.MediaItemComponent_SEARCH.String())
 	}
-	_, err := h.DB.Exec(ctx, queryQueueMediaItem, userID, mediaItemID, components, models.StatusUnspecified)
+	_, err := h.DB.Exec(ctx, queryQueueMediaItem, userID, mediaItemID, components, api.MediaItemStatus_UNSPECIFIED)
 	if err != nil {
 		return err
 	}
@@ -541,9 +541,9 @@ func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {
 	mediaItem.ID = uuid.NewV4()
 	mediaItem.UserID = userID
 	mediaItem.Filename = fileName
-	mediaItem.MediaItemType = models.TypeUnknown
-	mediaItem.MediaItemCategory = models.CategoryDefault
-	mediaItem.Status = models.StatusUnspecified
+	mediaItem.MediaItemType = api.MediaItemType_UNKNOWN.String()
+	mediaItem.MediaItemCategory = api.MediaItemCategory_DEFAULT.String()
+	mediaItem.Status = api.MediaItemStatus_UNSPECIFIED.String()
 	mediaItem.CreatedAt = time.Now()
 	mediaItem.UpdatedAt = mediaItem.CreatedAt
 

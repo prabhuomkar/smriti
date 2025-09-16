@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"api/pkg/services/api"
 	"errors"
 	"image"
 	"image/color"
@@ -43,8 +44,8 @@ var (
 	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
-		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
-		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":true,"hidden":false,"deleted":false,"status":"READY",` +
+		`"mediaItemType":"PHOTO","mediaItemCategory":"DEFAULT","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
@@ -52,16 +53,16 @@ var (
 	mediaitemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
-		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":true,"hidden":false,"deleted":false,"status":"status",` +
-		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":true,"hidden":false,"deleted":false,"status":"READY",` +
+		`"mediaItemType":"PHOTO","mediaItemCategory":"DEFAULT","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
 		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
-		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":false,"hidden":true,"deleted":true,"status":"status",` +
-		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
+		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":false,"hidden":true,"deleted":true,"status":"READY",` +
+		`"mediaItemType":"VIDEO","mediaItemCategory":"DEFAULT","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
@@ -899,13 +900,16 @@ func TestUploadMediaItems(t *testing.T) {
 
 func getMockedMediaItemRow() *pgxmock.Rows {
 	return pgxmock.NewRows(mediaitemCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse,
+			api.MediaItemStatus_READY.String(), api.MediaItemType_PHOTO.String(), api.MediaItemCategory_DEFAULT.String(), 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemRows() *pgxmock.Rows {
 	return pgxmock.NewRows(mediaitemCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolFalse, &sampleBoolTrue, &sampleBoolTrue, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime)
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse,
+			api.MediaItemStatus_READY.String(), api.MediaItemType_PHOTO.String(), api.MediaItemCategory_DEFAULT.String(), 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime).
+		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolFalse, &sampleBoolTrue, &sampleBoolTrue,
+			api.MediaItemStatus_READY.String(), api.MediaItemType_VIDEO.String(), api.MediaItemCategory_DEFAULT.String(), 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemFile(t *testing.T) (*io.PipeReader, string) {

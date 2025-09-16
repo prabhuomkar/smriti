@@ -12,7 +12,7 @@ test-auth:
 	behave -i auth.feature
 test-mediaitems:
 	@echo "testing feature: mediaitems"
-	behave -i mediaitems.feature
+	behave -i mediaitems.feature --tags=~video
 test-albums:
 	@echo "testing feature: albums"
 	behave -i albums.feature

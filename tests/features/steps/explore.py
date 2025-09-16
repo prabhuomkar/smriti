@@ -52,11 +52,8 @@ def step_impl(context, type, condition):
 def step_impl(context, type):
     if type == 'place':
         assert len(context.places) == 1
-        assert context.places[0]['name'] == context.match_place['name']
-        assert context.places[0]['city'] == context.match_place['city']
-        assert context.places[0]['state'] == context.match_place['state']
-        assert context.places[0]['country'] == context.match_place['country']
-        assert context.places[0]['postcode'] == context.match_place['postcode']
+        for field in context.match_place:
+            assert context.places[0][field] == context.match_place[field]
     elif type == 'thing':
         assert len(context.things) == 1
         assert context.things[0]['name'] == context.match_thing['name']
@@ -67,11 +64,8 @@ def step_impl(context, type):
 @then('explored {type} is present {condition} cover mediaitem')
 def step_impl(context, type, condition):
     if type == 'place':
-        assert context.place['name'] == context.match_place['name']
-        assert context.place['city'] == context.match_place['city']
-        assert context.place['state'] == context.match_place['state']
-        assert context.place['country'] == context.match_place['country']
-        assert context.place['postcode'] == context.match_place['postcode']
+        for field in context.match_place:
+            assert context.places[0][field] == context.match_place[field]
         if condition == 'with':
             assert len(context.place['coverMediaItem'].items()) > 0
             assert 'id' in context.place['coverMediaItem'].keys()

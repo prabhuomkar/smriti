@@ -2,9 +2,9 @@ package handlers
 
 import (
 	"api/config"
-	"api/internal/models"
 	"api/pkg/cache"
 	"api/pkg/database"
+	"api/pkg/services/api"
 	"api/pkg/services/worker"
 	"errors"
 	"fmt"
@@ -77,12 +77,12 @@ func getMediaItemFilters(ctx echo.Context) string {
 	}
 	mediaItemStatus := ctx.QueryParam("status")
 	if mediaItemStatus != "" &&
-		(mediaItemStatus == string(models.StatusUnspecified) ||
-			mediaItemStatus == string(models.StatusReady) || mediaItemStatus == string(models.StatusProcessing) ||
-			mediaItemStatus == string(models.StatusFailed)) {
+		(mediaItemStatus == api.MediaItemStatus_UNSPECIFIED.String() ||
+			mediaItemStatus == api.MediaItemStatus_READY.String() || mediaItemStatus == api.MediaItemStatus_PROCESSING.String() ||
+			mediaItemStatus == api.MediaItemStatus_FAILED.String()) {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", mediaItemStatus)
 	} else {
-		filterQuery += fmt.Sprintf(" AND status = '%s'", string(models.StatusReady))
+		filterQuery += fmt.Sprintf(" AND status = '%s'", api.MediaItemStatus_READY.String())
 	}
 
 	return filterQuery

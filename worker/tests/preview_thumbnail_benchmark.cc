@@ -59,7 +59,8 @@ static void BM_PreviewThumbnailFailure(benchmark::State& state) { // NOLINT
     PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                       mock_api_client);
     std::unordered_map<std::string, std::string> output =
-        previewthumbnail.Generate("", "", "", "", "photo");
+        previewthumbnail.Generate("", "", "", "",
+                                  MediaItemType_Name(MediaItemType::PHOTO));
     benchmark::DoNotOptimize(output);
   }
 }
@@ -84,7 +85,8 @@ static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
     PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                       mock_api_client);
     std::unordered_map<std::string, std::string> output =
-        previewthumbnail.Generate("", "", "", "", "photo");
+        previewthumbnail.Generate("", "", "", "",
+                                  MediaItemType_Name(MediaItemType::PHOTO));
     benchmark::DoNotOptimize(output);
   }
 }
@@ -109,7 +111,8 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
     PreviewThumbnail previewthumbnail(mock_image_converter_client,
                                       mock_api_client);
     std::unordered_map<std::string, std::string> output =
-        previewthumbnail.Generate("", "", "", "", "video");
+        previewthumbnail.Generate("", "", "", "",
+                                  MediaItemType_Name(MediaItemType::VIDEO));
     benchmark::DoNotOptimize(output);
   }
 }
