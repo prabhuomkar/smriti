@@ -43,7 +43,7 @@ const (
 		` ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.id=$2`
 	queryGetAlbums = `SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
 		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems m` +
-		` ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.is_hidden=false AND is_shared=$2 ORDER BY a.%s` +
+		` ON a.cover_mediaitem_id=m.id WHERE a.user_id=$1 AND a.is_hidden=false AND a.is_shared=$2 ORDER BY a.%s` +
 		` OFFSET $3 LIMIT $4`
 	queryUpdateAlbum = `UPDATE albums SET name=$3, description=$4, is_shared=$5, is_hidden=$6,` +
 		` cover_mediaitem_id=$7, updated_at=$8 WHERE user_id=$1 AND id=$2`

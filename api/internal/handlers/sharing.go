@@ -13,10 +13,10 @@ import (
 
 const (
 	queryGetSharedAlbumMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM album_mediaitems` +
-		` WHERE shared = true AND album_id=$1) AND is_hidden = false AND is_deleted = false ORDER BY created_at DESC OFFSET $2 LIMIT $3`
+		` WHERE album_id=$1) AND is_hidden=false AND is_deleted=false ORDER BY created_at DESC OFFSET $2 LIMIT $3`
 	queryGetSharedAlbum = `SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
 		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems m` +
-		` ON a.cover_mediaitem_id=m.id WHERE a.shared = true AND a.id=$1`
+		` ON a.cover_mediaitem_id=m.id WHERE a.is_shared=true AND a.id=$1`
 )
 
 // GetSharedAlbumMediaItems ...
