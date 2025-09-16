@@ -768,7 +768,7 @@ func TestGetMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get mediaitems with 2 rows", http.MethodGet, "/v1/mediaItems", "/v1/mediaItems?type=photo&category=panorama", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitems with 2 rows", http.MethodGet, "/v1/mediaItems", "/v1/mediaItems?type=PHOTO&category=PANORAMA", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedMediaItemRows())

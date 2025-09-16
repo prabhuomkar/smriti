@@ -69,18 +69,21 @@ func getMediaItemFilters(ctx echo.Context) string {
 	filterQuery := ""
 	mediaItemType := ctx.QueryParam("type")
 	if mediaItemType != "" {
-		filterQuery += fmt.Sprintf(" AND mediaitem_type = '%s'", mediaItemType)
+		if _, ok := api.MediaItemType_value[mediaItemType]; ok {
+			filterQuery += fmt.Sprintf(" AND mediaitem_type = '%s'", mediaItemType)
+		}
 	}
 	mediaItemCategory := ctx.QueryParam("category")
 	if mediaItemCategory != "" {
-		filterQuery += fmt.Sprintf(" AND mediaitem_category = '%s'", mediaItemCategory)
+		if _, ok := api.MediaItemCategory_value[mediaItemCategory]; ok {
+			filterQuery += fmt.Sprintf(" AND mediaitem_category = '%s'", mediaItemCategory)
+		}
 	}
 	mediaItemStatus := ctx.QueryParam("status")
-	if mediaItemStatus != "" &&
-		(mediaItemStatus == api.MediaItemStatus_UNSPECIFIED.String() ||
-			mediaItemStatus == api.MediaItemStatus_READY.String() || mediaItemStatus == api.MediaItemStatus_PROCESSING.String() ||
-			mediaItemStatus == api.MediaItemStatus_FAILED.String()) {
-		filterQuery += fmt.Sprintf(" AND status = '%s'", mediaItemStatus)
+	if mediaItemStatus != "" {
+		if _, ok := api.MediaItemStatus_value[mediaItemStatus]; ok {
+			filterQuery += fmt.Sprintf(" AND status = '%s'", mediaItemStatus)
+		}
 	} else {
 		filterQuery += fmt.Sprintf(" AND status = '%s'", api.MediaItemStatus_READY.String())
 	}

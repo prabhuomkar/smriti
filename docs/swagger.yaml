@@ -141,19 +141,31 @@ paths:
           description: MediaItem Type
           schema:
             type: string
-            example: video
+            enum: ["UNKNOWN", "PHOTO", "VIDEO"]
+            example: PHOTO
         - name: category
           in: query
           description: MediaItem Category
           schema:
             type: string
-            example: live
+            enum:
+              [
+                "DEFAULT",
+                "SCREENSHOT",
+                "PANORAMA",
+                "SLOW",
+                "MOTION",
+                "LIVE",
+                "TIMELAPSE",
+              ]
+            example: SCREENSHOT
         - name: status
           in: query
           description: MediaItem Status
           schema:
             type: string
-            example: FAILED
+            enum: ["UNSPECIFIED", "PROCESSING", "READY", "FAILED"]
+            example: READY
       summary: Get all existing mediaItems
       description: Get all existing mediaItems
       operationId: getMediaItems
