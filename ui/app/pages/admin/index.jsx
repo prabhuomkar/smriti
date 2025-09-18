@@ -33,7 +33,7 @@ export default function Login() {
     <div className="min-h-screen flex items-center justify-center">
       <div className="w-full max-w-sm space-y-4 p-4">
         <div className="flex flex-row items-center justify-between">
-          <div className="smriti-dark-color text-lg font-medium align-center">
+          <div className="smriti-dark text-lg font-medium align-center">
             Admin Login
           </div>
           <div className="text-sm font-medium align-center">
@@ -71,26 +71,12 @@ export default function Login() {
             required
           />
           {error && (
-            <div className="text-red-500 bg-red-100 border border-red-300 p-2 rounded-md flex items-center space-x-2 justify-center">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-                strokeWidth={1.6}
-                stroke="currentColor"
-                className="size-6"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M12 9v3.75m9-.75a9 9 0 1 1-18 0 9 9 0 0 1 18 0Zm-9 3.75h.008v.008H12v-.008Z"
-                />
-              </svg>
+            <div className="smriti-error smriti-error-bg border smriti-error-border p-2 rounded-md flex items-center space-x-2 justify-center">
               <span>{error}</span>
             </div>
           )}
           <button
-            className="smriti-bg-color text-white p-2 mt-4 transition rounded-md"
+            className="smriti-bg text-white p-2 mt-4 transition rounded-md"
             type="submit"
             disabled={loading}
           >

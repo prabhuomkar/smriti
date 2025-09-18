@@ -5,22 +5,34 @@ body {
   font-family: "DM Sans", sans-serif;
 }
 
-.smriti-bg-color {
-  background-color: #0b81e0;
+.smriti-bg {
+  background-color: #0B81E0;
 }
 
 .smriti-bg-color:hover {
-  background-color: #288ce5;
+  background-color: #288CE5;
 }
 
 a {
-  color: #0b81e0;
+  color: #0B81E0;
 }
 
 a:hover {
-  color: #288ce5;
+  color: #288CE5;
 }
 
-.smriti-dark-color {
-  color: #465070;
+.smriti-dark {
+  color: #3d464d;
+}
+
+.smriti-error-bg {
+  background-color: #FAD3D7;
+}
+
+.smriti-error {
+  color: #D0021B
+}
+
+.smriti-error-border {
+  border-color: #DD5F6E
 }
