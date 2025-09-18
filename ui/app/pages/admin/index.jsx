@@ -76,13 +76,14 @@ export default function Login() {
             </div>
           )}
           <button
-            className="smriti-bg text-white p-2 mt-4 transition rounded-md"
+            className="smriti text-white p-2 mt-4 transition rounded-md"
             type="submit"
             disabled={loading}
           >
             {loading ? "Logging in..." : "Login"}
           </button>
         </form>
+        <img src="img/one.png" width="100%" alt="Smriti" />
       </div>
     </div>
   );
