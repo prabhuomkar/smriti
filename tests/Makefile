@@ -49,3 +49,5 @@ clear:
 	@sudo rm -rf ../storage/previews/*
 	@sudo rm -rf ../storage/thumbnails/*
 	@sudo find ../storage/* -maxdepth 0 ! -name 'originals' ! -name 'previews' ! -name 'thumbnails' -exec rm -rf {} +
+help:
+	@grep -E '^[a-zA-Z0-9_.-]+:' Makefile | cut -d: -f1 | sort -u
