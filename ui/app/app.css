@@ -6,21 +6,21 @@ body {
 }
 
 .smriti-bg-color {
-  background-color: #0064e0;
+  background-color: #0b81e0;
 }
 
 .smriti-bg-color:hover {
-  background-color: #005fd5;
+  background-color: #288ce5;
 }
 
 a {
-  color: #0064e0;
+  color: #0b81e0;
 }
 
 a:hover {
-  color: #005fd5;
+  color: #288ce5;
 }
 
 .smriti-dark-color {
-  color: #071320;
+  color: #465070;
 }

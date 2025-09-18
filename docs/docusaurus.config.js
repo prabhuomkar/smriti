@@ -48,7 +48,7 @@ const config = {
         id: 'wip',
         content:
           'Currently under active development, check out <a href="/docs/dev-guide/contribution">Contributing Guide</a>',
-        backgroundColor: '#071320',
+        backgroundColor: '#9d8cfd',
         textColor: '#ffffff',
         isCloseable: false,
       },

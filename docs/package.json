@@ -1,6 +1,6 @@
 {
   "name": "smriti",
-  "version": "24.06.24",
+  "version": "25.09.30",
   "private": true,
   "scripts": {
     "docusaurus": "docusaurus",
