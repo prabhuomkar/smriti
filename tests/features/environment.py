@@ -2,10 +2,8 @@ import psycopg2
 import time
 
 
-ALL_TABLES = ['queue', 'thing_mediaitems', 'place_mediaitems',
-              'people_mediaitems', 'album_mediaitems',
-              'things', 'places', 'people', 'albums',
-              'mediaitem_embeddings', 'mediaitem_faces', 'jobs', 'mediaitems', 'users']
+ALL_TABLES = ['queue', 'place_mediaitems', 'people_mediaitems', 'album_mediaitems', 'places', 'people', 
+              'albums', 'mediaitem_embeddings', 'mediaitem_faces', 'jobs', 'mediaitems', 'users']
 
 def before_feature(context, feature):
     cleanup_tables()

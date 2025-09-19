@@ -8,7 +8,7 @@ ADMIN_PASSWORD = 'smritiT3st!'
 CREATED_USER = {
     'default': {
         'name': 'John Doe', 'username': 'johndoe', 'password': 'johndoeT3st!','features':'{"albums":true,'+
-        '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
+        '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,'+
         '"people":true,"sharing":true}'
     },
     'jobs': {
@@ -19,12 +19,12 @@ CREATED_USER = {
 UPDATED_USER = {
     'default': {
         'name': 'UpdatedJohn Doe', 'username': 'updatedjohndoe', 'password': 'updatedjohndoeT3st!','features':'{"albums"'+
-        ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"things":true,'+
+        ':true,"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,'+
         '"people":true,"sharing":true}'
     },
     'jobs': {
         'name': 'Steve Updated Jobs', 'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,'+
-        '"explore":true,"places":true,"things":true,"people":true,"sharing":true,"jobs":true}'
+        '"explore":true,"places":true,"people":true,"sharing":true,"jobs":true}'
     }
 }
 
@@ -48,8 +48,6 @@ UPDATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/he
                      'description': None, 'favourite': False, 'hidden': False}}
 
 CREATED_PLACE = {'name': 'Mumbai', 'area': 'Zone 3', 'locality': 'Mumbai', 'postcode': '400050', 'country': 'India'}
-
-CREATED_THING = {'name': 'Pizza'}
 
 FILES_TO_SKIP = ['3839-samsung - sm-g973u - 16bit (2.1132075471698).dng', '1087-leica - leica m monochrom (typ 246) - 12bit (3:2).dng',
                  '672-pentax - pentax optio s4.raw', '778-xiaomi - yi.raw', '3896-phase one - iq4 150mp - unknown (8) (4:3).iiq',

@@ -145,25 +145,6 @@ TEST_F(APIClientTest, SaveMediaItemPlaceFailure) {
   EXPECT_FALSE(ok);
 }
 
-TEST_F(APIClientTest, SaveMediaItemThingSuccess) {
-  EXPECT_CALL(*mock_stub_, SaveMediaItemThing(_, _, _))
-      .WillOnce(
-          Invoke([&](grpc::ClientContext*, const MediaItemThingRequest&,
-                     google::protobuf::Empty*) { return grpc::Status::OK; }));
-  MediaItemThingRequest request;
-  bool ok = client_->SaveMediaItemThing(request);
-  EXPECT_TRUE(ok);
-}
-
-TEST_F(APIClientTest, SaveMediaItemThingFailure) {
-  EXPECT_CALL(*mock_stub_, SaveMediaItemThing(_, _, _))
-      .WillOnce(Return(
-          grpc::Status(grpc::StatusCode::UNAVAILABLE, "Service unavailable")));
-  MediaItemThingRequest request;
-  bool ok = client_->SaveMediaItemThing(request);
-  EXPECT_FALSE(ok);
-}
-
 TEST_F(APIClientTest, SaveMediaItemFacesSuccess) {
   EXPECT_CALL(*mock_stub_, SaveMediaItemFaces(_, _, _))
       .WillOnce(

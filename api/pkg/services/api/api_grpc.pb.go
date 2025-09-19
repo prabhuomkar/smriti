@@ -27,7 +27,6 @@ const (
 	API_SaveMediaItemMetadata_FullMethodName         = "/API/SaveMediaItemMetadata"
 	API_SaveMediaItemPreviewThumbnail_FullMethodName = "/API/SaveMediaItemPreviewThumbnail"
 	API_SaveMediaItemPlace_FullMethodName            = "/API/SaveMediaItemPlace"
-	API_SaveMediaItemThing_FullMethodName            = "/API/SaveMediaItemThing"
 	API_SaveMediaItemFaces_FullMethodName            = "/API/SaveMediaItemFaces"
 	API_SaveMediaItemPeople_FullMethodName           = "/API/SaveMediaItemPeople"
 	API_SaveMediaItemFinalResult_FullMethodName      = "/API/SaveMediaItemFinalResult"
@@ -44,7 +43,6 @@ type APIClient interface {
 	SaveMediaItemMetadata(ctx context.Context, in *MediaItemMetadataRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemPreviewThumbnail(ctx context.Context, in *MediaItemPreviewThumbnailRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
-	SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemFaces(ctx context.Context, in *MediaItemFacesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemPeople(ctx context.Context, in *MediaItemPeopleRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 	SaveMediaItemFinalResult(ctx context.Context, in *MediaItemFinalResultRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
@@ -128,16 +126,6 @@ func (c *aPIClient) SaveMediaItemPlace(ctx context.Context, in *MediaItemPlaceRe
 	return out, nil
 }
 
-func (c *aPIClient) SaveMediaItemThing(ctx context.Context, in *MediaItemThingRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
-	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(emptypb.Empty)
-	err := c.cc.Invoke(ctx, API_SaveMediaItemThing_FullMethodName, in, out, cOpts...)
-	if err != nil {
-		return nil, err
-	}
-	return out, nil
-}
-
 func (c *aPIClient) SaveMediaItemFaces(ctx context.Context, in *MediaItemFacesRequest, opts ...grpc.CallOption) (*emptypb.Empty, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(emptypb.Empty)
@@ -179,7 +167,6 @@ type APIServer interface {
 	SaveMediaItemMetadata(context.Context, *MediaItemMetadataRequest) (*emptypb.Empty, error)
 	SaveMediaItemPreviewThumbnail(context.Context, *MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error)
 	SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*emptypb.Empty, error)
-	SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*emptypb.Empty, error)
 	SaveMediaItemFaces(context.Context, *MediaItemFacesRequest) (*emptypb.Empty, error)
 	SaveMediaItemPeople(context.Context, *MediaItemPeopleRequest) (*emptypb.Empty, error)
 	SaveMediaItemFinalResult(context.Context, *MediaItemFinalResultRequest) (*emptypb.Empty, error)
@@ -213,9 +200,6 @@ func (UnimplementedAPIServer) SaveMediaItemPreviewThumbnail(context.Context, *Me
 }
 func (UnimplementedAPIServer) SaveMediaItemPlace(context.Context, *MediaItemPlaceRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemPlace not implemented")
-}
-func (UnimplementedAPIServer) SaveMediaItemThing(context.Context, *MediaItemThingRequest) (*emptypb.Empty, error) {
-	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemThing not implemented")
 }
 func (UnimplementedAPIServer) SaveMediaItemFaces(context.Context, *MediaItemFacesRequest) (*emptypb.Empty, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SaveMediaItemFaces not implemented")
@@ -373,24 +357,6 @@ func _API_SaveMediaItemPlace_Handler(srv interface{}, ctx context.Context, dec f
 	return interceptor(ctx, in, info, handler)
 }
 
-func _API_SaveMediaItemThing_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(MediaItemThingRequest)
-	if err := dec(in); err != nil {
-		return nil, err
-	}
-	if interceptor == nil {
-		return srv.(APIServer).SaveMediaItemThing(ctx, in)
-	}
-	info := &grpc.UnaryServerInfo{
-		Server:     srv,
-		FullMethod: API_SaveMediaItemThing_FullMethodName,
-	}
-	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(APIServer).SaveMediaItemThing(ctx, req.(*MediaItemThingRequest))
-	}
-	return interceptor(ctx, in, info, handler)
-}
-
 func _API_SaveMediaItemFaces_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(MediaItemFacesRequest)
 	if err := dec(in); err != nil {
@@ -479,10 +445,6 @@ var API_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SaveMediaItemPlace",
 			Handler:    _API_SaveMediaItemPlace_Handler,
-		},
-		{
-			MethodName: "SaveMediaItemThing",
-			Handler:    _API_SaveMediaItemThing_Handler,
 		},
 		{
 			MethodName: "SaveMediaItemFaces",

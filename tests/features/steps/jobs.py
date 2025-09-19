@@ -72,13 +72,11 @@ def step_impl(context, component):
     headers = {'Authorization': f'Bearer {context.access_token}'}
     res = requests.get(API_URL+'/v1/mediaItems/'+context.mediaitem_id+'/'+component, headers=headers)
     context.response = res
-    context.mediaitem_things = res.json()
+    context.mediaitem_component[component] = res.json()
 
 @then('job mediaitem related {component} are {condition} in list')
 def step_impl(context, component, condition):
-    data = context.mediaitem_things if component == 'things' else \
-            context.mediaitem_people if component == 'people' else \
-            context.mediaitem_places if component == 'places' else []
+    data = context.mediaitem_component[component] if component in context.mediaitem_component else [] 
     if condition == 'absent':
         assert len(data) == 0
     else:

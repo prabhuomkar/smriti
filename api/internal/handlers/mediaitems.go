@@ -36,10 +36,6 @@ const (
 		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems m ON p.cover_mediaitem_id=m.id` +
 		` WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT place_id FROM place_mediaitems` +
 		` WHERE mediaitem_id=$2) ORDER BY p.created_at DESC`
-	queryGetMediaItemThings = `SELECT t.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
-		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM things t LEFT JOIN mediaitems m ON t.cover_mediaitem_id=m.id` +
-		` WHERE t.user_id=$1 AND t.is_hidden=false AND t.id IN (SELECT thing_id FROM thing_mediaitems` +
-		` WHERE mediaitem_id=$2) ORDER BY t.created_at DESC`
 	queryGetMediaItemPeople = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
 		` WHERE p.user_id=$1 AND p.is_hidden=false AND p.id IN (SELECT people_id FROM people_mediaitems` +
 		` WHERE mediaitem_id=$2) ORDER BY p.created_at DESC`
@@ -55,14 +51,11 @@ const (
 		` %s ORDER BY created_at DESC OFFSET $2 LIMIT $3`
 	queryGetPlaceNewCoverMediaItem = `SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems pm` +
 		` JOIN places p ON p.id = pm.place_id WHERE p.user_id=$1 AND p.cover_mediaitem_id=$2 AND pm.mediaitem_id!=$2`
-	queryGetThingNewCoverMediaItem = `SELECT DISTINCT ON (tm.thing_id) tm.thing_id, tm.mediaitem_id FROM thing_mediaitems tm` +
-		` JOIN things t ON t.id = tm.thing_id WHERE t.user_id=$1 AND t.cover_mediaitem_id=$2 AND tm.mediaitem_id!=$2`
 	queryGetPeopleNewCoverMediaItem = `SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems pm` +
 		` JOIN people p ON p.id = pm.people_id WHERE p.user_id=$1 AND p.cover_mediaitem_id=$2 AND pm.mediaitem_id!=$2`
 	queryGetAlbumNewCoverMediaItem = `SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems am` +
 		` JOIN albums a ON a.id = am.album_id WHERE a.user_id=$1 AND a.cover_mediaitem_id=$2 AND am.mediaitem_id!=$2`
 	queryUpdatePlaceCoverMediaItem  = `UPDATE places SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
-	queryUpdateThingCoverMediaItem  = `UPDATE things SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryUpdateAlbumCoverMediaItem  = `UPDATE albums SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryUpdatePeopleCoverMediaItem = `UPDATE people SET cover_mediaitem_id = $3 WHERE user_id = $1 AND id = $2`
 	queryInsertMediaItem            = `INSERT INTO mediaitems (id, user_id, filename, mediaitem_type, mediaitem_category,` +
@@ -114,37 +107,6 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	}
 
 	return ctx.JSON(http.StatusOK, places)
-}
-
-// GetMediaItemThings ...
-func (h *Handler) GetMediaItemThings(ctx echo.Context) error {
-	userID := getRequestingUserID(ctx)
-	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
-	if err != nil {
-		slog.Error("error getting mediaitem id", "error", err)
-
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid mediaitem id")
-	}
-	things := []models.Thing{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetMediaItemThings, userID, uid)
-	if err != nil {
-		slog.Error("error getting mediaitem things", "error", err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	defer rows.Close()
-	for rows.Next() {
-		thing, err := models.ScanRowsToThing(rows)
-		if err != nil {
-			slog.Error("error scanning mediaitem thing", "error", err)
-
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-		things = append(things, thing)
-	}
-
-	return ctx.JSON(http.StatusOK, things)
 }
 
 // GetMediaItemPeople ...
@@ -227,7 +189,7 @@ func (h *Handler) GetMediaItem(ctx echo.Context) error {
 		&mediaItem.MediaItemCategory, &mediaItem.Width, &mediaItem.Height, &mediaItem.CreationTime,
 		&mediaItem.CameraMake, &mediaItem.CameraModel, &mediaItem.FocalLength, &mediaItem.ApertureFnumber,
 		&mediaItem.IsoEquivalent, &mediaItem.ExposureTime, &mediaItem.Megapixels, &mediaItem.Latitude,
-		&mediaItem.Longitude, &mediaItem.FPS, &mediaItem.EXIFData, &mediaItem.Keywords,
+		&mediaItem.Longitude, &mediaItem.FPS, &mediaItem.EXIFData, &mediaItem.DetectedText, &mediaItem.Caption,
 		&mediaItem.CreatedAt, &mediaItem.UpdatedAt)
 	if err != nil {
 		if errors.Is(err, pgx.ErrNoRows) {
@@ -295,13 +257,13 @@ func (h *Handler) DeleteMediaItem(ctx echo.Context) error {
 
 func (h *Handler) updateCoverMediaItems(ctx context.Context, userID, mediaItemID uuid.UUID) error {
 	var (
-		entities         = []string{"album", "place", "thing", "people"}
+		entities         = []string{"album", "place", "people"}
 		entityGetQueries = []string{
-			queryGetAlbumNewCoverMediaItem, queryGetPlaceNewCoverMediaItem, queryGetThingNewCoverMediaItem,
+			queryGetAlbumNewCoverMediaItem, queryGetPlaceNewCoverMediaItem,
 			queryGetPeopleNewCoverMediaItem,
 		}
 		entityUpdateQueries = []string{
-			queryUpdateAlbumCoverMediaItem, queryUpdatePlaceCoverMediaItem, queryUpdateThingCoverMediaItem,
+			queryUpdateAlbumCoverMediaItem, queryUpdatePlaceCoverMediaItem,
 			queryUpdatePeopleCoverMediaItem,
 		}
 		err error
@@ -482,13 +444,10 @@ func (h *Handler) saveToDisk(ctx context.Context, userID, mediaItemID string, fe
 	return nil
 }
 
-func (h *Handler) queueMediaItemForProcessing(ctx context.Context, userID, mediaItemID string, features models.Features) error { //nolint: cyclop
+func (h *Handler) queueMediaItemForProcessing(ctx context.Context, userID, mediaItemID string, features models.Features) error {
 	components := fmt.Sprintf("%s,%s", api.MediaItemComponent_METADATA.String(), api.MediaItemComponent_PREVIEW_THUMBNAIL.String())
 	if h.Config.ML.Places && features.Places {
 		components += ("," + api.MediaItemComponent_PLACES.String())
-	}
-	if h.Config.Classification && features.Things {
-		components += ("," + api.MediaItemComponent_CLASSIFICATION.String())
 	}
 	if h.Config.Faces && features.People {
 		components += ("," + api.MediaItemComponent_FACES.String())

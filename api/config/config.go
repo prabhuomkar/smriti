@@ -66,8 +66,6 @@ type ( // Log ...
 		Search                 bool   `envconfig:"SMRITI_ML_SEARCH"                   default:"true"`
 		Faces                  bool   `envconfig:"SMRITI_ML_FACES"                    default:"true"`
 		PlacesProvider         string `envconfig:"SMRITI_ML_PLACES_PROVIDER"          default:"openstreetmap"`
-		ClassificationProvider string `envconfig:"SMRITI_ML_CLASSIFICATION_PROVIDER"  default:"pytorch"`
-		ClassificationParams   string `envconfig:"SMRITI_ML_CLASSIFICATION_PARAMS"    default:"{\"file\":\"classification_v240624.pt\"}"`
 		OCRProvider            string `envconfig:"SMRITI_ML_OCR_PROVIDER"             default:"paddlepaddle"`
 		OCRParams              string `envconfig:"SMRITI_ML_OCR_PARAMS"               default:"{\"det_model_dir\":\"det_onnx\",\"rec_model_dir\":\"rec_onnx\",\"cls_model_dir\":\"cls_onnx\"}"` //nolint:lll
 		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER"          default:"pytorch"`
@@ -85,7 +83,6 @@ type ( // Log ...
 		Albums     bool `envconfig:"SMRITI_FEATURE_ALBUMS"     default:"true"`
 		Explore    bool `envconfig:"SMRITI_FEATURE_EXPLORE"    default:"true"`
 		Places     bool `envconfig:"SMRITI_FEATURE_PLACES"     default:"true"`
-		Things     bool `envconfig:"SMRITI_FEATURE_THINGS"     default:"true"`
 		People     bool `envconfig:"SMRITI_FEATURE_PEOPLE"     default:"true"`
 		Sharing    bool `envconfig:"SMRITI_FEATURE_SHARING"    default:"true"`
 		Jobs       bool `envconfig:"SMRITI_FEATURE_JOBS"       default:"true"`

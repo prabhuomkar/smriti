@@ -15,15 +15,18 @@ var (
 func TestGetFeatures(t *testing.T) {
 	features := GetFeatures(&config.Config{})
 	assert.Equal(t, &Features{
-		Albums: falseVal, Favourites: falseVal, Hidden: falseVal, Trash: falseVal, Explore: falseVal, Places: falseVal, People: falseVal, Things: falseVal, Sharing: falseVal,
+		Albums: falseVal, Favourites: falseVal, Hidden: falseVal, Trash: falseVal,
+		Explore: falseVal, Places: falseVal, People: falseVal, Sharing: falseVal,
 	}, features)
 
 	features = GetFeatures(&config.Config{
 		Feature: config.Feature{
-			Albums: true, Favourites: true, Hidden: true, Trash: true, Explore: true, Places: true, People: true, Things: true, Sharing: true,
+			Albums: true, Favourites: true, Hidden: true, Trash: true, Explore: true,
+			Places: true, People: true, Sharing: true,
 		},
 	})
 	assert.Equal(t, &Features{
-		Albums: trueVal, Favourites: trueVal, Hidden: trueVal, Trash: trueVal, Explore: trueVal, Places: trueVal, People: trueVal, Things: trueVal, Sharing: trueVal,
+		Albums: trueVal, Favourites: trueVal, Hidden: trueVal, Trash: trueVal,
+		Explore: trueVal, Places: trueVal, People: trueVal, Sharing: trueVal,
 	}, features)
 }

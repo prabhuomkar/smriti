@@ -91,12 +91,6 @@ message MediaItemPlaceRequest {
   optional string area = 6;      // suburb, road, neighbourhood
 }
 
-message MediaItemThingRequest {
-  string userId = 1;
-  string mediaItemId = 2;
-  string name = 3;
-}
-
 message MediaItemEmbedding {
   repeated float embedding = 1;
 }
@@ -112,8 +106,9 @@ message MediaItemFinalResultRequest {
   string id = 1;
   string userId = 2;
   string mediaItemId = 3;
-  string keywords = 4;
-  repeated MediaItemEmbedding embeddings = 5;
+  string detectedText = 4;
+  string caption = 5;
+  repeated MediaItemEmbedding embeddings = 6;
 }
 
 message MediaItemFaceEmbeddingsRequest {
@@ -156,8 +151,6 @@ service API {
   rpc SaveMediaItemPreviewThumbnail(MediaItemPreviewThumbnailRequest)
       returns (google.protobuf.Empty) {}
   rpc SaveMediaItemPlace(MediaItemPlaceRequest)
-      returns (google.protobuf.Empty) {}
-  rpc SaveMediaItemThing(MediaItemThingRequest)
       returns (google.protobuf.Empty) {}
   rpc SaveMediaItemFaces(MediaItemFacesRequest)
       returns (google.protobuf.Empty) {}

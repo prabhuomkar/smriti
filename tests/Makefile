@@ -22,9 +22,6 @@ test-library:
 test-places:
 	@echo "testing feature: places"
 	behave -i places.feature
-test-things:
-	@echo "testing feature: things"
-	behave -i things.feature
 test-people:
 	@echo "testing feature: people"
 	behave -i people.feature

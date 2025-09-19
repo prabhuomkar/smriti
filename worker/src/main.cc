@@ -80,10 +80,6 @@ int main(int argc, char** argv) {
       Magick::InitializeMagick(*argv);
       previewthumbnail_component =
           components::previewthumbnail::Init(config, api_client);
-    } else if (name ==
-               MediaItemComponent_Name(MediaItemComponent::CLASSIFICATION)) {
-      // TODO(omkar): initialize this component
-
     } else if (name == MediaItemComponent_Name(MediaItemComponent::FACES)) {
       // TODO(omkar): initialize this component
 

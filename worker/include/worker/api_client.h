@@ -23,7 +23,6 @@ class APIClient {
   bool SaveMediaItemPreviewThumbnail(
       const MediaItemPreviewThumbnailRequest& request);
   bool SaveMediaItemPlace(const MediaItemPlaceRequest& request);
-  bool SaveMediaItemThing(const MediaItemThingRequest& request);
   bool SaveMediaItemFaces(const MediaItemFacesRequest& request);
   bool SaveMediaItemPeople(const MediaItemPeopleRequest& request);
   bool SaveMediaItemFinalResult(const MediaItemFinalResultRequest& request);

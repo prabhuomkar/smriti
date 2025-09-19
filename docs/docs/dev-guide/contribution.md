@@ -1,7 +1,9 @@
 # Contributing Guide
 
 ## Development
+
 Here are some best practices we expect developers to follow:
+
 - Write code that is easy to read and modify.
 - Use consistent coding standards for naming and formatting.
 - Break up large change requests into smaller, manageable ones.
@@ -10,6 +12,7 @@ Here are some best practices we expect developers to follow:
 - Continuously improve the project with new features and bug fixes.
 
 ## Pull Request Checklist
+
 - Followed the style guidelines of this project
 - Performed self-review of my code
 - Commented the code, particularly in hard-to-understand areas
@@ -24,29 +27,39 @@ Here are some best practices we expect developers to follow:
 ### Unit Testing
 
 #### API
+
 - Run unit tests
+
 ```
 make test
 ```
+
 - See code coverage
+
 ```
 make cover
 ```
-- Adding new unit tests  
+
+- Adding new unit tests
   - New files/functions should have test cases in their respective `*_test.go` file in the same package.
   - Tests should have both positive and negative cases with mocking if required.
   - Check `api/internal/handlers/albums_test.go` as reference for adding unit tests.
 
 #### Worker
+
 - Run unit tests
+
 ```
 make test
 ```
+
 - See code coverage
+
 ```
 make cover
 ```
-- Adding new unit tests  
+
+- Adding new unit tests
   - New files/functions should have test cases in their respective `test_*.py` file in the `pyworker/tests` directory.
   - Tests should have both positive and negative cases with mocking if required.
   - Check `pyworker/tests/components/test_place.py` as reference for adding unit tests.
@@ -54,15 +67,21 @@ make cover
 ### Integration Testing
 
 #### Setup
+
 - From the root directory of the project, run all services:
+
 ```
 make start
 ```
+
 - From `tests` folder, run following command to setup the test suite:
+
 ```
 make setup
 ```
+
 - From `tests` folder, run the command for invoking integration tests for all features:
+
 ```
 make test-all
 ```

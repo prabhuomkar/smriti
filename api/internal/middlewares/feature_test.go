@@ -33,13 +33,17 @@ var (
 func TestFeatureCheckForbidden(t *testing.T) {
 	// handler
 	cfg := &config.Config{Feature: config.Feature{
-		Albums: false, Favourites: false, Hidden: false, Trash: false, Explore: false, Places: false, Things: false, People: false, Sharing: false, Jobs: false,
+		Albums: false, Favourites: false, Hidden: false, Trash: false, Explore: false, Places: false,
+		People: false, Sharing: false, Jobs: false,
 	}}
 	handler := &handlers.Handler{
 		Config: cfg, DB: nil,
 	}
 	featureHandlerMap := map[string]interface{}{
-		"albums": handler.GetAlbums, "favourites": handler.GetFavouriteMediaItems, "hidden": handler.GetHiddenMediaItems, "trash": handler.GetDeletedMediaItems, "explore": handler.GetPlaces, "places": handler.GetPlaces, "things": handler.GetThings, "people": handler.GetPeople, "jobs": handler.GetJobs,
+		"albums": handler.GetAlbums, "favourites": handler.GetFavouriteMediaItems,
+		"hidden": handler.GetHiddenMediaItems, "trash": handler.GetDeletedMediaItems,
+		"explore": handler.GetPlaces, "places": handler.GetPlaces,
+		"people": handler.GetPeople, "jobs": handler.GetJobs,
 	}
 	for feature, handler := range featureHandlerMap {
 		// test

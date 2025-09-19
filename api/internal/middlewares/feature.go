@@ -21,7 +21,6 @@ func FeatureCheck(cfg *config.Config, feature string) echo.MiddlewareFunc {
 				(feature == "albums" && cfg.Albums && features.Albums) ||
 				(feature == "explore" && cfg.Explore && features.Explore) ||
 				(feature == "places" && cfg.Feature.Places && features.Places) ||
-				(feature == "things" && cfg.Things && features.Things) ||
 				(feature == "people" && cfg.People && features.People) ||
 				(feature == "jobs" && cfg.Jobs && features.Jobs) ||
 				(feature == "sharing" && cfg.Sharing) {

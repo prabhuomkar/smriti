@@ -79,7 +79,8 @@ CREATE TABLE mediaitems (
     longitude numeric,
     fps text,
     exif_data text,
-    keywords text,
+    detected_text text,
+    caption text,
     created_at timestamp with time zone,
     updated_at timestamp with time zone
 );
@@ -113,21 +114,6 @@ CREATE TABLE places (
     country text,
     locality text,
     area text,
-    is_hidden boolean DEFAULT false,
-    cover_mediaitem_id uuid,
-    created_at timestamp with time zone,
-    updated_at timestamp with time zone
-);
-
-CREATE TABLE thing_mediaitems (
-    mediaitem_id uuid NOT NULL,
-    thing_id uuid NOT NULL
-);
-
-CREATE TABLE things (
-    id uuid NOT NULL,
-    user_id uuid NOT NULL,
-    name text,
     is_hidden boolean DEFAULT false,
     cover_mediaitem_id uuid,
     created_at timestamp with time zone,
@@ -174,12 +160,6 @@ ADD CONSTRAINT places_pkey PRIMARY KEY (id);
 ALTER TABLE ONLY queue
 ADD CONSTRAINT queue_pkey PRIMARY KEY (id);
 
-ALTER TABLE ONLY thing_mediaitems
-ADD CONSTRAINT thing_mediaitems_pkey PRIMARY KEY (mediaitem_id, thing_id);
-
-ALTER TABLE ONLY things
-ADD CONSTRAINT things_pkey PRIMARY KEY (id);
-
 ALTER TABLE ONLY users
 ADD CONSTRAINT uni_users_username UNIQUE (username);
 
@@ -205,10 +185,6 @@ CREATE UNIQUE INDEX idx_places_id ON places USING btree (id);
 CREATE UNIQUE INDEX idx_places_user_id_name_postcode ON places USING btree (user_id, name, postcode);
 
 CREATE UNIQUE INDEX idx_queue_id ON queue USING btree (id);
-
-CREATE UNIQUE INDEX idx_things_id ON things USING btree (id);
-
-CREATE UNIQUE INDEX idx_things_user_id_name ON things USING btree (user_id, name);
 
 CREATE INDEX idx_queue_unspecified_id ON queue (id) WHERE status = 'UNSPECIFIED';
 
@@ -262,12 +238,3 @@ ADD CONSTRAINT fk_queue_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DE
 
 ALTER TABLE ONLY queue
 ADD CONSTRAINT fk_queue_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY thing_mediaitems
-ADD CONSTRAINT fk_thing_mediaitems_media_item FOREIGN KEY (mediaitem_id) REFERENCES mediaitems(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY thing_mediaitems
-ADD CONSTRAINT fk_thing_mediaitems_thing FOREIGN KEY (thing_id) REFERENCES things(id) ON DELETE CASCADE;
-
-ALTER TABLE ONLY things
-ADD CONSTRAINT fk_things_user_id FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE;

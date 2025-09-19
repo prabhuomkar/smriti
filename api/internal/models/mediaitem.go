@@ -74,7 +74,8 @@ type ( // MediaItemStatus ...
 		Longitude         *float64  `json:"longitude,omitempty"`
 		FPS               *string   `json:"fps,omitempty"`
 		EXIFData          *string   `json:"-"`
-		Keywords          *string   `json:"-"`
+		DetectedText      *string   `json:"-"`
+		Caption           *string   `json:"-"`
 		CreatedAt         time.Time `json:"createdAt"`
 		UpdatedAt         time.Time `json:"updatedAt"`
 	}
@@ -109,8 +110,8 @@ func ScanRowsToMediaItem(rows pgx.Rows) (MediaItem, error) {
 		&mediaItem.MediaItemType, &mediaItem.MediaItemCategory, &mediaItem.Width, &mediaItem.Height,
 		&mediaItem.CreationTime, &mediaItem.CameraMake, &mediaItem.CameraModel, &mediaItem.FocalLength,
 		&mediaItem.ApertureFnumber, &mediaItem.IsoEquivalent, &mediaItem.ExposureTime, &mediaItem.Megapixels,
-		&mediaItem.Latitude, &mediaItem.Longitude, &mediaItem.FPS, &mediaItem.EXIFData, &mediaItem.Keywords,
-		&mediaItem.CreatedAt, &mediaItem.UpdatedAt)
+		&mediaItem.Latitude, &mediaItem.Longitude, &mediaItem.FPS, &mediaItem.EXIFData, &mediaItem.DetectedText,
+		&mediaItem.Caption, &mediaItem.CreatedAt, &mediaItem.UpdatedAt)
 
 	return mediaItem, err
 }

@@ -85,17 +85,6 @@ bool APIClient::SaveMediaItemPlace(const MediaItemPlaceRequest& request) {
   return true;
 }
 
-bool APIClient::SaveMediaItemThing(const MediaItemThingRequest& request) {
-  google::protobuf::Empty response;
-  grpc::ClientContext context;
-  grpc::Status status = stub_->SaveMediaItemThing(&context, request, &response);
-  if (!status.ok()) {
-    SPDLOG_ERROR("error saving mediaitem thing: {}", status.error_message());
-    return false;
-  }
-  return true;
-}
-
 bool APIClient::SaveMediaItemFaces(const MediaItemFacesRequest& request) {
   google::protobuf::Empty response;
   grpc::ClientContext context;

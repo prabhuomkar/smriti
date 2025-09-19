@@ -23,8 +23,6 @@ func (h *Handler) GetVersion(ctx echo.Context) error {
 }
 
 // GetFeatures ...
-//
-//nolint:cyclop
 func (h *Handler) GetFeatures(ctx echo.Context) error {
 	cfgFeatures := models.GetFeatures(h.Config)
 	features, _ := ctx.Get("features").(models.Features)
@@ -35,7 +33,6 @@ func (h *Handler) GetFeatures(ctx echo.Context) error {
 	features.Albums = features.Albums && cfgFeatures.Albums
 	features.Explore = features.Explore && cfgFeatures.Explore
 	features.Places = features.Places && cfgFeatures.Places
-	features.Things = features.Things && cfgFeatures.Things
 	features.People = features.People && cfgFeatures.People
 	features.Sharing = features.Sharing && cfgFeatures.Sharing
 	features.Jobs = features.Jobs && cfgFeatures.Jobs
@@ -86,7 +83,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		return ctx.JSON(http.StatusOK, mediaItems)
 	}
 	rows, err := h.DB.Query(ctx.Request().Context(),
-		"SELECT * FROM mediaitems WHERE to_tsvector('english', keywords) @@ plainto_tsquery('english', $1) LIMIT $2",
+		"SELECT * FROM mediaitems WHERE to_tsvector('english', caption) @@ plainto_tsquery('english', $1) LIMIT $2",
 		searchQuery, searchDefaultLimit)
 	if err != nil {
 		slog.Error("error searching mediaitems", "error", err)

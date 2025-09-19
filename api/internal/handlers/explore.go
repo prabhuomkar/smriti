@@ -41,14 +41,6 @@ const (
 		` OFFSET $2 LIMIT $3`
 	queryGetPlaceMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM place_mediaitems` +
 		` WHERE user_id=$1 AND place_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
-	queryGetThing = `SELECT t.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
-		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM things t LEFT JOIN mediaitems m` +
-		` ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.id=$2`
-	queryGetThings = `SELECT t.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,` +
-		` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM things t LEFT JOIN mediaitems m` +
-		` ON t.cover_mediaitem_id=m.id WHERE t.user_id=$1 AND t.is_hidden=false ORDER BY t.created_at DESC OFFSET $2 LIMIT $3`
-	queryGetThingMediaItems = `SELECT * FROM mediaitems WHERE id IN (SELECT mediaitem_id FROM thing_mediaitems` +
-		` WHERE user_id=$1 AND thing_id=$2) AND is_hidden=false ORDER BY created_at DESC OFFSET $3 LIMIT $4`
 	queryGetPerson = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
 		` WHERE p.user_id=$1 AND p.id=$2`
 	queryGetPeople = `SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces mf ON p.cover_mediaitem_face_id=mf.id` +
@@ -85,7 +77,7 @@ func (h *Handler) GetYearsAgoMediaItems(ctx echo.Context) error {
 			&memoryItem.Width, &memoryItem.Height, &memoryItem.CreationTime, &memoryItem.CameraMake,
 			&memoryItem.CameraModel, &memoryItem.FocalLength, &memoryItem.ApertureFnumber, &memoryItem.IsoEquivalent,
 			&memoryItem.ExposureTime, &memoryItem.Megapixels, &memoryItem.Latitude, &memoryItem.Longitude,
-			&memoryItem.FPS, &memoryItem.EXIFData, &memoryItem.Keywords, &memoryItem.CreatedAt,
+			&memoryItem.FPS, &memoryItem.EXIFData, &memoryItem.DetectedText, &memoryItem.Caption, &memoryItem.CreatedAt,
 			&memoryItem.UpdatedAt, &memoryItem.Year)
 		if err != nil {
 			slog.Error("error scanning years ago mediaitem", "error", err)
@@ -181,97 +173,6 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 		mediaItem, err := models.ScanRowsToMediaItem(rows)
 		if err != nil {
 			slog.Error("error scanning place mediaitem", "error", err)
-
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-		mediaItems = append(mediaItems, mediaItem)
-	}
-
-	return ctx.JSON(http.StatusOK, mediaItems)
-}
-
-// GetThings ...
-func (h *Handler) GetThings(ctx echo.Context) error {
-	userID := getRequestingUserID(ctx)
-	offset, limit := getOffsetAndLimit(ctx)
-	things := []models.Thing{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetThings, userID, offset, limit)
-	if err != nil {
-		slog.Error("error getting things", "error", err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	defer rows.Close()
-	for rows.Next() {
-		thing, err := models.ScanRowsToThing(rows)
-		if err != nil {
-			slog.Error("error scanning thing", "error", err)
-
-			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-		}
-		things = append(things, thing)
-	}
-
-	return ctx.JSON(http.StatusOK, things)
-}
-
-// GetThing ...
-func (h *Handler) GetThing(ctx echo.Context) error {
-	userID := getRequestingUserID(ctx)
-	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
-	if err != nil {
-		slog.Error("error getting thing id", "error", err)
-
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
-	}
-	thing := models.Thing{}
-	coverMediaItem := &models.CoverMediaItem{}
-
-	err = h.DB.QueryRow(ctx.Request().Context(), queryGetThing, userID, uid).Scan(&thing.ID, &thing.UserID,
-		&thing.Name, &thing.IsHidden, &thing.CoverMediaItemID, &thing.CreatedAt, &thing.UpdatedAt,
-		&coverMediaItem.ID, &coverMediaItem.UserID, &coverMediaItem.SourceURL, &coverMediaItem.PreviewURL,
-		&coverMediaItem.ThumbnailURL, &coverMediaItem.Placeholder, &coverMediaItem.MediaItemType,
-		&coverMediaItem.MediaItemCategory, &coverMediaItem.Width, &coverMediaItem.Height)
-	if err != nil {
-		if errors.Is(err, pgx.ErrNoRows) {
-			return echo.NewHTTPError(http.StatusNotFound, "thing not found")
-		}
-		slog.Error("error getting thing", "error", err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-
-	if thing.CoverMediaItemID != nil {
-		thing.CoverMediaItem = coverMediaItem
-	}
-
-	return ctx.JSON(http.StatusOK, thing)
-}
-
-// GetThingMediaItems ...
-func (h *Handler) GetThingMediaItems(ctx echo.Context) error {
-	userID := getRequestingUserID(ctx)
-	offset, limit := getOffsetAndLimit(ctx)
-	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
-	if err != nil {
-		slog.Error("error getting thing id", "error", err)
-
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid thing id")
-	}
-	mediaItems := []models.MediaItem{}
-	rows, err := h.DB.Query(ctx.Request().Context(), queryGetThingMediaItems, userID, uid, offset, limit)
-	if err != nil {
-		slog.Error("error getting thing mediaitems", "error", err)
-
-		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
-	}
-	defer rows.Close()
-	for rows.Next() {
-		mediaItem, err := models.ScanRowsToMediaItem(rows)
-		if err != nil {
-			slog.Error("error scanning thing mediaitem", "error", err)
 
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
