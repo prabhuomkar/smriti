@@ -33,16 +33,9 @@ def export_and_save():
     print("exporting and saving face recognition model")
     print("all models are already exported in ONNX format!")
 
-def distance2bbox(points, distance, max_shape=None):
-    x1 = points[:, 0] - distance[:, 0]
-    y1 = points[:, 1] - distance[:, 1]
-    x2 = points[:, 0] + distance[:, 2]
-    y2 = points[:, 1] + distance[:, 3]
-    if max_shape is not None:
-        x1 = x1.clamp(min=0, max=max_shape[1])
-        y1 = y1.clamp(min=0, max=max_shape[0])
-        x2 = x2.clamp(min=0, max=max_shape[1])
-        y2 = y2.clamp(min=0, max=max_shape[0])
+def distance2bbox(points, distance):
+    x1, y1 = points[:, 0] - distance[:, 0], points[:, 1] - distance[:, 1]
+    x2, y2 = points[:, 0] + distance[:, 2], points[:, 1] + distance[:, 3]
     return np.stack([x1, y1, x2, y2], axis=-1)
 
 def nms(dets, thresh=0.4):
@@ -57,16 +50,12 @@ def nms(dets, thresh=0.4):
     while order.size > 0:
         i = order[0]
         keep.append(i)
-        xx1 = np.maximum(x1[i], x1[order[1:]])
-        yy1 = np.maximum(y1[i], y1[order[1:]])
-        xx2 = np.minimum(x2[i], x2[order[1:]])
-        yy2 = np.minimum(y2[i], y2[order[1:]])
-        w = np.maximum(0.0, xx2 - xx1 + 1)
-        h = np.maximum(0.0, yy2 - yy1 + 1)
+        xx1, yy1 = np.maximum(x1[i], x1[order[1:]]), np.maximum(y1[i], y1[order[1:]])
+        xx2, yy2 = np.minimum(x2[i], x2[order[1:]]), np.minimum(y2[i], y2[order[1:]])
+        w, h = np.maximum(0.0, xx2 - xx1 + 1), np.maximum(0.0, yy2 - yy1 + 1)
         inter = w * h
         ovr = inter / (areas[i] + areas[order[1:]] - inter)
-        inds = np.where(ovr <= thresh)[0]
-        order = order[inds + 1]
+        order = order[np.where(ovr <= thresh)[0] + 1]
     return keep
 
 def load_and_run(sample="example.jpg"):
@@ -98,29 +87,22 @@ def load_and_run(sample="example.jpg"):
         for idx, stride in enumerate(strides):
             scores = outputs[idx][0].reshape(-1)
             bboxes = outputs[idx+3][0].reshape(-1, 4) * stride
-            input_h, input_w = blob.shape[2], blob.shape[3]
-            height = input_h // stride
-            width = input_w // stride
-            anchor_centers = np.stack(np.mgrid[:height, :width][::-1], axis=-1).astype(np.float32)
-            anchor_centers = (anchor_centers * stride).reshape((-1, 2)) 
-            anchor_centers = np.stack([anchor_centers]*2, axis=1).reshape((-1, 2))
-            scores = scores.reshape(-1)
-            bboxes = distance2bbox(anchor_centers, bboxes)
-            bboxes = bboxes / det_scale
-            thresh = 0.5
-            inds = np.where(scores >= thresh)[0]
-            scores = scores[inds]
-            bboxes = bboxes[inds]
-            pre_det = np.hstack([bboxes, scores.reshape(-1,1)])
-            keep = nms(pre_det, thresh=0.4)
-            bboxes_nms = pre_det[keep,:4]
-            scores_nms = pre_det[keep,4]
+            h, w = blob.shape[2] // stride, blob.shape[3] // stride
+            grid = np.stack(np.mgrid[:h, :w][::-1], axis=-1).astype(np.float32)
+            anchors = (grid * stride).reshape(-1, 2)
+            anchors = np.repeat(anchors, 2, axis=0).reshape(-1, 2)
+            bboxes = distance2bbox(anchors, bboxes) / det_scale
+            keep_inds = scores >= 0.5
+            scores, bboxes = scores[keep_inds], bboxes[keep_inds]
+            dets = np.hstack([bboxes, scores[:, None]])
+            keep = nms(dets, thresh=0.4)
+            bboxes, scores = dets[keep, :4], dets[keep, 4]
             img = cv2.imread(sample)
-            for idx, (box, score) in enumerate(zip(bboxes_nms, scores_nms)):
+            for idx, (box, score) in enumerate(zip(bboxes, scores)):
                 if score > 0.8:
                     x1, y1, x2, y2 = box.astype(int)
                     face = img[y1-1:y2-1, x1-1:x2-1]
-                    cv2.imwrite(f"result/face_{stride}_{idx}.jpg", face)
+                    cv2.imwrite(f"result/face_{model.replace('.onnx', '')}_{stride}_{idx}.jpg", face)
     # recognition
     for model in os.listdir("faces_rec"):
         session = ort.InferenceSession(f"faces_rec/{model}", providers=["CPUExecutionProvider"])
