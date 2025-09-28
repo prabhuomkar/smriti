@@ -23,12 +23,16 @@ jobs:
         run: python -c "import sys; print(sys.version)"
       - name: Install Dependencies
         run: make install
-      - name: Create models
+      - name: Create models by category
         run: |
           make all
-          zip -r models.zip classification/*.pt faces/*.pt ocr/cls_onnx ocr/det_onnx ocr/rec_onnx search/*.pt search/search_processor search/search_tokenizer
+          zip -r faces.zip faces/faces_det faces/faces_rec
+          zip -r ocr.zip ocr/ocr_doc_orient ocr/ocr_text_line_orient ocr/ocr_text_unwrap ocr/ocr_text_det ocr/ocr_text_rec
+          zip -r search.zip search/*.pt search/search_processor search/search_tokenizer
       - name: Create release asset
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            ml/models.zip
+            ml/faces.zip
+            ml/ocr.zip
+            ml/search.zip

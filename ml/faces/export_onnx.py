@@ -10,42 +10,36 @@ import onnxruntime as ort
 
 
 VERSION=os.getenv("VERSION", "dev").replace(".", "")
-FILENAME_SUFFIX = f"_v{VERSION}"
-DET_FILENAME = f"faces_det{FILENAME_SUFFIX}.onnx"
-DET_MODELS_ZIPNAME = f"faces_det.zip"
-REC_FILENAME = f"faces_rec{FILENAME_SUFFIX}.onnx"
-REC_MODELS_ZIPNAME = f"faces_rec.zip"
+DET_MODELS_ZIPNAME = "faces_det.zip"
+REC_MODELS_ZIPNAME = "faces_rec.zip"
 
 def export_and_save():
     """Download required models for detection and recognition, export and save for inference"""
     print("downloading face detection model")
-    urllib.request.urlretrieve("https://www.dropbox.com/scl/fo/9y86d4qb2nmkdtlf61aw0/AMc1Qfk6TtkbZMkhj8bBOVI?rlkey=2ztw1h9cvj9bsfc2niu42znr5&st=8u3eyse2&dl=1", DET_MODELS_ZIPNAME)
+    urllib.request.urlretrieve("https://www.dropbox.com/scl/fo/9y86d4qb2nmkdtlf61aw0/AMc1Qfk6TtkbZMkhj8bBOVI"+
+                               "?rlkey=2ztw1h9cvj9bsfc2niu42znr5&st=8u3eyse2&dl=1", DET_MODELS_ZIPNAME)
     with zipfile.ZipFile(DET_MODELS_ZIPNAME) as z:
         z.extractall("faces_det")
     os.remove(DET_MODELS_ZIPNAME)
     print("exporting and saving face detection model")
     print("all models are already exported in ONNX format!")
     print("downloading face recognition model")
-    urllib.request.urlretrieve("https://www.dropbox.com/scl/fo/pubfb5wkiv5c5iucmlyou/ABKeExgXz5r-KMk5VUw2fPg?rlkey=djw1796psv1ncqun0kgswmkr9&st=ruowqv0e&dl=1", REC_MODELS_ZIPNAME)
+    urllib.request.urlretrieve("https://www.dropbox.com/scl/fo/pubfb5wkiv5c5iucmlyou/ABKeExgXz5r-KMk5VUw2fPg"+
+                               "?rlkey=djw1796psv1ncqun0kgswmkr9&st=ruowqv0e&dl=1", REC_MODELS_ZIPNAME)
     with zipfile.ZipFile(REC_MODELS_ZIPNAME) as z:
         z.extractall("faces_rec")
     os.remove(REC_MODELS_ZIPNAME)
     print("exporting and saving face recognition model")
     print("all models are already exported in ONNX format!")
 
-def distance2bbox(points, distance):
-    x1, y1 = points[:, 0] - distance[:, 0], points[:, 1] - distance[:, 1]
-    x2, y2 = points[:, 0] + distance[:, 2], points[:, 1] + distance[:, 3]
-    return np.stack([x1, y1, x2, y2], axis=-1)
-
 def nms(dets, thresh=0.4):
+    """non maximum supression with threshold"""
     x1 = dets[:, 0]
     y1 = dets[:, 1]
     x2 = dets[:, 2]
     y2 = dets[:, 3]
-    scores = dets[:, 4]
     areas = (x2 - x1 + 1) * (y2 - y1 + 1)
-    order = scores.argsort()[::-1]
+    order = dets[:, 4].argsort()[::-1]
     keep = []
     while order.size > 0:
         i = order[0]
@@ -91,7 +85,9 @@ def load_and_run(sample="example.jpg"):
             grid = np.stack(np.mgrid[:h, :w][::-1], axis=-1).astype(np.float32)
             anchors = (grid * stride).reshape(-1, 2)
             anchors = np.repeat(anchors, 2, axis=0).reshape(-1, 2)
-            bboxes = distance2bbox(anchors, bboxes) / det_scale
+            x1, y1 = anchors[:, 0] - bboxes[:, 0], anchors[:, 1] - bboxes[:, 1]
+            x2, y2 = anchors[:, 0] + bboxes[:, 2], anchors[:, 1] + bboxes[:, 3]
+            bboxes = np.stack([x1, y1, x2, y2], axis=-1) / det_scale
             keep_inds = scores >= 0.5
             scores, bboxes = scores[keep_inds], bboxes[keep_inds]
             dets = np.hstack([bboxes, scores[:, None]])
@@ -102,7 +98,7 @@ def load_and_run(sample="example.jpg"):
                 if score > 0.8:
                     x1, y1, x2, y2 = box.astype(int)
                     face = img[y1-1:y2-1, x1-1:x2-1]
-                    cv2.imwrite(f"result/face_{model.replace('.onnx', '')}_{stride}_{idx}.jpg", face)
+                    cv2.imwrite(f"result/face_{model.replace(".onnx", "")}_{stride}_{idx}.jpg", face)
     # recognition
     for model in os.listdir("faces_rec"):
         session = ort.InferenceSession(f"faces_rec/{model}", providers=["CPUExecutionProvider"])
@@ -124,11 +120,11 @@ if __name__ == "__main__":
     if len(args) > 1:
         if args[1] == "save":
             export_and_save()
-            exit(0)
+            sys.exit(0)
         if args[1] == "run":
             if len(args)  == 3:
                 load_and_run(args[2])
             else:
                 load_and_run()
-            exit(0)
+            sys.exit(0)
     print("provide a valid arg: save OR run")
