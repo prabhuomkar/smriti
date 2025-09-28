@@ -12,10 +12,9 @@ enum MediaItemComponent {
   METADATA = 0;
   PREVIEW_THUMBNAIL = 1;
   PLACES = 2;
-  CLASSIFICATION = 3;
-  FACES = 4;
-  OCR = 5;
-  SEARCH = 6;
+  FACES = 3;
+  OCR = 4;
+  SEARCH = 5;
 }
 
 enum MediaItemStatus {

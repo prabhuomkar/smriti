@@ -84,9 +84,6 @@ func Init(cfg *config.Config, dbi database.DBInterface, storage storage.Provider
 	if cfg.ML.Places {
 		enabledComponents = append(enabledComponents, api.MediaItemComponent_PLACES)
 	}
-	if cfg.Classification {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_CLASSIFICATION)
-	}
 	if cfg.OCR {
 		enabledComponents = append(enabledComponents, api.MediaItemComponent_OCR)
 	}

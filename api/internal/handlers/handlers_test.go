@@ -97,7 +97,7 @@ func executeTests(t *testing.T, tests []Test) {
 					Storage: config.Storage{DiskRoot: os.TempDir()}, Auth: config.Auth{RefreshTTL: 60}, Feature: config.Feature{
 						Albums: true, Explore: true, Places: true, People: true,
 					}, ML: config.ML{
-						Places: true, Classification: true, OCR: true, Faces: true, Search: true,
+						Places: true, OCR: true, Faces: true, Search: true,
 					},
 				}, DB: mockDB, Cache: mockCache, Worker: test.mockWorkerClient,
 			}

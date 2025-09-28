@@ -61,7 +61,6 @@ type ( // Log ...
 	// ML ...
 	ML struct {
 		Places                 bool   `envconfig:"SMRITI_ML_PLACES"                   default:"true"`
-		Classification         bool   `envconfig:"SMRITI_ML_CLASSIFICATION"           default:"true"`
 		OCR                    bool   `envconfig:"SMRITI_ML_OCR"                      default:"true"`
 		Search                 bool   `envconfig:"SMRITI_ML_SEARCH"                   default:"true"`
 		Faces                  bool   `envconfig:"SMRITI_ML_FACES"                    default:"true"`
