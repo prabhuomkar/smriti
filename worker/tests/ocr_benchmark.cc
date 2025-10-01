@@ -10,6 +10,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "ocr_test.cc" // NOLINT
 #include "protos/api.pb.h"

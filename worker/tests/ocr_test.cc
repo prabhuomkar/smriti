@@ -11,6 +11,7 @@
 #include <string>
 #include <unordered_map>
 #include <utility>
+#include <vector>
 
 #include "protos/api.pb.h"
 #include "protos/api_mock.grpc.pb.h"
