@@ -52,7 +52,7 @@ TEST(PreviewThumbnailTest, Init) {
   ASSERT_TRUE(previewthumbnail != nullptr);
 }
 
-TEST(PreviewThumbnailTest, Failure) {
+TEST(PreviewThumbnailTest, Error) {
   spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
       std::make_shared<MockImageConverterClient>();

@@ -40,7 +40,7 @@ static void BM_PreviewThumbnailInit(benchmark::State& state) { // NOLINT
   }
 }
 
-static void BM_PreviewThumbnailFailure(benchmark::State& state) { // NOLINT
+static void BM_PreviewThumbnailError(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
       std::make_shared<MockImageConverterClient>();
@@ -118,6 +118,6 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
 }
 
 BENCHMARK(BM_PreviewThumbnailInit)->ThreadPerCpu();
-BENCHMARK(BM_PreviewThumbnailFailure)->ThreadPerCpu();
+BENCHMARK(BM_PreviewThumbnailError)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailPhotoSuccess)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailVideoSuccess)->ThreadPerCpu();

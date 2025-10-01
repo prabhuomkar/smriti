@@ -56,7 +56,7 @@ static void BM_MetadataEmptyData(benchmark::State& state) { // NOLINT
   }
 }
 
-static void BM_MetadataFailure(benchmark::State& state) { // NOLINT
+static void BM_MetadataError(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockExifToolClient> mock_exif_client =
       std::make_shared<MockExifToolClient>();
@@ -120,5 +120,5 @@ static void BM_MetadataSuccess(benchmark::State& state) { // NOLINT
 
 BENCHMARK(BM_MetadataInit)->ThreadPerCpu();
 BENCHMARK(BM_MetadataEmptyData)->ThreadPerCpu();
-BENCHMARK(BM_MetadataFailure)->ThreadPerCpu();
+BENCHMARK(BM_MetadataError)->ThreadPerCpu();
 BENCHMARK(BM_MetadataSuccess)->ThreadPerCpu();

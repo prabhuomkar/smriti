@@ -86,7 +86,7 @@ TEST(MetadataTest, EmptyData) {
       result);
 }
 
-TEST(MetadataTest, Failure) {
+TEST(MetadataTest, Error) {
   spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockExifToolClient> mock_exif_client =
       std::make_shared<MockExifToolClient>();
