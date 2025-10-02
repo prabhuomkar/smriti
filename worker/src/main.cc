@@ -110,6 +110,11 @@ int main(int argc, char** argv) {
       auto place_result = places_component->ReverseGeocode(
           response.id(), response.userid(), response.mediaitemid(),
           metadata_result["latitude"], metadata_result["longitude"]);
+      std::cout << place_result.size() << std::endl;
+      auto faces_result = faces_component->Extract(
+          response.id(), response.userid(), response.mediaitemid(),
+          response.payload().at("source_url"));
+      std::cout << faces_result.size() << std::endl;
     }
   }
 

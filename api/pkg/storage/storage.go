@@ -61,6 +61,10 @@ func Init(cfg *Config) Provider {
 	if err != nil && !errors.Is(err, os.ErrExist) {
 		slog.Error("error creating storage thumbnails directory", "error", err)
 	}
+	err = os.Mkdir(cfg.Root+"/faces", dirPermission)
+	if err != nil && !errors.Is(err, os.ErrExist) {
+		slog.Error("error creating storage faces directory", "error", err)
+	}
 
 	return &Disk{Root: cfg.Root}
 }
