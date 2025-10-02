@@ -57,7 +57,7 @@ Thumbs.db
 *checkpoints*
 *.onnx
 search/**/*.json
-**/result/*.jpg
+faces_output/
 ocr_output/
 **/inference.json
 **/inference.pdiparams

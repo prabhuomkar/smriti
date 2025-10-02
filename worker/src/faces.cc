@@ -20,6 +20,11 @@ namespace components {
 
 namespace faces {
 
+std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
+    const std::string& file_path) {
+  return {};
+}
+
 std::unordered_map<std::string, std::string> Faces::Extract(
     const std::string& id, const std::string& user_id,
     const std::string& mediaitem_id, const std::string& file_path) {
@@ -68,7 +73,11 @@ std::unordered_map<std::string, std::string> ONNX::Extract(
 std::shared_ptr<Faces> Init(const ComponentConfig& config,
                             std::shared_ptr<APIClient> api_client) {
   if (config.source == "onnx") {
-    return std::make_shared<ONNX>(std::make_shared<ONNXModel>(), api_client);
+    return std::make_shared<ONNX>(
+        std::make_shared<ONNXModel>(
+            "../../../models/faces_det/scrfd_2.5g.onnx", 0.8,
+            "../../../models/faces_rec/webface_r50.onnx"),
+        api_client);
   }
   return nullptr;
 }

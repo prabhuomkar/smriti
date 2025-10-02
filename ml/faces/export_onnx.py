@@ -98,15 +98,15 @@ def load_and_run(sample="example.jpg"):
                 if score > 0.8:
                     x1, y1, x2, y2 = box.astype(int)
                     face = img[y1-1:y2-1, x1-1:x2-1]
-                    cv2.imwrite(f"result/face_{model.replace(".onnx", "")}_{stride}_{idx}.jpg", face)
+                    cv2.imwrite(f"faces_output/face_{model.replace(".onnx", "")}_{stride}_{idx}.jpg", face)
     # recognition
     for model in os.listdir("faces_rec"):
         session = ort.InferenceSession(f"faces_rec/{model}", providers=["CPUExecutionProvider"])
         print(model, "inputs:", [(inp.name, inp.shape) for inp in session.get_inputs()])
         print(model, "outputs:", [(out.name, out.shape) for out in session.get_outputs()])
         input_name = session.get_inputs()[0].name
-        for img_path in os.listdir("result"):
-            img = cv2.imread(f"result/{img_path}")
+        for img_path in os.listdir("faces_output"):
+            img = cv2.imread(f"faces_output/{img_path}")
             img = cv2.resize(img, (112, 112))
             img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
             img = np.transpose(img, (2, 0, 1)).astype(np.float32)

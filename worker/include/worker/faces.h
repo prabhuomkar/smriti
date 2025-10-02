@@ -1,6 +1,12 @@
 // Copyright 2025 Omkar Prabhu
 #pragma once
 
+// collision between iamgemagick and onnxruntime
+#ifdef IsNaN
+#undef IsNaN
+#endif
+#include <onnxruntime_cxx_api.h>
+
 #include <memory>
 #include <optional>
 #include <string>
@@ -26,10 +32,33 @@ class ModelInferenceInterface {
 
 class ONNXModel : public ModelInferenceInterface {
  public:
-  std::vector<std::pair<std::string, std::vector<float>>> Run(
-      const std::string& file_path) override {
-    return {};
+  ONNXModel(
+      const std::string& detection_model = "models/faces_det/scrfd_2.5g.onnx",
+      float detection_threshold = 0.8,
+      const std::string& recognition_model =
+          "models/faces_rec/webface_r50.onnx")
+      : detection_model_(detection_model),
+        detection_threshold_(detection_threshold),
+        recognition_model_(recognition_model),
+        detection_session_(nullptr),
+        recognition_session_(nullptr) {
+    Ort::Env env(ORT_LOGGING_LEVEL_WARNING, "faces");
+    Ort::SessionOptions options;
+    options.SetGraphOptimizationLevel(GraphOptimizationLevel::ORT_ENABLE_BASIC);
+    detection_session_ = Ort::Session(env, detection_model.c_str(), options);
+    recognition_session_ =
+        Ort::Session(env, recognition_model.c_str(), options);
   }
+  std::vector<std::pair<std::string, std::vector<float>>> Run(
+      const std::string& file_path) override;
+
+ private:
+  std::string detection_model_;
+  float detection_threshold_;
+  std::string recognition_model_;
+  Ort::Env env_;
+  Ort::Session detection_session_;
+  Ort::Session recognition_session_;
 };
 
 class Faces {

@@ -69,9 +69,9 @@ type ( // Log ...
 		OCRParams              string `envconfig:"SMRITI_ML_OCR_PARAMS"               default:"{\"det_model_dir\":\"det_onnx\",\"rec_model_dir\":\"rec_onnx\",\"cls_model_dir\":\"cls_onnx\"}"` //nolint:lll
 		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER"          default:"pytorch"`
 		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS"            default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v240624.pt\",\"vision_file\":\"search_vision_v240624.pt\"}"` //nolint:lll
-		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER"           default:"pytorch"`
-		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS"             default:"{\"minutes\":\"1\",\"face_threshold\":\"0.9\",\"model\":\"vggface2\",\"clustering\":\"annoy\"}"` //nolint:lll
-		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{\"image_quality\":50,\"thumbnail_size\":256,\"placeholder_size\":2}"`                           //nolint:lll
+		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER"           default:"onnx"`
+		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS"             default:"{\"detection_threshold\":0.8,\"detection_model\":\"models/faces_det/srcfd_2.5g.onnx\",\"recognition_model\":\"models/faces_rec/webface_r50.onnx\"}"` //nolint:lll
+		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{\"image_quality\":50,\"thumbnail_size\":256,\"placeholder_size\":2}"`                                                                               //nolint:lll
 	}
 
 	// Feature ...

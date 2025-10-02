@@ -24,7 +24,9 @@
 #include "worker/api_client.h"
 #include "worker/components.h"
 #include "worker/config.h"
+#include "worker/faces.h"
 #include "worker/metadata.h"
+#include "worker/ocr.h"
 #include "worker/places.h"
 #include "worker/preview_thumbnail.h"
 
@@ -67,6 +69,8 @@ int main(int argc, char** argv) {
   std::shared_ptr<components::places::Places> places_component;
   std::shared_ptr<components::previewthumbnail::PreviewThumbnail>
       previewthumbnail_component;
+  std::shared_ptr<components::faces::Faces> faces_component;
+  std::shared_ptr<components::ocr::OCR> ocr_component;
 
   std::unordered_map<std::string, ComponentConfig> component_configs =
       components::ParseComponentConfig(worker_config);
@@ -81,11 +85,9 @@ int main(int argc, char** argv) {
       previewthumbnail_component =
           components::previewthumbnail::Init(config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::FACES)) {
-      // TODO(omkar): initialize this component
-
+      faces_component = components::faces::Init(config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::OCR)) {
-      // TODO(omkar): initialize this component
-
+      ocr_component = components::ocr::Init(config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::SEARCH)) {
       // TODO(omkar): initialize this component
     }

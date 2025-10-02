@@ -20,6 +20,11 @@ namespace components {
 
 namespace ocr {
 
+std::vector<std::pair<std::string, float>> PaddlePaddleModel::Run(
+    const std::string& file_path) {
+  return {};
+}
+
 std::unordered_map<std::string, std::string> OCR::Extract(
     const std::string& id, const std::string& user_id,
     const std::string& mediaitem_id, const std::string& file_path) {

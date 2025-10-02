@@ -27,9 +27,7 @@ class ModelInferenceInterface {
 class PaddlePaddleModel : public ModelInferenceInterface {
  public:
   std::vector<std::pair<std::string, float>> Run(
-      const std::string& file_path) override {
-    return {};
-  }
+      const std::string& file_path) override;
 };
 
 class OCR {

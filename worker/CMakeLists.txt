@@ -34,6 +34,7 @@ find_package(gRPC REQUIRED)
 find_package(Protobuf REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 find_package(PkgConfig REQUIRED)
+find_package(OpenCV REQUIRED)
 pkg_check_modules(LibRaw REQUIRED libraw)
 
 file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
@@ -42,34 +43,45 @@ file(GLOB GENERATED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/generated/protos/*.cc)
 
 add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES})
 
-if(APPLE)
-    target_include_directories(worker PRIVATE ${HOMEBREW_PREFIX}/opt/libomp/include)
-    target_link_directories(worker PRIVATE ${HOMEBREW_PREFIX}/opt/libomp/lib)
-    target_link_libraries(worker PRIVATE omp)
-endif()
-
-target_include_directories(worker PRIVATE 
+set(TARGET_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/generated
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/include
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/src
     ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cpr/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${ONNXRUNTIME_INCLUDE_DIRS}
     ${IMAGEMAGICK_INCLUDE_DIRS}
+    ${OpenCV_INCLUDE_DIRS}
     ${LIBRAW_INCLUDE_DIRS})
 
-target_compile_definitions(worker PRIVATE
-    DEFAULT_VERSION="${VERSION}"
-    DEFAULT_GIT_SHA="${GIT_SHA}")
+set(TARGET_LINK_DIRS ${ONNXRUNTIME_LIB})
 
-target_link_libraries(worker PRIVATE
-    spdlog::spdlog
+set(TARGET_LINK_LIBS spdlog::spdlog
     cpr::cpr
     simdjson::simdjson
     gRPC::grpc++
     gRPC::grpc
     protobuf::libprotobuf
     ImageMagick::Magick++
+    ${ONNXRUNTIME_LIBRARIES}
+    ${OpenCV_LIBRARIES}
     ${LIBRAW_LIBRARIES})
+
+if(APPLE)
+    list(APPEND TARGET_INCLUDE_DIRS ${HOMEBREW_PREFIX}/opt/libomp/include)
+    list(APPEND TARGET_LINK_DIRS ${HOMEBREW_PREFIX}/opt/libomp/lib)
+    list(APPEND TARGET_LINK_LIBS omp)
+endif()
+
+target_include_directories(worker PRIVATE ${TARGET_INCLUDE_DIRS})
+
+target_compile_definitions(worker PRIVATE
+    DEFAULT_VERSION="${VERSION}"
+    DEFAULT_GIT_SHA="${GIT_SHA}")
+
+target_link_directories(worker PRIVATE ${TARGET_LINK_DIRS})
+    
+target_link_libraries(worker PRIVATE ${TARGET_LINK_LIBS})
 
 set_target_properties(worker PROPERTIES 
     CXX_STANDARD 17 
