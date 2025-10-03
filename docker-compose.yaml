@@ -31,10 +31,10 @@ services:
       - api
     environment:
       SMRITI_API_HOST: api
+      SMRITI_API_PORT: 15001
     volumes:
       - ./storage:/storage:rw
       - ./models:/models:rw
-  # infra services
   database:
     container_name: database
     image: pgvector/pgvector:0.8.0-pg17

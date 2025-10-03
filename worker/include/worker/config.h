@@ -11,7 +11,7 @@
 class Config {
  public:
   Config() {
-    const char* env_log_level = std::getenv("SMRITI_WORKER_LOG_LEVEL");
+    const char* env_log_level = std::getenv("SMRITI_LOG_LEVEL");
     log_level = spdlog::level::info;
     if (env_log_level) {
       std::string level_str(env_log_level);

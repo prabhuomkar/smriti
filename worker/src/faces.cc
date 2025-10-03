@@ -154,8 +154,7 @@ std::vector<std::string> ONNXModel::Detect(const std::string& file_path) {
           all_boxes[idx] & cv::Rect(0, 0, original_img.cols, original_img.rows);
       if (box.width > 0 && box.height > 0) {
         cv::Mat face = original_img(box);
-        std::string face_out_path =
-            file_path + "_face_" + std::to_string(idx) + ".jpg";
+        std::string face_out_path = file_path + "_face_" + std::to_string(idx);
         cv::imwrite(face_out_path, face);
         result.push_back({face_out_path, {}});
       }
