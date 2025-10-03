@@ -6,14 +6,14 @@
 
 #include <algorithm>
 #include <memory>
-#include <opencv2/dnn.hpp>
-#include <opencv2/opencv.hpp>
 #include <optional>
 #include <string>
 #include <unordered_map>
 #include <utility>
 #include <vector>
 
+#include "opencv2/dnn.hpp"
+#include "opencv2/opencv.hpp"
 #include "worker/api_client.h"
 #include "worker/components.h"
 

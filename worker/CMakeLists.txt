@@ -45,16 +45,15 @@ add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES})
 
 set(TARGET_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}/generated
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/include
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/simdjson/src
-    ${CMAKE_CURRENT_SOURCE_DIR}/third_party/cpr/include
     ${CMAKE_CURRENT_SOURCE_DIR}/include
+    ${paddleocr_SOURCE_DIR}/deploy/cpp_infer
     ${ONNXRUNTIME_INCLUDE_DIRS}
+    ${PADDLE_INFERENCE_INCLUDE_DIRS}
     ${IMAGEMAGICK_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
     ${LIBRAW_INCLUDE_DIRS})
 
-set(TARGET_LINK_DIRS ${ONNXRUNTIME_LIB})
+set(TARGET_LINK_DIRS ${ONNXRUNTIME_LIB} ${PADDLE_INFERENCE_LIB})
 
 set(TARGET_LINK_LIBS spdlog::spdlog
     cpr::cpr
@@ -64,6 +63,7 @@ set(TARGET_LINK_LIBS spdlog::spdlog
     protobuf::libprotobuf
     ImageMagick::Magick++
     ${ONNXRUNTIME_LIBRARIES}
+    ${PADDLE_INFERENCE_LIBRARIES}
     ${OpenCV_LIBRARIES}
     ${LIBRAW_LIBRARIES})
 
