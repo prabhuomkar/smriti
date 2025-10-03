@@ -26,17 +26,18 @@ namespace faces {
 class ModelInferenceInterface {
  public:
   virtual ~ModelInferenceInterface() = default;
+  virtual std::vector<std::string> Detect(const std::string& file_path) = 0;
+  virtual std::vector<std::vector<float>> Recognize(
+      const std::vector<std::string>& face_file_paths) = 0;
   virtual std::vector<std::pair<std::string, std::vector<float>>> Run(
       const std::string& file_path) = 0;
 };
 
 class ONNXModel : public ModelInferenceInterface {
  public:
-  ONNXModel(
-      const std::string& detection_model = "models/faces_det/scrfd_2.5g.onnx",
-      float detection_threshold = 0.8,
-      const std::string& recognition_model =
-          "models/faces_rec/webface_r50.onnx")
+  ONNXModel(const std::string& detection_model = "faces_det/scrfd_2.5g.onnx",
+            float detection_threshold = 0.8,
+            const std::string& recognition_model = "faces_rec/webface_r50.onnx")
       : detection_model_(detection_model),
         detection_threshold_(detection_threshold),
         recognition_model_(recognition_model),
@@ -49,6 +50,9 @@ class ONNXModel : public ModelInferenceInterface {
     recognition_session_ =
         Ort::Session(env, recognition_model.c_str(), options);
   }
+  std::vector<std::string> Detect(const std::string& file_path) override;
+  std::vector<std::vector<float>> Recognize(
+      const std::vector<std::string>& face_file_paths) override;
   std::vector<std::pair<std::string, std::vector<float>>> Run(
       const std::string& file_path) override;
 
@@ -83,7 +87,8 @@ class ONNX : public Faces {
   std::shared_ptr<APIClient> api_client_;
 };
 
-std::shared_ptr<Faces> Init(const ComponentConfig& config,
+std::shared_ptr<Faces> Init(const std::string& models_dir,
+                            const ComponentConfig& config,
                             std::shared_ptr<APIClient> api_client);
 } // namespace faces
 

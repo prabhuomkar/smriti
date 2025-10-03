@@ -52,7 +52,8 @@ class PaddlePaddle : public OCR {
   std::shared_ptr<APIClient> api_client_;
 };
 
-std::shared_ptr<OCR> Init(const ComponentConfig& config,
+std::shared_ptr<OCR> Init(const std::string& models_dir,
+                          const ComponentConfig& config,
                           std::shared_ptr<APIClient> api_client);
 } // namespace ocr
 

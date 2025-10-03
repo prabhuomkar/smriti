@@ -40,10 +40,16 @@ class Config {
     api_port = (env_api_port && std::strlen(env_api_port) > 0)
                    ? std::string(env_api_port)
                    : "15001";
+
+    const char* env_models_dir = std::getenv("SMRITI_MODELS_DIR");
+    models_dir = (env_models_dir && std::strlen(env_models_dir) > 0)
+                     ? std::string(env_models_dir)
+                     : "";
   }
 
   spdlog::level::level_enum log_level;
   std::string port;
   std::string api_host;
   std::string api_port;
+  std::string models_dir;
 };

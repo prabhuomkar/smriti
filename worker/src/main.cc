@@ -74,20 +74,23 @@ int main(int argc, char** argv) {
 
   std::unordered_map<std::string, ComponentConfig> component_configs =
       components::ParseComponentConfig(worker_config);
-  for (const auto& [name, config] : component_configs) {
+  for (const auto& [name, component_config] : component_configs) {
     if (name == MediaItemComponent_Name(MediaItemComponent::METADATA)) {
-      metadata_component = components::metadata::Init(config, api_client);
+      metadata_component =
+          components::metadata::Init(component_config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::PLACES)) {
-      places_component = components::places::Init(config, api_client);
+      places_component = components::places::Init(component_config, api_client);
     } else if (name ==
                MediaItemComponent_Name(MediaItemComponent::PREVIEW_THUMBNAIL)) {
       Magick::InitializeMagick(*argv);
       previewthumbnail_component =
-          components::previewthumbnail::Init(config, api_client);
+          components::previewthumbnail::Init(component_config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::FACES)) {
-      faces_component = components::faces::Init(config, api_client);
+      faces_component = components::faces::Init(cfg->models_dir,
+                                                component_config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::OCR)) {
-      ocr_component = components::ocr::Init(config, api_client);
+      ocr_component =
+          components::ocr::Init(cfg->models_dir, component_config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::SEARCH)) {
       // TODO(omkar): initialize this component
     }
@@ -113,7 +116,7 @@ int main(int argc, char** argv) {
       std::cout << place_result.size() << std::endl;
       auto faces_result = faces_component->Extract(
           response.id(), response.userid(), response.mediaitemid(),
-          response.payload().at("source_url"));
+          preview_thumbnail_result["preview_url"]);
       std::cout << faces_result.size() << std::endl;
     }
   }

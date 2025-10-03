@@ -23,10 +23,10 @@ namespace components {
 
 namespace faces {
 
-std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
-    const std::string& file_path) {
-  std::vector<std::pair<std::string, std::vector<float>>> result;
-  // preprocess and detect
+std::vector<std::string> ONNXModel::Detect(const std::string& file_path) {
+  std::vector<std::string> result;
+
+  // preprocess
   cv::Mat img = cv::imread(file_path);
   float im_ratio = static_cast<float>(img.rows) / img.cols;
   float model_ratio = 1.0;
@@ -61,9 +61,13 @@ std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
     output_names.push_back(output_name_ptr.get());
     output_name_ptrs.push_back(std::move(output_name_ptr));
   }
+
+  // inference run
   auto outputs = detection_session_.Run(
       Ort::RunOptions{nullptr}, input_names.data(), &input_tensor, 1,
       output_names.data(), output_names.size());
+
+  // postprocess
   auto info = outputs[0].GetTensorTypeAndShapeInfo();
   std::vector<cv::Rect> all_boxes;
   std::vector<float> all_scores;
@@ -71,11 +75,11 @@ std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
   for (size_t stride_idx = 0; stride_idx < strides.size(); stride_idx++) {
     int stride = strides[stride_idx];
     float* scores_ptr = outputs[stride_idx].GetTensorMutableData<float>();
-    size_t num_scores =
+    int num_scores =
         outputs[stride_idx].GetTensorTypeAndShapeInfo().GetElementCount();
     std::vector<float> scores(scores_ptr, scores_ptr + num_scores);
     float* bboxes_ptr = outputs[stride_idx + 3].GetTensorMutableData<float>();
-    size_t num_bboxes =
+    int num_bboxes =
         outputs[stride_idx + 3].GetTensorTypeAndShapeInfo().GetElementCount();
     std::vector<float> bboxes(bboxes_ptr, bboxes_ptr + num_bboxes);
     for (size_t i = 0; i < bboxes.size(); ++i) {
@@ -84,8 +88,8 @@ std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
     int h = blob.size[2] / stride, w = blob.size[3] / stride;
     std::vector<std::pair<float, float>> anchors;
     anchors.reserve(h * w * 2); // Reserve for h*w*2 anchors
-    for (int y = 0; y < h; ++y) {
-      for (int x = 0; x < w; ++x) {
+    for (size_t y = 0; y < h; ++y) {
+      for (size_t x = 0; x < w; ++x) {
         float anchor_x = x * stride;
         float anchor_y = y * stride;
         anchors.emplace_back(anchor_x, anchor_y);
@@ -141,10 +145,11 @@ std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
     }
     order = std::move(new_order);
   }
-  SPDLOG_INFO("keep: {}", keep.size());
+
+  // faces from box grids
   cv::Mat original_img = cv::imread(file_path);
   for (int idx : keep) {
-    if (all_scores[idx] > 0.8f) {
+    if (all_scores[idx] >= detection_threshold_) {
       cv::Rect box =
           all_boxes[idx] & cv::Rect(0, 0, original_img.cols, original_img.rows);
       if (box.width > 0 && box.height > 0) {
@@ -156,7 +161,94 @@ std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
       }
     }
   }
-  // preprocess and recognize
+
+  return result;
+}
+
+std::vector<std::vector<float>> ONNXModel::Recognize(
+    const std::vector<std::string>& face_file_paths) {
+  std::vector<std::vector<float>> result;
+
+  for (const std::string& face_file_path : face_file_paths) {
+    // preprocess
+    cv::Mat img = cv::imread(face_file_path);
+    cv::resize(img, img, cv::Size(112, 112));
+    cv::cvtColor(img, img, cv::COLOR_BGR2RGB);
+    img.convertTo(img, CV_32F, 1.0 / 255.0);
+    img = (img - 0.5) / 0.5;
+    std::vector<cv::Mat> channels(3);
+    cv::split(img, channels);
+    cv::Mat blob;
+    cv::merge(channels, blob);
+    blob = blob.reshape(1, 1);
+    Ort::AllocatorWithDefaultOptions allocator;
+    auto input_name_ptr =
+        recognition_session_.GetInputNameAllocated(0, allocator);
+    const char* input_name = input_name_ptr.get();
+    std::vector<int64_t> input_shape = {1, 3, 112, 112};
+    std::vector<float> input_tensor_values(1 * 3 * 112 * 112);
+    for (size_t c = 0; c < 3; ++c) {
+      for (size_t h = 0; h < 112; ++h) {
+        for (size_t w = 0; w < 112; ++w) {
+          input_tensor_values[c * 112 * 112 + h * 112 + w] =
+              channels[c].at<float>(h, w);
+        }
+      }
+    }
+    Ort::MemoryInfo memory_info =
+        Ort::MemoryInfo::CreateCpu(OrtArenaAllocator, OrtMemTypeDefault);
+    Ort::Value input_tensor = Ort::Value::CreateTensor<float>(
+        memory_info, input_tensor_values.data(), input_tensor_values.size(),
+        input_shape.data(), input_shape.size());
+    std::vector<const char*> input_names{input_name};
+    std::vector<Ort::AllocatedStringPtr> output_name_ptrs;
+    std::vector<const char*> output_names;
+    for (size_t i = 0; i < recognition_session_.GetOutputCount(); ++i) {
+      auto output_name_ptr =
+          recognition_session_.GetOutputNameAllocated(i, allocator);
+      output_names.push_back(output_name_ptr.get());
+      output_name_ptrs.push_back(std::move(output_name_ptr));
+    }
+
+    // inference run
+    auto outputs = recognition_session_.Run(
+        Ort::RunOptions{nullptr}, input_names.data(), &input_tensor, 1,
+        output_names.data(), output_names.size());
+
+    // postprocess
+    float* output_ptr = outputs[0].GetTensorMutableData<float>();
+    int output_size = outputs[0].GetTensorTypeAndShapeInfo().GetElementCount();
+    std::vector<float> embedding(output_ptr, output_ptr + output_size);
+    result.push_back(std::move(embedding));
+  }
+
+  return result;
+}
+
+std::vector<std::pair<std::string, std::vector<float>>> ONNXModel::Run(
+    const std::string& file_path) {
+  std::vector<std::string> face_file_paths;
+  try {
+    face_file_paths = Detect(file_path);
+  } catch (const std::exception& e) {
+    SPDLOG_ERROR("error detecting faces: {}", e.what());
+  }
+
+  std::vector<std::vector<float>> embeddings;
+  try {
+    embeddings = Recognize(face_file_paths);
+  } catch (const std::exception& e) {
+    SPDLOG_ERROR("error recognizing faces: {}", e.what());
+  }
+
+  std::vector<std::pair<std::string, std::vector<float>>> result;
+  result.reserve(face_file_paths.size());
+
+  for (size_t i = 0; i < face_file_paths.size(); ++i) {
+    result.emplace_back(std::move(face_file_paths[i]),
+                        std::move(embeddings[i]));
+  }
+
   return result;
 }
 
@@ -205,12 +297,33 @@ std::unordered_map<std::string, std::string> ONNX::Extract(
   return result;
 }
 
-std::shared_ptr<Faces> Init(const ComponentConfig& config,
+std::shared_ptr<Faces> Init(const std::string& models_dir,
+                            const ComponentConfig& config,
                             std::shared_ptr<APIClient> api_client) {
   if (config.source == "onnx") {
+    simdjson::ondemand::parser parser;
+    simdjson::padded_string padded_config =
+        simdjson::padded_string(config.params);
+    simdjson::ondemand::document doc = parser.iterate(padded_config);
+    float detection_threshold = 0.8f;
+    if (doc["detection_threshold"].error() == simdjson::SUCCESS) {
+      detection_threshold =
+          static_cast<float>(doc["detection_threshold"].get_double());
+    }
+    std::string detection_model = "faces_det/scrfd_2.5g.onnx";
+    if (doc["detection_threshold"].error() == simdjson::SUCCESS) {
+      detection_model =
+          std::string(doc["detection_model"].get_string().value());
+    }
+    std::string recognition_model = "faces_rec/webface_r50.onnx";
+    if (doc["recognition_model"].error() == simdjson::SUCCESS) {
+      recognition_model =
+          std::string(doc["recognition_model"].get_string().value());
+    }
     return std::make_shared<ONNX>(
-        std::make_shared<ONNXModel>("../models/faces_det/scrfd_2.5g.onnx", 0.8,
-                                    "../models/faces_rec/webface_r50.onnx"),
+        std::make_shared<ONNXModel>(models_dir + "/" + detection_model,
+                                    detection_threshold,
+                                    models_dir + "/" + recognition_model),
         api_client);
   }
   return nullptr;

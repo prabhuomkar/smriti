@@ -28,8 +28,12 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-class MockModelInference : public ModelInferenceInterface {
+class MockFacesModelInference : public ModelInferenceInterface {
  public:
+  MOCK_METHOD((std::vector<std::string>), Detect,
+              (const std::string& file_path), (override));
+  MOCK_METHOD((std::vector<std::vector<float>>), Recognize,
+              (const std::vector<std::string>& face_file_paths), (override));
   MOCK_METHOD((std::vector<std::pair<std::string, std::vector<float>>>), Run,
               (const std::string& file_path), (override));
 };
@@ -44,13 +48,13 @@ void assertFacesResult(std::unordered_map<std::string, std::string> expected,
 
 TEST(FacesTest, Init) {
   spdlog::set_level(spdlog::level::off);
-  auto faces =
-      components::faces::Init(ComponentConfig("onnx", "params"), nullptr);
+  auto faces = components::faces::Init(
+      "../../../models", ComponentConfig("onnx", "params"), nullptr);
   ASSERT_TRUE(faces != nullptr);
   auto onnx = std::dynamic_pointer_cast<ONNX>(faces);
   ASSERT_TRUE(onnx != nullptr);
-  faces =
-      components::faces::Init(ComponentConfig("unknown", "params"), nullptr);
+  faces = components::faces::Init(
+      "../../../models", ComponentConfig("unknown", "params"), nullptr);
   ASSERT_TRUE(faces == nullptr);
 }
 
@@ -72,8 +76,8 @@ TEST(FacesONNXTest, EmptyInput) {
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemFacesRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
-  std::shared_ptr<MockModelInference> mock_model =
-      std::make_shared<MockModelInference>();
+  std::shared_ptr<MockFacesModelInference> mock_model =
+      std::make_shared<MockFacesModelInference>();
   ONNX onnx(mock_model, mock_api_client);
   std::unordered_map<std::string, std::string> result =
       onnx.Extract("", "", "", "");
@@ -90,8 +94,8 @@ TEST(FacesONNXTest, Error) {
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemFacesRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
-  std::shared_ptr<MockModelInference> mock_model =
-      std::make_shared<MockModelInference>();
+  std::shared_ptr<MockFacesModelInference> mock_model =
+      std::make_shared<MockFacesModelInference>();
   EXPECT_CALL(*mock_model, Run(::testing::_))
       .WillOnce(::testing::Throw(std::runtime_error("some error")));
   ONNX onnx(mock_model, mock_api_client);
@@ -110,8 +114,8 @@ TEST(FacesONNXTest, Success) {
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemFacesRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
-  std::shared_ptr<MockModelInference> mock_model =
-      std::make_shared<MockModelInference>();
+  std::shared_ptr<MockFacesModelInference> mock_model =
+      std::make_shared<MockFacesModelInference>();
   std::vector<std::pair<std::string, std::vector<float>>> mock_response = {
       {"path/face1", {1.23, 4.56, 7.89}}, {"path/face2", {9.78, 6.54, 3.21}}};
   EXPECT_CALL(*mock_model, Run(::testing::_))

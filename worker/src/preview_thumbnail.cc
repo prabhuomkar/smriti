@@ -91,9 +91,18 @@ std::shared_ptr<PreviewThumbnail> Init(const ComponentConfig& config,
   simdjson::padded_string padded_config =
       simdjson::padded_string(config.params);
   simdjson::ondemand::document doc = parser.iterate(padded_config);
-  int image_quality = static_cast<int>(doc["image_quality"].get_int64());
-  int thumbnail_size = static_cast<int>(doc["thumbnail_size"].get_int64());
-  int placeholder_size = static_cast<int>(doc["placeholder_size"].get_int64());
+  int image_quality = 50;
+  if (doc["image_quality"].error() == simdjson::SUCCESS) {
+    image_quality = static_cast<int>(doc["image_quality"].get_int64());
+  }
+  int thumbnail_size = 256;
+  if (doc["thumbnail_size"].error() == simdjson::SUCCESS) {
+    thumbnail_size = static_cast<int>(doc["thumbnail_size"].get_int64());
+  }
+  int placeholder_size = 2;
+  if (doc["placeholder_size"].error() == simdjson::SUCCESS) {
+    placeholder_size = static_cast<int>(doc["placeholder_size"].get_int64());
+  }
   return std::make_shared<PreviewThumbnail>(
       std::make_shared<ImageConverterClient>(), api_client, image_quality,
       thumbnail_size, placeholder_size);

@@ -28,7 +28,7 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-class MockModelInference : public ModelInferenceInterface {
+class MockOCRModelInference : public ModelInferenceInterface {
  public:
   MOCK_METHOD((std::vector<std::pair<std::string, float>>), Run,
               (const std::string& file_path), (override));
@@ -44,12 +44,13 @@ void assertOCRResult(std::unordered_map<std::string, std::string> expected,
 
 TEST(OCRTest, Init) {
   spdlog::set_level(spdlog::level::off);
-  auto ocr =
-      components::ocr::Init(ComponentConfig("paddlepaddle", "params"), nullptr);
+  auto ocr = components::ocr::Init(
+      "../../../models", ComponentConfig("paddlepaddle", "params"), nullptr);
   ASSERT_TRUE(ocr != nullptr);
   auto paddlepaddle = std::dynamic_pointer_cast<PaddlePaddle>(ocr);
   ASSERT_TRUE(paddlepaddle != nullptr);
-  ocr = components::ocr::Init(ComponentConfig("unknown", "params"), nullptr);
+  ocr = components::ocr::Init("../../../models",
+                              ComponentConfig("unknown", "params"), nullptr);
   ASSERT_TRUE(ocr == nullptr);
 }
 
@@ -61,20 +62,20 @@ TEST(OCRTest, EmptyInput) {
   assertOCRResult({}, result);
 }
 
-TEST(FacesPaddlePaddleTest, EmptyInput) {
+TEST(OCRPaddlePaddleTest, EmptyInput) {
   spdlog::set_level(spdlog::level::off);
-  std::shared_ptr<MockModelInference> mock_model =
-      std::make_shared<MockModelInference>();
+  std::shared_ptr<MockOCRModelInference> mock_model =
+      std::make_shared<MockOCRModelInference>();
   PaddlePaddle paddlepaddle(mock_model, nullptr);
   std::unordered_map<std::string, std::string> result =
       paddlepaddle.Extract("", "", "", "");
   assertOCRResult({}, result);
 }
 
-TEST(FacesPaddlePaddleTest, Error) {
+TEST(OCRPaddlePaddleTest, Error) {
   spdlog::set_level(spdlog::level::off);
-  std::shared_ptr<MockModelInference> mock_model =
-      std::make_shared<MockModelInference>();
+  std::shared_ptr<MockOCRModelInference> mock_model =
+      std::make_shared<MockOCRModelInference>();
   EXPECT_CALL(*mock_model, Run(::testing::_))
       .WillOnce(::testing::Throw(std::runtime_error("some error")));
   PaddlePaddle paddlepaddle(mock_model, nullptr);
@@ -83,10 +84,10 @@ TEST(FacesPaddlePaddleTest, Error) {
   assertOCRResult({}, result);
 }
 
-TEST(FacesPaddlePaddleTest, Success) {
+TEST(OCRPaddlePaddleTest, Success) {
   spdlog::set_level(spdlog::level::off);
-  std::shared_ptr<MockModelInference> mock_model =
-      std::make_shared<MockModelInference>();
+  std::shared_ptr<MockOCRModelInference> mock_model =
+      std::make_shared<MockOCRModelInference>();
   std::vector<std::pair<std::string, float>> mock_response = {
       {"thats what she said", 99.86},
       {"boy have you lost your mind", 98.12},

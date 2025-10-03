@@ -58,7 +58,8 @@ std::unordered_map<std::string, std::string> PaddlePaddle::Extract(
   return result;
 }
 
-std::shared_ptr<OCR> Init(const ComponentConfig& config,
+std::shared_ptr<OCR> Init(const std::string& models_dir,
+                          const ComponentConfig& config,
                           std::shared_ptr<APIClient> api_client) {
   if (config.source == "paddlepaddle") {
     return std::make_shared<PaddlePaddle>(std::make_shared<PaddlePaddleModel>(),
