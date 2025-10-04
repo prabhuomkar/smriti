@@ -4,9 +4,11 @@ file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../src/*.cc)
 
 file(GLOB GENERATED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/../generated/protos/*.cc)
 
+file(GLOB_RECURSE PADDLEOCR_SOURCES ${paddleocr_SOURCE_DIR}/deploy/cpp_infer/src/*.cc)
+
 list(FILTER EXEC_SOURCES EXCLUDE REGEX ".*/main\\.cc$")
 
-add_executable(worker_tests ${TEST_SOURCES} ${EXEC_SOURCES} ${GENERATED_SOURCES})
+add_executable(worker_tests ${TEST_SOURCES} ${EXEC_SOURCES} ${GENERATED_SOURCES} ${PADDLEOCR_SOURCES})
 
 target_include_directories(worker_tests PRIVATE ${TARGET_INCLUDE_DIRS})
 
@@ -23,7 +25,7 @@ gtest_discover_tests(worker_tests)
 
 file(GLOB BENCHMARK_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/*_benchmark.cc)
 
-add_executable(worker_benchmarks ${BENCHMARK_SOURCES} ${EXEC_SOURCES} ${GENERATED_SOURCES})
+add_executable(worker_benchmarks ${BENCHMARK_SOURCES} ${EXEC_SOURCES} ${GENERATED_SOURCES} ${PADDLEOCR_SOURCES})
 
 target_include_directories(worker_benchmarks PRIVATE ${TARGET_INCLUDE_DIRS})
 

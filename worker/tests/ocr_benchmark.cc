@@ -29,19 +29,10 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-static void BM_OCRInit(benchmark::State& state) { // NOLINT
-  spdlog::set_level(spdlog::level::off);
-  ComponentConfig config = ComponentConfig("paddlepaddle", "params");
-  for (auto _ : state) {
-    auto ocr = components::ocr::Init("../../../models", config, nullptr);
-    benchmark::DoNotOptimize(ocr);
-  }
-}
-
 static void BM_OCREmptyInput(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  components::ocr::OCR ocr;
   for (auto _ : state) {
-    components::ocr::OCR ocr;
     std::unordered_map<std::string, std::string> output =
         ocr.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
@@ -50,10 +41,10 @@ static void BM_OCREmptyInput(benchmark::State& state) { // NOLINT
 
 static void BM_OCRPaddlePaddleEmptyInput(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockOCRModelInference> mock_model =
+      std::make_shared<MockOCRModelInference>();
+  PaddlePaddle paddlepaddle(mock_model, nullptr);
   for (auto _ : state) {
-    std::shared_ptr<MockOCRModelInference> mock_model =
-        std::make_shared<MockOCRModelInference>();
-    PaddlePaddle paddlepaddle(mock_model, nullptr);
     std::unordered_map<std::string, std::string> output =
         paddlepaddle.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
@@ -62,12 +53,12 @@ static void BM_OCRPaddlePaddleEmptyInput(benchmark::State& state) { // NOLINT
 
 static void BM_OCRPaddlePaddleError(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockOCRModelInference> mock_model =
+      std::make_shared<MockOCRModelInference>();
+  EXPECT_CALL(*mock_model, Run(::testing::_))
+      .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
+  PaddlePaddle paddlepaddle(mock_model, nullptr);
   for (auto _ : state) {
-    std::shared_ptr<MockOCRModelInference> mock_model =
-        std::make_shared<MockOCRModelInference>();
-    EXPECT_CALL(*mock_model, Run(::testing::_))
-        .WillOnce(::testing::Throw(std::runtime_error("some error")));
-    PaddlePaddle paddlepaddle(mock_model, nullptr);
     std::unordered_map<std::string, std::string> output =
         paddlepaddle.Extract("", "", "", "file_path");
     benchmark::DoNotOptimize(output);
@@ -76,23 +67,22 @@ static void BM_OCRPaddlePaddleError(benchmark::State& state) { // NOLINT
 
 static void BM_OCRPaddlePaddleSuccess(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  std::shared_ptr<MockOCRModelInference> mock_model =
+      std::make_shared<MockOCRModelInference>();
+  std::vector<std::pair<std::string, float>> mock_response = {
+      {"thats what she said", 99.86},
+      {"boy have you lost your mind", 98.12},
+      {"spiderface", 75.43}};
+  EXPECT_CALL(*mock_model, Run(::testing::_))
+      .WillRepeatedly(::testing::Return(mock_response));
+  PaddlePaddle paddlepaddle(mock_model, nullptr);
   for (auto _ : state) {
-    std::shared_ptr<MockOCRModelInference> mock_model =
-        std::make_shared<MockOCRModelInference>();
-    std::vector<std::pair<std::string, float>> mock_response = {
-        {"thats what she said", 99.86},
-        {"boy have you lost your mind", 98.12},
-        {"spiderface", 75.43}};
-    EXPECT_CALL(*mock_model, Run(::testing::_))
-        .WillOnce(::testing::Return(mock_response));
-    PaddlePaddle paddlepaddle(mock_model, nullptr);
     std::unordered_map<std::string, std::string> output =
         paddlepaddle.Extract("", "", "", "file_path");
     benchmark::DoNotOptimize(output);
   }
 }
 
-BENCHMARK(BM_OCRInit)->ThreadPerCpu();
 BENCHMARK(BM_OCREmptyInput)->ThreadPerCpu();
 BENCHMARK(BM_OCRPaddlePaddleEmptyInput)->ThreadPerCpu();
 BENCHMARK(BM_OCRPaddlePaddleError)->ThreadPerCpu();

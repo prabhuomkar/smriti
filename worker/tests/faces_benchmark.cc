@@ -29,19 +29,10 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-static void BM_FacesInit(benchmark::State& state) { // NOLINT
-  spdlog::set_level(spdlog::level::off);
-  ComponentConfig config = ComponentConfig("onnx", "params");
-  for (auto _ : state) {
-    auto faces = components::faces::Init("../../../models", config, nullptr);
-    benchmark::DoNotOptimize(faces);
-  }
-}
-
 static void BM_FacesEmptyInput(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
+  Faces faces;
   for (auto _ : state) {
-    Faces faces;
     std::unordered_map<std::string, std::string> output =
         faces.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
@@ -58,10 +49,10 @@ static void BM_FacesONNXEmptyInput(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemFacesRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockFacesModelInference> mock_model =
+      std::make_shared<MockFacesModelInference>();
+  ONNX onnx(mock_model, mock_api_client);
   for (auto _ : state) {
-    std::shared_ptr<MockFacesModelInference> mock_model =
-        std::make_shared<MockFacesModelInference>();
-    ONNX onnx(mock_model, mock_api_client);
     std::unordered_map<std::string, std::string> output =
         onnx.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
@@ -78,12 +69,12 @@ static void BM_FacesONNXError(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemFacesRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockFacesModelInference> mock_model =
+      std::make_shared<MockFacesModelInference>();
+  EXPECT_CALL(*mock_model, Run(::testing::_))
+      .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
+  ONNX onnx(mock_model, mock_api_client);
   for (auto _ : state) {
-    std::shared_ptr<MockFacesModelInference> mock_model =
-        std::make_shared<MockFacesModelInference>();
-    EXPECT_CALL(*mock_model, Run(::testing::_))
-        .WillOnce(::testing::Throw(std::runtime_error("some error")));
-    ONNX onnx(mock_model, mock_api_client);
     std::unordered_map<std::string, std::string> output =
         onnx.Extract("", "", "", "file_path");
     benchmark::DoNotOptimize(output);
@@ -100,21 +91,20 @@ static void BM_FacesONNXSuccess(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemFacesRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  std::shared_ptr<MockFacesModelInference> mock_model =
+      std::make_shared<MockFacesModelInference>();
+  std::vector<std::pair<std::string, std::vector<float>>> mock_response = {
+      {"path/face1", {1.23, 4.56, 7.89}}, {"path/face2", {9.78, 6.54, 3.21}}};
+  EXPECT_CALL(*mock_model, Run(::testing::_))
+      .WillRepeatedly(::testing::Return(mock_response));
+  ONNX onnx(mock_model, mock_api_client);
   for (auto _ : state) {
-    std::shared_ptr<MockFacesModelInference> mock_model =
-        std::make_shared<MockFacesModelInference>();
-    std::vector<std::pair<std::string, std::vector<float>>> mock_response = {
-        {"path/face1", {1.23, 4.56, 7.89}}, {"path/face2", {9.78, 6.54, 3.21}}};
-    EXPECT_CALL(*mock_model, Run(::testing::_))
-        .WillOnce(::testing::Return(mock_response));
-    ONNX onnx(mock_model, mock_api_client);
     std::unordered_map<std::string, std::string> output =
         onnx.Extract("", "", "", "file_path");
     benchmark::DoNotOptimize(output);
   }
 }
 
-BENCHMARK(BM_FacesInit)->ThreadPerCpu();
 BENCHMARK(BM_FacesEmptyInput)->ThreadPerCpu();
 BENCHMARK(BM_FacesONNXEmptyInput)->ThreadPerCpu();
 BENCHMARK(BM_FacesONNXError)->ThreadPerCpu();

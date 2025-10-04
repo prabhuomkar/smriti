@@ -24,22 +24,6 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-static void BM_PreviewThumbnailInit(benchmark::State& state) { // NOLINT
-  spdlog::set_level(spdlog::level::off);
-  ComponentConfig config =
-      ComponentConfig("",
-                      "{\"image_quality\":50,\"thumbnail_size\":256,"
-                      "\"placeholder_size\":2}");
-  for (auto _ : state) {
-    auto previewthumbnail = components::previewthumbnail::Init(
-        ComponentConfig("",
-                        "{\"image_quality\":50,\"thumbnail_size\":256,"
-                        "\"placeholder_size\":2}"),
-        nullptr);
-    benchmark::DoNotOptimize(previewthumbnail);
-  }
-}
-
 static void BM_PreviewThumbnailError(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
@@ -55,9 +39,9 @@ static void BM_PreviewThumbnailError(benchmark::State& state) { // NOLINT
       .WillRepeatedly(Invoke(
           [&](grpc::ClientContext*, const MediaItemPreviewThumbnailRequest&,
               google::protobuf::Empty*) { return grpc::Status::OK; }));
+  PreviewThumbnail previewthumbnail(mock_image_converter_client,
+                                    mock_api_client);
   for (auto _ : state) {
-    PreviewThumbnail previewthumbnail(mock_image_converter_client,
-                                      mock_api_client);
     std::unordered_map<std::string, std::string> output =
         previewthumbnail.Generate("", "", "", "",
                                   MediaItemType_Name(MediaItemType::PHOTO));
@@ -81,9 +65,9 @@ static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
       .WillRepeatedly(Invoke(
           [&](grpc::ClientContext*, const MediaItemPreviewThumbnailRequest&,
               google::protobuf::Empty*) { return grpc::Status::OK; }));
+  PreviewThumbnail previewthumbnail(mock_image_converter_client,
+                                    mock_api_client);
   for (auto _ : state) {
-    PreviewThumbnail previewthumbnail(mock_image_converter_client,
-                                      mock_api_client);
     std::unordered_map<std::string, std::string> output =
         previewthumbnail.Generate("", "", "", "",
                                   MediaItemType_Name(MediaItemType::PHOTO));
@@ -107,9 +91,9 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
       .WillRepeatedly(Invoke(
           [&](grpc::ClientContext*, const MediaItemPreviewThumbnailRequest&,
               google::protobuf::Empty*) { return grpc::Status::OK; }));
+  PreviewThumbnail previewthumbnail(mock_image_converter_client,
+                                    mock_api_client);
   for (auto _ : state) {
-    PreviewThumbnail previewthumbnail(mock_image_converter_client,
-                                      mock_api_client);
     std::unordered_map<std::string, std::string> output =
         previewthumbnail.Generate("", "", "", "",
                                   MediaItemType_Name(MediaItemType::VIDEO));
@@ -117,7 +101,6 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
   }
 }
 
-BENCHMARK(BM_PreviewThumbnailInit)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailError)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailPhotoSuccess)->ThreadPerCpu();
 BENCHMARK(BM_PreviewThumbnailVideoSuccess)->ThreadPerCpu();

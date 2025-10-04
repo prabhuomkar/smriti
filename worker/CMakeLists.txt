@@ -35,19 +35,24 @@ find_package(Protobuf REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED)
+find_package(gflags REQUIRED)
 pkg_check_modules(LibRaw REQUIRED libraw)
 
 file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
 
 file(GLOB GENERATED_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/generated/protos/*.cc)
 
-add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES})
+file(GLOB_RECURSE PADDLEOCR_SOURCES ${paddleocr_SOURCE_DIR}/deploy/cpp_infer/src/*.cc)
+
+add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES} ${PADDLEOCR_SOURCES})
 
 set(TARGET_INCLUDE_DIRS 
+    ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/generated
     ${CMAKE_CURRENT_SOURCE_DIR}/include
     ${paddleocr_SOURCE_DIR}/deploy/cpp_infer
     ${ONNXRUNTIME_INCLUDE_DIRS}
+    ${POLYCLIPPING_INCLUDE_DIR}
     ${PADDLE_INFERENCE_INCLUDE_DIRS}
     ${IMAGEMAGICK_INCLUDE_DIRS}
     ${OpenCV_INCLUDE_DIRS}
@@ -62,6 +67,8 @@ set(TARGET_LINK_LIBS spdlog::spdlog
     gRPC::grpc
     protobuf::libprotobuf
     ImageMagick::Magick++
+    gflags
+    polyclipping
     ${ONNXRUNTIME_LIBRARIES}
     ${PADDLE_INFERENCE_LIBRARIES}
     ${OpenCV_LIBRARIES}

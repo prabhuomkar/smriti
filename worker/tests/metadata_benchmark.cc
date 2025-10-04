@@ -24,15 +24,6 @@ using ::testing::Invoke;
 using ::testing::NiceMock;
 using ::testing::Return;
 
-static void BM_MetadataInit(benchmark::State& state) { // NOLINT
-  spdlog::set_level(spdlog::level::off);
-  ComponentConfig config = ComponentConfig("", "");
-  for (auto _ : state) {
-    auto metadata = components::metadata::Init(config, nullptr);
-    benchmark::DoNotOptimize(metadata);
-  }
-}
-
 static void BM_MetadataEmptyData(benchmark::State& state) { // NOLINT
   spdlog::set_level(spdlog::level::off);
   std::shared_ptr<MockExifToolClient> mock_exif_client =
@@ -48,8 +39,8 @@ static void BM_MetadataEmptyData(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  Metadata metadata(mock_exif_client, mock_api_client);
   for (auto _ : state) {
-    Metadata metadata(mock_exif_client, mock_api_client);
     std::unordered_map<std::string, std::string> output =
         metadata.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
@@ -70,8 +61,8 @@ static void BM_MetadataError(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  Metadata metadata(mock_exif_client, mock_api_client);
   for (auto _ : state) {
-    Metadata metadata(mock_exif_client, mock_api_client);
     std::unordered_map<std::string, std::string> output =
         metadata.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
@@ -110,15 +101,14 @@ static void BM_MetadataSuccess(benchmark::State& state) { // NOLINT
       .WillRepeatedly(
           Invoke([&](grpc::ClientContext*, const MediaItemMetadataRequest&,
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
+  Metadata metadata(mock_exif_client, mock_api_client);
   for (auto _ : state) {
-    Metadata metadata(mock_exif_client, mock_api_client);
     std::unordered_map<std::string, std::string> output =
         metadata.Extract("", "", "", "");
     benchmark::DoNotOptimize(output);
   }
 }
 
-BENCHMARK(BM_MetadataInit)->ThreadPerCpu();
 BENCHMARK(BM_MetadataEmptyData)->ThreadPerCpu();
 BENCHMARK(BM_MetadataError)->ThreadPerCpu();
 BENCHMARK(BM_MetadataSuccess)->ThreadPerCpu();
