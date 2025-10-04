@@ -32,16 +32,16 @@ CREATED_ALBUM = {'name': 'Album Name', 'description': 'Album Description', 'shar
 CREATED_SHARED_ALBUM = {'name': 'Album Name', 'description': 'Album Description', 'shared': True, 'hidden': False}
 UPDATED_ALBUM = {'name': 'Updated Album Name', 'description': 'Updated Album Description', 'shared': False, 'hidden': False}
 
-CREATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
-                     'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2 mm', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
-                     'exposureTime': '1/25', 'mediaItemType': 'PHOTO', 'mediaItemCategory': 'LIVE',
+CREATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0285.heic', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 15 Pro', 'focalLength': '2.2 mm', 'apertureFNumber': '2.2', 'isoEquivalent': '100',
+                     'exposureTime': '1/100', 'mediaItemType': 'PHOTO', 'mediaItemCategory': 'LIVE',
                      'description': None, 'favourite': False, 'hidden': False},
                      'VIDEO':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
                      'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'VIDEO', 'mediaItemCategory': 'DEFAULT',
                      'description': None, 'favourite': False, 'hidden': False}}
-UPDATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0543.HEIC', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
-                     'cameraModel': 'iPhone 12 mini', 'focalLength': '4.2 mm', 'apertureFNumber': '1.6', 'isoEquivalent': '640',
-                     'exposureTime': '1/25', 'mediaItemType': 'PHOTO', 'mediaItemCategory': 'LIVE',
+UPDATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0285.heic', 'mimeType': 'image/heic', 'status': 'READY', 'cameraMake': 'Apple',
+                     'cameraModel': 'iPhone 15 Pro', 'focalLength': '2.2 mm', 'apertureFNumber': '2.2', 'isoEquivalent': '100',
+                     'exposureTime': '1/100', 'mediaItemType': 'PHOTO', 'mediaItemCategory': 'LIVE',
                      'description': 'Updated MediaItem Description', 'favourite': True, 'hidden': False},
                      'VIDEO':{'filename': 'IMG_6470.MOV', 'mimeType': 'video/quicktime', 'status': 'READY', 'cameraMake': 'Apple',
                      'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'VIDEO', 'mediaItemCategory': 'DEFAULT',

@@ -49,7 +49,8 @@ class PaddlePaddleModel : public ModelInferenceInterface {
           "ocr_text_det/PP-OCRv5_mobile_det_infer",
       const std::string& text_recognition_model_name = "PP-OCRv5_mobile_rec",
       const std::string& text_recognition_model_dir =
-          "ocr_text_rec/PP-OCRv5_mobile_rec_infer")
+          "ocr_text_rec/PP-OCRv5_mobile_rec_infer",
+      float text_rec_score_thresh = 0.9)
       : params_(
             {.use_doc_orientation_classify = use_doc_orientation_classify,
              .doc_orientation_classify_model_name =
@@ -65,7 +66,8 @@ class PaddlePaddleModel : public ModelInferenceInterface {
              .text_detection_model_name = text_detection_model_name,
              .text_detection_model_dir = text_detection_model_dir,
              .text_recognition_model_name = text_recognition_model_name,
-             .text_recognition_model_dir = text_recognition_model_dir}),
+             .text_recognition_model_dir = text_recognition_model_dir,
+             .text_rec_score_thresh = text_rec_score_thresh}),
         model_(params_) {}
   std::vector<std::pair<std::string, float>> Run(
       const std::string& file_path) override;

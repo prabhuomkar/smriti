@@ -118,6 +118,10 @@ int main(int argc, char** argv) {
           response.id(), response.userid(), response.mediaitemid(),
           preview_thumbnail_result["preview_url"]);
       std::cout << faces_result.size() << std::endl;
+      auto ocr_result = ocr_component->Extract(
+          response.id(), response.userid(), response.mediaitemid(),
+          preview_thumbnail_result["preview_url"]);
+      std::cout << ocr_result.size() << std::endl;
     }
   }
 

@@ -81,7 +81,7 @@ def step_impl(context, name, type, condition, seconds):
     headers = None
     if condition == 'with':
         headers = {'Authorization': f'Bearer {context.access_token}'}
-    files = {'file': open(f'data/{"IMG_0543.HEIC" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
+    files = {'file': open(f'data/{"IMG_0285.heic" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     context.response = res
     context.mediaitem_type = type
@@ -94,7 +94,7 @@ def step_impl(context, name, type, seconds):
                        headers={'Authorization': f'Bearer {context.access_token}'})
     mediaitems = res.json()
     if len(mediaitems) == 0:
-        files = {'file': open(f'data/{"IMG_0543.HEIC" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
+        files = {'file': open(f'data/{"IMG_0285.heic" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
         res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
         time.sleep(int(seconds))
     context.response = res
