@@ -399,9 +399,19 @@ func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFace
 	mediaItemFaces := make([]models.MediaitemFace, len(req.GetEmbeddings()))
 	faceThumbnails := req.GetThumbnails()
 	for idx, reqEmbedding := range req.GetEmbeddings() {
+		faceID := uuid.NewV4()
+		thumbnail := ""
+		if len(faceThumbnails[idx]) > 0 {
+			thumbnail, err = uploadFile(s.Storage, faceThumbnails[idx], "faces", faceID.String())
+			if err != nil {
+				slog.Error("error uploading thumbnail file for mediaitem face", "id", faceID.String(), "error", err)
+
+				return &emptypb.Empty{}, status.Error(codes.Internal, "error uploading mediaitem face thumbnail file")
+			}
+		}
 		faceEmbedding := pgvector.NewVector(reqEmbedding.Embedding)
 		mediaItemFaces[idx] = models.MediaitemFace{
-			MediaitemID: mediaItemID, ID: uuid.NewV4(), Embedding: &faceEmbedding, Thumbnail: faceThumbnails[idx],
+			MediaitemID: mediaItemID, ID: faceID, Embedding: &faceEmbedding, Thumbnail: thumbnail,
 		}
 	}
 	for idx, mediaItemFace := range mediaItemFaces {

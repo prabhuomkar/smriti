@@ -37,7 +37,7 @@ type ( // Provider ...
 	}
 )
 
-//nolint:ireturn
+//nolint:ireturn,cyclop
 func Init(cfg *Config) Provider {
 	if cfg.Provider == ProviderMinio {
 		minioClient, err := minio.New(cfg.Endpoint, &minio.Options{

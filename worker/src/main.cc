@@ -122,6 +122,16 @@ int main(int argc, char** argv) {
           response.id(), response.userid(), response.mediaitemid(),
           preview_thumbnail_result["preview_url"]);
       std::cout << ocr_result.size() << std::endl;
+      MediaItemFinalResultRequest final_request;
+      final_request.set_id(response.id());
+      final_request.set_userid(response.userid());
+      final_request.set_mediaitemid(response.mediaitemid());
+      final_request.set_detectedtext(
+          ocr_result.size() > 0 ? ocr_result["detected_text"] : "");
+      final_request.set_caption("");
+      final_request.set_userid(response.userid());
+      std::cout << api_client->SaveMediaItemFinalResult(final_request)
+                << std::endl;
     }
   }
 

@@ -5,6 +5,7 @@
 #include <spdlog/spdlog.h>
 
 #include <algorithm>
+#include <fstream>
 #include <memory>
 #include <optional>
 #include <string>
@@ -155,8 +156,17 @@ std::vector<std::string> ONNXModel::Detect(const std::string& file_path) {
       if (box.width > 0 && box.height > 0) {
         cv::Mat face = original_img(box);
         std::string face_out_path = file_path + "_face_" + std::to_string(idx);
-        cv::imwrite(face_out_path, face);
-        result.push_back({face_out_path, {}});
+        std::vector<uchar> face_out_buf;
+        std::vector<int> params = {cv::IMWRITE_JPEG_QUALITY, 50};
+        if (!cv::imencode(".jpg", face, face_out_buf, params)) {
+          SPDLOG_ERROR("error writing mediaitem face thumbnail");
+          continue;
+        }
+        std::ofstream face_out_file(face_out_path, std::ios::binary);
+        face_out_file.write(reinterpret_cast<const char*>(face_out_buf.data()),
+                            face_out_buf.size());
+        face_out_file.close();
+        result.push_back(face_out_path);
       }
     }
   }

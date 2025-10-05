@@ -47,7 +47,7 @@ UPDATED_MEDIAITEM = {'PHOTO':{'filename': 'IMG_0285.heic', 'mimeType': 'image/he
                      'cameraModel': 'iPhone 12 mini', 'fps': '30', 'mediaItemType': 'VIDEO', 'mediaItemCategory': 'DEFAULT',
                      'description': None, 'favourite': False, 'hidden': False}}
 
-CREATED_PLACE = {'name': 'Mumbai', 'area': 'Zone 3', 'locality': 'Mumbai', 'postcode': '400050', 'country': 'India'}
+CREATED_PLACE = {'name': 'Mumbai', 'area': 'Mulund West', 'locality': 'Mumbai', 'postcode': '400080', 'country': 'India'}
 
 FILES_TO_SKIP = ['3839-samsung - sm-g973u - 16bit (2.1132075471698).dng', '1087-leica - leica m monochrom (typ 246) - 12bit (3:2).dng',
                  '672-pentax - pentax optio s4.raw', '778-xiaomi - yi.raw', '3896-phase one - iq4 150mp - unknown (8) (4:3).iiq',
