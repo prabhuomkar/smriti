@@ -621,21 +621,36 @@ func TestSaveMediaItemFaces(t *testing.T) {
 		Name        string
 		Request     *api.MediaItemFacesRequest
 		MockDB      func(mock pgxmock.PgxPoolIface)
+		MockParams  func(string) (string, func(), error)
 		ExpectedErr error
 	}{
 		{
-			"save mediaitem faces with invalid mediaitem user id", &api.MediaItemFacesRequest{UserId: "bad-mediaitem-id"}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
+			"save mediaitem faces with invalid mediaitem user id", &api.MediaItemFacesRequest{UserId: "bad-mediaitem-id"}, nil, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
 		{
 			"save mediaitem faces with invalid mediaitem id", &api.MediaItemFacesRequest{
 				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
-			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
+			}, nil, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
+		},
+		{
+			"save mediaitem faces with error uploading face thumbnail file", &mediaItemFacesRequest, nil, nil,
+			status.Error(codes.Internal, "error uploading mediaitem face thumbnail file"),
 		},
 		{
 			"save mediaitem faces with error", &mediaItemFacesRequest, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
+			}, func(tmpRoot string) (string, func(), error) {
+				os.Mkdir(tmpRoot+"/faces/", 0o777)
+				faceThumbnailFile, err := os.CreateTemp(tmpRoot, "thumbnail")
+				if err != nil {
+					return "", nil, err
+				}
+				return faceThumbnailFile.Name(), func() {
+					defer os.Remove(tmpRoot + "/faces/")
+					defer os.Remove(faceThumbnailFile.Name())
+				}, nil
 			}, status.Error(codes.Internal, "error saving mediaitem faces: some db error"),
 		},
 		{
@@ -643,6 +658,16 @@ func TestSaveMediaItemFaces(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+			}, func(tmpRoot string) (string, func(), error) {
+				os.Mkdir(tmpRoot+"/faces/", 0o777)
+				faceThumbnailFile, err := os.CreateTemp(tmpRoot, "thumbnail")
+				if err != nil {
+					return "", nil, err
+				}
+				return faceThumbnailFile.Name(), func() {
+					defer os.Remove(tmpRoot + "/faces/")
+					defer os.Remove(faceThumbnailFile.Name())
+				}, nil
 			}, nil,
 		},
 	}
@@ -656,7 +681,19 @@ func TestSaveMediaItemFaces(t *testing.T) {
 				test.MockDB(mockDB)
 			}
 			// service
-			service := Init(&config.Config{}, mockDB, nil)
+			tmpRoot := os.TempDir()
+			service := Init(&config.Config{}, mockDB, &storage.Disk{Root: tmpRoot})
+			// mock tmp params
+			if test.MockParams != nil {
+				facesPath, clear, err := test.MockParams(tmpRoot)
+				assert.NoError(t, err)
+				thumbnails := make([]string, len(mediaItemFacesRequest.Thumbnails))
+				for idx := range test.Request.Thumbnails {
+					thumbnails[idx] = facesPath
+				}
+				test.Request.Thumbnails = thumbnails
+				defer clear()
+			}
 			// server
 			ctx := context.Background()
 			conn, err := grpc.DialContext(ctx, "", grpc.WithTransportCredentials(insecure.NewCredentials()),

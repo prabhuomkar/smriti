@@ -70,8 +70,8 @@ type ( // Log ...
 		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER"          default:"pytorch"`
 		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS"            default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v240624.pt\",\"vision_file\":\"search_vision_v240624.pt\"}"` //nolint:lll
 		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER"           default:"onnx"`
-		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS"             default:"{\"detection_threshold\":0.8,\"detection_model\":\"faces_det/scrfd_2.5g.onnx\",\"recognition_model\":\"faces_rec/webface_r50.onnx\"}"` //nolint:lll
-		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{\"image_quality\":50,\"thumbnail_size\":256,\"placeholder_size\":2}"`                                                                 //nolint:lll
+		FacesParams            string `envconfig:"SMRITI_ML_FACES_PARAMS"             default:"{\"detection_threshold\":0.8,\"detection_model\":\"faces_det/scrfd_2.5g.onnx\",\"recognition_model\":\"faces_rec/webface_r50.onnx\",\"clustering_lib\":\"faiss\",\"clustering_cron\":\"* * * * *\"}"` //nolint:lll
+		PreviewThumbnailParams string `envconfig:"SMRITI_ML_PREVIEW_THUMBNAIL_PARAMS" default:"{\"image_quality\":50,\"thumbnail_size\":256,\"placeholder_size\":2}"`                                                                                                                                //nolint:lll
 	}
 
 	// Feature ...

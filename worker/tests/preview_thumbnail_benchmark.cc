@@ -29,7 +29,7 @@ static void BM_PreviewThumbnailError(benchmark::State& state) { // NOLINT
   std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
       std::make_shared<MockImageConverterClient>();
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
@@ -55,7 +55,7 @@ static void BM_PreviewThumbnailPhotoSuccess(benchmark::State& state) { // NOLINT
       std::make_shared<MockImageConverterClient>();
   std::string mock_data = "path-kind";
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
@@ -81,7 +81,7 @@ static void BM_PreviewThumbnailVideoSuccess(benchmark::State& state) { // NOLINT
       std::make_shared<MockImageConverterClient>();
   std::string mock_data = "path-kind";
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();

@@ -20,7 +20,7 @@ namespace previewthumbnail {
 
 std::string ImageConverterClient::Convert(const std::string& input_file_path,
                                           const std::string& output_file_path,
-                                          int image_quality, int image_size) {
+                                          int image_size) {
   LibRaw raw_processor;
   Magick::Image magick_img;
   Magick::Blob magick_blob;
@@ -69,7 +69,7 @@ std::string ImageConverterClient::Convert(const std::string& input_file_path,
   SPDLOG_DEBUG("resizing image to {} {}", resize_width, resize_height);
 
   magick_img.resize(Magick::Geometry(resize_width, resize_height));
-  magick_img.quality(image_quality);
+  magick_img.quality(image_quality_);
   magick_img.magick("JPEG");
 
   if (output_file_path == "") {
@@ -104,7 +104,7 @@ std::shared_ptr<PreviewThumbnail> Init(const ComponentConfig& config,
     placeholder_size = static_cast<int>(doc["placeholder_size"].get_int64());
   }
   return std::make_shared<PreviewThumbnail>(
-      std::make_shared<ImageConverterClient>(), api_client, image_quality,
+      std::make_shared<ImageConverterClient>(image_quality), api_client,
       thumbnail_size, placeholder_size);
 }
 
@@ -125,19 +125,18 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
   try {
     if (type == MediaItemType_Name(MediaItemType::PHOTO)) {
       result["preview_url"] = image_converter_client_->Convert(
-          file_path, file_path + "-preview", image_quality_, 0);
+          file_path, file_path + "-preview", 0);
     } else if (type == MediaItemType_Name(MediaItemType::VIDEO)) {
       result["preview_url"] = "";
     }
     request.set_previewpath(result["preview_url"]);
 
     result["thumbnail_url"] = image_converter_client_->Convert(
-        result["preview_url"], file_path + "-thumbnail", image_quality_,
-        thumbnail_size_);
+        result["preview_url"], file_path + "-thumbnail", thumbnail_size_);
     request.set_thumbnailpath(result["thumbnail_url"]);
 
     result["placeholder"] = image_converter_client_->Convert(
-        result["thumbnail_url"], "", image_quality_, placeholder_size_);
+        result["thumbnail_url"], "", placeholder_size_);
     request.set_placeholder(result["placeholder"]);
 
     status = MediaItemStatus::READY;

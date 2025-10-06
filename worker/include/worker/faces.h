@@ -10,6 +10,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -31,6 +32,23 @@ class ModelInferenceInterface {
       const std::vector<std::string>& face_file_paths) = 0;
   virtual std::vector<std::pair<std::string, std::vector<float>>> Run(
       const std::string& file_path) = 0;
+};
+
+class ClusteringInterface {
+ public:
+  virtual ~ClusteringInterface() = default;
+  virtual std::unordered_map<std::string,
+                             std::unordered_map<std::string, std::string>>
+  Assign(const std::vector<std::tuple<std::string, std::string, std::string,
+                                      std::vector<float>>>& input) = 0;
+};
+
+class FAISSClustering : public ClusteringInterface {
+ public:
+  FAISSClustering() {}
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string>>
+  Assign(const std::vector<std::tuple<std::string, std::string, std::string,
+                                      std::vector<float>>>& input) override;
 };
 
 class ONNXModel : public ModelInferenceInterface {
@@ -71,19 +89,23 @@ class Faces {
   virtual std::unordered_map<std::string, std::string> Extract(
       const std::string& id, const std::string& user_id,
       const std::string& mediaitem_id, const std::string& file_path);
+  virtual void Cluster();
 };
 
 class ONNX : public Faces {
  public:
   explicit ONNX(std::shared_ptr<ModelInferenceInterface> model,
+                std::shared_ptr<ClusteringInterface> clusterer,
                 std::shared_ptr<APIClient> api_client)
-      : model_(model), api_client_(api_client) {}
+      : model_(model), clusterer_(clusterer), api_client_(api_client) {}
   std::unordered_map<std::string, std::string> Extract(
       const std::string& id, const std::string& user_id,
       const std::string& mediaitem_id, const std::string& file_path) override;
+  void Cluster() override;
 
  private:
   std::shared_ptr<ModelInferenceInterface> model_;
+  std::shared_ptr<ClusteringInterface> clusterer_;
   std::shared_ptr<APIClient> api_client_;
 };
 

@@ -9,6 +9,7 @@
 #include <memory>
 #include <optional>
 #include <string>
+#include <tuple>
 #include <unordered_map>
 #include <utility>
 #include <vector>
@@ -23,6 +24,16 @@ using services::api::APIClient;
 namespace components {
 
 namespace faces {
+
+std::unordered_map<std::string, std::unordered_map<std::string, std::string>>
+FAISSClustering::Assign(
+    const std::vector<std::tuple<std::string, std::string, std::string,
+                                 std::vector<float>>>& input) {
+  std::unordered_map<std::string, std::unordered_map<std::string, std::string>>
+      result;
+
+  return result;
+}
 
 std::vector<std::string> ONNXModel::Detect(const std::string& file_path) {
   std::vector<std::string> result;
@@ -267,6 +278,8 @@ std::unordered_map<std::string, std::string> Faces::Extract(
   return {};
 }
 
+void Faces::Cluster() {}
+
 std::unordered_map<std::string, std::string> ONNX::Extract(
     const std::string& id, const std::string& user_id,
     const std::string& mediaitem_id, const std::string& file_path) {
@@ -306,6 +319,32 @@ std::unordered_map<std::string, std::string> ONNX::Extract(
   return result;
 }
 
+void ONNX::Cluster() {
+  SPDLOG_INFO("getting users for clustering faces");
+  UsersResponse users_response = api_client_->GetUsers();
+  for (const std::string& user_id : users_response.users()) {
+    SPDLOG_DEBUG("getting mediaitem face embeddings for user: {}", user_id);
+    MediaItemFaceEmbeddingsRequest req;
+    req.set_userid(user_id);
+    MediaItemFaceEmbeddingsResponse mfe_response =
+        api_client_->GetMediaItemFaceEmbeddings(req);
+    std::vector<
+        std::tuple<std::string, std::string, std::string, std::vector<float>>>
+        faces;
+    for (auto mfe : mfe_response.mediaitemfaceembeddings()) {
+      auto embedding = mfe.embedding();
+      std::vector<float> mf_embedding;
+      for (auto embed : embedding.embedding()) {
+        mf_embedding.push_back(embed);
+      }
+      faces.push_back(make_tuple(mfe.id(), mfe.mediaitemid(), mfe.peopleid(),
+                                 mf_embedding));
+    }
+    SPDLOG_DEBUG("user: {} faces: {}", user_id, faces.size());
+    SPDLOG_INFO("running clustering algorithm");
+  }
+}
+
 std::shared_ptr<Faces> Init(const std::string& models_dir,
                             const ComponentConfig& config,
                             std::shared_ptr<APIClient> api_client) {
@@ -329,10 +368,16 @@ std::shared_ptr<Faces> Init(const std::string& models_dir,
       recognition_model =
           std::string(doc["recognition_model"].get_string().value());
     }
+    std::string clustering_lib = "faiss";
+    if (doc["clustering_lib"].error() == simdjson::SUCCESS) {
+      clustering_lib = std::string(doc["clustering_lib"].get_string().value());
+    }
     return std::make_shared<ONNX>(
         std::make_shared<ONNXModel>(models_dir + "/" + detection_model,
                                     detection_threshold,
                                     models_dir + "/" + recognition_model),
+        clustering_lib == "faiss" ? std::make_shared<FAISSClustering>()
+                                  : nullptr,
         api_client);
   }
   return nullptr;

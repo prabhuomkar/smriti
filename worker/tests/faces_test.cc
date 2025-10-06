@@ -78,7 +78,7 @@ TEST(FacesONNXTest, EmptyInput) {
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
   std::shared_ptr<MockFacesModelInference> mock_model =
       std::make_shared<MockFacesModelInference>();
-  ONNX onnx(mock_model, mock_api_client);
+  ONNX onnx(mock_model, nullptr, mock_api_client);
   std::unordered_map<std::string, std::string> result =
       onnx.Extract("", "", "", "");
   assertFacesResult({}, result);
@@ -98,7 +98,7 @@ TEST(FacesONNXTest, Error) {
       std::make_shared<MockFacesModelInference>();
   EXPECT_CALL(*mock_model, Run(::testing::_))
       .WillOnce(::testing::Throw(std::runtime_error("some error")));
-  ONNX onnx(mock_model, mock_api_client);
+  ONNX onnx(mock_model, nullptr, mock_api_client);
   std::unordered_map<std::string, std::string> result =
       onnx.Extract("", "", "", "file_path");
   assertFacesResult({}, result);
@@ -120,7 +120,7 @@ TEST(FacesONNXTest, Success) {
       {"path/face1", {1.23, 4.56, 7.89}}, {"path/face2", {9.78, 6.54, 3.21}}};
   EXPECT_CALL(*mock_model, Run(::testing::_))
       .WillOnce(::testing::Return(mock_response));
-  ONNX onnx(mock_model, mock_api_client);
+  ONNX onnx(mock_model, nullptr, mock_api_client);
   std::unordered_map<std::string, std::string> result =
       onnx.Extract("", "", "", "file_path");
   assertFacesResult(

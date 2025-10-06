@@ -41,7 +41,32 @@ MediaItemProcessResponse APIClient::GetMediaItemProcess() {
   grpc::Status status =
       stub_->GetMediaItemProcess(&context, request, &response);
   if (!status.ok()) {
-    SPDLOG_ERROR("error getting media item process: {}",
+    SPDLOG_ERROR("error getting mediaitem process: {}", status.error_message());
+    return {};
+  }
+  return response;
+}
+
+UsersResponse APIClient::GetUsers() {
+  google::protobuf::Empty request;
+  UsersResponse response;
+  grpc::ClientContext context;
+  grpc::Status status = stub_->GetUsers(&context, request, &response);
+  if (!status.ok()) {
+    SPDLOG_ERROR("error getting users: {}", status.error_message());
+    return {};
+  }
+  return response;
+}
+
+MediaItemFaceEmbeddingsResponse APIClient::GetMediaItemFaceEmbeddings(
+    const MediaItemFaceEmbeddingsRequest& request) {
+  MediaItemFaceEmbeddingsResponse response;
+  grpc::ClientContext context;
+  grpc::Status status =
+      stub_->GetMediaItemFaceEmbeddings(&context, request, &response);
+  if (!status.ok()) {
+    SPDLOG_ERROR("error getting mediaitem face embeddings: {}",
                  status.error_message());
     return {};
   }

@@ -51,7 +51,7 @@ static void BM_FacesONNXEmptyInput(benchmark::State& state) { // NOLINT
                      google::protobuf::Empty*) { return grpc::Status::OK; }));
   std::shared_ptr<MockFacesModelInference> mock_model =
       std::make_shared<MockFacesModelInference>();
-  ONNX onnx(mock_model, mock_api_client);
+  ONNX onnx(mock_model, nullptr, mock_api_client);
   for (auto _ : state) {
     std::unordered_map<std::string, std::string> output =
         onnx.Extract("", "", "", "");
@@ -73,7 +73,7 @@ static void BM_FacesONNXError(benchmark::State& state) { // NOLINT
       std::make_shared<MockFacesModelInference>();
   EXPECT_CALL(*mock_model, Run(::testing::_))
       .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
-  ONNX onnx(mock_model, mock_api_client);
+  ONNX onnx(mock_model, nullptr, mock_api_client);
   for (auto _ : state) {
     std::unordered_map<std::string, std::string> output =
         onnx.Extract("", "", "", "file_path");
@@ -97,7 +97,7 @@ static void BM_FacesONNXSuccess(benchmark::State& state) { // NOLINT
       {"path/face1", {1.23, 4.56, 7.89}}, {"path/face2", {9.78, 6.54, 3.21}}};
   EXPECT_CALL(*mock_model, Run(::testing::_))
       .WillRepeatedly(::testing::Return(mock_response));
-  ONNX onnx(mock_model, mock_api_client);
+  ONNX onnx(mock_model, nullptr, mock_api_client);
   for (auto _ : state) {
     std::unordered_map<std::string, std::string> output =
         onnx.Extract("", "", "", "file_path");

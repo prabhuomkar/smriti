@@ -19,6 +19,9 @@ class APIClient {
   explicit APIClient(std::unique_ptr<API::StubInterface> stub);
   std::string GetWorkerConfig();
   MediaItemProcessResponse GetMediaItemProcess();
+  UsersResponse GetUsers();
+  MediaItemFaceEmbeddingsResponse GetMediaItemFaceEmbeddings(
+      const MediaItemFaceEmbeddingsRequest& request);
   bool SaveMediaItemMetadata(const MediaItemMetadataRequest& request);
   bool SaveMediaItemPreviewThumbnail(
       const MediaItemPreviewThumbnailRequest& request);

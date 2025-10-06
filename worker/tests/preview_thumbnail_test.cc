@@ -28,8 +28,7 @@ class MockImageConverterClient : public ImageConverterClientInterface {
  public:
   MOCK_METHOD((std::string), Convert,
               (const std::string& input_file_path,
-               const std::string& output_file_path, int image_quality,
-               int image_size),
+               const std::string& output_file_path, int image_size),
               (override));
 };
 
@@ -57,7 +56,7 @@ TEST(PreviewThumbnailTest, Error) {
   std::shared_ptr<MockImageConverterClient> mock_image_converter_client =
       std::make_shared<MockImageConverterClient>();
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Throw(std::runtime_error("some error")));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
@@ -81,7 +80,7 @@ TEST(PreviewThumbnailTest, PhotoSuccess) {
       std::make_shared<MockImageConverterClient>();
   std::string mock_data = "path-kind";
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
@@ -109,7 +108,7 @@ TEST(PreviewThumbnailTest, VideoSuccess) {
       std::make_shared<MockImageConverterClient>();
   std::string mock_data = "path-kind";
   EXPECT_CALL(*mock_image_converter_client,
-              Convert(::testing::_, ::testing::_, ::testing::_, ::testing::_))
+              Convert(::testing::_, ::testing::_, ::testing::_))
       .WillRepeatedly(::testing::Return(mock_data));
   auto mock_api_stub = std::make_unique<NiceMock<MockAPIStub>>();
   MockAPIStub* mock_stub = mock_api_stub.get();
