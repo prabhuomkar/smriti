@@ -4,6 +4,7 @@ export default [
   ...prefix("admin", [
     index("pages/admin/index.jsx"),
     route("users", "pages/admin/users.jsx"),
+    route("jobs", "pages/admin/jobs.jsx"),
   ]),
   index("pages/home/index.jsx"),
   ...prefix("auth", [route("login", "pages/auth/login.jsx")]),
