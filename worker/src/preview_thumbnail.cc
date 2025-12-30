@@ -21,22 +21,22 @@ namespace previewthumbnail {
 std::string ImageConverterClient::Convert(const std::string& input_file_path,
                                           const std::string& output_file_path,
                                           int image_size) {
-  LibRaw raw_processor;
+  auto raw_processor = std::make_unique<LibRaw>();
   Magick::Image magick_img;
   Magick::Blob magick_blob;
 
-  int ret = raw_processor.open_file(input_file_path.c_str());
+  int ret = raw_processor->open_file(input_file_path.c_str());
   if (ret == LIBRAW_SUCCESS) {
-    raw_processor.imgdata.params.no_auto_bright = 1;
-    raw_processor.imgdata.params.use_camera_wb = 1;
-    raw_processor.imgdata.params.use_camera_matrix = 1;
-    raw_processor.imgdata.params.output_color = 1;
-    if (raw_processor.unpack() != LIBRAW_SUCCESS ||
-        raw_processor.dcraw_process() != LIBRAW_SUCCESS) {
+    raw_processor->imgdata.params.no_auto_bright = 1;
+    raw_processor->imgdata.params.use_camera_wb = 1;
+    raw_processor->imgdata.params.use_camera_matrix = 1;
+    raw_processor->imgdata.params.output_color = 1;
+    if (raw_processor->unpack() != LIBRAW_SUCCESS ||
+        raw_processor->dcraw_process() != LIBRAW_SUCCESS) {
       throw std::runtime_error("unpack or dcraw_process failed");
     }
 
-    libraw_processed_image_t* image = raw_processor.dcraw_make_mem_image(&ret);
+    libraw_processed_image_t* image = raw_processor->dcraw_make_mem_image(&ret);
     if (!image) {
       throw std::runtime_error("dcraw_make_mem_image failed");
     }
@@ -48,7 +48,7 @@ std::string ImageConverterClient::Convert(const std::string& input_file_path,
         magick_blob, Magick::Geometry(image->width, image->height), 8, "RGB");
 
     LibRaw::dcraw_clear_mem(image);
-    raw_processor.recycle();
+    raw_processor->recycle();
   } else {
     magick_img.read(input_file_path);
   }

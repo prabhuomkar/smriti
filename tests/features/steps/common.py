@@ -23,8 +23,8 @@ UPDATED_USER = {
         '"people":true,"sharing":true}'
     },
     'jobs': {
-        'name': 'Steve Updated Jobs', 'features':'{"albums":true,"favourites":true,"hidden":true,"trash":true,'+
-        '"explore":true,"places":true,"people":true,"sharing":true,"jobs":true}'
+        'name': 'Steve Updated Jobs', 'username': 'stevejobs', 'password': 'johndoeT3st!', 'features':'{"albums":true,'+
+        '"favourites":true,"hidden":true,"trash":true,"explore":true,"places":true,"people":true,"sharing":true,"jobs":true}'
     }
 }
 

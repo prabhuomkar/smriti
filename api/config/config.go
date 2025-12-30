@@ -102,11 +102,6 @@ type ( // Log ...
 		SecretKey string `envconfig:"SMRITI_STORAGE_SECRET_KEY" default:"smritipass"`
 	}
 
-	Job struct {
-		QueueInterval time.Duration `envconfig:"SMRITI_JOB_QUEUE_INTERVAL" default:"5s"`
-		Concurrency   int           `envconfig:"SMRITI_JOB_CONCURRENCY"    default:"10"`
-	}
-
 	// Config ...
 	Config struct {
 		Log
@@ -120,7 +115,6 @@ type ( // Log ...
 		ML
 		Admin
 		Storage
-		Job
 	}
 )
 

@@ -156,7 +156,7 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	_, err = h.DB.Exec(ctx.Request().Context(), queryQueueMediaItems, job.Components, api.MediaItemStatus_UNSPECIFIED)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryQueueMediaItems, strings.Join(job.Components, ","), api.MediaItemStatus_UNSPECIFIED)
 	if err != nil {
 		slog.Error("error queuing job mediaitems", "error", err)
 

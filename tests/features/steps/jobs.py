@@ -10,12 +10,13 @@ def step_impl(context, components, condition):
     headers = None
     if condition == 'with':
         headers = {'Authorization': f'Bearer {context.access_token}'}
-    res = requests.post(API_URL+'/v1/jobs', json={'components': components}, headers=headers)
+    res = requests.post(API_URL+'/v1/jobs', json={'components': components.upper().split(',')}, headers=headers)
     context.response = res
     context.job = res.json()
 
 @then('job is created')
 def step_impl(context):
+    print(context.response.json())
     assert context.response.status_code == 201
 
 @when('get jobs {condition} auth and wait {seconds} seconds')
@@ -72,11 +73,15 @@ def step_impl(context, component):
     headers = {'Authorization': f'Bearer {context.access_token}'}
     res = requests.get(API_URL+'/v1/mediaItems/'+context.mediaitem_id+'/'+component, headers=headers)
     context.response = res
-    context.mediaitem_component[component] = res.json()
+    if not hasattr(context, 'mediaitem_component'):
+        context.mediaitem_component = {}
+    if context.response.status_code != 404:
+        context.mediaitem_component[component] = res.json()
 
 @then('job mediaitem related {component} are {condition} in list')
 def step_impl(context, component, condition):
     data = context.mediaitem_component[component] if component in context.mediaitem_component else [] 
+    print(data)
     if condition == 'absent':
         assert len(data) == 0
     else:

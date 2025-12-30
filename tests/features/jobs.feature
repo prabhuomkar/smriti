@@ -16,9 +16,9 @@ Feature: Jobs
         Given a mediaitem exists
         When get job mediaitem things
         Then job mediaitem related things are absent in list 
-        When create jobs for places,classification components without auth
+        When create jobs for places components without auth
         Then auth error is found
-        When create jobs for places,classification components with auth
+        When create jobs for places components with auth
         Then job is created
         When get jobs without auth and wait 0 seconds
         Then auth error is found

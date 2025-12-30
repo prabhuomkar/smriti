@@ -84,7 +84,7 @@ def step_impl(context, name, type, condition, seconds):
     files = {'file': open(f'data/{"IMG_0285.heic" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     context.response = res
-    context.mediaitem_type = type
+    context.mediaitem_type = type.upper()
     time.sleep(int(seconds))
 
 @when('upload {name} {type} mediaitem with auth if does not exist and wait {seconds} seconds')
@@ -98,7 +98,7 @@ def step_impl(context, name, type, seconds):
         res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
         time.sleep(int(seconds))
     context.response = res
-    context.mediaitem_type = type
+    context.mediaitem_type = type.upper()
 
 @when('update mediaitem {condition} auth')
 def step_impl(context, condition):
