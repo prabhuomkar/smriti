@@ -23,12 +23,12 @@ Feature: Jobs
         When get jobs without auth and wait 0 seconds
         Then auth error is found
         When get jobs with auth and wait 0 seconds
-        Then job is scheduled and present in list
+        Then job is running and present in list
         When get jobs with auth and wait until completed
         Then job is completed and present in list
         When get job without auth
         Then auth error is found
         When get job with auth
         Then job is present
-        When get job mediaitem things
-        Then job mediaitem related things are present in list
+        When get job mediaitem places
+        Then job mediaitem related places are present in list

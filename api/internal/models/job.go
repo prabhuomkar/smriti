@@ -23,7 +23,6 @@ type Job struct {
 }
 
 const (
-	JobScheduled JobStatus = "SCHEDULED"
 	JobRunning   JobStatus = "RUNNING"
 	JobPaused    JobStatus = "PAUSED"
 	JobCompleted JobStatus = "COMPLETED"

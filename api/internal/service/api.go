@@ -69,10 +69,13 @@ const (
 	querySaveMediaItemPeople = `INSERT INTO people_mediaitems (mediaitem_id, people_id)` +
 		` VALUES ($1, $2) ON CONFLICT (mediaitem_id, people_id) DO NOTHING`
 	querySaveMediaItemFacePeople = `UPDATE mediaitem_faces SET people_id=$2 WHERE id=$1`
-	queryUnqueueMediaItem        = `DELETE FROM queue WHERE id=$1`
-	queryGetMediaItemProcess     = `UPDATE queue q SET status='PROCESSING' FROM mediaitems m WHERE` +
-		` q.id=(SELECT id FROM queue WHERE status='UNSPECIFIED' ORDER BY id FOR UPDATE SKIP LOCKED LIMIT 1)` +
-		` AND m.id = q.mediaitem_id RETURNING q.id, q.user_id, q.mediaitem_id, q.components,` +
+	queryUnqueueMediaItem        = "WITH deleted AS (DELETE FROM queue WHERE id=$1 RETURNING id, job_id) " + "\n" +
+		"UPDATE jobs j SET status = 'COMPLETED', updated_at=$2 FROM deleted d WHERE j.id = d.job_id AND d.job_id " +
+		"IS NOT NULL AND NOT EXISTS (SELECT 1 FROM queue q WHERE q.job_id = j.id AND q.id <> d.id)"
+	queryGetMediaItemProcess = `UPDATE queue q SET status='PROCESSING' FROM mediaitems m WHERE` +
+		` q.id=(SELECT q2.id FROM queue q2 WHERE q2.status='UNSPECIFIED' AND (q2.job_id IS NULL OR EXISTS` +
+		` (SELECT 1 FROM jobs j WHERE j.id = q2.job_id AND j.status = 'RUNNING')) ORDER BY q2.id FOR UPDATE SKIP LOCKED LIMIT 1)` +
+		` AND m.id=q.mediaitem_id RETURNING q.id, q.user_id, q.mediaitem_id, q.components,` +
 		` m.mime_type, m.source_url, m.preview_url, m.mediaitem_type, m.mediaitem_category, m.latitude, m.longitude`
 )
 
@@ -622,7 +625,7 @@ func (s *Service) SaveMediaItemFinalResult(ctx context.Context, req *api.MediaIt
 		}
 	}
 
-	_, err = s.DB.Exec(ctx, queryUnqueueMediaItem, queueID)
+	_, err = s.DB.Exec(ctx, queryUnqueueMediaItem, queueID, time.Now())
 	if err != nil {
 		slog.Error("error unqueuing mediaitem from processing", "error", err)
 

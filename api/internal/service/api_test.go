@@ -985,7 +985,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
-					WithArgs(pgxmock.AnyArg()).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
 			}, status.Error(codes.Internal, "error unqueuing mediaitem from processing: some db error"),
 		},
@@ -999,7 +999,7 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
-					WithArgs(pgxmock.AnyArg()).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("DELETE", 1))
 			}, nil,
 		},
