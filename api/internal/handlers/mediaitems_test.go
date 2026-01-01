@@ -57,8 +57,8 @@ var (
 	mediaitemFaceCols = []string{
 		"id", "mediaitem_id", "people_id", "embeddings", "thumbnail",
 	}
-	mediaitemResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	mediaitemResponseBody = `{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":true,"hidden":false,"deleted":false,"status":"READY",` +
 		`"mediaItemType":"PHOTO","mediaItemCategory":"DEFAULT","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -66,16 +66,16 @@ var (
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
 		`"updatedAt":"2022-09-22T11:22:33+05:30"}`
-	mediaitemsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+	mediaitemsResponseBody = `[{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":true,"hidden":false,"deleted":false,"status":"READY",` +
 		`"mediaItemType":"PHOTO","mediaItemCategory":"DEFAULT","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
 		`"cameraMake":"camera_make","cameraModel":"camera_model","focalLength":"focal_length",` +
 		`"apertureFNumber":"aperture_fnumber","isoEquivalent":"iso_equivalent","exposureTime":"exposure_time",` +
 		`"megapixels":"18.4","latitude":17.580249,"longitude":-70.278493,"fps":"fps","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","filename":"filename",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30"},{"id":"019b7796-6072-76ee-8be3-485ff2b33fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","filename":"filename",` +
 		`"description":"description","mimeType":"mime_type","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","favourite":false,"hidden":true,"deleted":true,"status":"READY",` +
 		`"mediaItemType":"VIDEO","mediaItemCategory":"DEFAULT","width":720,"height":480,"creationTime":"2022-09-22T11:22:33+05:30",` +
@@ -93,7 +93,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"get mediaitem places with empty table", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem places with empty table", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/places", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -103,7 +103,7 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			}, http.StatusOK, "[]",
 		},
 		{
-			"get mediaitem places with error", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem places with error", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/places", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -113,18 +113,18 @@ func TestGetMediaItemPlaces(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"get mediaitem places with error in scanning", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem places with error in scanning", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/places", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(placeCols, coverMediaItemCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &samplePostCode, &sampleCountry, &sampleLocality, &sampleArea, &sampleBoolTrue, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &samplePostCode, &sampleCountry, &sampleLocality, &sampleArea, &sampleBoolTrue, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPlaces
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get mediaitem places with success", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/places", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem places with success", http.MethodGet, "/v1/mediaItems/:id/places", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/places", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM places p LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -145,7 +145,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"get mediaitem people with empty table", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem people with empty table", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/people", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(peopleCols, mediaitemFaceCols...)))
@@ -154,7 +154,7 @@ func TestGetMediaItemPeople(t *testing.T) {
 			}, http.StatusOK, "[]",
 		},
 		{
-			"get mediaitem people with error", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem people with error", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/people", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -163,17 +163,17 @@ func TestGetMediaItemPeople(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"get mediaitem people with error in scanning", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem people with error in scanning", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/people", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(peopleCols, mediaitemFaceCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleBoolTrue, &sampleCoverMediaItemID, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleCoverMediaItemID, nil, "thumbnail"))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleBoolTrue, &sampleCoverMediaItemID, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleCoverMediaItemID, nil, "thumbnail"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemPeople
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get mediaitem people with success", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/people", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem people with success", http.MethodGet, "/v1/mediaItems/:id/people", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/people", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT p.*, mf.* FROM people p LEFT JOIN mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedPeopleRows())
@@ -193,7 +193,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"get mediaitem albums with empty table", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem albums with empty table", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/albums", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -203,7 +203,7 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			}, http.StatusOK, "[]",
 		},
 		{
-			"get mediaitem albums with error", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem albums with error", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/albums", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -213,18 +213,18 @@ func TestGetMediaItemAlbums(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"get mediaitem albums with error in scanning", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem albums with error in scanning", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/albums", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItemAlbums
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get mediaitem albums with success", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179/albums", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem albums with success", http.MethodGet, "/v1/mediaItems/:id/albums", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7/albums", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums a LEFT JOIN mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -245,7 +245,7 @@ func TestGetMediaItem(t *testing.T) {
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"get mediaitem not found", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem not found", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols))
@@ -254,7 +254,7 @@ func TestGetMediaItem(t *testing.T) {
 			}, http.StatusNotFound, "mediaitem not found",
 		},
 		{
-			"get mediaitem with error", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem with error", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -263,16 +263,16 @@ func TestGetMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"get mediaitem with error in scanning", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem with error in scanning", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItem
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get mediaitem with success", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get mediaitem with success", http.MethodGet, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedMediaItemRow())
@@ -292,19 +292,19 @@ func TestUpdateMediaItem(t *testing.T) {
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"update mediaitem with no payload", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update mediaitem with no payload", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateMediaItem
 			}, http.StatusBadRequest, "invalid mediaitem",
 		},
 		{
-			"update mediaitem with bad payload", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update mediaitem with bad payload", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"bad":"request}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateMediaItem
 			}, http.StatusBadRequest, "invalid mediaitem",
 		},
 		{
-			"update mediaitem with error", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update mediaitem with error", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"description":"description","favourite":true,"hidden":true}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
@@ -315,7 +315,7 @@ func TestUpdateMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"update mediaitem with success", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update mediaitem with success", http.MethodPut, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"description":"description","favourite":true,"hidden":true}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
@@ -337,7 +337,7 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"delete mediaitem with error deleting", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error deleting", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -346,7 +346,7 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error starting transaction", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error starting transaction", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -356,7 +356,7 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error getting album new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error getting album new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -369,27 +369,27 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error scanning album new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error scanning album new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "invalid"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "invalid"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteMediaItem
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"delete mediaitem with error getting place new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error getting place new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -398,33 +398,33 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error scanning place new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error scanning place new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "invalid"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "invalid"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteMediaItem
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"delete mediaitem with error getting people new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error getting people new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -433,39 +433,39 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error scanning people new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error scanning people new cover mediaitems", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "invalid"))
+					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "invalid"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteMediaItem
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"delete mediaitem with error updating album cover mediaitem", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error updating album cover mediaitem", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -474,20 +474,20 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error updating place cover mediaitem", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error updating place cover mediaitem", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -499,20 +499,20 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error updating people cover mediaitem", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error updating people cover mediaitem", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -527,20 +527,20 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with error committing transaction", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with error committing transaction", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -556,20 +556,20 @@ func TestDeleteMediaItem(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete mediaitem with success", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete mediaitem with success", http.MethodDelete, "/v1/mediaItems/:id", "/v1/mediaItems/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (am.album_id) am.album_id, am.mediaitem_id FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"album_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.place_id) pm.place_id, pm.mediaitem_id FROM place_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"place_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT DISTINCT ON (pm.people_id) pm.people_id, pm.mediaitem_id FROM people_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179"))
+					WillReturnRows(pgxmock.NewRows([]string{"people_id", "mediaitem_id"}).AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7"))
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -612,7 +612,7 @@ func TestGetMediaItems(t *testing.T) {
 			"get mediaitems with error in scanning", http.MethodGet, "/v1/mediaItems", "/v1/mediaItems", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetMediaItems
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -760,7 +760,7 @@ func TestUploadMediaItems(t *testing.T) {
 		},
 		{
 			"upload mediaitems successfully for resumable", http.MethodPost, "/v1/mediaItems", "/v1/mediaItems", []string{}, []string{}, map[string]string{
-				HeaderUploadType: "resumable", HeaderUploadCommand: "finish", HeaderUploadChunkOffset: "100", HeaderUploadChunkSession: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", echo.HeaderContentType: contentType6,
+				HeaderUploadType: "resumable", HeaderUploadCommand: "finish", HeaderUploadChunkOffset: "100", HeaderUploadChunkSession: "019b7796-6072-76ee-8be3-485ff2b32fd7", echo.HeaderContentType: contentType6,
 			}, sampleFile6, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -778,15 +778,15 @@ func TestUploadMediaItems(t *testing.T) {
 
 func getMockedMediaItemRow() *pgxmock.Rows {
 	return pgxmock.NewRows(mediaitemCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse,
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse,
 			api.MediaItemStatus_READY.String(), api.MediaItemType_PHOTO.String(), api.MediaItemCategory_DEFAULT.String(), 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime)
 }
 
 func getMockedMediaItemRows() *pgxmock.Rows {
 	return pgxmock.NewRows(mediaitemCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse,
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse,
 			api.MediaItemStatus_READY.String(), api.MediaItemType_PHOTO.String(), api.MediaItemCategory_DEFAULT.String(), 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolFalse, &sampleBoolTrue, &sampleBoolTrue,
+		AddRow("019b7796-6072-76ee-8be3-485ff2b33fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolFalse, &sampleBoolTrue, &sampleBoolTrue,
 			api.MediaItemStatus_READY.String(), api.MediaItemType_VIDEO.String(), api.MediaItemCategory_DEFAULT.String(), 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime)
 }
 

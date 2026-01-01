@@ -3,9 +3,9 @@ package models
 import (
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pgvector/pgvector-go"
-	uuid "github.com/satori/go.uuid"
 )
 
 const MediaItemsTable = "mediaitems"

@@ -10,9 +10,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 type ( // JobRequest ...
@@ -29,7 +29,8 @@ const (
 	queryCreateJob      = `INSERT INTO jobs (id, user_id, status, components, created_at, updated_at)` +
 		` VALUES ($1, $2, $3, $4, $5, $6)`
 	queryUpdateJob       = `UPDATE jobs SET status=$3, updated_at=$4 WHERE user_id=$1 AND id=$2`
-	queryQueueMediaItems = `INSERT INTO queue (id, user_id, mediaitem_id, components, status) SELECT gen_random_uuid(), user_id, id, $1, $2 FROM mediaitems`
+	queryQueueMediaItems = `INSERT INTO queue (id, user_id, mediaitem_id, job_id, components, status) ` +
+		`SELECT gen_random_uuid(), user_id, id, $2, $3, $4 FROM mediaitems WHERE user_id=$1`
 )
 
 // GetJob ...
@@ -129,7 +130,7 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	job.ID = uuid.NewV4()
+	job.ID, _ = uuid.NewV7()
 	job.UserID = userID
 	job.Status = models.JobScheduled
 	job.CreatedAt = time.Now()
@@ -156,7 +157,8 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 	}
 
-	_, err = h.DB.Exec(ctx.Request().Context(), queryQueueMediaItems, strings.Join(job.Components, ","), api.MediaItemStatus_UNSPECIFIED)
+	_, err = h.DB.Exec(ctx.Request().Context(), queryQueueMediaItems, userID, job.ID,
+		strings.Join(job.Components, ","), api.MediaItemStatus_UNSPECIFIED)
 	if err != nil {
 		slog.Error("error queuing job mediaitems", "error", err)
 
@@ -168,7 +170,7 @@ func (h *Handler) CreateJob(ctx echo.Context) error {
 
 func getJobID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting job id", "error", err)
 

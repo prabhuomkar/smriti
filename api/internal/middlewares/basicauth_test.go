@@ -73,8 +73,8 @@ func TestBasicAuthCheckOK(t *testing.T) {
 	mockDB.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 		WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 		WillReturnRows(pgxmock.NewRows(userCols).
-			AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", "username", "password", "", sampleTime, sampleTime).
-			AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "name", "username", "password", "", sampleTime, sampleTime))
+			AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "name", "username", "password", "", sampleTime, sampleTime).
+			AddRow("019b7796-6072-76ee-8be3-485ff2b33fd7", "name", "username", "password", "", sampleTime, sampleTime))
 	checkBasicAuth := BasicAuthCheck(cfg)
 
 	// test

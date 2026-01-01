@@ -84,7 +84,7 @@ func TestSearch(t *testing.T) {
 			"search mediaitems with error in scanning", http.MethodGet, "/v1/search", "/v1/search?q=keyword", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
-					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, &mockWorkerGRPCClient{wantOk: true}, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Search
 			}, http.StatusInternalServerError, "Scanning value error",

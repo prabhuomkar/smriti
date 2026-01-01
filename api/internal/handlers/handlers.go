@@ -11,8 +11,8 @@ import (
 	"strconv"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 // Handler ...
@@ -50,9 +50,11 @@ func getOffsetAndLimit(ctx echo.Context) (int, int) {
 }
 
 func getRequestingUserID(ctx echo.Context) uuid.UUID {
-	userID, _ := ctx.Get("userID").(string)
+	userIDStr, _ := ctx.Get("userID").(string)
 
-	return uuid.FromStringOrNil(userID)
+	userID, _ := uuid.Parse(userIDStr)
+
+	return userID
 }
 
 func getMonthAndDate(ctx echo.Context) (string, string, error) {

@@ -18,9 +18,9 @@ import (
 	"strings"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -82,7 +82,7 @@ type ( // MediaItemRequest ...
 func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -113,7 +113,7 @@ func (h *Handler) GetMediaItemPlaces(ctx echo.Context) error {
 func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -144,7 +144,7 @@ func (h *Handler) GetMediaItemPeople(ctx echo.Context) error {
 func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -175,7 +175,7 @@ func (h *Handler) GetMediaItemAlbums(ctx echo.Context) error {
 func (h *Handler) GetMediaItem(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -485,8 +485,8 @@ func (h *Handler) generateHashForDuplicates(ctx context.Context, userID, mediaIt
 	mediaItemHash := hex.EncodeToString(fileHash.Sum(nil))
 
 	mediaItem := new(models.MediaItem)
-	mediaItem.ID = uuid.FromStringOrNil(mediaItemID)
-	mediaItem.UserID = uuid.FromStringOrNil(userID)
+	mediaItem.ID, _ = uuid.Parse(mediaItemID)
+	mediaItem.UserID, _ = uuid.Parse(userID)
 	mediaItem.Hash = &mediaItemHash
 	_, err = h.DB.Exec(ctx, queryUpdateMediaItemHash, mediaItem.UserID, mediaItem.ID, mediaItem.Hash)
 	if err != nil {
@@ -500,7 +500,7 @@ func (h *Handler) generateHashForDuplicates(ctx context.Context, userID, mediaIt
 
 func createNewMediaItem(userID uuid.UUID, fileName string) *models.MediaItem {
 	mediaItem := new(models.MediaItem)
-	mediaItem.ID = uuid.NewV4()
+	mediaItem.ID, _ = uuid.NewV7()
 	mediaItem.UserID = userID
 	mediaItem.Filename = fileName
 	mediaItem.MediaItemType = api.MediaItemType_UNKNOWN.String()
@@ -538,7 +538,7 @@ func validateChunk(ctx echo.Context) (string, string, error) {
 
 func getMediaItemID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 

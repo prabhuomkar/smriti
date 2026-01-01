@@ -63,7 +63,7 @@ func executeTests(t *testing.T, tests []Test) {
 			ctx.SetPath(test.Route)
 			ctx.SetParamNames(test.ParamNames...)
 			ctx.SetParamValues(test.ParamValues...)
-			ctx.Set("userID", "4d05b5f6-17c2-475e-87fe-3fc8b9567179")
+			ctx.Set("userID", "019b7796-6072-76ee-8be3-485ff2b32fd7")
 			if _, ok := test.Header[echo.HeaderAuthorization]; ok {
 				var features models.Features
 				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true,"people":true}`), &features)

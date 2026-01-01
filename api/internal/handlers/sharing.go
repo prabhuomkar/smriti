@@ -6,9 +6,9 @@ import (
 	"log/slog"
 	"net/http"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 const (
@@ -81,7 +81,7 @@ func (h *Handler) GetSharedAlbum(ctx echo.Context) error {
 
 func getSharedAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting shared album id", "error", err)
 

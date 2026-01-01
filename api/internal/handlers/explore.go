@@ -8,9 +8,9 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 type ( // PeopleRequest ...
@@ -119,7 +119,7 @@ func (h *Handler) GetPlaces(ctx echo.Context) error {
 func (h *Handler) GetPlace(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting place id", "error", err)
 
@@ -155,7 +155,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting place id", "error", err)
 
@@ -186,7 +186,7 @@ func (h *Handler) GetPlaceMediaItems(ctx echo.Context) error {
 func (h *Handler) UpdatePerson(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting people id", "error", err)
 
@@ -239,7 +239,7 @@ func (h *Handler) GetPeople(ctx echo.Context) error {
 func (h *Handler) GetPerson(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting person id", "error", err)
 
@@ -267,7 +267,7 @@ func (h *Handler) GetPersonMediaItems(ctx echo.Context) error {
 	userID := getRequestingUserID(ctx)
 	offset, limit := getOffsetAndLimit(ctx)
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting person id", "error", err)
 
@@ -307,7 +307,7 @@ func getPeople(ctx echo.Context) (*models.People, error) {
 		people.Name = *peopleRequest.Name
 	}
 	if peopleRequest.CoverMediaItemID != nil {
-		coverMediaItemID, err := uuid.FromString(*peopleRequest.CoverMediaItemID)
+		coverMediaItemID, err := uuid.Parse(*peopleRequest.CoverMediaItemID)
 		if err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid people cover mediaitem id")
 		}

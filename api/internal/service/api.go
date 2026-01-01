@@ -18,9 +18,9 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pgvector/pgvector-go"
-	uuid "github.com/satori/go.uuid"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"google.golang.org/protobuf/types/known/emptypb"
@@ -230,13 +230,13 @@ func (s *Service) GetUsers(ctx context.Context, _ *emptypb.Empty) (*api.UsersRes
 }
 
 func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemMetadataRequest) (*emptypb.Empty, error) {
-	userID, err := uuid.FromString(req.UserId)
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem user id")
 	}
-	mediaItemID, err := uuid.FromString(req.MediaItemId)
+	mediaItemID, err := uuid.Parse(req.MediaItemId)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -272,13 +272,13 @@ func (s *Service) SaveMediaItemMetadata(ctx context.Context, req *api.MediaItemM
 
 //nolint:cyclop
 func (s *Service) SaveMediaItemPreviewThumbnail(ctx context.Context, req *api.MediaItemPreviewThumbnailRequest) (*emptypb.Empty, error) {
-	userID, err := uuid.FromString(req.UserId)
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem user id")
 	}
-	mediaItemID, err := uuid.FromString(req.MediaItemId)
+	mediaItemID, err := uuid.Parse(req.MediaItemId)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -327,23 +327,24 @@ func (s *Service) SaveMediaItemPreviewThumbnail(ctx context.Context, req *api.Me
 }
 
 func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlaceRequest) (*emptypb.Empty, error) {
-	userID, err := uuid.FromString(req.UserId)
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem user id")
 	}
-	mediaItemID, err := uuid.FromString(req.MediaItemId)
+	mediaItemID, err := uuid.Parse(req.MediaItemId)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	slog.Debug("saving mediaitem place", "user", req.UserId, "mediaitem", req.MediaItemId, "body", req.String())
+
 	place := models.Place{
-		ID:     uuid.NewV4(),
 		UserID: userID, Postcode: req.Postcode, Country: req.Country, Locality: req.Locality, Area: req.Area,
 	}
+	place.ID, _ = uuid.NewV7()
 	place.Name = getNameForPlace(place)
 	place.CreatedAt = time.Now()
 	place.UpdatedAt = place.CreatedAt
@@ -382,13 +383,13 @@ func (s *Service) SaveMediaItemPlace(ctx context.Context, req *api.MediaItemPlac
 }
 
 func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFacesRequest) (*emptypb.Empty, error) {
-	_, err := uuid.FromString(req.UserId)
+	_, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem user id")
 	}
-	mediaItemID, err := uuid.FromString(req.MediaItemId)
+	mediaItemID, err := uuid.Parse(req.MediaItemId)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 
@@ -399,7 +400,7 @@ func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFace
 	mediaItemFaces := make([]models.MediaitemFace, len(req.GetEmbeddings()))
 	faceThumbnails := req.GetThumbnails()
 	for idx, reqEmbedding := range req.GetEmbeddings() {
-		faceID := uuid.NewV4()
+		faceID, _ := uuid.NewV7()
 		thumbnail := ""
 		if len(faceThumbnails[idx]) > 0 {
 			thumbnail, err = uploadFile(s.Storage, faceThumbnails[idx], "faces", faceID.String())
@@ -429,7 +430,7 @@ func (s *Service) SaveMediaItemFaces(ctx context.Context, req *api.MediaItemFace
 }
 
 func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context, req *api.MediaItemFaceEmbeddingsRequest) (*api.MediaItemFaceEmbeddingsResponse, error) {
-	userID, err := uuid.FromString(req.UserId)
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
@@ -475,7 +476,7 @@ func (s *Service) GetMediaItemFaceEmbeddings(ctx context.Context, req *api.Media
 
 //nolint:gocognit,cyclop
 func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeopleRequest) (*emptypb.Empty, error) {
-	userID, err := uuid.FromString(req.UserId)
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
@@ -487,25 +488,25 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 	peopleWithMediaItems := map[uuid.UUID][]uuid.UUID{}
 	peopleIdxUUIDs := map[string]uuid.UUID{}
 	for reqMediaItem, reqFacePeople := range req.GetMediaItemFacePeople() {
-		mediaItemID, err := uuid.FromString(reqMediaItem)
+		mediaItemID, err := uuid.Parse(reqMediaItem)
 		if err != nil {
 			slog.Error("error getting mediaitem id", "error", err)
 
 			return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem id")
 		}
 		for reqFace, reqPeople := range reqFacePeople.GetFacePeople() {
-			faceID, err := uuid.FromString(reqFace)
+			faceID, err := uuid.Parse(reqFace)
 			if err != nil {
 				slog.Error("error getting face id", "error", err)
 
 				return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid face id")
 			}
-			peopleID, err := uuid.FromString(reqPeople)
+			peopleID, err := uuid.Parse(reqPeople)
 			if err != nil {
 				slog.Warn("error getting people id", "faceId", faceID, "peopleId", reqPeople, "error", err)
 				createdPeopleID, ok := peopleIdxUUIDs[reqPeople]
 				if !ok {
-					peopleID = uuid.NewV4()
+					peopleID, _ = uuid.NewV7()
 				} else {
 					peopleID = createdPeopleID
 				}
@@ -582,19 +583,19 @@ func (s *Service) SaveMediaItemPeople(ctx context.Context, req *api.MediaItemPeo
 
 //nolint:gocognit,cyclop
 func (s *Service) SaveMediaItemFinalResult(ctx context.Context, req *api.MediaItemFinalResultRequest) (*emptypb.Empty, error) {
-	queueID, err := uuid.FromString(req.Id)
+	queueID, err := uuid.Parse(req.Id)
 	if err != nil {
 		slog.Error("error getting queue id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid queue id")
 	}
-	userID, err := uuid.FromString(req.UserId)
+	userID, err := uuid.Parse(req.UserId)
 	if err != nil {
 		slog.Error("error getting mediaitem user id", "error", err)
 
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem user id")
 	}
-	mediaItemID, err := uuid.FromString(req.MediaItemId)
+	mediaItemID, err := uuid.Parse(req.MediaItemId)
 	if err != nil {
 		slog.Error("error getting mediaitem id", "error", err)
 

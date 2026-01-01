@@ -7,41 +7,41 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/pashagolub/pgxmock/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 var (
-	sampleName             = "name"
-	sampleCoverMediaItemID = uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")
-	sampleMediaItemsCount  = 12
+	sampleName                = "name"
+	sampleCoverMediaItemID, _ = uuid.Parse("019b7796-6072-76ee-8be3-485ff2b32fd7")
+	sampleMediaItemsCount     = 12
 
 	albumCols = []string{
 		"id", "user_id", "name", "description", "is_shared", "is_hidden", "mediaitems_count", "cover_mediaitem_id", "created_at", "updated_at",
 	}
-	albumResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+	albumResponseBody = `{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7","userId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
 		`"name":"name","description":"description",` +
-		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"coverMediaItem":{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder",` +
 		`"mediaItemType":"mediaitem_type","mediaItemCategory":"mediaitem_category","width":720,"height":480}}`
-	albumsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+	albumsResponseBody = `[{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7","userId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
 		`"name":"name","description":"description",` +
-		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`"shared":true,"hidden":false,"mediaItemsCount":12,"coverMediaItemId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30",` +
-		`"coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"coverMediaItem":{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","mediaItemType":"mediaitem_type",` +
-		`"mediaItemCategory":"mediaitem_category","width":720,"height":480}},{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","name":"name",` +
+		`"mediaItemCategory":"mediaitem_category","width":720,"height":480}},{"id":"019b7796-6072-76ee-8be3-485ff2b33fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","name":"name",` +
 		`"description":"description","shared":false,"hidden":true,"mediaItemsCount":12,` +
-		`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","createdAt":"2022-09-22T11:22:33+05:30",` +
-		`"updatedAt":"2022-09-22T11:22:33+05:30","coverMediaItem":{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","sourceUrl":"source_url","previewUrl":"preview_url",` +
+		`"coverMediaItemId":"019b7796-6072-76ee-8be3-485ff2b32fd7","createdAt":"2022-09-22T11:22:33+05:30",` +
+		`"updatedAt":"2022-09-22T11:22:33+05:30","coverMediaItem":{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"userId":"019b7796-6072-76ee-8be3-485ff2b32fd7","sourceUrl":"source_url","previewUrl":"preview_url",` +
 		`"thumbnailUrl":"thumbnail_url","placeholder":"placeholder","mediaItemType":"mediaitem_type",` +
 		`"mediaItemCategory":"mediaitem_category","width":720,"height":480}}]`
 )
@@ -54,7 +54,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"get album mediaitems not found", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album mediaitems not found", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols))
@@ -63,7 +63,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			}, http.StatusOK, "[]",
 		},
 		{
-			"get album mediaitems with error", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album mediaitems with error", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -72,17 +72,17 @@ func TestGetAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"get album mediaitems with error in scanning", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album mediaitems with error in scanning", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get album mediaitems with 2 rows", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album mediaitems with 2 rows", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedMediaItemRows())
@@ -102,32 +102,32 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"add album mediaitems with bad payload", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with bad payload", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"add album mediaitems with bad mediaitem", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with bad mediaitem", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"add album mediaitems with error starting transaction", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with error starting transaction", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"add album mediaitems with error adding album mediaitems", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with error adding album mediaitems", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -137,9 +137,9 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"add album mediaitems with error getting album mediaitem id and count", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with error getting album mediaitem id and count", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -152,9 +152,9 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"add album mediaitems with error updating album", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with error updating album", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -171,9 +171,9 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"add album mediaitems with error committing transaction", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with error committing transaction", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -191,9 +191,9 @@ func TestAddAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"add album mediaitems with success", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"add album mediaitems with success", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -222,32 +222,32 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"remove album mediaitems with bad payload", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with bad payload", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"remove album mediaitems with bad mediaitem", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with bad mediaitem", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"remove album mediaitems with error starting transaction", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with error starting transaction", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"remove album mediaitems with error removing album mediaitems", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with error removing album mediaitems", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -257,9 +257,9 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"remove album mediaitems with error getting album mediaitem id and count", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with error getting album mediaitem id and count", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -272,9 +272,9 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"remove album mediaitems with error updating album", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with error updating album", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -291,9 +291,9 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"remove album mediaitems with error committing transaction", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with error committing transaction", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -311,9 +311,9 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"remove album mediaitems with success", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179/mediaItems", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"remove album mediaitems with success", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{})
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -342,7 +342,7 @@ func TestGetAlbum(t *testing.T) {
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"get album not found", http.MethodGet, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album not found", http.MethodGet, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -352,7 +352,7 @@ func TestGetAlbum(t *testing.T) {
 			}, http.StatusNotFound, "album not found",
 		},
 		{
-			"get album with error", http.MethodGet, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album with error", http.MethodGet, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -362,18 +362,18 @@ func TestGetAlbum(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"get album with error in scanning", http.MethodGet, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album with error in scanning", http.MethodGet, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
 		{
-			"get album with success", http.MethodGet, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"get album with success", http.MethodGet, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT a.*, m.id, m.user_id, m.source_url, m.preview_url, m.thumbnail_url, m.placeholder,`+
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
@@ -394,29 +394,29 @@ func TestUpdateAlbum(t *testing.T) {
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"update album with no payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update album with no payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album",
 		},
 		{
-			"update album with bad payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update album with bad payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album",
 		},
 		{
-			"update album with bad cover mediaitem id", http.MethodPut, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update album with bad cover mediaitem id", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album cover mediaitem id",
 		},
 		{
-			"update album with error", http.MethodPut, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update album with error", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"name":"name","description":"description","shared":true,"hidden":true,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`), func(mock pgxmock.PgxPoolIface) {
+				`"coverMediaItemId":"019b7796-6072-76ee-8be3-485ff2b32fd7"}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, sampleName, &sampleDescription, &sampleBoolTrue, &sampleBoolTrue, &sampleCoverMediaItemID, pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -425,10 +425,10 @@ func TestUpdateAlbum(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"update album with success", http.MethodPut, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{
+			"update album with success", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"name":"name","description":"description","shared":true,"hidden":true,` +
-				`"coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`), func(mock pgxmock.PgxPoolIface) {
+				`"coverMediaItemId":"019b7796-6072-76ee-8be3-485ff2b32fd7"}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, sampleName, &sampleDescription, &sampleBoolTrue, &sampleBoolTrue, &sampleCoverMediaItemID, pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -448,7 +448,7 @@ func TestDeleteAlbum(t *testing.T) {
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"delete album with error", http.MethodDelete, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete album with error", http.MethodDelete, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -457,7 +457,7 @@ func TestDeleteAlbum(t *testing.T) {
 			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"delete album with success", http.MethodDelete, "/v1/albums/:id", "/v1/albums/4d05b5f6-17c2-475e-87fe-3fc8b9567179", []string{"id"}, []string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+			"delete album with success", http.MethodDelete, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("DELETE", 1))
@@ -497,7 +497,7 @@ func TestGetAlbums(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -551,7 +551,7 @@ func TestCreateAlbum(t *testing.T) {
 		{
 			"create album with success", http.MethodPost, "/v1/albums", "/v1/albums", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179"}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"019b7796-6072-76ee-8be3-485ff2b32fd7"}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), "name", &sampleDescription, pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
@@ -565,11 +565,11 @@ func TestCreateAlbum(t *testing.T) {
 
 func getMockedAlbumRow() *pgxmock.Rows {
 	return pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, &sampleCoverMediaItemID, &sampleCoverMediaItemID, &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight)
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, &sampleCoverMediaItemID, &sampleCoverMediaItemID, &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight)
 }
 
 func getMockedAlbumRows() *pgxmock.Rows {
 	return pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, &sampleCoverMediaItemID, &sampleCoverMediaItemID, &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "name", &sampleDescription, &sampleBoolFalse, &sampleBoolTrue, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, &sampleCoverMediaItemID, &sampleCoverMediaItemID, &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight)
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, &sampleCoverMediaItemID, &sampleCoverMediaItemID, &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight).
+		AddRow("019b7796-6072-76ee-8be3-485ff2b33fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolFalse, &sampleBoolTrue, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, &sampleCoverMediaItemID, &sampleCoverMediaItemID, &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight)
 }

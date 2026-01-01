@@ -9,9 +9,9 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 type ( // AlbumRequest ...
@@ -298,7 +298,7 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	album.ID = uuid.NewV4()
+	album.ID, _ = uuid.NewV7()
 	album.UserID = userID
 	album.CreatedAt = time.Now()
 	album.UpdatedAt = album.CreatedAt
@@ -315,7 +315,7 @@ func (h *Handler) CreateAlbum(ctx echo.Context) error {
 
 func getAlbumID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting album id", "error", err)
 
@@ -335,7 +335,7 @@ func getMediaItems(ctx echo.Context) ([]*models.MediaItem, error) {
 	}
 	mediaItems := make([]*models.MediaItem, len(mediaItemsRequest.MediaItems))
 	for idx, mediaItem := range mediaItemsRequest.MediaItems {
-		uid, err := uuid.FromString(mediaItem)
+		uid, err := uuid.Parse(mediaItem)
 		if err != nil {
 			slog.Error("error getting album mediaitem id", "error", err)
 
@@ -366,7 +366,7 @@ func getAlbum(ctx echo.Context) (*models.Album, error) {
 		album.Name = *albumRequest.Name
 	}
 	if albumRequest.CoverMediaItemID != nil {
-		coverMediaItemID, err := uuid.FromString(*albumRequest.CoverMediaItemID)
+		coverMediaItemID, err := uuid.Parse(*albumRequest.CoverMediaItemID)
 		if err != nil {
 			return nil, echo.NewHTTPError(http.StatusBadRequest, "invalid album cover mediaitem id")
 		}

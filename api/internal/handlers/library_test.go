@@ -36,7 +36,7 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -73,7 +73,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 		{
 			"add favourite mediaitems with error", http.MethodPost, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -84,7 +84,7 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 		{
 			"add favourite mediaitems with success", http.MethodPost, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -115,7 +115,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 		{
 			"remove favourite mediaitems with error", http.MethodDelete, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -126,7 +126,7 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 		{
 			"remove favourite mediaitems with success", http.MethodDelete, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -163,7 +163,7 @@ func TestGetHiddenMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -200,7 +200,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 		{
 			"add hidden mediaitems with error", http.MethodPost, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -211,7 +211,7 @@ func TestAddHiddenMediaItems(t *testing.T) {
 		{
 			"add hidden mediaitems with success", http.MethodPost, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -242,7 +242,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 		{
 			"remove hidden mediaitems with error", http.MethodDelete, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -253,7 +253,7 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 		{
 			"remove hidden mediaitems with success", http.MethodDelete, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -290,7 +290,7 @@ func TestGetDeletedMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols).
-						AddRow("invalid", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
 			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
 			}, http.StatusInternalServerError, "Scanning value error",
@@ -327,7 +327,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 		{
 			"add deleted mediaitems with error", http.MethodPost, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -338,7 +338,7 @@ func TestAddDeletedMediaItems(t *testing.T) {
 		{
 			"add deleted mediaitems with success", http.MethodPost, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
@@ -369,7 +369,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 		{
 			"remove deleted mediaitems with error", http.MethodDelete, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
@@ -380,7 +380,7 @@ func TestRemoveDeletedMediaItems(t *testing.T) {
 		{
 			"remove deleted mediaitems with success", http.MethodDelete, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaitems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`), func(mock pgxmock.PgxPoolIface) {
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))

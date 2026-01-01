@@ -10,9 +10,9 @@ import (
 	"reflect"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/labstack/echo/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 type ( // UserRequest ...
@@ -122,7 +122,7 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	user.ID = uuid.NewV4()
+	user.ID, _ = uuid.NewV7()
 	user.CreatedAt = time.Now()
 	user.UpdatedAt = user.CreatedAt
 	_, err = h.DB.Exec(ctx.Request().Context(), queryCreateUser, user.ID, user.Name,
@@ -138,7 +138,7 @@ func (h *Handler) CreateUser(ctx echo.Context) error {
 
 func getUserID(ctx echo.Context) (uuid.UUID, error) {
 	id := ctx.Param("id")
-	uid, err := uuid.FromString(id)
+	uid, err := uuid.Parse(id)
 	if err != nil {
 		slog.Error("error getting user id", "error", err)
 

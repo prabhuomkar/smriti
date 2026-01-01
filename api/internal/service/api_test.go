@@ -12,10 +12,10 @@ import (
 	"regexp"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5"
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/pgvector/pgvector-go"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
@@ -40,14 +40,14 @@ var (
 	width                  int32 = 1080
 	height                 int32 = 720
 	placeholder                  = "placeholder"
-	sampleId                     = uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179")
+	sampleId, _                  = uuid.Parse("019b7796-6072-76ee-8be3-485ff2b32fd7")
 	sampleEmbedding              = pgvector.NewVector([]float32{0.42})
 	mediaItemResultRequest       = api.MediaItemMetadataRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		MimeType: &mimetype, Type: api.MediaItemType_PHOTO, Category: api.MediaItemCategory_DEFAULT, Width: &width, Height: &height, CreationTime: &creationtime,
 	}
 	mediaItemPreviewThumbnailRequest = api.MediaItemPreviewThumbnailRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		Status: api.MediaItemStatus_READY, Placeholder: &placeholder,
 	}
 	country            = "country"
@@ -58,48 +58,48 @@ var (
 		Embedding: []float32{0.0, 0.42, 0.111},
 	}
 	mediaItemPlaceRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		Country: &country, Postcode: &postcode, Locality: &locality, Area: &area,
 	}
 	mediaItemPlaceLocalityRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		Locality: &locality,
 	}
 	mediaItemPlaceAreaRequest = api.MediaItemPlaceRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		Area: &area,
 	}
 	mediaItemFacesRequest = api.MediaItemFacesRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding}, Thumbnails: []string{"thumbnail"},
 	}
 	mediaItemPeopleRequest = api.MediaItemPeopleRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
-			"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
+			"019b7796-6072-76ee-8be3-485ff2b32fd7": {
 				FacePeople: map[string]string{
-					"4d05b5f6-17c2-475e-87fe-3fc8b9567179": "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+					"019b7796-6072-76ee-8be3-485ff2b32fd7": "019b7796-6072-76ee-8be3-485ff2b32fd7",
 				},
-			}, "4d05b5f6-17c2-475e-87fe-3fc8b9567180": {
+			}, "019b7796-6072-76ee-8be3-485ff2b33fd7": {
 				FacePeople: map[string]string{
-					"4d05b5f6-17c2-475e-87fe-3fc8b9567180": "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+					"019b7796-6072-76ee-8be3-485ff2b33fd7": "019b7796-6072-76ee-8be3-485ff2b32fd7",
 				},
-			}, "4d05b5f6-17c2-475e-87fe-3fc8b9567181": {
+			}, "019b7796-6072-76ee-8be3-485ff2b34fd7": {
 				FacePeople: map[string]string{
-					"4d05b5f6-17c2-475e-87fe-3fc8b9567181": "1",
+					"019b7796-6072-76ee-8be3-485ff2b34fd7": "1",
 				},
-			}, "4d05b5f6-17c2-475e-87fe-3fc8b9567182": {
+			}, "019b7796-6072-76ee-8be3-485ff2b35fd7": {
 				FacePeople: map[string]string{
-					"4d05b5f6-17c2-475e-87fe-3fc8b9567182": "1",
+					"019b7796-6072-76ee-8be3-485ff2b35fd7": "1",
 				},
 			},
 		},
 	}
 	mediaItemFaceEmbeddingsRequest = api.MediaItemFaceEmbeddingsRequest{
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 	}
 	mediaItemFinalResultRequest = api.MediaItemFinalResultRequest{
-		Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-		UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+		Id:     "019b7796-6072-76ee-8be3-485ff2b32fd7",
+		UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7",
 		DetectedText: "some detected text", Caption: "some caption",
 		Embeddings: []*api.MediaItemEmbedding{&mediaItemEmbedding},
 	}
@@ -179,9 +179,9 @@ func TestGetMediaItemProcess(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`UPDATE queue`)).
 					WillReturnRows(getMockedMediaItemToProcessRow())
 			}, &api.MediaItemProcessResponse{
-				Id:          "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				UserId:      "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
-				MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567181",
+				Id:          "019b7796-6072-76ee-8be3-485ff2b32fd7",
+				UserId:      "019b7796-6072-76ee-8be3-485ff2b33fd7",
+				MediaItemId: "019b7796-6072-76ee-8be3-485ff2b34fd7",
 				Components:  []api.MediaItemComponent{api.MediaItemComponent_METADATA, api.MediaItemComponent_PLACES},
 				Payload: map[string]string{"category": mediaitemCategory, "latitude": "latitude",
 					"longitude": "longitude", "mime_type": "mimetype",
@@ -238,7 +238,7 @@ func TestGetUsers(t *testing.T) {
 			"get users with error due to scanning", func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id FROM users`)).
 					WillReturnRows(getMockedUserIDRows(true))
-			}, nil, status.Error(codes.Internal, "error scanning user: Scanning value error for column 'id': uuid: incorrect UUID length: invalid"),
+			}, nil, status.Error(codes.Internal, "error scanning user: Scanning value error for column 'id': Scan: invalid UUID length: 7"),
 		},
 		{
 			"get users with success", func(mock pgxmock.PgxPoolIface) {
@@ -246,7 +246,7 @@ func TestGetUsers(t *testing.T) {
 					WillReturnRows(getMockedUserIDRows(false))
 			}, &api.UsersResponse{
 				Users: []string{
-					"4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
+					"019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b33fd7",
 				},
 			}, nil,
 		},
@@ -293,12 +293,12 @@ func TestSaveMediaItemMetadata(t *testing.T) {
 		},
 		{
 			"save mediaitem result with invalid mediaitem id", &api.MediaItemMetadataRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem result with incorrect creation time", &api.MediaItemMetadataRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", CreationTime: &badcreationtime,
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7", CreationTime: &badcreationtime,
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem creation time"),
 		},
 		{
@@ -364,7 +364,7 @@ func TestSaveMediaItemPreviewThumbnail(t *testing.T) {
 		},
 		{
 			"save mediaitem preview and thumbnail with invalid mediaitem id", &api.MediaItemPreviewThumbnailRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "bad-mediaitem-id",
 			}, nil, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -515,7 +515,7 @@ func TestSaveMediaItemPlace(t *testing.T) {
 		},
 		{
 			"save mediaitem place with invalid mediaitem id", &api.MediaItemPlaceRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -629,7 +629,7 @@ func TestSaveMediaItemFaces(t *testing.T) {
 		},
 		{
 			"save mediaitem faces with invalid mediaitem id", &api.MediaItemFacesRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemId: "bad-mediaitem-id",
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemId: "bad-mediaitem-id",
 			}, nil, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
@@ -733,7 +733,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT id, mediaitem_id, people_id, embedding FROM mediaitem_faces`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedMediaItemFaceEmbeddingRows(true))
-			}, nil, status.Error(codes.Internal, "error scanning mediaitem face embedding: Scanning value error for column 'id': uuid: incorrect UUID length: invalid"),
+			}, nil, status.Error(codes.Internal, "error scanning mediaitem face embedding: Scanning value error for column 'id': Scan: invalid UUID length: 7"),
 		},
 		{
 			"get mediaitem face embeddings with success", &mediaItemFaceEmbeddingsRequest, func(mock pgxmock.PgxPoolIface) {
@@ -743,7 +743,7 @@ func TestGetMediaItemFaceEmbeddings(t *testing.T) {
 			}, &api.MediaItemFaceEmbeddingsResponse{
 				MediaItemFaceEmbeddings: []*api.MediaItemFaceEmbedding{
 					{
-						MediaItemId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", Embedding: nil,
+						MediaItemId: "019b7796-6072-76ee-8be3-485ff2b32fd7", Embedding: nil,
 					},
 				},
 			}, nil,
@@ -793,15 +793,15 @@ func TestSaveMediaItemPeople(t *testing.T) {
 		},
 		{
 			"save mediaitem people with invalid mediaitem id", &api.MediaItemPeopleRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
 					"bad-mediaitem-id": nil,
 				},
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
 		{
 			"save mediaitem people with invalid face id", &api.MediaItemPeopleRequest{
-				UserId: "4d05b5f6-17c2-475e-87fe-3fc8b9567179", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
-					"4d05b5f6-17c2-475e-87fe-3fc8b9567179": {
+				UserId: "019b7796-6072-76ee-8be3-485ff2b32fd7", MediaItemFacePeople: map[string]*api.MediaItemFacePeople{
+					"019b7796-6072-76ee-8be3-485ff2b32fd7": {
 						FacePeople: map[string]string{
 							"bad-face-id": "bad-people-id",
 						},
@@ -947,14 +947,14 @@ func TestSaveMediaItemFinalResult(t *testing.T) {
 		},
 		{
 			"save mediaitem ml result with invalid user id", &api.MediaItemFinalResultRequest{
-				Id:     "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:     "019b7796-6072-76ee-8be3-485ff2b32fd7",
 				UserId: "bad-mediaitem-user-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem user id"),
 		},
 		{
 			"save mediaitem ml result with invalid mediaitem id", &api.MediaItemFinalResultRequest{
-				Id:          "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-				UserId:      "4d05b5f6-17c2-475e-87fe-3fc8b9567179",
+				Id:          "019b7796-6072-76ee-8be3-485ff2b32fd7",
+				UserId:      "019b7796-6072-76ee-8be3-485ff2b32fd7",
 				MediaItemId: "bad-mediaitem-id",
 			}, nil, status.Errorf(codes.InvalidArgument, "invalid mediaitem id"),
 		},
@@ -1049,15 +1049,15 @@ func getMockedMediaItemFaceEmbeddingRows(bad bool) *pgxmock.Rows {
 			AddRow("invalid", "invalid", nil, nil)
 	}
 	return pgxmock.NewRows(mediaitemFaceCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleId, &sampleEmbedding).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", &sampleId, &sampleEmbedding)
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleId, &sampleEmbedding).
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleId, &sampleEmbedding)
 }
 
 func getMockedMediaItemToProcessRow() *pgxmock.Rows {
 	return pgxmock.NewRows([]string{"id", "user_id", "mediaitem_id", "components", "mime_type", "source_url",
 		"preview_url", "mediaitem_type", "mediaitem_category", "latitude", "longitude"}).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567180",
-			"4d05b5f6-17c2-475e-87fe-3fc8b9567181", components, &mimetype, sourceUrl,
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b33fd7",
+			"019b7796-6072-76ee-8be3-485ff2b34fd7", components, &mimetype, sourceUrl,
 			&previewUrl, &mediaitemType, &mediaitemCategory, &latitude, &longitude)
 
 }
@@ -1068,6 +1068,6 @@ func getMockedUserIDRows(bad bool) *pgxmock.Rows {
 			AddRow("invalid")
 	}
 	return pgxmock.NewRows([]string{"id"}).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179").
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180")
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7").
+		AddRow("019b7796-6072-76ee-8be3-485ff2b33fd7")
 }

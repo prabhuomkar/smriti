@@ -10,9 +10,9 @@ import (
 	"strings"
 	"testing"
 
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pashagolub/pgxmock/v4"
-	uuid "github.com/satori/go.uuid"
 )
 
 func TestLogin(t *testing.T) {
@@ -93,8 +93,9 @@ func TestLogin(t *testing.T) {
 }
 
 func TestRefresh(t *testing.T) {
+	userID, _ := uuid.Parse("019b7796-6072-76ee-8be3-485ff2b32fd7")
 	_, rtoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}}, models.User{
-		ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username",
+		ID: userID, Username: "username",
 	})
 	tests := []Test{
 		{
@@ -114,8 +115,9 @@ func TestRefresh(t *testing.T) {
 }
 
 func TestLogout(t *testing.T) {
+	userID, _ := uuid.Parse("019b7796-6072-76ee-8be3-485ff2b32fd7")
 	_, atoken := auth.GetAccessAndRefreshTokens(&config.Config{Auth: config.Auth{RefreshTTL: 60}}, models.User{
-		ID: uuid.FromStringOrNil("4d05b5f6-17c2-475e-87fe-3fc8b9567179"), Username: "username",
+		ID: userID, Username: "username",
 	})
 	tests := []Test{
 		{

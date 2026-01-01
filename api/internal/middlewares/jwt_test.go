@@ -14,9 +14,9 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 	"github.com/pashagolub/pgxmock/v4"
-	uuid "github.com/satori/go.uuid"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
@@ -73,7 +73,8 @@ func TestJWTCheckOK(t *testing.T) {
 			AccessTTL: 60,
 		},
 	}
-	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, models.User{ID: uuid.NewV4(), Username: "username"})
+	userID, _ := uuid.NewV7()
+	accessToken, _ := auth.GetAccessAndRefreshTokens(cfg, models.User{ID: userID, Username: "username"})
 	// mock cache
 	cache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
 	_ = cache.SetWithExpire(accessToken, nil, 1*time.Minute)

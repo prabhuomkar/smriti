@@ -10,7 +10,7 @@ import (
 
 	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt/v4"
-	uuid "github.com/satori/go.uuid"
+	"github.com/google/uuid"
 )
 
 type ( // TokenClaims ...
@@ -60,7 +60,7 @@ func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string
 		return "", "", err
 	}
 
-	userID, err := uuid.FromString(claims.ID)
+	userID, err := uuid.Parse(claims.ID)
 	if err != nil || userID == uuid.Nil {
 		if err == nil {
 			err = errNilUserID

@@ -31,6 +31,7 @@ CREATE TABLE queue (
     id uuid NOT NULL,
     user_id uuid NOT NULL,
     mediaitem_id uuid NOT NULL,
+    job_id uuid,
     components text,
     status text
 );
