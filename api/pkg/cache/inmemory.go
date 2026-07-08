@@ -15,11 +15,11 @@ type InMemoryCache struct {
 
 var errRemovingFromCache = errors.New("error removing from cache")
 
-func (imc *InMemoryCache) SetWithExpire(key string, value interface{}, expiration time.Duration) error {
+func (imc *InMemoryCache) SetWithExpire(key string, value any, expiration time.Duration) error {
 	return imc.Connection.SetWithExpire(key, value, expiration)
 }
 
-func (imc *InMemoryCache) Get(key string) (interface{}, error) {
+func (imc *InMemoryCache) Get(key string) (any, error) {
 	return imc.Connection.Get(key)
 }
 

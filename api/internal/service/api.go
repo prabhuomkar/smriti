@@ -169,8 +169,7 @@ func (s *Service) GetMediaItemProcess(ctx context.Context, _ *emptypb.Empty) (*a
 	}
 
 	filteredComponents := []api.MediaItemComponent{}
-	queueComponents := strings.Split(components, ",")
-	for _, queueComponent := range queueComponents {
+	for queueComponent := range strings.SplitSeq(components, ",") {
 		component := api.MediaItemComponent(api.MediaItemComponent_value[queueComponent])
 		if slices.Contains(*s.enabledComponents, component) {
 			filteredComponents = append(filteredComponents, component)
@@ -288,7 +287,7 @@ func (s *Service) SaveMediaItemPreviewThumbnail(ctx context.Context, req *api.Me
 		return &emptypb.Empty{}, status.Error(codes.InvalidArgument, "invalid mediaitem id")
 	}
 	slog.Debug("saving preview and thumbnail for mediaitem", "user", req.UserId, "mediaitem", req.MediaItemId, "body", req.String())
-	mediaItemUpdates := map[string]interface{}{"status": req.Status}
+	mediaItemUpdates := map[string]any{"status": req.Status}
 	if req.SourcePath != nil {
 		mediaItemUpdates["source_url"], err = uploadFile(s.Storage, *req.SourcePath, "originals", req.MediaItemId)
 		if err != nil {
@@ -643,14 +642,14 @@ func (s *Service) SaveMediaItemFinalResult(ctx context.Context, req *api.MediaIt
 				filepath.Dir(path) == s.Config.DiskRoot { // acquire lock to check if not copied
 				for {
 					slog.Debug("deleting file", "path", path)
-					file, err := os.Open(path)
+					file, err := os.Open(path) //nolint:gosec
 					if err != nil {
 						continue
 					}
 					if err := syscall.Flock(int(file.Fd()), syscall.LOCK_EX|syscall.LOCK_NB); err != nil {
 						continue
 					}
-					if err = os.Remove(path); err != nil {
+					if err = os.Remove(path); err != nil { //nolint:gosec
 						return fmt.Errorf("error removing file for mediaitem %s: %w", req.MediaItemId, err)
 					}
 

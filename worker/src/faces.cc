@@ -7,6 +7,7 @@
 #include <algorithm>
 #include <fstream>
 #include <memory>
+#include <numeric>
 #include <optional>
 #include <string>
 #include <tuple>
@@ -328,17 +329,18 @@ void ONNX::Cluster() {
     req.set_userid(user_id);
     MediaItemFaceEmbeddingsResponse mfe_response =
         api_client_->GetMediaItemFaceEmbeddings(req);
-    std::vector<
-        std::tuple<std::string, std::string, std::string, std::vector<float>>>
-        faces;
+    std::vector<std::tuple<std::string, std::string, std::string>>
+        face_mediaitem_people_id;
+    std::vector<std::vector<float>> embeddings;
     for (auto mfe : mfe_response.mediaitemfaceembeddings()) {
       auto embedding = mfe.embedding();
       std::vector<float> mf_embedding;
       for (auto embed : embedding.embedding()) {
         mf_embedding.push_back(embed);
       }
-      faces.push_back(make_tuple(mfe.id(), mfe.mediaitemid(), mfe.peopleid(),
-                                 mf_embedding));
+      face_mediaitem_people_id.push_back(
+          make_tuple(mfe.id(), mfe.mediaitemid(), mfe.peopleid()));
+      embeddings.push_back(mf_embedding);
     }
     SPDLOG_DEBUG("user: {} faces: {}", user_id, faces.size());
     SPDLOG_INFO("running clustering algorithm");

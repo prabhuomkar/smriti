@@ -1,6 +1,8 @@
-cmake_minimum_required(VERSION 3.30)
+cmake_minimum_required(VERSION 3.28)
 
 set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
 
 project(worker)
 
@@ -46,6 +48,8 @@ file(GLOB_RECURSE PADDLEOCR_SOURCES ${paddleocr_SOURCE_DIR}/deploy/cpp_infer/src
 
 add_executable(worker ${EXEC_SOURCES} ${GENERATED_SOURCES} ${PADDLEOCR_SOURCES})
 
+target_compile_options(worker PRIVATE -include cstdint)
+
 set(TARGET_INCLUDE_DIRS 
     ${CMAKE_CURRENT_SOURCE_DIR}
     ${CMAKE_CURRENT_SOURCE_DIR}/generated
@@ -89,10 +93,6 @@ target_compile_definitions(worker PRIVATE
 target_link_directories(worker PRIVATE ${TARGET_LINK_DIRS})
     
 target_link_libraries(worker PRIVATE ${TARGET_LINK_LIBS})
-
-set_target_properties(worker PROPERTIES 
-    CXX_STANDARD 17 
-    CXX_EXTENSIONS OFF)
 
 if(BUILD_TESTS)
     enable_testing()

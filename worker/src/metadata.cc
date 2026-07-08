@@ -3,6 +3,7 @@
 
 #include <grpcpp/grpcpp.h>
 #include <spdlog/spdlog.h>
+#include <sys/wait.h>
 
 #include <algorithm>
 #include <cstdio>

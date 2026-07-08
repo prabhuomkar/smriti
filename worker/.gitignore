@@ -22,6 +22,5 @@ Thumbs.db
 .idea/
 fly.toml
 build/
-generated/
 third_party/
 cppcheck*

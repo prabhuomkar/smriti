@@ -23,8 +23,8 @@ git clone git@github.com:prabhuomkar/smriti.git
 
 ### API
 
-- Install [Golang 1.25](https://go.dev/dl/) or above
-- Install [golangci-lint 2.4.0](https://golangci-lint.run/) or above
+- Install [Golang 1.26](https://go.dev/dl/) or above
+- Install [golangci-lint 2.12.2](https://golangci-lint.run/) or above
 - Run the following command to finish your API setup
 
 ```
@@ -33,7 +33,7 @@ make setup-api
 
 ### Worker
 
-- Install [CMake 3.30](https://cmake.org/download/) or above
+- Install [CMake 3.28+](https://cmake.org/download/) or above
 - Install [cpplint 2.0.0](https://pypi.org/project/cpplint/) or above
 - Install [clang-tidy 19.1.7](https://clang.llvm.org/extra/clang-tidy/) or above
 - Install [clang-format 19.1.7](https://clang.llvm.org/docs/ClangFormat.html) or above

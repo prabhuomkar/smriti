@@ -2,11 +2,9 @@ package storage
 
 import (
 	"errors"
+	"fmt"
 	"log/slog"
 	"os"
-
-	"github.com/minio/minio-go/v7"
-	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
 const (
@@ -39,31 +37,14 @@ type ( // Provider ...
 
 //nolint:ireturn,cyclop
 func Init(cfg *Config) Provider {
-	if cfg.Provider == ProviderMinio {
-		minioClient, err := minio.New(cfg.Endpoint, &minio.Options{
-			Creds: credentials.NewStaticV4(cfg.AccessKey, cfg.SecretKey, ""), Secure: false,
-		})
-		if err != nil {
-			slog.Error("error creating storage client", "error", err)
+	for _, dir := range []string{
+		"originals", "previews", "thumbnails", "faces",
+	} {
+		err := os.Mkdir(cfg.Root+"/"+dir, dirPermission)
+		if err != nil && !errors.Is(err, os.ErrExist) {
+			slog.Error(fmt.Sprintf("error creating storage %s directory", dir),
+				"error", err)
 		}
-
-		return &Minio{Client: minioClient}
-	}
-	err := os.Mkdir(cfg.Root+"/originals", dirPermission)
-	if err != nil && !errors.Is(err, os.ErrExist) {
-		slog.Error("error creating storage originals directory", "error", err)
-	}
-	err = os.Mkdir(cfg.Root+"/previews", dirPermission)
-	if err != nil && !errors.Is(err, os.ErrExist) {
-		slog.Error("error creating storage previews directory", "error", err)
-	}
-	err = os.Mkdir(cfg.Root+"/thumbnails", dirPermission)
-	if err != nil && !errors.Is(err, os.ErrExist) {
-		slog.Error("error creating storage thumbnails directory", "error", err)
-	}
-	err = os.Mkdir(cfg.Root+"/faces", dirPermission)
-	if err != nil && !errors.Is(err, os.ErrExist) {
-		slog.Error("error creating storage faces directory", "error", err)
 	}
 
 	return &Disk{Root: cfg.Root}

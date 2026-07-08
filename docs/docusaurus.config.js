@@ -3,7 +3,7 @@ const prismRenderer = require("prism-react-renderer");
 const config = {
   title: "Smriti",
   tagline: "Smarter Home for all your Photos and Videos",
-  url: "https://smriti.omkar.xyz",
+  url: "https://smriti.omkarprabhu.in",
   baseUrl: "/",
   onBrokenLinks: "throw",
   onBrokenMarkdownLinks: "warn",
@@ -17,7 +17,7 @@ const config = {
   presets: [
     [
       "classic",
-      ({
+      {
         docs: {
           sidebarPath: require.resolve("./sidebars.js"),
         },
@@ -25,76 +25,75 @@ const config = {
           customCss: require.resolve("./src/css/custom.css"),
         },
         gtag: {
-          trackingID: 'G-GZ6C7CQRL2s',
+          trackingID: "G-GZ6C7CQRL2s",
           anonymizeIP: true,
         },
-      }),
+      },
     ],
     [
-      'redocusaurus',
+      "redocusaurus",
       {
         specs: [
           {
-            spec: 'swagger.yaml',
-            route: '/api/',
+            spec: "swagger.yaml",
+            route: "/api/",
           },
         ],
       },
     ],
   ],
-  themeConfig:
-    ({
-      announcementBar: {
-        id: 'wip',
-        content:
-          'Currently under active development, check out <a href="/docs/dev-guide/contribution">Contributing Guide</a>',
-        backgroundColor: '#9d8cfd',
-        textColor: '#ffffff',
-        isCloseable: false,
+  themeConfig: {
+    announcementBar: {
+      id: "wip",
+      content:
+        'Currently under active development, check out <a href="/docs/dev-guide/contribution">Contributing Guide</a>',
+      backgroundColor: "#9d8cfd",
+      textColor: "#ffffff",
+      isCloseable: false,
+    },
+    navbar: {
+      title: "Smriti",
+      logo: {
+        alt: "Smriti Logo",
+        src: "img/logo.png",
+        srcDark: "img/logo-white.png",
       },
-      navbar: {
-        title: "Smriti",
-        logo: {
-          alt: "Smriti Logo",
-          src: "img/logo.png",
-          srcDark: "img/logo-white.png"
+      items: [
+        {
+          type: "doc",
+          docId: "dev-guide/introduction",
+          label: "Docs",
+          position: "left",
         },
-        items: [
-          {
-            type: "doc",
-            docId: "dev-guide/introduction",
-            label: "Docs",
-            position: "left",
-          },
-          {
-            href: "/api/",
-            label: "API",
-            position: "left",
-          },
-          {
-            type: "localeDropdown",
-            position: "right",
-          },
-          {
-            href: "https://github.com/prabhuomkar/smriti",
-            position: "right",
-            className: "header-github-link",
-            "aria-label": "GitHub repository",
-          },
-        ],
-      },
-      footer: {
-        style: "dark",
-        copyright: `Copyright © ${new Date().getFullYear()} Smriti. Built with ❤️ in India.`,
-      },
-      prism: {
-        theme: prismRenderer.themes.github,
-        darkTheme: prismRenderer.themes.dracula,
-      },
-    }),
+        {
+          href: "/api/",
+          label: "API",
+          position: "left",
+        },
+        {
+          type: "localeDropdown",
+          position: "right",
+        },
+        {
+          href: "https://github.com/prabhuomkar/smriti",
+          position: "right",
+          className: "header-github-link",
+          "aria-label": "GitHub repository",
+        },
+      ],
+    },
+    footer: {
+      style: "dark",
+      copyright: `Copyright © ${new Date().getFullYear()} Smriti. Built with ❤️ in India.`,
+    },
+    prism: {
+      theme: prismRenderer.themes.github,
+      darkTheme: prismRenderer.themes.dracula,
+    },
+  },
   stylesheets: [
     "https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;700&family=Fira+Code&display=swap",
-  ]
+  ],
 };
 
 module.exports = config;

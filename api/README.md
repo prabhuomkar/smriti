@@ -1,3 +1,3 @@
 # Smriti API
 
-Setup Guide is available [here](https://smriti.omkar.xyz/docs/dev-guide/environment#api).
+Setup Guide is available [here](https://smriti.omkarprabhu.in/docs/dev-guide/environment#api).

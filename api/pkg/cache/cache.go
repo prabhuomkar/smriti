@@ -11,8 +11,8 @@ import (
 
 // Provider ...
 type Provider interface {
-	SetWithExpire(key string, value interface{}, expiration time.Duration) error
-	Get(key string) (interface{}, error)
+	SetWithExpire(key string, value any, expiration time.Duration) error
+	Get(key string) (any, error)
 	Remove(key string) error
 }
 

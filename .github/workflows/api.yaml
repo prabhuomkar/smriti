@@ -27,13 +27,13 @@ jobs:
       - name: Setup Golang
         uses: actions/setup-go@v6
         with:
-          go-version: "^1.25"
+          go-version: "^1.26"
       - name: Go Version
         run: go version
       - name: Run Lint
         uses: golangci/golangci-lint-action@v8
         with:
-          version: v2.4.0
+          version: v2.12.2
           working-directory: api
       - name: Run Build
         run: make build

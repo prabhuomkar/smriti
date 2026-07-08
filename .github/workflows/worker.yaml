@@ -27,7 +27,7 @@ jobs:
       - name: Setup cmake
         uses: jwlawson/actions-setup-cmake@v2
         with:
-          cmake-version: "3.30.x"
+          cmake-version: "3.28.x"
       - name: CMake Version
         run: cmake --version
       - name: Run Lint

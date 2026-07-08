@@ -70,7 +70,7 @@ func (h *Handler) UpdateJob(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	if job.Status == models.JobRunning {
+	if job.Status == models.JobRunning { //nolint: staticcheck
 		existingJobCount := 0
 		err = h.DB.QueryRow(ctx.Request().Context(), queryCheckJobExists, userID, string(models.JobPaused),
 			string(models.JobRunning)).

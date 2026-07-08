@@ -136,7 +136,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	return httpServer
 }
 
-// StartHTTPServer ...
+// StopHTTPServer ...
 func StopHTTPServer(httpServer *http.Server) {
 	slog.Info("stopping http api server")
 	ctx, cancel := context.WithTimeout(context.Background(), httpTimeout*time.Second)

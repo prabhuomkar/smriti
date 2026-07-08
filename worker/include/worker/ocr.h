@@ -52,21 +52,21 @@ class PaddlePaddleModel : public ModelInferenceInterface {
           "ocr_text_rec/PP-OCRv5_mobile_rec_infer",
       float text_rec_score_thresh = 0.9)
       : params_(
-            {.use_doc_orientation_classify = use_doc_orientation_classify,
-             .doc_orientation_classify_model_name =
+            {.doc_orientation_classify_model_name =
                  doc_orientation_classify_model_name,
              .doc_orientation_classify_model_dir =
                  doc_orientation_classify_model_dir,
-             .use_textline_orientation = use_textline_orientation,
-             .textline_orientation_model_name = textline_orientation_model_name,
-             .textline_orientation_model_dir = textline_orientation_model_dir,
-             .use_doc_unwarping = use_doc_unwarping,
              .doc_unwarping_model_name = doc_unwarping_model_name,
              .doc_unwarping_model_dir = doc_unwarping_model_dir,
              .text_detection_model_name = text_detection_model_name,
              .text_detection_model_dir = text_detection_model_dir,
+             .textline_orientation_model_name = textline_orientation_model_name,
+             .textline_orientation_model_dir = textline_orientation_model_dir,
              .text_recognition_model_name = text_recognition_model_name,
              .text_recognition_model_dir = text_recognition_model_dir,
+             .use_doc_orientation_classify = use_doc_orientation_classify,
+             .use_doc_unwarping = use_doc_unwarping,
+             .use_textline_orientation = use_textline_orientation,
              .text_rec_score_thresh = text_rec_score_thresh}),
         model_(params_) {}
   std::vector<std::pair<std::string, float>> Run(
