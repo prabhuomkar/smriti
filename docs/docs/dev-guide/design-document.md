@@ -112,10 +112,6 @@ interface {
   params:
     - threshold
   source: yolo
-- name: ocr
-  source: paddlepaddle
-  params:
-    - threshold
 - name: faces
   source: tbd
   params:
@@ -129,7 +125,6 @@ interface {
 
 - Default Models:
   - Classification - [EfficientNet](https://github.com/pytorch/vision/blob/main/torchvision/models/efficientnet.py)
-  - OCR - [PaddleOCR Models](https://github.com/PaddlePaddle/PaddleOCR)
   - Search Embeddings - [CLIP](https://huggingface.co/openai/clip-vit-base-patch32)
   - Speech - [TBD](https://github.com)
   - Face Detection - [TBD](https://github.com)

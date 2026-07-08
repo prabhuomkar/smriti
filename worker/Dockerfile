@@ -43,19 +43,26 @@ RUN cmake -S . -B build \
 
 FROM ubuntu:26.04 AS runtime
 ENV DEBIAN_FRONTEND=noninteractive
-ENV LD_LIBRARY_PATH=/opt/worker/lib/onnxruntime:/opt/worker/lib/paddle:${LD_LIBRARY_PATH}
+ENV LD_LIBRARY_PATH=/opt/worker/lib:/opt/worker/lib/onnxruntime:${LD_LIBRARY_PATH}
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         ca-certificates \
+        libimage-exiftool-perl \
+        imagemagick \
         libcurl4 \
         libgflags2.2 \
         libgrpc++1.51t64 \
         libgrpc29t64 \
         libgomp1 \
+        libheif1 \
+        libheif-plugin-libde265 \
+        libde265-0 \
         libmagick++-7.q16-5 \
         libmagickcore-7.q16-10 \
+        libmagickcore-7.q16-10-extra \
         libmagickwand-7.q16-10 \
         libopencv-core410 \
+        libopencv-dnn410 \
         libopencv-imgcodecs410 \
         libopencv-imgproc410 \
         libprotobuf32t64 \
@@ -63,9 +70,8 @@ RUN apt-get update && \
         libyaml-cpp0.8 && \
     rm -rf /var/lib/apt/lists/*
 WORKDIR /app
-COPY --from=builder /app/build/worker /usr/local/bin/worker
+COPY --from=builder /app/build/worker .
 COPY --from=builder /app/third_party/onnxruntime/lib /opt/worker/lib/onnxruntime
-COPY --from=builder /app/third_party/paddle_inference/paddle/lib /opt/worker/lib/paddle
 EXPOSE 5002
 EXPOSE 15002
-ENTRYPOINT ["/usr/local/bin/worker"]
+ENTRYPOINT ["/app/worker"]

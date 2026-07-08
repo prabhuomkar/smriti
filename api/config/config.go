@@ -61,12 +61,9 @@ type ( // Log ...
 	// ML ...
 	ML struct {
 		Places                 bool   `envconfig:"SMRITI_ML_PLACES"                   default:"true"`
-		OCR                    bool   `envconfig:"SMRITI_ML_OCR"                      default:"true"`
 		Search                 bool   `envconfig:"SMRITI_ML_SEARCH"                   default:"true"`
 		Faces                  bool   `envconfig:"SMRITI_ML_FACES"                    default:"true"`
 		PlacesProvider         string `envconfig:"SMRITI_ML_PLACES_PROVIDER"          default:"openstreetmap"`
-		OCRProvider            string `envconfig:"SMRITI_ML_OCR_PROVIDER"             default:"paddlepaddle"`
-		OCRParams              string `envconfig:"SMRITI_ML_OCR_PARAMS"               default:"{\"use_doc_orientation_classify\":false,\"doc_orientation_classify_model_name\":\"PP-LCNet_x1_0_doc_ori\",\"doc_orientation_classify_model_dir\":\"ocr_doc_orient/PP-LCNet_x1_0_doc_ori_infer\",\"use_textline_orientation\":false,\"textline_orientation_model_name\":\"PP-LCNet_x0_25_textline_ori\",\"textline_orientation_model_dir\":\"ocr_text_line_orient/PP-LCNet_x0_25_textline_ori_infer\",\"use_doc_unwarping\":false,\"doc_unwarping_model_name\":\"UVDoc\",\"doc_unwarping_model_dir\":\"ocr_text_unwrap/UVDoc_infer\",\"text_detection_model_name\":\"PP-OCRv5_mobile_det\",\"text_detection_model_dir\":\"ocr_text_det/PP-OCRv5_mobile_det_infer\",\"text_recognition_model_name\":\"PP-OCRv5_mobile_rec\",\"text_recognition_model_dir\":\"ocr_text_rec/PP-OCRv5_mobile_rec_infer\"}"` //nolint:lll
 		SearchProvider         string `envconfig:"SMRITI_ML_SEARCH_PROVIDER"          default:"pytorch"`
 		SearchParams           string `envconfig:"SMRITI_ML_SEARCH_PARAMS"            default:"{\"tokenizer_dir\":\"search_tokenizer\",\"processor_dir\":\"search_processor\",\"text_file\":\"search_text_v240624.pt\",\"vision_file\":\"search_vision_v240624.pt\"}"` //nolint:lll
 		FacesProvider          string `envconfig:"SMRITI_ML_FACES_PROVIDER"           default:"onnx"`

@@ -41,7 +41,7 @@ std::string ImageConverterClient::Convert(const std::string& input_file_path,
       throw std::runtime_error("dcraw_make_mem_image failed");
     }
 
-    SPDLOG_DEBUG("file_path {}", input_file_path);
+    SPDLOG_INFO("file_path {}", input_file_path);
 
     magick_blob = Magick::Blob(image->data, image->data_size);
     magick_img = Magick::Image(
@@ -66,7 +66,7 @@ std::string ImageConverterClient::Convert(const std::string& input_file_path,
     }
   }
 
-  SPDLOG_DEBUG("resizing image to {} {}", resize_width, resize_height);
+  SPDLOG_INFO("resizing image to {} {}", resize_width, resize_height);
 
   magick_img.resize(Magick::Geometry(resize_width, resize_height));
   magick_img.quality(image_quality_);
@@ -123,6 +123,10 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
   request.set_sourcepath(file_path);
 
   try {
+    result["preview_url"] = "";
+    result["thumbnail_url"] = "";
+    result["placeholder"] = "";
+
     if (type == MediaItemType_Name(MediaItemType::PHOTO)) {
       result["preview_url"] = image_converter_client_->Convert(
           file_path, file_path + "-preview", 0);
@@ -131,13 +135,15 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
     }
     request.set_previewpath(result["preview_url"]);
 
-    result["thumbnail_url"] = image_converter_client_->Convert(
-        result["preview_url"], file_path + "-thumbnail", thumbnail_size_);
-    request.set_thumbnailpath(result["thumbnail_url"]);
+    if (!result["preview_url"].empty()) {
+      result["thumbnail_url"] = image_converter_client_->Convert(
+          result["preview_url"], file_path + "-thumbnail", thumbnail_size_);
+      request.set_thumbnailpath(result["thumbnail_url"]);
 
-    result["placeholder"] = image_converter_client_->Convert(
-        result["thumbnail_url"], "", placeholder_size_);
-    request.set_placeholder(result["placeholder"]);
+      result["placeholder"] = image_converter_client_->Convert(
+          result["thumbnail_url"], "", placeholder_size_);
+      request.set_placeholder(result["placeholder"]);
+    }
 
     status = MediaItemStatus::READY;
   } catch (const std::exception& e) {

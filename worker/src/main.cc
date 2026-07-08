@@ -29,7 +29,6 @@
 #include "worker/config.h"
 #include "worker/faces.h"
 #include "worker/metadata.h"
-#include "worker/ocr.h"
 #include "worker/places.h"
 #include "worker/preview_thumbnail.h"
 
@@ -52,68 +51,62 @@ std::future<void> ProcessMediaItem(
     std::shared_ptr<components::previewthumbnail::PreviewThumbnail>
         previewthumbnail_component,
     std::shared_ptr<components::places::Places> places_component,
-    std::shared_ptr<components::faces::Faces> faces_component,
-    std::shared_ptr<components::ocr::OCR> ocr_component) {
-  return std::async(
-      std::launch::async,
-      [response, api_client, metadata_component, previewthumbnail_component,
-       places_component, faces_component, ocr_component]() {
-        try {
-          SPDLOG_INFO("processing mediaitem: {}", response.id());
+    std::shared_ptr<components::faces::Faces> faces_component) {
+  return std::async(std::launch::async, [response, api_client,
+                                         metadata_component,
+                                         previewthumbnail_component,
+                                         places_component, faces_component]() {
+    try {
+      SPDLOG_INFO("processing mediaitem: {}", response.id());
 
-          std::unordered_map<std::string, std::string> result;
-          for (const auto& [key, value] : response.payload()) {
-            result[key] = value;
-          }
+      std::unordered_map<std::string, std::string> result;
+      for (const auto& [key, value] : response.payload()) {
+        result[key] = value;
+      }
 
-          for (auto component : response.components()) {
-            SPDLOG_INFO("component: {}", MediaItemComponent_Name(component));
-            std::unordered_map<std::string, std::string> component_result;
+      for (auto component : response.components()) {
+        SPDLOG_INFO("component: {}", MediaItemComponent_Name(component));
+        std::unordered_map<std::string, std::string> component_result;
 
-            if (component == MediaItemComponent::METADATA) {
-              component_result = metadata_component->Extract(
-                  response.id(), response.userid(), response.mediaitemid(),
-                  result["source_url"]);
-            } else if (component == MediaItemComponent::PREVIEW_THUMBNAIL) {
-              component_result = previewthumbnail_component->Generate(
-                  response.id(), response.userid(), response.mediaitemid(),
-                  result["source_url"], result["type"]);
-            } else if (component == MediaItemComponent::PLACES) {
-              component_result = places_component->ReverseGeocode(
-                  response.id(), response.userid(), response.mediaitemid(),
-                  result["latitude"], result["longitude"]);
-            } else if (component == MediaItemComponent::FACES) {
-              component_result = faces_component->Extract(
-                  response.id(), response.userid(), response.mediaitemid(),
-                  result["preview_url"]);
-            } else if (component == MediaItemComponent::OCR) {
-              component_result = ocr_component->Extract(
-                  response.id(), response.userid(), response.mediaitemid(),
-                  result["preview_url"]);
-            }
-
-            for (const auto& [key, value] : component_result) {
-              result[key] = value;
-            }
-          }
-
-          MediaItemFinalResultRequest final_request;
-          final_request.set_id(response.id());
-          final_request.set_userid(response.userid());
-          final_request.set_mediaitemid(response.mediaitemid());
-          final_request.set_detectedtext(result.find("detected_text") !=
-                                                 result.end()
-                                             ? result["detected_text"]
-                                             : "");
-          final_request.set_caption("");
-          api_client->SaveMediaItemFinalResult(final_request);
-
-          faces_component->Cluster();
-        } catch (const std::exception& e) {
-          SPDLOG_ERROR("error processing mediaitem {}: {}", response.id(),
-                       e.what());
+        if (component == MediaItemComponent::METADATA) {
+          component_result = metadata_component->Extract(
+              response.id(), response.userid(), response.mediaitemid(),
+              result["source_url"]);
+        } else if (component == MediaItemComponent::PREVIEW_THUMBNAIL) {
+          component_result = previewthumbnail_component->Generate(
+              response.id(), response.userid(), response.mediaitemid(),
+              result["source_url"], result["type"]);
+        } else if (component == MediaItemComponent::PLACES) {
+          component_result = places_component->ReverseGeocode(
+              response.id(), response.userid(), response.mediaitemid(),
+              result["latitude"], result["longitude"]);
+        } else if (component == MediaItemComponent::FACES) {
+          component_result = faces_component->Extract(
+              response.id(), response.userid(), response.mediaitemid(),
+              result["preview_url"]);
         }
-      });
+
+        for (const auto& [key, value] : component_result) {
+          result[key] = value;
+        }
+      }
+
+      MediaItemFinalResultRequest final_request;
+      final_request.set_id(response.id());
+      final_request.set_userid(response.userid());
+      final_request.set_mediaitemid(response.mediaitemid());
+      final_request.set_detectedtext(
+          result.find("detected_text") != result.end() ? result["detected_text"]
+                                                       : "");
+      final_request.set_caption("");
+      api_client->SaveMediaItemFinalResult(final_request);
+
+      faces_component->Cluster();
+    } catch (const std::exception& e) {
+      SPDLOG_ERROR("error processing mediaitem {}: {}", response.id(),
+                   e.what());
+    }
+  });
 }
 
 int main(int argc, char** argv) {
@@ -142,7 +135,6 @@ int main(int argc, char** argv) {
   std::shared_ptr<components::previewthumbnail::PreviewThumbnail>
       previewthumbnail_component;
   std::shared_ptr<components::faces::Faces> faces_component;
-  std::shared_ptr<components::ocr::OCR> ocr_component;
 
   std::unordered_map<std::string, ComponentConfig> component_configs =
       components::ParseComponentConfig(worker_config);
@@ -160,9 +152,6 @@ int main(int argc, char** argv) {
     } else if (name == MediaItemComponent_Name(MediaItemComponent::FACES)) {
       faces_component = components::faces::Init(cfg->models_dir,
                                                 component_config, api_client);
-    } else if (name == MediaItemComponent_Name(MediaItemComponent::OCR)) {
-      ocr_component =
-          components::ocr::Init(cfg->models_dir, component_config, api_client);
     } else if (name == MediaItemComponent_Name(MediaItemComponent::SEARCH)) {
       // TODO(omkar): initialize this component
     }
@@ -182,10 +171,9 @@ int main(int argc, char** argv) {
     if (queue.size() < queue_limit) {
       MediaItemProcessResponse response = api_client->GetMediaItemProcess();
       if (response.id() != "") {
-        auto task_future =
-            ProcessMediaItem(response, api_client, metadata_component,
-                             previewthumbnail_component, places_component,
-                             faces_component, ocr_component);
+        auto task_future = ProcessMediaItem(
+            response, api_client, metadata_component,
+            previewthumbnail_component, places_component, faces_component);
         queue.push_back(std::move(task_future));
       }
     } else {

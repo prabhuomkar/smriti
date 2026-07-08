@@ -452,9 +452,6 @@ func (h *Handler) queueMediaItemForProcessing(ctx context.Context, userID, media
 	if h.Config.Faces && features.People {
 		components += ("," + api.MediaItemComponent_FACES.String())
 	}
-	if h.Config.OCR && features.Explore {
-		components += ("," + api.MediaItemComponent_OCR.String())
-	}
 	if h.Config.Search && features.Explore {
 		components += ("," + api.MediaItemComponent_SEARCH.String())
 	}

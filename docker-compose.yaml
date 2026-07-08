@@ -17,6 +17,7 @@ services:
     volumes:
       - ./storage:/storage:rw
   worker:
+    container_name: worker
     build:
       context: ./worker
       dockerfile: Dockerfile
@@ -26,8 +27,8 @@ services:
     ports:
       - "5002:5002"
       - "15002:15002"
-    # depends_on:
-    # - api
+    depends_on:
+      - api
     environment:
       SMRITI_API_HOST: api
       SMRITI_API_PORT: 15001

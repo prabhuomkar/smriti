@@ -29,8 +29,7 @@ const (
 	MediaItemComponent_PREVIEW_THUMBNAIL MediaItemComponent = 1
 	MediaItemComponent_PLACES            MediaItemComponent = 2
 	MediaItemComponent_FACES             MediaItemComponent = 3
-	MediaItemComponent_OCR               MediaItemComponent = 4
-	MediaItemComponent_SEARCH            MediaItemComponent = 5
+	MediaItemComponent_SEARCH            MediaItemComponent = 4
 )
 
 // Enum value maps for MediaItemComponent.
@@ -40,16 +39,14 @@ var (
 		1: "PREVIEW_THUMBNAIL",
 		2: "PLACES",
 		3: "FACES",
-		4: "OCR",
-		5: "SEARCH",
+		4: "SEARCH",
 	}
 	MediaItemComponent_value = map[string]int32{
 		"METADATA":          0,
 		"PREVIEW_THUMBNAIL": 1,
 		"PLACES":            2,
 		"FACES":             3,
-		"OCR":               4,
-		"SEARCH":            5,
+		"SEARCH":            4,
 	}
 )
 
@@ -1356,16 +1353,15 @@ const file_api_proto_rawDesc = "" +
 	"\x13mediaItemFacePeople\x18\x02 \x03(\v20.MediaItemPeopleRequest.MediaItemFacePeopleEntryR\x13mediaItemFacePeople\x1a\\\n" +
 	"\x18MediaItemFacePeopleEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12*\n" +
-	"\x05value\x18\x02 \x01(\v2\x14.MediaItemFacePeopleR\x05value:\x028\x01*e\n" +
+	"\x05value\x18\x02 \x01(\v2\x14.MediaItemFacePeopleR\x05value:\x028\x01*\\\n" +
 	"\x12MediaItemComponent\x12\f\n" +
 	"\bMETADATA\x10\x00\x12\x15\n" +
 	"\x11PREVIEW_THUMBNAIL\x10\x01\x12\n" +
 	"\n" +
 	"\x06PLACES\x10\x02\x12\t\n" +
-	"\x05FACES\x10\x03\x12\a\n" +
-	"\x03OCR\x10\x04\x12\n" +
+	"\x05FACES\x10\x03\x12\n" +
 	"\n" +
-	"\x06SEARCH\x10\x05*I\n" +
+	"\x06SEARCH\x10\x04*I\n" +
 	"\x0fMediaItemStatus\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\x0e\n" +
 	"\n" +

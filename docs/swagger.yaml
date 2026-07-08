@@ -1807,7 +1807,6 @@ components:
                 "PLACES",
                 "CLASSIFICATION",
                 "FACES",
-                "OCR",
                 "SEARCH",
               ]
           example: ["METADATA", "PREVIEW_THUMBNAIL"]
@@ -1843,7 +1842,6 @@ components:
                 "PLACES",
                 "CLASSIFICATION",
                 "FACES",
-                "OCR",
                 "SEARCH",
               ]
           example: ["METADATA", "PREVIEW_THUMBNAIL"]

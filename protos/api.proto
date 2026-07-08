@@ -13,8 +13,7 @@ enum MediaItemComponent {
   PREVIEW_THUMBNAIL = 1;
   PLACES = 2;
   FACES = 3;
-  OCR = 4;
-  SEARCH = 5;
+  SEARCH = 4;
 }
 
 enum MediaItemStatus {
@@ -86,8 +85,8 @@ message MediaItemPlaceRequest {
   string mediaItemId = 2;
   optional string postcode = 3;
   optional string country = 4;
-  optional string locality = 5;  // city, town, village, municipality
-  optional string area = 6;      // suburb, road, neighbourhood
+  optional string locality = 5; // city, town, village, municipality
+  optional string area = 6;     // suburb, road, neighbourhood
 }
 
 message MediaItemEmbedding {

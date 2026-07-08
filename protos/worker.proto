@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "ml/";
+option go_package = "worker/";
 
 message GenerateEmbeddingRequest {
   string text = 1;
@@ -10,7 +10,7 @@ message GenerateEmbeddingResponse {
   repeated float embedding = 1;
 }
 
-service ML {
+service Worker {
   rpc GenerateEmbedding(GenerateEmbeddingRequest)
       returns (GenerateEmbeddingResponse) {}
 }

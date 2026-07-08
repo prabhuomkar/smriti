@@ -87,9 +87,6 @@ func Init(cfg *config.Config, dbi database.DBInterface, storage storage.Provider
 	if cfg.ML.Places {
 		enabledComponents = append(enabledComponents, api.MediaItemComponent_PLACES)
 	}
-	if cfg.OCR {
-		enabledComponents = append(enabledComponents, api.MediaItemComponent_OCR)
-	}
 	if cfg.Search {
 		enabledComponents = append(enabledComponents, api.MediaItemComponent_SEARCH)
 	}
@@ -116,11 +113,6 @@ func (s *Service) GetWorkerConfig(_ context.Context, _ *emptypb.Empty) (*api.Con
 	if s.Config.ML.Places {
 		components = append(components, Component{
 			Name: api.MediaItemComponent_PLACES.String(), Source: s.Config.PlacesProvider,
-		})
-	}
-	if s.Config.OCR {
-		components = append(components, Component{
-			Name: api.MediaItemComponent_OCR.String(), Source: s.Config.OCRProvider, Params: s.Config.OCRParams,
 		})
 	}
 	if s.Config.Search {

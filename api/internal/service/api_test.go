@@ -122,13 +122,11 @@ func TestGetWorkerConfig(t *testing.T) {
 		},
 		{
 			"get worker config with success with all config", &config.Config{ML: config.ML{
-				Places: true, PlacesProvider: "openstreetmap", OCR: true, OCRProvider: "paddlepaddle",
-				OCRParams: `{"det_model_dir":"/det_infer"}`, Search: true, SearchProvider: "pytorch",
+				Places: true, PlacesProvider: "openstreetmap", Search: true, SearchProvider: "pytorch",
 				SearchParams: `{"tokenizer_dir":"/tokenizer"}`, Faces: true, FacesParams: `{"face_threshold":"0.9"}`,
 				PreviewThumbnailParams: `{"thumbnail_size":"256"}`,
 			}}, []byte(`[{"name":"METADATA"},{"name":"PREVIEW_THUMBNAIL","params":"{\"thumbnail_size\":\"256\"}"},` +
-				`{"name":"PLACES","source":"openstreetmap"},{"name":"OCR","source":"paddlepaddle","params":` +
-				`"{\"det_model_dir\":\"/det_infer\"}"},{"name":"SEARCH","source":"pytorch","params":` +
+				`{"name":"PLACES","source":"openstreetmap"},{"name":"SEARCH","source":"pytorch","params":` +
 				`"{\"tokenizer_dir\":\"/tokenizer\"}"},{"name":"FACES","params":"{\"face_threshold\":\"0.9\"}"}]`), nil,
 		},
 		{

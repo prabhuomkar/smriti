@@ -6,7 +6,7 @@ import zipfile
 
 GITHUB_API = "https://api.github.com/repos/prabhuomkar/smriti/releases"
 DOWNLOAD_MODELS_URL="https://github.com/prabhuomkar/smriti/releases/download/%s/"
-TYPES = ["faces", "ocr", "search"]
+TYPES = ["faces", "search"]
 
 print("ℹ️ downloading models, hang on...")
 if not os.path.exists("models.zip"):

@@ -58,7 +58,6 @@ Thumbs.db
 *.onnx
 search/**/*.json
 faces_output/
-ocr_output/
 **/inference.json
 **/inference.pdiparams
 **/inference.yml
