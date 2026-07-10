@@ -37,7 +37,6 @@ find_package(Protobuf REQUIRED)
 find_package(ImageMagick COMPONENTS Magick++ REQUIRED)
 find_package(PkgConfig REQUIRED)
 find_package(OpenCV REQUIRED COMPONENTS core imgproc imgcodecs dnn)
-find_package(gflags REQUIRED)
 pkg_check_modules(LibRaw REQUIRED libraw)
 
 file(GLOB EXEC_SOURCES ${CMAKE_CURRENT_SOURCE_DIR}/src/*.cc)
@@ -66,7 +65,6 @@ set(TARGET_LINK_LIBS spdlog::spdlog
     gRPC::grpc
     protobuf::libprotobuf
     ImageMagick::Magick++
-    gflags
     ${ONNXRUNTIME_LIBRARIES}
     ${OpenCV_LIBRARIES}
     ${LibRaw_LIBRARIES})

@@ -5,12 +5,14 @@ on:
       - master
     paths:
       - api/**
+      - protos/**
       - .github/workflows/api.yaml
   pull_request:
     branches:
       - master
     paths:
       - api/**
+      - protos/**
       - .github/workflows/api.yaml
   release:
     types: [published]

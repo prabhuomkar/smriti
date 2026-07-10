@@ -42,16 +42,6 @@ make setup-api
 make setup-worker
 ```
 
-### PyWorker
-
-- Install [Python 3.12](https://www.python.org/downloads/) or above
-- Install [pylint 3.3.4](https://pypi.org/project/pylint/) or above
-- Run the following command to finish your Worker setup
-
-```
-make setup-pyworker
-```
-
 ### Docs
 
 - Install [Node 18.10](https://nodejs.org/en/download/) or above

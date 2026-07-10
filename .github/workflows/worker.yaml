@@ -5,12 +5,14 @@ on:
       - master
     paths:
       - worker/**
+      - protos/**
       - .github/workflows/worker.yaml
   pull_request:
     branches:
       - master
     paths:
       - worker/**
+      - protos/**
       - .github/workflows/worker.yaml
   release:
     types: [published]
@@ -69,10 +71,12 @@ jobs:
         uses: docker/build-push-action@v6
         with:
           context: worker
+          build-contexts: |
+            shared_protos=./protos
           file: ./worker/Dockerfile
           push: true
           platforms: linux/amd64,linux/arm64/v8
           build-args: |
             GITSHA=${{ github.sha }}
-            VERSION=${ github.ref_name }}
+            VERSION=${{ github.ref_name }}
           tags: smritihq/worker:${{ github.ref_name }}
