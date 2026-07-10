@@ -33,4 +33,4 @@ lint:
 
 .PHONY: proto
 proto:
-	@protoc --proto_path=./protos ./protos/*.proto --go_out=pkg/services --go-grpc_out=pkg/services
+	@protoc --proto_path=../protos ../protos/*.proto --go_out=pkg/services --go-grpc_out=pkg/services

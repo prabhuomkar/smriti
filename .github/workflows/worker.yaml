@@ -47,7 +47,9 @@ jobs:
             protobuf-compiler \
             protobuf-compiler-grpc
       - name: Generate Protobuf Files
-        run: make proto
+        run: |
+          mkdir -p generated/protos
+          make proto
       - name: Run Lint
         run: |
           pip install cpplint
