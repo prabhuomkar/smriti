@@ -25,7 +25,7 @@ jobs:
         working-directory: ./api
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Setup Golang
         uses: actions/setup-go@v6
         with:
@@ -33,7 +33,7 @@ jobs:
       - name: Go Version
         run: go version
       - name: Run Lint
-        uses: golangci/golangci-lint-action@v8
+        uses: golangci/golangci-lint-action@v9
         with:
           version: v2.12.2
           working-directory: api
@@ -57,18 +57,18 @@ jobs:
         working-directory: ./api
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v5
+        uses: actions/checkout@v7
       - name: Setup QEMU
-        uses: docker/setup-qemu-action@v3
+        uses: docker/setup-qemu-action@v4
       - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
+        uses: docker/setup-buildx-action@v4
       - name: Login to Docker Hub
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           username: ${{ secrets.DOCKER_USER }}
           password: ${{ secrets.DOCKER_PASSWORD }}
       - name: Docker Build and Push
-        uses: docker/build-push-action@v6
+        uses: docker/build-push-action@v7
         with:
           context: api
           file: ./api/Dockerfile

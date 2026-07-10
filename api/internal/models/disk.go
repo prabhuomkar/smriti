@@ -23,7 +23,7 @@ func GetDisk(cfg *config.Config) *Disk {
 
 		return nil
 	}
-	disk := &Disk{Total: diskStat.Blocks * uint64(diskStat.Bsize), Free: diskStat.Bfree * uint64(diskStat.Bsize)}
+	disk := &Disk{Total: diskStat.Blocks * uint64(diskStat.Bsize), Free: diskStat.Bfree * uint64(diskStat.Bsize)} //nolint: gosec
 	disk.Used = disk.Total - disk.Free
 
 	return disk

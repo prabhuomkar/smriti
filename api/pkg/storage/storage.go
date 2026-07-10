@@ -35,7 +35,7 @@ type ( // Provider ...
 	}
 )
 
-//nolint:ireturn,cyclop
+//nolint:ireturn
 func Init(cfg *Config) Provider {
 	for _, dir := range []string{
 		"originals", "previews", "thumbnails", "faces",
