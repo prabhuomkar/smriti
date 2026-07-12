@@ -71,7 +71,11 @@ TEST(PreviewThumbnailTest, Error) {
   std::unordered_map<std::string, std::string> result =
       previewthumbnail.Generate("", "", "", "",
                                 MediaItemType_Name(MediaItemType::PHOTO));
-  assertPreviewThumbnailResult({{"status", "FAILED"}}, result);
+  assertPreviewThumbnailResult({{"status", "FAILED"},
+                                {"preview_url", ""},
+                                {"thumbnail_url", ""},
+                                {"placeholder", ""}},
+                               result);
 }
 
 TEST(PreviewThumbnailTest, PhotoSuccess) {
@@ -124,8 +128,8 @@ TEST(PreviewThumbnailTest, VideoSuccess) {
       previewthumbnail.Generate("", "", "", "",
                                 MediaItemType_Name(MediaItemType::VIDEO));
   assertPreviewThumbnailResult({{"preview_url", ""},
-                                {"thumbnail_url", "path-kind"},
-                                {"placeholder", "path-kind"},
+                                {"thumbnail_url", ""},
+                                {"placeholder", ""},
                                 {"status", "READY"}},
                                result);
 }

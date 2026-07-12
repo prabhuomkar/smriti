@@ -14,7 +14,6 @@
 
 #include "places_test.cc" // NOLINT
 #include "protos/api.pb.h"
-#include "protos/api_mock.grpc.pb.h"
 #include "worker/components.h"
 #include "worker/places.h"
 
