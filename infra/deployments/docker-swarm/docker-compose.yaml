@@ -5,9 +5,6 @@ services:
     ports:
       - "5001:5001"
       - "15001:15001"
-    depends_on:
-      - database
-      - cache
     environment:
       SMRITI_WORKER_HOST: worker
       SMRITI_LOG_LEVEL: debug
