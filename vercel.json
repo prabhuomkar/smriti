@@ -1,5 +1,8 @@
 {
     "github": {
         "silent": true
-    }
+    },
+    "buildCommand": "pip install uv --break-system-packages && uv pip install --system -r requirements.txt && mkdocs build",
+    "outputDirectory": "site",
+    "installCommand": "echo skip"
 }

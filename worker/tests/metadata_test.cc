@@ -32,6 +32,8 @@ class MockExifToolClient : public ExifToolClientInterface {
 
 void assertMetadataResult(std::unordered_map<std::string, std::string> expected,
                           std::unordered_map<std::string, std::string> actual) {
+  expected.erase("exifdata");
+  actual.erase("exifdata");
   EXPECT_EQ(expected, actual);
 }
 

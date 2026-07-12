@@ -1,9 +1,0 @@
-{
-  "name": "smriti",
-  "version": "26.7.12",
-  "description": "Smarter Home for all your Photos and Videos",
-  "scripts": {
-    "dev": "docker run --rm -it -p 8000:8000 -v ${PWD}:/docs squidfunk/mkdocs-material",
-    "build": "mkdocs build -d public"
-  }
-}
