@@ -30,7 +30,7 @@ var (
 func TestGetJob(t *testing.T) {
 	tests := []Test{
 		{
-			"get job bad request", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"get job bad request", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
 			}, http.StatusBadRequest, "invalid job id",
 		},
@@ -39,7 +39,7 @@ func TestGetJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(jobCols))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
 			}, http.StatusNotFound, "job not found",
 		},
@@ -48,7 +48,7 @@ func TestGetJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -57,7 +57,7 @@ func TestGetJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(jobCols).AddRow(pgxmock.AnyArg(), pgxmock.AnyArg(), "SCHEDULED", []string{"METADATA", "PLACES"}, sampleTime, sampleTime))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -66,7 +66,7 @@ func TestGetJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedJobRow())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
 			}, http.StatusOK, jobResponseBody,
 		},
@@ -77,19 +77,19 @@ func TestGetJob(t *testing.T) {
 func TestUpdateJob(t *testing.T) {
 	tests := []Test{
 		{
-			"update job bad request", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update job bad request", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusBadRequest, "invalid job id",
 		},
 		{
-			"update job with no payload", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update job with no payload", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusBadRequest, "invalid job",
 		},
 		{
 			"update job with bad payload", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusBadRequest, "invalid job",
 		},
@@ -100,7 +100,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -111,7 +111,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusConflict, "job already exists",
 		},
@@ -125,7 +125,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobRunning, pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -139,7 +139,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobRunning, pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusNoContent, "",
 		},
@@ -150,7 +150,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -164,7 +164,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobStopped, pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -178,7 +178,7 @@ func TestUpdateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobStopped, pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
 			}, http.StatusNoContent, "",
 		},
@@ -193,7 +193,7 @@ func TestGetJobs(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(jobCols))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
 			}, http.StatusOK, "[]",
 		},
@@ -202,7 +202,7 @@ func TestGetJobs(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -211,7 +211,7 @@ func TestGetJobs(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(jobCols).AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "SCHEDULED", []string{"METADATA", "PLACES"}, sampleTime, sampleTime))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -220,7 +220,7 @@ func TestGetJobs(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedJobRows())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
 			}, http.StatusOK, jobsResponseBody,
 		},
@@ -233,19 +233,19 @@ func TestCreateJob(t *testing.T) {
 		{
 			"create job with bad payload", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusBadRequest, "invalid job",
 		},
 		{
 			"create job with bad component", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"components":["INVALID"]}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"components":["INVALID"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusBadRequest, "invalid job component",
 		},
 		{
-			"create job with no payload", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"create job with no payload", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusBadRequest, "invalid job",
 		},
@@ -256,7 +256,7 @@ func TestCreateJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -267,7 +267,7 @@ func TestCreateJob(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusConflict, "job already exists",
 		},
@@ -285,7 +285,7 @@ func TestCreateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO jobs`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), models.JobRunning, "SEARCH", pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -302,7 +302,7 @@ func TestCreateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -319,7 +319,7 @@ func TestCreateJob(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
 			}, http.StatusCreated, `"status":"RUNNING","components":["SEARCH"],`,
 		},

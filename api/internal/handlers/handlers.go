@@ -5,7 +5,6 @@ import (
 	"api/pkg/cache"
 	"api/pkg/database"
 	"api/pkg/services/api"
-	"api/pkg/services/worker"
 	"errors"
 	"fmt"
 	"strconv"
@@ -19,7 +18,6 @@ import (
 type Handler struct {
 	Config *config.Config
 	DB     database.DBInterface
-	Worker worker.WorkerClient
 	Cache  cache.Provider
 }
 

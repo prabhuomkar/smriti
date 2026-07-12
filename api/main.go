@@ -7,16 +7,12 @@ import (
 	"api/internal/service"
 	"api/pkg/cache"
 	"api/pkg/database"
-	"api/pkg/services/worker"
 	"api/pkg/storage"
-	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	_ "go.uber.org/automaxprocs"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials/insecure"
 )
 
 func main() {
@@ -45,15 +41,6 @@ func main() {
 		Config: cfg, DB: pgDB, Cache: cache,
 	}
 	httpServer := server.StartHTTPServer(handler)
-
-	opts := []grpc.DialOption{
-		grpc.WithTransportCredentials(insecure.NewCredentials()),
-	}
-	conn, err := grpc.NewClient(fmt.Sprintf("%s:%d", cfg.Worker.Host, cfg.Worker.Port), opts...)
-	if err != nil {
-		panic(err)
-	}
-	handler.Worker = worker.NewWorkerClient(conn)
 
 	// graceful shutdown
 	shutdownSignal := make(chan os.Signal, 1)

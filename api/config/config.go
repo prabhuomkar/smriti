@@ -42,12 +42,6 @@ type ( // Log ...
 		Password string `envconfig:"SMRITI_CACHE_PASSWORD" default:"smritipass"`
 	}
 
-	// Worker ...
-	Worker struct {
-		Host string `envconfig:"SMRITI_WORKER_HOST" default:"127.0.0.1"`
-		Port int    `envconfig:"SMRITI_WORKER_PORT" default:"15002"`
-	}
-
 	// Auth ...
 	Auth struct {
 		Enabled    bool   `envconfig:"SMRITI_AUTH_ENABLED"     default:"false"`
@@ -106,7 +100,6 @@ type ( // Log ...
 		GRPC
 		Database
 		Cache
-		Worker
 		Auth
 		Feature
 		ML
