@@ -2,7 +2,7 @@ coverage:
   status:
     project:
       default:
-        target: 60%
+        target: 80%
         threshold: 10%
         paths:
           - api

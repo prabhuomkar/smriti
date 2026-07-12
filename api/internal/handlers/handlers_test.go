@@ -1,6 +1,10 @@
 package handlers
 
 import (
+	"api/config"
+	"api/internal/models"
+	"api/pkg/cache"
+	"api/pkg/services/worker"
 	"context"
 	"database/sql/driver"
 	"encoding/json"
@@ -14,19 +18,12 @@ import (
 	"testing"
 	"time"
 
-	"api/config"
-	"api/internal/models"
-	"api/pkg/cache"
-	"api/pkg/services/worker"
-
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/bluele/gcache"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"google.golang.org/grpc"
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 type Test struct {
@@ -38,7 +35,7 @@ type Test struct {
 	ParamValues      []string
 	Header           map[string]string
 	Body             io.Reader
-	MockDB           func(mock sqlmock.Sqlmock)
+	MockDB           func(mock pgxmock.PgxPoolIface)
 	mockCache        []func(interface{}, interface{}) (interface{}, error)
 	mockWorkerClient *mockWorkerGRPCClient
 	Handler          func(handler *Handler) func(ctx echo.Context) error
@@ -66,29 +63,22 @@ func executeTests(t *testing.T, tests []Test) {
 			ctx.SetPath(test.Route)
 			ctx.SetParamNames(test.ParamNames...)
 			ctx.SetParamValues(test.ParamValues...)
-			ctx.Set("userID", "4d05b5f6-17c2-475e-87fe-3fc8b9567179")
+			ctx.Set("userID", "019b7796-6072-76ee-8be3-485ff2b32fd7")
 			if _, ok := test.Header[echo.HeaderAuthorization]; ok {
 				var features models.Features
-				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true,"things":true,"people":true}`), &features)
+				_ = json.Unmarshal([]byte(`{"albums":true,"explore":true,"places":true,"people":true}`), &features)
 				ctx.Set("features", features)
 			}
 			// database
-			mockDB, mock, err := sqlmock.New()
-			assert.NoError(t, err)
+			mockDB, err := pgxmock.NewPool()
+			require.NoError(t, err)
 			defer mockDB.Close()
-			mockGDB, err := gorm.Open(postgres.New(postgres.Config{
-				DSN:                  "sqlmock",
-				DriverName:           "postgres",
-				Conn:                 mockDB,
-				PreferSimpleProtocol: true,
-			}), &gorm.Config{
-				Logger: logger.Default.LogMode(logger.Error),
-			})
-			assert.NoError(t, err)
 			if test.MockDB != nil {
-				test.MockDB(mock)
+				test.MockDB(mockDB)
 			}
-			mockCache := &cache.InMemoryCache{Connection: gcache.New(1024).LRU().Build()}
+			mockCache := &cache.InMemoryCache{
+				Connection: gcache.New(1024).LRU().Build(),
+			}
 			if test.mockCache != nil {
 				mockCache = &cache.InMemoryCache{Connection: gcache.New(1024).
 					LRU().
@@ -104,14 +94,12 @@ func executeTests(t *testing.T, tests []Test) {
 			// handler
 			handler := &Handler{
 				Config: &config.Config{
-					Storage: config.Storage{DiskRoot: os.TempDir()},
-					Auth:    config.Auth{RefreshTTL: 60},
-					Feature: config.Feature{Albums: true, Explore: true, Places: true, Things: true, People: true},
-					ML:      config.ML{Places: true, Classification: true, OCR: true, Faces: true, Search: true},
-				},
-				DB:     mockGDB,
-				Cache:  mockCache,
-				Worker: test.mockWorkerClient,
+					Storage: config.Storage{DiskRoot: os.TempDir()}, Auth: config.Auth{RefreshTTL: 60}, Feature: config.Feature{
+						Albums: true, Explore: true, Places: true, People: true,
+					}, ML: config.ML{
+						Places: true, Faces: true, Search: true,
+					},
+				}, DB: mockDB, Cache: mockCache, Worker: test.mockWorkerClient,
 			}
 			err = test.Handler(handler)(ctx)
 			if test.ExpectedResCode >= http.StatusBadRequest {
@@ -131,13 +119,6 @@ type (
 		wantOk  bool
 	}
 )
-
-func (mwc *mockWorkerGRPCClient) MediaItemProcess(ctx context.Context, request *worker.MediaItemProcessRequest, opts ...grpc.CallOption) (*worker.MediaItemProcessResponse, error) {
-	if mwc.wantErr {
-		return nil, errors.New("some grpc error")
-	}
-	return &worker.MediaItemProcessResponse{Ok: mwc.wantOk}, nil
-}
 
 func (mwc *mockWorkerGRPCClient) GenerateEmbedding(ctx context.Context, request *worker.GenerateEmbeddingRequest, opts ...grpc.CallOption) (*worker.GenerateEmbeddingResponse, error) {
 	if mwc.wantErr {

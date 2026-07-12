@@ -1,0 +1,15 @@
+--- a/deploy/cpp_infer/src/utils/ilogger.cc
++++ b/deploy/cpp_infer/src/utils/ilogger.cc
+@@ -207,7 +207,11 @@ time_t last_modify(const string &file) {
+ #if defined(U_OS_LINUX)
+   struct stat st;
+   stat(file.c_str(), &st);
+-  return st.st_mtim.tv_sec;
++  #if defined(__APPLE__)
++    return st.st_mtimespec.tv_sec;
++  #else
++    return st.st_mtim.tv_sec;
++  #endif
+ #elif defined(U_OS_WINDOWS)
+   INFOW("LastModify has not support on windows os");
+   return 0;

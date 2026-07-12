@@ -68,7 +68,6 @@ def step_impl(context):
 
 @then('mediaitem is not present in list')
 def step_impl(context):
-    print(context.mediaitems)
     assert len(context.mediaitems) == 0
 
 @then('mediaitem is not present')
@@ -82,10 +81,10 @@ def step_impl(context, name, type, condition, seconds):
     headers = None
     if condition == 'with':
         headers = {'Authorization': f'Bearer {context.access_token}'}
-    files = {'file': open(f'data/{"IMG_0543.HEIC" if name == "default" and type == "photo" else "IMG_6470.MOV" if name == "default" and type =="video" else name}','rb')}
+    files = {'file': open(f'data/{"IMG_0285.heic" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
     res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
     context.response = res
-    context.mediaitem_type = type
+    context.mediaitem_type = type.upper()
     time.sleep(int(seconds))
 
 @when('upload {name} {type} mediaitem with auth if does not exist and wait {seconds} seconds')
@@ -95,11 +94,11 @@ def step_impl(context, name, type, seconds):
                        headers={'Authorization': f'Bearer {context.access_token}'})
     mediaitems = res.json()
     if len(mediaitems) == 0:
-        files = {'file': open(f'data/{"IMG_0543.HEIC" if name == "default" and type == "photo" else "IMG_6470.MOV" if name == "default" and type =="video" else name}','rb')}
+        files = {'file': open(f'data/{"IMG_0285.heic" if name == "default" and type == "PHOTO" else "IMG_6470.MOV" if name == "default" and type =="VIDEO" else name}','rb')}
         res = requests.post(API_URL+'/v1/mediaItems', files=files, headers=headers)
         time.sleep(int(seconds))
     context.response = res
-    context.mediaitem_type = type
+    context.mediaitem_type = type.upper()
 
 @when('update mediaitem {condition} auth')
 def step_impl(context, condition):

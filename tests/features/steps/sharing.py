@@ -121,7 +121,6 @@ def step_impl(context, type):
         assert context.album['mediaItemsCount'] == 1
         assert context.album['coverMediaItem']['id'] == context.mediaitem_id
     elif type =='remove':
-        print(context.album)
         assert context.album['mediaItemsCount'] == 0
         assert context.album['coverMediaItem'] == None
 

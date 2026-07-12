@@ -1,9 +1,8 @@
 package models
 
 import (
-	"testing"
-
 	"api/config"
+	"testing"
 
 	"github.com/stretchr/testify/assert"
 )

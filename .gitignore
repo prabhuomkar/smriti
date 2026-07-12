@@ -2,3 +2,8 @@ storage/*
 samples*
 models.zip
 models/*
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+generated/

@@ -1,22 +1,42 @@
+version: "2"
 run:
-  timeout: 2m
   tests: false
 linters:
-  enable-all: true
+  default: all
   disable:
-    - nlreturn
-    - nosprintfhostport
-    - wsl
-    - wrapcheck
-    - exhaustivestruct
-    - exhaustruct
-    - gci
-    - dupl
-    - goerr113
-    - tagalign
     - depguard
-    - interfacer
+    - exhaustruct
+    - dupl
     - protogetter
-linters-settings:
-  lll:
-    line-length: 180
+    - tagalign
+    - wrapcheck
+    - wsl_v5
+    - noinlineerr
+    - wsl
+    - funlen
+    - unqueryvet
+  settings:
+    lll:
+      line-length: 180
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    paths:
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gofmt
+    - gofumpt
+    - goimports
+  exclusions:
+    generated: lax
+    paths:
+      - third_party$
+      - builtin$
+      - examples$

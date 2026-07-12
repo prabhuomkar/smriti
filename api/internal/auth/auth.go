@@ -5,36 +5,40 @@ import (
 	"api/internal/models"
 	"api/pkg/cache"
 	"errors"
+	"log/slog"
 	"time"
 
 	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt/v4"
-	uuid "github.com/satori/go.uuid"
-	"golang.org/x/exp/slog"
+	"github.com/google/uuid"
 )
 
-type (
-	// TokenClaims ...
+type ( // TokenClaims ...
 	TokenClaims struct {
+		jwt.RegisteredClaims
+
 		ID       string `json:"id"`
 		Username string `json:"username"`
 		Features string `json:"features"`
-		jwt.RegisteredClaims
 	}
 )
+
+var errNilUserID = errors.New("got nil user id")
 
 // GetTokens ...
 func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (string, string, error) {
 	accessToken, refreshToken := GetAccessAndRefreshTokens(cfg, user)
 
-	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.Auth.RefreshTTL)*time.Second)
+	setRefreshErr := cache.SetWithExpire(refreshToken, true, time.Duration(cfg.RefreshTTL)*time.Second)
 	if setRefreshErr != nil {
 		slog.Error("error caching refresh token", "error", setRefreshErr)
+
 		return "", "", setRefreshErr
 	}
-	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.Auth.AccessTTL)*time.Second)
+	setAccessErr := cache.SetWithExpire(accessToken, refreshToken, time.Duration(cfg.AccessTTL)*time.Second)
 	if setAccessErr != nil {
 		slog.Error("error caching refresh token", "error", setAccessErr)
+
 		return "", "", setAccessErr
 	}
 
@@ -45,21 +49,24 @@ func GetTokens(cfg *config.Config, cache cache.Provider, user models.User) (stri
 func RefreshTokens(cfg *config.Config, cache cache.Provider, refreshToken string) (string, string, error) {
 	if _, err := cache.Get(refreshToken); err != nil {
 		slog.Error("error getting refresh token from cache", "error", err)
+
 		return "", "", err
 	}
 
 	claims, err := getClaimsFromToken(cfg, refreshToken)
 	if err != nil {
 		slog.Error("error getting claims from token", "error", err)
+
 		return "", "", err
 	}
 
-	userID, err := uuid.FromString(claims.ID)
+	userID, err := uuid.Parse(claims.ID)
 	if err != nil || userID == uuid.Nil {
 		if err == nil {
-			err = errors.New("got nil user id")
+			err = errNilUserID
 		}
 		slog.Error("error getting user id from claims", "userId", userID, "error", err)
+
 		return "", "", err
 	}
 
@@ -73,6 +80,7 @@ func RemoveTokens(cache cache.Provider, accessToken string) error {
 		if !errors.Is(err, redis.Nil) {
 			slog.Error("error getting access token from cache", "error", err)
 		}
+
 		return err
 	}
 
@@ -90,12 +98,14 @@ func VerifyToken(cfg *config.Config, cache cache.Provider, accessToken string) (
 		if !errors.Is(err, redis.Nil) {
 			slog.Error("error getting access token from cache", "error", err)
 		}
+
 		return nil, err
 	}
 
 	claims, err := getClaimsFromToken(cfg, accessToken)
 	if err != nil {
 		slog.Error("error getting claims from token", "error", err)
+
 		return nil, err
 	}
 
@@ -107,17 +117,19 @@ func GetAccessAndRefreshTokens(cfg *config.Config, user models.User) (string, st
 }
 
 func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) {
-	parsedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(*jwt.Token) (interface{}, error) {
-		return []byte(cfg.Auth.Secret), nil
+	parsedToken, err := jwt.ParseWithClaims(token, &TokenClaims{}, func(*jwt.Token) (any, error) {
+		return []byte(cfg.Secret), nil
 	})
 	if err != nil || !parsedToken.Valid {
 		slog.Error("error parsing claims from token", "error", err)
+
 		return nil, err
 	}
 
 	claims, ok := parsedToken.Claims.(*TokenClaims)
 	if !ok {
 		slog.Error("error getting claims from token", "error", err)
+
 		return nil, err
 	}
 
@@ -125,25 +137,20 @@ func getClaimsFromToken(cfg *config.Config, token string) (*TokenClaims, error) 
 }
 
 func getSignedToken(cfg *config.Config, user models.User, subject string) string {
-	ttl := cfg.Auth.AccessTTL
+	ttl := cfg.AccessTTL
 	if subject == "refresh" {
-		ttl = cfg.Auth.RefreshTTL
+		ttl = cfg.RefreshTTL
 	}
 	creationTime := time.Now()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, TokenClaims{
-		user.ID.String(),
-		user.Username,
-		user.Features,
 		jwt.RegisteredClaims{
 			ExpiresAt: jwt.NewNumericDate(creationTime.Add(time.Duration(ttl) * time.Second)),
-			IssuedAt:  jwt.NewNumericDate(creationTime),
-			NotBefore: jwt.NewNumericDate(creationTime),
-			Issuer:    cfg.Auth.Issuer,
-			Audience:  []string{cfg.Auth.Audience},
-			Subject:   subject,
-			ID:        user.ID.String(),
+			IssuedAt:  jwt.NewNumericDate(creationTime), NotBefore: jwt.NewNumericDate(creationTime),
+			Issuer: cfg.Issuer, Audience: []string{cfg.Audience}, Subject: subject, ID: user.ID.String(),
 		},
+		user.ID.String(), user.Username, user.Features,
 	})
-	signedToken, _ := token.SignedString([]byte(cfg.Auth.Secret))
+	signedToken, _ := token.SignedString([]byte(cfg.Secret))
+
 	return signedToken
 }

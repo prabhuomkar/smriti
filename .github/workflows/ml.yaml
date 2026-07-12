@@ -14,22 +14,21 @@ jobs:
         working-directory: ./ml
     steps:
       - name: Git Checkout
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
       - name: Setup Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v6
         with:
-          python-version: '3.12.x'
+          python-version: "3.12.x"
       - name: Python Version
         run: python -c "import sys; print(sys.version)"
       - name: Install Dependencies
         run: make install
-      - name: Create models
+      - name: Create models by category
         run: |
           make all
-          zip -r models.zip classification/*.pt faces/*.pt ocr/cls_onnx ocr/det_onnx ocr/rec_onnx search/*.pt search/search_processor search/search_tokenizer
+          zip -r faces.zip faces/faces_det faces/faces_rec
       - name: Create release asset
-        uses: softprops/action-gh-release@v2
+        uses: softprops/action-gh-release@v3
         with:
           files: |
-            ml/models.zip
-      
+            ml/faces.zip

@@ -73,7 +73,7 @@ def step_impl(context):
 @then('album is present')
 def step_impl(context):
     for field in context.match_album:
-        assert context.album[field] == context.match_album[field]
+        assert context.album[field] == context.match_album[field], f"expected: {context.match_album[field]} got: {context.album[field]}"
 
 @then('album is not present in list')
 def step_impl(context):
@@ -148,7 +148,6 @@ def step_impl(context, type):
         assert context.album['mediaItemsCount'] == 1
         assert context.album['coverMediaItem']['id'] == context.mediaitem_id
     elif type =='remove':
-        print(context.album)
         assert context.album['mediaItemsCount'] == 0
         assert context.album['coverMediaItem'] == None
 
