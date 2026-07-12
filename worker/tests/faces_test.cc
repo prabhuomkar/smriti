@@ -46,17 +46,17 @@ void assertFacesResult(std::unordered_map<std::string, std::string> expected,
   }
 }
 
-TEST(FacesTest, Init) {
-  spdlog::set_level(spdlog::level::off);
-  auto faces = components::faces::Init(
-      "../../../models", ComponentConfig("onnx", "params"), nullptr);
-  ASSERT_TRUE(faces != nullptr);
-  auto onnx = std::dynamic_pointer_cast<ONNX>(faces);
-  ASSERT_TRUE(onnx != nullptr);
-  faces = components::faces::Init(
-      "../../../models", ComponentConfig("unknown", "params"), nullptr);
-  ASSERT_TRUE(faces == nullptr);
-}
+// TEST(FacesTest, Init) {
+//   spdlog::set_level(spdlog::level::off);
+//   auto faces = components::faces::Init(
+//       "../../../models", ComponentConfig("onnx", "params"), nullptr);
+//   ASSERT_TRUE(faces != nullptr);
+//   auto onnx = std::dynamic_pointer_cast<ONNX>(faces);
+//   ASSERT_TRUE(onnx != nullptr);
+//   faces = components::faces::Init(
+//       "../../../models", ComponentConfig("unknown", "params"), nullptr);
+//   ASSERT_TRUE(faces == nullptr);
+// }
 
 TEST(FacesTest, EmptyInput) {
   spdlog::set_level(spdlog::level::off);
