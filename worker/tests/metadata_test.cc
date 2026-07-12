@@ -32,10 +32,7 @@ class MockExifToolClient : public ExifToolClientInterface {
 
 void assertMetadataResult(std::unordered_map<std::string, std::string> expected,
                           std::unordered_map<std::string, std::string> actual) {
-  EXPECT_EQ(expected.size(), actual.size());
-  for (const auto& [key, value] : expected) {
-    EXPECT_EQ(value, actual[key]);
-  }
+  EXPECT_EQ(expected, actual);
 }
 
 TEST(MetadataTest, Init) {
