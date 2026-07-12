@@ -20,19 +20,19 @@ func TestLogin(t *testing.T) {
 		{
 			"login with bad payload", http.MethodPost, "/v1/auth/login", "/v1/auth/login", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusBadRequest, "invalid username or password",
 		},
 		{
-			"login with no payload", http.MethodPost, "/v1/auth/login", "/v1/auth/login", []string{}, []string{}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"login with no payload", http.MethodPost, "/v1/auth/login", "/v1/auth/login", []string{}, []string{}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusBadRequest, "invalid username or password",
 		},
 		{
 			"login with incomplete credentials", http.MethodPost, "/v1/auth/login", "/v1/auth/login", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"username":"username"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"username":"username"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusBadRequest, "invalid username or password",
 		},
@@ -43,7 +43,7 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs("username", pgxmock.AnyArg()).
 					WillReturnRows(getMockedUserRow())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusOK, `"accessToken"`,
 		},
@@ -54,7 +54,7 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs("username", pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(userCols))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusNotFound, "incorrect username or password",
 		},
@@ -65,7 +65,7 @@ func TestLogin(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs("username", pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -84,7 +84,7 @@ func TestLogin(t *testing.T) {
 					}
 					return nil, errors.New("some cache error")
 				}, nil,
-			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Login
 			}, http.StatusInternalServerError, "error getting tokens",
 		},
@@ -101,12 +101,12 @@ func TestRefresh(t *testing.T) {
 		{
 			"refresh with success", http.MethodPost, "/v1/auth/refresh", "/v1/auth/refresh", []string{}, []string{}, map[string]string{
 				echo.HeaderAuthorization: rtoken,
-			}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Refresh
 			}, http.StatusOK, `"accessToken"`,
 		},
 		{
-			"refresh with error", http.MethodPost, "/v1/auth/refresh", "/v1/auth/refresh", []string{}, []string{}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"refresh with error", http.MethodPost, "/v1/auth/refresh", "/v1/auth/refresh", []string{}, []string{}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Refresh
 			}, http.StatusInternalServerError, "error refreshing tokens",
 		},
@@ -123,7 +123,7 @@ func TestLogout(t *testing.T) {
 		{
 			"logout with success", http.MethodPost, "/v1/auth/logout", "/v1/auth/logout", []string{}, []string{}, map[string]string{
 				echo.HeaderAuthorization: atoken,
-			}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.Logout
 			}, http.StatusNoContent, ``,
 		},

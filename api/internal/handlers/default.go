@@ -2,7 +2,6 @@ package handlers
 
 import (
 	"api/internal/models"
-	"api/pkg/services/worker"
 	"log/slog"
 	"net/http"
 
@@ -55,7 +54,8 @@ func (h *Handler) Search(ctx echo.Context) error {
 	}
 	mediaItems := []models.MediaItem{}
 	if h.Config.Search {
-		searchEmbedding, err := h.Worker.GenerateEmbedding(ctx.Request().Context(), &worker.GenerateEmbeddingRequest{Text: searchQuery})
+		searchEmbedding := []float32{}
+		var err error
 		if err != nil {
 			slog.Error("error getting search query embedding", "error", err)
 
@@ -63,7 +63,7 @@ func (h *Handler) Search(ctx echo.Context) error {
 		}
 		rows, err := h.DB.Query(ctx.Request().Context(),
 			"SELECT * FROM mediaitems WHERE id IN (SELECT id from mediaitem_embeddings ORDER BY embedding <-> $1) LIMIT $2",
-			pgvector.NewVector(searchEmbedding.Embedding), searchDefaultLimit)
+			pgvector.NewVector(searchEmbedding), searchDefaultLimit)
 		if err != nil {
 			slog.Error("error searching mediaitems", "error", err)
 

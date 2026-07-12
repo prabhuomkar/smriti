@@ -1,5 +1,7 @@
 FROM ubuntu:26.04 AS builder
 ENV DEBIAN_FRONTEND=noninteractive
+ARG VERSION=dev
+ARG GITSHA=-
 RUN apt-get update && \
     apt-get install -y --no-install-recommends \
         build-essential \
@@ -34,6 +36,8 @@ RUN cmake -S . -B build \
       -G Ninja \
       -DCMAKE_POLICY_VERSION_MINIMUM=3.5 \
       -DCMAKE_BUILD_TYPE=Release \
+      -DVERSION="${VERSION}" \
+      -DGIT_SHA="${GITSHA}" \
       -DBUILD_TESTS=OFF && \
     cmake --build build --target worker -j"$(nproc)"
 RUN strip --strip-unneeded /app/build/worker && \
@@ -64,5 +68,4 @@ WORKDIR /app
 COPY --from=builder /app/build/worker .
 COPY --from=builder /app/third_party/onnxruntime/lib/libonnxruntime.so* /opt/worker/lib/onnxruntime/
 EXPOSE 5002
-EXPOSE 15002
 ENTRYPOINT ["/app/worker"]

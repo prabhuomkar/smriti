@@ -26,7 +26,6 @@ services:
     restart: always
     ports:
       - "5002:5002"
-      - "15002:15002"
     depends_on:
       - api
     environment:

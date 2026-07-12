@@ -49,7 +49,7 @@ var (
 func TestGetAlbumMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"get album mediaitems bad request", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/bad-uuid/mediaItems", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"get album mediaitems bad request", http.MethodGet, "/v1/albums/:id/mediaItems", "/v1/albums/bad-uuid/mediaItems", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			}, http.StatusBadRequest, "invalid album id",
 		},
@@ -58,7 +58,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			}, http.StatusOK, "[]",
 		},
@@ -67,7 +67,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -77,7 +77,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(mediaitemCols).
 						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -86,7 +86,7 @@ func TestGetAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedMediaItemRows())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbumMediaItems
 			}, http.StatusOK, mediaitemsResponseBody,
 		},
@@ -97,21 +97,21 @@ func TestGetAlbumMediaItems(t *testing.T) {
 func TestAddAlbumMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"add album mediaitems bad request", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/bad-uuid/mediaItems", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"add album mediaitems bad request", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/bad-uuid/mediaItems", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
 			"add album mediaitems with bad payload", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
 			"add album mediaitems with bad mediaitem", http.MethodPost, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
@@ -120,7 +120,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -132,7 +132,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -147,7 +147,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -166,7 +166,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -186,7 +186,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -206,7 +206,7 @@ func TestAddAlbumMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit()
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddAlbumMediaItems
 			}, http.StatusNoContent, "",
 		},
@@ -217,21 +217,21 @@ func TestAddAlbumMediaItems(t *testing.T) {
 func TestRemoveAlbumMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"remove album mediaitems bad request", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/bad-uuid/mediaItems", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"remove album mediaitems bad request", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/bad-uuid/mediaItems", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
 			"remove album mediaitems with bad payload", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
 			"remove album mediaitems with bad mediaitem", http.MethodDelete, "/v1/albums/:id/mediaItems", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7/mediaItems", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
@@ -240,7 +240,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			}, strings.NewReader(`{"mediaItems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectBeginTx(pgx.TxOptions{}).WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -252,7 +252,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -267,7 +267,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT mediaitem_id, COUNT(*) OVER() AS mediaitems_count FROM album_mediaitems`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -286,7 +286,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -306,7 +306,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit().WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -326,7 +326,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
 				mock.ExpectCommit()
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveAlbumMediaItems
 			}, http.StatusNoContent, "",
 		},
@@ -337,7 +337,7 @@ func TestRemoveAlbumMediaItems(t *testing.T) {
 func TestGetAlbum(t *testing.T) {
 	tests := []Test{
 		{
-			"get album bad request", http.MethodGet, "/v1/albums/:id", "/v1/albums/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"get album bad request", http.MethodGet, "/v1/albums/:id", "/v1/albums/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			}, http.StatusBadRequest, "invalid album id",
 		},
@@ -347,7 +347,7 @@ func TestGetAlbum(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			}, http.StatusNotFound, "album not found",
 		},
@@ -357,7 +357,7 @@ func TestGetAlbum(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -368,7 +368,7 @@ func TestGetAlbum(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
 						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -378,7 +378,7 @@ func TestGetAlbum(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedAlbumRow())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbum
 			}, http.StatusOK, albumResponseBody,
 		},
@@ -389,26 +389,26 @@ func TestGetAlbum(t *testing.T) {
 func TestUpdateAlbum(t *testing.T) {
 	tests := []Test{
 		{
-			"update album bad request", http.MethodPut, "/v1/albums/:id", "/v1/albums/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update album bad request", http.MethodPut, "/v1/albums/:id", "/v1/albums/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album id",
 		},
 		{
-			"update album with no payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update album with no payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album",
 		},
 		{
 			"update album with bad payload", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album",
 		},
 		{
 			"update album with bad cover mediaitem id", http.MethodPut, "/v1/albums/:id", "/v1/albums/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusBadRequest, "invalid album cover mediaitem id",
 		},
@@ -420,7 +420,7 @@ func TestUpdateAlbum(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, sampleName, &sampleDescription, &sampleBoolTrue, &sampleBoolTrue, &sampleCoverMediaItemID, pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -432,7 +432,7 @@ func TestUpdateAlbum(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE albums`)).
 					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, sampleName, &sampleDescription, &sampleBoolTrue, &sampleBoolTrue, &sampleCoverMediaItemID, pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateAlbum
 			}, http.StatusNoContent, "",
 		},
@@ -443,7 +443,7 @@ func TestUpdateAlbum(t *testing.T) {
 func TestDeleteAlbum(t *testing.T) {
 	tests := []Test{
 		{
-			"delete album bad request", http.MethodDelete, "/v1/albums/:id", "/v1/albums/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"delete album bad request", http.MethodDelete, "/v1/albums/:id", "/v1/albums/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
 			}, http.StatusBadRequest, "invalid album id",
 		},
@@ -452,7 +452,7 @@ func TestDeleteAlbum(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -461,7 +461,7 @@ func TestDeleteAlbum(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("DELETE", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteAlbum
 			}, http.StatusNoContent, "",
 		},
@@ -477,7 +477,7 @@ func TestGetAlbums(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			}, http.StatusOK, "[]",
 		},
@@ -487,7 +487,7 @@ func TestGetAlbums(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -498,7 +498,7 @@ func TestGetAlbums(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(append(albumCols, coverMediaItemCols...)).
 						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "name", &sampleDescription, &sampleBoolTrue, &sampleBoolFalse, &sampleMediaItemsCount, &sampleCoverMediaItemID, sampleTime, sampleTime, "019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", &sampleSourceURL, &samplePreviewURL, &sampleThumbnailURL, &samplePlaceholder, &sampleMediaItemType, &sampleMediaItemCategory, &sampleWidth, &sampleHeight))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -508,7 +508,7 @@ func TestGetAlbums(t *testing.T) {
 					` m.mediaitem_type, m.mediaitem_category, m.width, m.height FROM albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(getMockedAlbumRows())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetAlbums
 			}, http.StatusOK, albumsResponseBody,
 		},
@@ -521,19 +521,19 @@ func TestCreateAlbum(t *testing.T) {
 		{
 			"create album with bad payload", http.MethodPost, "/v1/albums", "/v1/albums", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			}, http.StatusBadRequest, "invalid album",
 		},
 		{
-			"create album with no payload", http.MethodPost, "/v1/albums", "/v1/albums", []string{}, []string{}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"create album with no payload", http.MethodPost, "/v1/albums", "/v1/albums", []string{}, []string{}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			}, http.StatusBadRequest, "invalid album",
 		},
 		{
 			"create album with bad cover mediaitem id", http.MethodPost, "/v1/albums", "/v1/albums", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"name":"name","description":"description","coverMediaItemId":"bad-mediaitem-id"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			}, http.StatusBadRequest, "invalid album cover mediaitem id",
 		},
@@ -544,7 +544,7 @@ func TestCreateAlbum(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), "name", &sampleDescription, pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -555,7 +555,7 @@ func TestCreateAlbum(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO albums`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), "name", &sampleDescription, pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateAlbum
 			}, http.StatusCreated, `"name":"name","description":"description",`,
 		},

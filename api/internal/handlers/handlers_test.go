@@ -4,11 +4,7 @@ import (
 	"api/config"
 	"api/internal/models"
 	"api/pkg/cache"
-	"api/pkg/services/worker"
-	"context"
-	"database/sql/driver"
 	"encoding/json"
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -23,24 +19,22 @@ import (
 	"github.com/pashagolub/pgxmock/v4"
 	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
-	"google.golang.org/grpc"
 )
 
 type Test struct {
-	Name             string
-	Method           string
-	Route            string
-	Path             string
-	ParamNames       []string
-	ParamValues      []string
-	Header           map[string]string
-	Body             io.Reader
-	MockDB           func(mock pgxmock.PgxPoolIface)
-	mockCache        []func(interface{}, interface{}) (interface{}, error)
-	mockWorkerClient *mockWorkerGRPCClient
-	Handler          func(handler *Handler) func(ctx echo.Context) error
-	ExpectedResCode  int
-	ExpectedResBody  string
+	Name            string
+	Method          string
+	Route           string
+	Path            string
+	ParamNames      []string
+	ParamValues     []string
+	Header          map[string]string
+	Body            io.Reader
+	MockDB          func(mock pgxmock.PgxPoolIface)
+	mockCache       []func(interface{}, interface{}) (interface{}, error)
+	Handler         func(handler *Handler) func(ctx echo.Context) error
+	ExpectedResCode int
+	ExpectedResBody string
 }
 
 func executeTests(t *testing.T, tests []Test) {
@@ -99,7 +93,7 @@ func executeTests(t *testing.T, tests []Test) {
 					}, ML: config.ML{
 						Places: true, Faces: true, Search: true,
 					},
-				}, DB: mockDB, Cache: mockCache, Worker: test.mockWorkerClient,
+				}, DB: mockDB, Cache: mockCache,
 			}
 			err = test.Handler(handler)(ctx)
 			if test.ExpectedResCode >= http.StatusBadRequest {
@@ -111,25 +105,4 @@ func executeTests(t *testing.T, tests []Test) {
 			}
 		})
 	}
-}
-
-type (
-	mockWorkerGRPCClient struct {
-		wantErr bool
-		wantOk  bool
-	}
-)
-
-func (mwc *mockWorkerGRPCClient) GenerateEmbedding(ctx context.Context, request *worker.GenerateEmbeddingRequest, opts ...grpc.CallOption) (*worker.GenerateEmbeddingResponse, error) {
-	if mwc.wantErr {
-		return nil, errors.New("some grpc error")
-	}
-	return &worker.GenerateEmbeddingResponse{Embedding: make([]float32, 0)}, nil
-}
-
-type AnyID struct{}
-
-func (a AnyID) Match(v driver.Value) bool {
-	_, ok := v.(string)
-	return ok
 }

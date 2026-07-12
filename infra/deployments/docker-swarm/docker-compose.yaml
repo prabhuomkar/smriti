@@ -1,4 +1,3 @@
-version: "3"
 services:
   # applications
   api:
@@ -6,35 +5,46 @@ services:
     ports:
       - "5001:5001"
       - "15001:15001"
-    depends_on:
-      - database
     environment:
       SMRITI_WORKER_HOST: worker
-      SMRITI_LOG_LEVEL: DEBUG
-      SMRITI_DATABASE_LOG_LEVEL: INFO
+      SMRITI_LOG_LEVEL: debug
+      SMRITI_DATABASE_LOG_LEVEL: info
+      SMRITI_DATABASE_HOST: database
+      SMRITI_DATABASE_PORT: 5432
+      SMRITI_DATABASE_USERNAME: smritiuser
+      SMRITI_DATABASE_PASSWORD: smritipass
+      SMRITI_DATABASE_NAME: smriti
       SMRITI_CACHE_TYPE: redis
-      SMRITI_STORAGE_PROVIDER: minio
-      SMRITI_STORAGE_ENDPOINT: storage:9000
-      SMRITI_STORAGE_ACCESS_KEY: smritiuser
-      SMRITI_STORAGE_SECRET_KEY: smritipass
-    volumes:
-      - ./storage:/storage:rw
-  worker:
-    image: smritihq/pyworker:master
-    ports:
-      - "15002:15002"
-    environment:
-      SMRITI_API_HOST: api
-      SMRITI_API_PORT: 15001
-      SMRITI_LOG_LEVEL: DEBUG
+      SMRITI_CACHE_HOST: cache
+      SMRITI_CACHE_PORT: 6379
+      SMRITI_CACHE_PASSWORD: smritipass
+      SMRITI_STORAGE_PROVIDER: disk
+      SMRITI_STORAGE_DISK_ROOT: /storage
     volumes:
       - ./storage:/storage:rw
     deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
+  worker:
+    image: smritihq/worker:master
+    ports:
+      - "5002:5002"
+    environment:
+      SMRITI_API_HOST: api
+      SMRITI_API_PORT: 15001
+      SMRITI_LOG_LEVEL: debug
+      SMRITI_MODELS_DIR: /models
+    volumes:
+      - ./storage:/storage:rw
+      - ./models:/models:rw
+    deploy:
       replicas: 2
+      restart_policy:
+        condition: on-failure
   # infra services
   database:
     image: pgvector/pgvector:0.8.2-pg18
-    restart: always
     environment:
       POSTGRES_USER: smritiuser
       POSTGRES_PASSWORD: smritipass
@@ -43,18 +53,11 @@ services:
       - "5432:5432"
   cache:
     image: redis:8.8.0-alpine
+    deploy:
+      replicas: 1
+      restart_policy:
+        condition: on-failure
     command: >
-      --requirepass smriti
+      --requirepass smritipass
     ports:
       - "6379:6379"
-  storage:
-    container_name: storage
-    image: dxflrs/garage:v2.3.0
-    volumes:
-      - ./storage/data:/var/lib/garage/data
-      - ./storage/meta:/var/lib/garage/meta
-      - ./storage/garage.toml:/etc/garage.toml:ro
-    ports:
-      - "9000:9000"
-      - "9001:9001"
-    restart: always

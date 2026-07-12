@@ -30,7 +30,7 @@ var (
 func TestGetUser(t *testing.T) {
 	tests := []Test{
 		{
-			"get user bad request", http.MethodGet, "/v1/users/:id", "/v1/users/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"get user bad request", http.MethodGet, "/v1/users/:id", "/v1/users/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			}, http.StatusBadRequest, "invalid user id",
 		},
@@ -38,7 +38,7 @@ func TestGetUser(t *testing.T) {
 			"get user not found", http.MethodGet, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg()).WillReturnError(pgx.ErrNoRows)
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			}, http.StatusNotFound, "user not found",
 		},
@@ -46,7 +46,7 @@ func TestGetUser(t *testing.T) {
 			"get user with error", http.MethodGet, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg()).WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -54,7 +54,7 @@ func TestGetUser(t *testing.T) {
 			"get user with error in scanning", http.MethodGet, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg()).WillReturnRows(pgxmock.NewRows(userCols).AddRow("invalid", "name", "username", "password", "", "invalid", "invalid"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -62,7 +62,7 @@ func TestGetUser(t *testing.T) {
 			"get user with success", http.MethodGet, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg()).WillReturnRows(getMockedUserRow())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUser
 			}, http.StatusOK, userResponseBody,
 		},
@@ -73,19 +73,19 @@ func TestGetUser(t *testing.T) {
 func TestUpdateUser(t *testing.T) {
 	tests := []Test{
 		{
-			"update user bad request", http.MethodPut, "/v1/users/:id", "/v1/users/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update user bad request", http.MethodPut, "/v1/users/:id", "/v1/users/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			}, http.StatusBadRequest, "invalid user id",
 		},
 		{
-			"update user with no payload", http.MethodPut, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"update user with no payload", http.MethodPut, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			}, http.StatusBadRequest, "invalid user",
 		},
 		{
 			"update user with bad payload", http.MethodPut, "/v1/users/:id", "/v1/users/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			}, http.StatusBadRequest, "invalid user",
 		},
@@ -96,7 +96,7 @@ func TestUpdateUser(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -107,7 +107,7 @@ func TestUpdateUser(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`UPDATE users`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateUser
 			}, http.StatusNoContent, "",
 		},
@@ -118,7 +118,7 @@ func TestUpdateUser(t *testing.T) {
 func TestDeleteUser(t *testing.T) {
 	tests := []Test{
 		{
-			"delete user bad request", http.MethodDelete, "/v1/users/:id", "/v1/users/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"delete user bad request", http.MethodDelete, "/v1/users/:id", "/v1/users/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
 			}, http.StatusBadRequest, "invalid user id",
 		},
@@ -127,7 +127,7 @@ func TestDeleteUser(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -136,7 +136,7 @@ func TestDeleteUser(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM users`)).
 					WithArgs(pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("DELETE", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.DeleteUser
 			}, http.StatusNoContent, "",
 		},
@@ -151,7 +151,7 @@ func TestGetUsers(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -161,7 +161,7 @@ func TestGetUsers(t *testing.T) {
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(userCols).
 						AddRow("invalid", "name", "username", "password", "", "invalid", "invalid"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			}, http.StatusInternalServerError, "Scanning value error",
 		},
@@ -170,7 +170,7 @@ func TestGetUsers(t *testing.T) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnRows(pgxmock.NewRows(userCols))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			}, http.StatusOK, "[]",
 		},
@@ -178,7 +178,7 @@ func TestGetUsers(t *testing.T) {
 			"get users with 2 rows", http.MethodGet, "/v1/users", "/v1/users", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
 				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM users`)).
 					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).WillReturnRows(getMockedUserRows())
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetUsers
 			}, http.StatusOK, usersResponseBody,
 		},
@@ -191,12 +191,12 @@ func TestCreateUser(t *testing.T) {
 		{
 			"create user with bad payload", http.MethodPost, "/v1/users", "/v1/users", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			}, strings.NewReader(`{"bad":"request"}`), nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			}, http.StatusBadRequest, "invalid user",
 		},
 		{
-			"create user with no payload", http.MethodPost, "/v1/users", "/v1/users", []string{}, []string{}, map[string]string{}, nil, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			"create user with no payload", http.MethodPost, "/v1/users", "/v1/users", []string{}, []string{}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			}, http.StatusBadRequest, "invalid user",
 		},
@@ -207,7 +207,7 @@ func TestCreateUser(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users`)).
 					WithArgs(pgxmock.AnyArg(), "name", "username", pgxmock.AnyArg(), "{\"albums\":true}", pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			}, http.StatusInternalServerError, "some db error",
 		},
@@ -218,7 +218,7 @@ func TestCreateUser(t *testing.T) {
 				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO users`)).
 					WithArgs(pgxmock.AnyArg(), "name", "username", pgxmock.AnyArg(), "{\"albums\":true}", pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnResult(pgxmock.NewResult("INSERT", 1))
-			}, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateUser
 			}, http.StatusCreated, `"name":"name","username":"username"`,
 		},
