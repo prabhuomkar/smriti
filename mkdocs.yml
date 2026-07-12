@@ -90,5 +90,8 @@ nav:
       - dev-guide/notes.md
       - dev-guide/roadmap.md
 markdown_extensions:
+  - attr_list
+  - md_in_html
+  - pymdownx.blocks.caption
   - pymdownx.tasklist:
       custom_checkbox: true
