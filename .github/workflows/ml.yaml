@@ -27,10 +27,8 @@ jobs:
         run: |
           make all
           zip -r faces.zip faces/faces_det faces/faces_rec
-          zip -r search.zip search/*.pt search/search_processor search/search_tokenizer
       - name: Create release asset
         uses: softprops/action-gh-release@v3
         with:
           files: |
             ml/faces.zip
-            ml/search.zip

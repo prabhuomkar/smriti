@@ -60,9 +60,9 @@ make cover
 ```
 
 - Adding new unit tests
-  - New files/functions should have test cases in their respective `test_*.py` file in the `pyworker/tests` directory.
+  - New files/functions should have test cases in their respective `*_test.cc` file in the `worker/tests` directory.
   - Tests should have both positive and negative cases with mocking if required.
-  - Check `pyworker/tests/components/test_place.py` as reference for adding unit tests.
+  - Check `worker/tests/metadata_test.cc` as reference for adding unit tests.
 
 ### Integration Testing
 

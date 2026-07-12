@@ -1,4 +1,4 @@
-setup: setup-api setup-pyworker setup-docs setup-tests
+setup: setup-api setup-docs setup-tests
 
 setup-api:
 	@cd api; \
@@ -19,20 +19,10 @@ setup-worker:
 		echo "[setup-worker]: Running unit tests..."; \
 		make test
 
-setup-pyworker:
-	@cd pyworker; \
-		echo "[setup-pyworker]: Installing requirements"; \
-		make install; \
-		make test-install; \
-		echo "[setup-pyworker]: Running linter..."; \
-		make lint; \
-		echo "[setup-pyworker]: Running unit tests..."; \
-		make test
-
 setup-docs:
 	@cd docs; \
 		echo "[setup-docs]: Installing dependencies"; \
-		npm install
+		pip install mkdocs-material
 
 setup-tests:
 	@cd tests; \

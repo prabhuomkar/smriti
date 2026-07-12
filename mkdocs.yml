@@ -1,0 +1,94 @@
+site_name: Smriti
+site_url: https://smriti.omkarprabhu.in
+theme:
+  language: en
+  name: material
+  logo: img/logo-white.png
+  favicon: img/favicon.ico
+  font:
+    text: DM Sans
+  icon:
+    repo: fontawesome/brands/github
+  features:
+    - header.autohide
+    - announce.dismiss
+    - navigation.footer
+    - navigation.instant
+    - navigation.instant.prefetch
+    - navigation.instant.progress
+    - navigation.tracking
+    - navigation.tabs
+    - navigation.tabs.sticky
+    - navigation.indexes
+    - navigation.path
+    - navigation.expand
+    - navigation.top
+    - navigation.prune
+    - search.suggest
+    - search.highlight
+    - search.share
+    - toc.follow
+    - toc.integrate
+  palette:
+    - media: "(prefers-color-scheme: light)"
+      scheme: default
+      primary: custom
+      toggle:
+        icon: material/weather-sunny
+        name: Switch to dark mode
+    - media: "(prefers-color-scheme: dark)"
+      scheme: slate
+      primary: custom
+      toggle:
+        icon: material/weather-night
+        name: Switch to light mode
+repo_name: prabhuomkar/smriti
+repo_url: https://github.com/prabhuomkar/smriti
+extra_css:
+  - css/style.css
+extra:
+  consent:
+    title: Cookie consent
+    description: >-
+      We use cookies to recognize your repeated visits and preferences, as well
+      as to measure the effectiveness of our documentation and whether users
+      find what they're searching for. With your consent, you're helping us to
+      make our documentation better.
+  version:
+    provider: mike
+  generator: false
+  social:
+    - icon: fontawesome/brands/github
+      link: https://github.com/prabhuomkar/smriti
+      name: Smriti on GitHub
+    - icon: fontawesome/brands/x-twitter
+      link: https://x.com/smritiHQ
+      name: Smriti on X
+    - icon: fontawesome/brands/docker
+      link: https://hub.docker.com/u/smritihq
+      name: Smriti on Docker Hub
+    - icon: fontawesome/brands/discord
+      link: tbd
+      name: Smriti on Discord
+copyright: Copyright &copy; 2022 - 2026 Omkar Prabhu. Built with ❤️ in India.
+plugins:
+  - offline
+  - search
+nav:
+  - Home:
+      - index.md
+  - User Guide:
+      - user-guide/index.md
+      - user-guide/features.md
+      - user-guide/installation.md
+      - user-guide/cloud-deploy.md
+  - Developer Guide:
+      - dev-guide/index.md
+      - dev-guide/environment.md
+      - dev-guide/contribution.md
+      - dev-guide/folder-structure.md
+      - dev-guide/notes.md
+      - dev-guide/roadmap.md
+markdown_extensions:
+  - pymdownx.tasklist:
+      custom_checkbox: true

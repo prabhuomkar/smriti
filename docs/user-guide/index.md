@@ -1,4 +1,4 @@
-# Introduction
+# User Guide
 
 Welcome to the Smriti User Guide! This guide is designed to provide you with all the information you need to get
 started, from installation and setup to using the application's various features and functions.
