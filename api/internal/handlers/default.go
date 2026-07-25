@@ -43,7 +43,8 @@ func (h *Handler) GetHealth(ctx echo.Context) error {
 	}
 
 	if health.Status == models.StatusDown {
-		healthBytes, _ := json.Marshal(health)
+		healthBytes, _ := json.Marshal(health) //nolint: errchkjson
+
 		return echo.NewHTTPError(http.StatusInternalServerError, string(healthBytes))
 	}
 
