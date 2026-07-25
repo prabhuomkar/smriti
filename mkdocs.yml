@@ -6,7 +6,7 @@ theme:
   logo: img/logo-white.png
   favicon: img/favicon.ico
   font:
-    text: DM Sans
+    text: Ubuntu
   icon:
     repo: fontawesome/brands/github
   features:

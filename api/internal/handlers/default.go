@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"api/internal/models"
+	"encoding/json"
 	"log/slog"
 	"net/http"
 
@@ -19,6 +20,34 @@ func (h *Handler) GetVersion(ctx echo.Context) error {
 	version := models.GetVersion()
 
 	return ctx.JSON(http.StatusOK, version)
+}
+
+// GetHealth ...
+func (h *Handler) GetHealth(ctx echo.Context) error {
+	health := models.GetHealth()
+
+	health.Database.Status = models.StatusUp
+	err := h.DB.Ping(ctx.Request().Context())
+	if err != nil {
+		health.Status = models.StatusDown
+		health.Database.Status = models.StatusDown
+		health.Database.Error = err.Error()
+	}
+
+	health.Cache.Status = models.StatusUp
+	err = h.Cache.Ping()
+	if err != nil {
+		health.Status = models.StatusDown
+		health.Cache.Status = models.StatusDown
+		health.Cache.Error = err.Error()
+	}
+
+	if health.Status == models.StatusDown {
+		healthBytes, _ := json.Marshal(health)
+		return echo.NewHTTPError(http.StatusInternalServerError, string(healthBytes))
+	}
+
+	return ctx.JSON(http.StatusOK, health)
 }
 
 // GetFeatures ...

@@ -130,16 +130,15 @@ std::unordered_map<std::string, std::string> PreviewThumbnail::Generate(
     if (type == MediaItemType_Name(MediaItemType::PHOTO)) {
       result["preview_url"] = image_converter_client_->Convert(
           file_path, file_path + "-preview", 0);
+      result["thumbnail_url"] = image_converter_client_->Convert(
+          result["preview_url"], file_path + "-thumbnail", thumbnail_size_);
     } else if (type == MediaItemType_Name(MediaItemType::VIDEO)) {
       result["preview_url"] = "";
     }
     request.set_previewpath(result["preview_url"]);
+    request.set_thumbnailpath(result["thumbnail_url"]);
 
-    if (!result["preview_url"].empty()) {
-      result["thumbnail_url"] = image_converter_client_->Convert(
-          result["preview_url"], file_path + "-thumbnail", thumbnail_size_);
-      request.set_thumbnailpath(result["thumbnail_url"]);
-
+    if (!result["thumbnail_url"].empty()) {
       result["placeholder"] = image_converter_client_->Convert(
           result["thumbnail_url"], "", placeholder_size_);
       request.set_placeholder(result["placeholder"]);

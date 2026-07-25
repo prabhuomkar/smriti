@@ -21,7 +21,8 @@ services:
       SMRITI_STORAGE_PROVIDER: disk
       SMRITI_STORAGE_DISK_ROOT: /storage
     volumes:
-      - ./storage:/storage:rw
+      - ../../storage:/storage:rw
+      - ../../models:/models:rw
     deploy:
       replicas: 1
       restart_policy:
@@ -36,8 +37,8 @@ services:
       SMRITI_LOG_LEVEL: debug
       SMRITI_MODELS_DIR: /models
     volumes:
-      - ./storage:/storage:rw
-      - ./models:/models:rw
+      - ../../storage:/storage:rw
+      - ../../models:/models:rw
     deploy:
       replicas: 2
       restart_policy:

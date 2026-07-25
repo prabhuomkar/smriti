@@ -6,11 +6,12 @@ import (
 	"time"
 
 	"github.com/bluele/gcache"
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 // Provider ...
 type Provider interface {
+	Ping() error
 	SetWithExpire(key string, value any, expiration time.Duration) error
 	Get(key string) (any, error)
 	Remove(key string) error

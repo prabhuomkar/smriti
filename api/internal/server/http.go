@@ -43,6 +43,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	}
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
+	srvHandler.GET("/health", handler.GetHealth)
 	srvHandler.GET("/disk", handler.GetDisk)
 	version1 := srvHandler.Group("/v1")
 	version1.GET("/features", handler.GetFeatures, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)

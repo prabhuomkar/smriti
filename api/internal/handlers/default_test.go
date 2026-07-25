@@ -39,6 +39,26 @@ func TestGetVersion(t *testing.T) {
 	executeTests(t, tests)
 }
 
+func TestGetHealth(t *testing.T) {
+	tests := []Test{
+		{
+			"get health successfully", http.MethodGet, "/health", "/health", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectPing().WillReturnError(nil)
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetHealth
+			}, http.StatusOK, `{"status":"UP","database":{"status":"UP"},"cache":{"status":"UP"}}`,
+		},
+		{
+			"get health with error due to database", http.MethodGet, "/health", "/health", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectPing().WillReturnError(errors.New("some database error"))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetHealth
+			}, http.StatusInternalServerError, `{"status":"DOWN","database":{"status":"DOWN","error":"some database error"},"cache":{"status":"UP"}}`,
+		},
+	}
+	executeTests(t, tests)
+}
+
 func TestGetDisk(t *testing.T) {
 	tests := []Test{
 		{

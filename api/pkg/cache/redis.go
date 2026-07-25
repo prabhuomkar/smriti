@@ -4,11 +4,12 @@ import (
 	"context"
 	"time"
 
-	"github.com/go-redis/redis/v8"
+	"github.com/redis/go-redis/v9"
 )
 
 type ( // RedisClient ...
 	RedisClient interface {
+		Ping(ctx context.Context) error
 		Get(ctx context.Context, key string) (string, error)
 		Set(ctx context.Context, key string, val any, ttl time.Duration) error
 		Del(ctx context.Context, key string) error
@@ -24,6 +25,10 @@ type ( // RedisClient ...
 	}
 )
 
+func (rc *RedisCache) Ping() error {
+	return rc.Connection.Ping(context.TODO())
+}
+
 func (rc *RedisCache) SetWithExpire(key string, value any, expiration time.Duration) error {
 	return rc.Connection.Set(context.TODO(), key, value, expiration)
 }
@@ -34,6 +39,10 @@ func (rc *RedisCache) Get(key string) (any, error) {
 
 func (rc *RedisCache) Remove(key string) error {
 	return rc.Connection.Del(context.TODO(), key)
+}
+
+func (c *redisClient) Ping(ctx context.Context) error {
+	return c.client.Ping(ctx).Err()
 }
 
 func (c *redisClient) Get(ctx context.Context, key string) (string, error) {
