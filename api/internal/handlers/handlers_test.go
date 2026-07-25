@@ -31,7 +31,7 @@ type Test struct {
 	Header          map[string]string
 	Body            io.Reader
 	MockDB          func(mock pgxmock.PgxPoolIface)
-	mockCache       []func(interface{}, interface{}) (interface{}, error)
+	MockCache       []func(interface{}, interface{}) (interface{}, error)
 	Handler         func(handler *Handler) func(ctx echo.Context) error
 	ExpectedResCode int
 	ExpectedResBody string
@@ -73,11 +73,11 @@ func executeTests(t *testing.T, tests []Test) {
 			mockCache := &cache.InMemoryCache{
 				Connection: gcache.New(1024).LRU().Build(),
 			}
-			if test.mockCache != nil {
+			if test.MockCache != nil {
 				mockCache = &cache.InMemoryCache{Connection: gcache.New(1024).
 					LRU().
-					SerializeFunc(test.mockCache[0]).
-					DeserializeFunc(test.mockCache[1]).
+					SerializeFunc(test.MockCache[0]).
+					DeserializeFunc(test.MockCache[1]).
 					Build()}
 			}
 			for key, val := range test.Header {

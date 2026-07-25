@@ -76,5 +76,5 @@ jobs:
           platforms: linux/amd64,linux/arm64/v8
           build-args: |
             GITSHA=${{ github.sha }}
-            VERSION=${ github.ref_name }}
+            VERSION=${{ github.ref_name }}
           tags: smritihq/api:${{ github.ref_name }}

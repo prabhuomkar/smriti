@@ -8,9 +8,9 @@ import (
 	"log/slog"
 	"time"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/golang-jwt/jwt/v4"
 	"github.com/google/uuid"
+	"github.com/redis/go-redis/v9"
 )
 
 type ( // TokenClaims ...

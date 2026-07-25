@@ -34,5 +34,6 @@ lint:
 
 .PHONY: proto
 proto:
+	@mkdir -p generated/protos
 	@protoc -I../protos --cpp_out=./generated/protos ../protos/*.proto
 	@protoc -I../protos --grpc_out=generate_mock_code=true:./generated/protos --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ../protos/*.proto

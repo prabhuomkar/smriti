@@ -13,7 +13,7 @@ docker-compose up -d
 ### Deploy using Docker Swarm
 
 - [Docker Swarm](https://docs.docker.com/engine/swarm/) is the preferred approach for now to deploy Smriti.
-- Environment variables can be set in [infra/deployments/docker-swarm/docker-compose.yaml](https://github.com/prabhuomkar/smriti/blob/master/infra/deployments/docker-swarm/docker-compose.yaml).
+- Environment variables can be set in [deploy/docker-swarm/docker-compose.yaml](https://github.com/prabhuomkar/smriti/blob/master/deploy/docker-swarm/docker-compose.yaml).
 - Run following command to start services:
 
 ```bash

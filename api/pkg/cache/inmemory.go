@@ -15,6 +15,10 @@ type InMemoryCache struct {
 
 var errRemovingFromCache = errors.New("error removing from cache")
 
+func (imc *InMemoryCache) Ping() error {
+	return nil
+}
+
 func (imc *InMemoryCache) SetWithExpire(key string, value any, expiration time.Duration) error {
 	return imc.Connection.SetWithExpire(key, value, expiration)
 }

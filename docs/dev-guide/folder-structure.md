@@ -5,7 +5,7 @@
   - `docker-compose.yaml`: Containerized services for local integration tests
 - `api`: contains the source code for the API server
 - `docs`: contains the overall documentation of the project
-- `infra`: contains examples for deployments e.g. Docker, Kubernetes, etc.
+- `deploy`: contains examples for deployments e.g. Docker, Kubernetes, etc.
 - `ml`: contains code and experiments for generating production ready ML models
 - `scripts`: contains scripts for setting up test data, models for running locally, etc.
 - `protos`: contains Protocol Buffer definitions for API and Worker services
