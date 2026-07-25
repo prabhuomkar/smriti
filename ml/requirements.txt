@@ -1,7 +1,7 @@
-opencv-contrib-python==4.12.0.88
-opencv-python==4.12.0.88
-opencv-python-headless==4.12.0.88
-torch==2.8.0
-torchvision==0.23.0
-transformers==4.49.0
-urllib3==2.5.0
+opencv-contrib-python==5.0.0.93
+opencv-python==5.0.0.93
+opencv-python-headless==5.0.0.93
+torch==2.13.0
+torchvision==0.28.0
+transformers==5.14.1
+urllib3==2.7.0
