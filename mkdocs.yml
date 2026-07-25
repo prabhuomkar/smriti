@@ -6,7 +6,7 @@ theme:
   logo: img/logo-white.png
   favicon: img/favicon.ico
   font:
-    text: Ubuntu
+    text: Bricolage Grotesque
   icon:
     repo: fontawesome/brands/github
   features:
