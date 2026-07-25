@@ -7,74 +7,48 @@ import (
 	"strings"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 )
 
 func TestGetFavouriteMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"get favourite mediaitems with empty table",
-			http.MethodGet,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(sqlmock.NewRows(mediaitemCols))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"get favourite mediaitems with empty table", http.MethodGet, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
-			},
-			http.StatusOK,
-			"[]",
+			}, http.StatusOK, "[]",
 		},
 		{
-			"get favourite mediaitems with 2 rows",
-			http.MethodGet,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRows())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetFavouriteMediaItems
-			},
-			http.StatusOK,
-			mediaitemsResponseBody,
-		},
-		{
-			"get favourite mediaitems with error",
-			http.MethodGet,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+			"get favourite mediaitems with error", http.MethodGet, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetFavouriteMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"get favourite mediaitems with error in scanning", http.MethodGet, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetFavouriteMediaItems
+			}, http.StatusInternalServerError, "Scanning value error",
+		},
+		{
+			"get favourite mediaitems with 2 rows", http.MethodGet, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemRows())
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetFavouriteMediaItems
+			}, http.StatusOK, mediaitemsResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -83,94 +57,40 @@ func TestGetFavouriteMediaItems(t *testing.T) {
 func TestAddFavouriteMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"add favourite mediaitems with bad payload",
-			http.MethodPost,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add favourite mediaitems with bad payload", http.MethodPost, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitems",
+			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"add favourite mediaitems with bad mediaitem",
-			http.MethodPost,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add favourite mediaitems with bad mediaitem", http.MethodPost, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaitems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitem id",
+			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"add favourite mediaitems with success",
-			http.MethodPost,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add favourite mediaitems with error", http.MethodPost, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.AddFavouriteMediaItems
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"add favourite mediaitems with error",
-			http.MethodPost,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddFavouriteMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"add favourite mediaitems with success", http.MethodPost, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddFavouriteMediaItems
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)
@@ -179,94 +99,40 @@ func TestAddFavouriteMediaItems(t *testing.T) {
 func TestRemoveFavouriteMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"remove favourite mediaitems with bad payload",
-			http.MethodDelete,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove favourite mediaitems with bad payload", http.MethodDelete, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitems",
+			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"remove favourite mediaitems with bad mediaitem",
-			http.MethodDelete,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove favourite mediaitems with bad mediaitem", http.MethodDelete, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaitems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitem id",
+			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"remove favourite mediaitems with success",
-			http.MethodDelete,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove favourite mediaitems with error", http.MethodDelete, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.RemoveFavouriteMediaItems
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"remove favourite mediaitems with error",
-			http.MethodDelete,
-			"/v1/favourites",
-			"/v1/favourites",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveFavouriteMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"remove favourite mediaitems with success", http.MethodDelete, "/v1/favourites", "/v1/favourites", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveFavouriteMediaItems
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)
@@ -275,67 +141,41 @@ func TestRemoveFavouriteMediaItems(t *testing.T) {
 func TestGetHiddenMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"get hidden mediaitems with empty table",
-			http.MethodGet,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(sqlmock.NewRows(mediaitemCols))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"get hidden mediaitems with empty table", http.MethodGet, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
-			},
-			http.StatusOK,
-			"[]",
+			}, http.StatusOK, "[]",
 		},
 		{
-			"get hidden mediaitems with 2 rows",
-			http.MethodGet,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRows())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetHiddenMediaItems
-			},
-			http.StatusOK,
-			mediaitemsResponseBody,
-		},
-		{
-			"get hidden mediaitems with error",
-			http.MethodGet,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+			"get hidden mediaitems with error", http.MethodGet, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetHiddenMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"get hidden mediaitems with error in scanning", http.MethodGet, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetHiddenMediaItems
+			}, http.StatusInternalServerError, "Scanning value error",
+		},
+		{
+			"get hidden mediaitems with 2 rows", http.MethodGet, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemRows())
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetHiddenMediaItems
+			}, http.StatusOK, mediaitemsResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -344,94 +184,40 @@ func TestGetHiddenMediaItems(t *testing.T) {
 func TestAddHiddenMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"add hidden mediaitems with bad payload",
-			http.MethodPost,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add hidden mediaitems with bad payload", http.MethodPost, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitems",
+			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"add hidden mediaitems with bad mediaitem",
-			http.MethodPost,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add hidden mediaitems with bad mediaitem", http.MethodPost, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaitems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitem id",
+			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"add hidden mediaitems with success",
-			http.MethodPost,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add hidden mediaitems with error", http.MethodPost, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.AddHiddenMediaItems
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"add hidden mediaitems with error",
-			http.MethodPost,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddHiddenMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"add hidden mediaitems with success", http.MethodPost, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddHiddenMediaItems
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)
@@ -440,94 +226,40 @@ func TestAddHiddenMediaItems(t *testing.T) {
 func TestRemoveHiddenMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"remove hidden mediaitems with bad payload",
-			http.MethodDelete,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove hidden mediaitems with bad payload", http.MethodDelete, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitems",
+			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"remove hidden mediaitems with bad mediaitem",
-			http.MethodDelete,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove hidden mediaitems with bad mediaitem", http.MethodDelete, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaitems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitem id",
+			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"remove hidden mediaitems with success",
-			http.MethodDelete,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove hidden mediaitems with error", http.MethodDelete, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.RemoveHiddenMediaItems
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"remove hidden mediaitems with error",
-			http.MethodDelete,
-			"/v1/hidden",
-			"/v1/hidden",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveHiddenMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"remove hidden mediaitems with success", http.MethodDelete, "/v1/hidden", "/v1/hidden", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveHiddenMediaItems
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)
@@ -536,67 +268,41 @@ func TestRemoveHiddenMediaItems(t *testing.T) {
 func TestGetDeletedMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"get deleted mediaitems with empty table",
-			http.MethodGet,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(sqlmock.NewRows(mediaitemCols))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"get deleted mediaitems with empty table", http.MethodGet, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
-			},
-			http.StatusOK,
-			"[]",
+			}, http.StatusOK, "[]",
 		},
 		{
-			"get deleted mediaitems with 2 rows",
-			http.MethodGet,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
-					WillReturnRows(getMockedMediaItemRows())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetDeletedMediaItems
-			},
-			http.StatusOK,
-			mediaitemsResponseBody,
-		},
-		{
-			"get deleted mediaitems with error",
-			http.MethodGet,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "mediaitems"`)).
+			"get deleted mediaitems with error", http.MethodGet, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetDeletedMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"get deleted mediaitems with error in scanning", http.MethodGet, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(mediaitemCols).
+						AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "filename", nil, &sampleDescription, "mime_type", "source_url", "preview_url", "thumbnail_url", "placeholder", &sampleBoolTrue, &sampleBoolFalse, &sampleBoolFalse, "status", "mediaitem_type", "mediaitem_category", 720, 480, sampleTime, &sampleCameraMake, &sampleCameraModel, &sampleFocalLength, &sampleApertureFnumber, &sampleIsoEquivalent, &sampleExposureTime, &sampleMegapixels, &sampleLatitude, &sampleLongitude, &sampleFPS, nil, nil, nil, sampleTime, sampleTime))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetDeletedMediaItems
+			}, http.StatusInternalServerError, "Scanning value error",
+		},
+		{
+			"get deleted mediaitems with 2 rows", http.MethodGet, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedMediaItemRows())
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetDeletedMediaItems
+			}, http.StatusOK, mediaitemsResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -605,94 +311,40 @@ func TestGetDeletedMediaItems(t *testing.T) {
 func TestAddDeletedMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"add deleted mediaitems with bad payload",
-			http.MethodPost,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add deleted mediaitems with bad payload", http.MethodPost, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitems",
+			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"add deleted mediaitems with bad mediaitem",
-			http.MethodPost,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add deleted mediaitems with bad mediaitem", http.MethodPost, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaitems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitem id",
+			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"add deleted mediaitems with success",
-			http.MethodPost,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"add deleted mediaitems with error", http.MethodPost, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.AddDeletedMediaItems
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"add deleted mediaitems with error",
-			http.MethodPost,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.AddDeletedMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"add deleted mediaitems with success", http.MethodPost, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.AddDeletedMediaItems
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)
@@ -701,94 +353,40 @@ func TestAddDeletedMediaItems(t *testing.T) {
 func TestRemoveDeletedMediaItems(t *testing.T) {
 	tests := []Test{
 		{
-			"remove deleted mediaitems with bad payload",
-			http.MethodDelete,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove deleted mediaitems with bad payload", http.MethodDelete, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitems",
+			}, http.StatusBadRequest, "invalid mediaitems",
 		},
 		{
-			"remove deleted mediaitems with bad mediaitem",
-			http.MethodDelete,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove deleted mediaitems with bad mediaitem", http.MethodDelete, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["bad-mediaitem-id"]}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"mediaitems":["bad-mediaitem-id"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
-			},
-			http.StatusBadRequest,
-			"invalid mediaitem id",
+			}, http.StatusBadRequest, "invalid mediaitem id",
 		},
 		{
-			"remove deleted mediaitems with success",
-			http.MethodDelete,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"remove deleted mediaitems with error", http.MethodDelete, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.RemoveDeletedMediaItems
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"remove deleted mediaitems with error",
-			http.MethodDelete,
-			"/v1/trash",
-			"/v1/trash",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"mediaItems":["4d05b5f6-17c2-475e-87fe-3fc8b9567179"]}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "mediaitems"`)).
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.RemoveDeletedMediaItems
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"remove deleted mediaitems with success", http.MethodDelete, "/v1/trash", "/v1/trash", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"mediaitems":["019b7796-6072-76ee-8be3-485ff2b32fd7"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE mediaitems`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.RemoveDeletedMediaItems
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)

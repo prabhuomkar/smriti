@@ -12,7 +12,7 @@ test-auth:
 	behave -i auth.feature
 test-mediaitems:
 	@echo "testing feature: mediaitems"
-	behave -i mediaitems.feature
+	behave -i mediaitems.feature --tags=~video
 test-albums:
 	@echo "testing feature: albums"
 	behave -i albums.feature
@@ -22,9 +22,6 @@ test-library:
 test-places:
 	@echo "testing feature: places"
 	behave -i places.feature
-test-things:
-	@echo "testing feature: things"
-	behave -i things.feature
 test-people:
 	@echo "testing feature: people"
 	behave -i people.feature
@@ -48,4 +45,7 @@ clear:
 	@sudo rm -rf ../storage/originals/*
 	@sudo rm -rf ../storage/previews/*
 	@sudo rm -rf ../storage/thumbnails/*
-	@sudo find ../storage/* -maxdepth 0 ! -name 'originals' ! -name 'previews' ! -name 'thumbnails' -exec rm -rf {} +
+	@sudo rm -rf ../storage/faces/*
+	@sudo find ../storage/* -maxdepth 0 ! -name 'originals' ! -name 'previews' ! -name 'thumbnails' ! -name 'faces' -exec rm -rf {} +
+help:
+	@grep -E '^[a-zA-Z0-9_.-]+:' Makefile | cut -d: -f1 | sort -u

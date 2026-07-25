@@ -1,113 +1,74 @@
 package handlers
 
 import (
+	"api/internal/models"
 	"errors"
 	"net/http"
 	"regexp"
 	"strings"
 	"testing"
 
-	"github.com/DATA-DOG/go-sqlmock"
 	"github.com/labstack/echo/v4"
+	"github.com/pashagolub/pgxmock/v4"
 )
 
 var (
 	jobCols = []string{
-		"id", "user_id", "components", "status", "last_mediaitem_id", "created_at", "updated_at",
+		"id", "user_id", "status", "components", "created_at", "updated_at",
 	}
-	jobResponseBody = `{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"SCHEDULED","components":"metadata,places","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+	jobResponseBody = `{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7","userId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"status":"SCHEDULED","components":["METADATA","PLACES"],` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}`
-	jobsResponseBody = `[{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567179","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"RUNNING","components":"metadata,places","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+	jobsResponseBody = `[{"id":"019b7796-6072-76ee-8be3-485ff2b32fd7","userId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"status":"RUNNING","components":["METADATA","PLACES"],` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"},` +
-		`{"id":"4d05b5f6-17c2-475e-87fe-3fc8b9567180","userId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
-		`"status":"RUNNING","components":"faces","lastMediaItemId":"4d05b5f6-17c2-475e-87fe-3fc8b9567179",` +
+		`{"id":"019b7796-6072-76ee-8be3-485ff2b33fd7","userId":"019b7796-6072-76ee-8be3-485ff2b32fd7",` +
+		`"status":"RUNNING","components":["FACES"],` +
 		`"createdAt":"2022-09-22T11:22:33+05:30","updatedAt":"2022-09-22T11:22:33+05:30"}]`
 )
 
 func TestGetJob(t *testing.T) {
 	tests := []Test{
 		{
-			"get job bad request",
-			http.MethodGet,
-			"/v1/jobs/:id",
-			"/v1/jobs/bad-uuid",
-			[]string{"id"},
-			[]string{"bad-uuid"},
-			map[string]string{},
-			nil,
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"get job bad request", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
-			},
-			http.StatusBadRequest,
-			"invalid job id",
+			}, http.StatusBadRequest, "invalid job id",
 		},
 		{
-			"get job not found",
-			http.MethodGet,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(sqlmock.NewRows(jobCols))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"get job not found", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(jobCols))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
-			},
-			http.StatusNotFound,
-			"job not found",
+			}, http.StatusNotFound, "job not found",
 		},
 		{
-			"get job",
-			http.MethodGet,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(getMockedJobRow())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetJob
-			},
-			http.StatusOK,
-			jobResponseBody,
-		},
-		{
-			"get job with error",
-			http.MethodGet,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+			"get job with error", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJob
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"get job with error in scanning", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(jobCols).AddRow(pgxmock.AnyArg(), pgxmock.AnyArg(), "SCHEDULED", []string{"METADATA", "PLACES"}, sampleTime, sampleTime))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetJob
+			}, http.StatusInternalServerError, "Scanning value error",
+		},
+		{
+			"get job with success", http.MethodGet, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedJobRow())
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetJob
+			}, http.StatusOK, jobResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -116,138 +77,110 @@ func TestGetJob(t *testing.T) {
 func TestUpdateJob(t *testing.T) {
 	tests := []Test{
 		{
-			"update job bad request",
-			http.MethodPut,
-			"/v1/jobs/:id",
-			"/v1/jobs/bad-uuid",
-			[]string{"id"},
-			[]string{"bad-uuid"},
-			map[string]string{},
-			nil,
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"update job bad request", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/bad-uuid", []string{"id"}, []string{"bad-uuid"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
-			},
-			http.StatusBadRequest,
-			"invalid job id",
+			}, http.StatusBadRequest, "invalid job id",
 		},
 		{
-			"update job with no payload",
-			http.MethodPut,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{},
-			nil,
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"update job with no payload", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
-			},
-			http.StatusBadRequest,
-			"invalid job",
+			}, http.StatusBadRequest, "invalid job",
 		},
 		{
-			"update job with bad payload",
-			http.MethodPut,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{
+			"update job with bad payload", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request"}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request"}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
-			},
-			http.StatusBadRequest,
-			"invalid job",
+			}, http.StatusBadRequest, "invalid job",
 		},
 		{
-			"update job with success",
-			http.MethodPut,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{
+			"update job with error getting existing job count", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"status":"RUNNING"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(sqlmock.NewRows(jobCols))
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "jobs"`)).
-					WithArgs("RUNNING", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.UpdateJob
-			},
-			http.StatusNoContent,
-			"",
-		},
-		{
-			"update job with error",
-			http.MethodPut,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"status":"PAUSED"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`UPDATE "jobs"`)).
-					WithArgs("PAUSED", sqlmock.AnyArg(), "4d05b5f6-17c2-475e-87fe-3fc8b9567179").
+			}, strings.NewReader(`{"status":"RUNNING"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"update job with error due to job already exists",
-			http.MethodPut,
-			"/v1/jobs/:id",
-			"/v1/jobs/4d05b5f6-17c2-475e-87fe-3fc8b9567179",
-			[]string{"id"},
-			[]string{"4d05b5f6-17c2-475e-87fe-3fc8b9567179"},
-			map[string]string{
+			"update job with error due to existing job for running", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"status":"RUNNING"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(getMockedJobRow())
-
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"status":"RUNNING"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.UpdateJob
-			},
-			http.StatusConflict,
-			"job already exists",
+			}, http.StatusConflict, "job already exists",
+		},
+		{
+			"update job with error for running", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"status":"RUNNING"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
+					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobRunning, pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateJob
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"update job with success for running", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"status":"RUNNING"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
+					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobRunning, pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateJob
+			}, http.StatusNoContent, "",
+		},
+		{
+			"update job with error due to deleting job mediaitems for stopped", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"status":"STOPPED"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateJob
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"update job with error for stopped", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"status":"STOPPED"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("DELETE", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
+					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobStopped, pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateJob
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"update job with success for stopped", http.MethodPut, "/v1/jobs/:id", "/v1/jobs/019b7796-6072-76ee-8be3-485ff2b32fd7", []string{"id"}, []string{"019b7796-6072-76ee-8be3-485ff2b32fd7"}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"status":"STOPPED"}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectExec(regexp.QuoteMeta(`DELETE FROM queue`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("DELETE", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`UPDATE jobs`)).
+					WithArgs(sampleCoverMediaItemID, sampleCoverMediaItemID, models.JobStopped, pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("UPDATE", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.UpdateJob
+			}, http.StatusNoContent, "",
 		},
 	}
 	executeTests(t, tests)
@@ -256,67 +189,40 @@ func TestUpdateJob(t *testing.T) {
 func TestGetJobs(t *testing.T) {
 	tests := []Test{
 		{
-			"get jobs with empty table",
-			http.MethodGet,
-			"/v1/jobs",
-			"/v1/jobs",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(sqlmock.NewRows(jobCols))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"get jobs with empty table", http.MethodGet, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(jobCols))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
-			},
-			http.StatusOK,
-			"[]",
+			}, http.StatusOK, "[]",
 		},
 		{
-			"get jobs with 2 rows",
-			http.MethodGet,
-			"/v1/jobs",
-			"/v1/jobs?sort=updatedAt",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(getMockedJobRows())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
-				return handler.GetJobs
-			},
-			http.StatusOK,
-			jobsResponseBody,
-		},
-		{
-			"get jobs with error",
-			http.MethodGet,
-			"/v1/jobs",
-			"/v1/jobs",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
+			"get jobs with error", http.MethodGet, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.GetJobs
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"get jobs with error in scanning", http.MethodGet, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows(jobCols).AddRow("invalid", "019b7796-6072-76ee-8be3-485ff2b32fd7", "SCHEDULED", []string{"METADATA", "PLACES"}, sampleTime, sampleTime))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetJobs
+			}, http.StatusInternalServerError, "Scanning value error",
+		},
+		{
+			"get jobs with 2 rows", http.MethodGet, "/v1/jobs", "/v1/jobs?sort=updatedAt", []string{}, []string{}, map[string]string{}, nil, func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(getMockedJobRows())
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.GetJobs
+			}, http.StatusOK, jobsResponseBody,
 		},
 	}
 	executeTests(t, tests)
@@ -325,136 +231,109 @@ func TestGetJobs(t *testing.T) {
 func TestCreateJob(t *testing.T) {
 	tests := []Test{
 		{
-			"create job with bad payload",
-			http.MethodPost,
-			"/v1/jobs",
-			"/v1/jobs",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"create job with bad payload", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"bad":"request}`),
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, strings.NewReader(`{"bad":"request}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
-			},
-			http.StatusBadRequest,
-			"invalid job",
+			}, http.StatusBadRequest, "invalid job",
 		},
 		{
-			"create job with no payload",
-			http.MethodPost,
-			"/v1/jobs",
-			"/v1/jobs",
-			[]string{},
-			[]string{},
-			map[string]string{},
-			nil,
-			nil,
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"create job with bad component", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"components":["INVALID"]}`), nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
-			},
-			http.StatusBadRequest,
-			"invalid job",
+			}, http.StatusBadRequest, "invalid job component",
 		},
 		{
-			"create job with success",
-			http.MethodPost,
-			"/v1/jobs",
-			"/v1/jobs",
-			[]string{},
-			[]string{},
-			map[string]string{
-				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"components":"search"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(sqlmock.NewRows(jobCols))
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "jobs"`)).
-					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), "SCHEDULED", "search", sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
-					WillReturnResult(sqlmock.NewResult(1, 1))
-				mock.ExpectCommit()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			"create job with no payload", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{}, nil, nil, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
-			},
-			http.StatusCreated,
-			`"status":"SCHEDULED","components":"search",`,
+			}, http.StatusBadRequest, "invalid job",
 		},
 		{
-			"create job with error",
-			http.MethodPost,
-			"/v1/jobs",
-			"/v1/jobs",
-			[]string{},
-			[]string{},
-			map[string]string{
+			"create job with error getting existing job count", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
-			},
-			strings.NewReader(`{"components":"search"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(sqlmock.NewRows(jobCols))
-				mock.ExpectBegin()
-				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO "jobs"`)).
-					WithArgs(sqlmock.AnyArg(), sqlmock.AnyArg(), "SCHEDULED", "search", sqlmock.AnyArg(), sqlmock.AnyArg(), sqlmock.AnyArg()).
+			}, strings.NewReader(`{"components":["SEARCH"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
 					WillReturnError(errors.New("some db error"))
-				mock.ExpectRollback()
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
-			},
-			http.StatusInternalServerError,
-			"some db error",
+			}, http.StatusInternalServerError, "some db error",
 		},
 		{
-			"create job with error due to job already exists",
-			http.MethodPost,
-			"/v1/jobs",
-			"/v1/jobs",
+			"create job with error due to existing job", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"components":["SEARCH"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateJob
+			}, http.StatusConflict, "job already exists",
+		},
+		{
+			"create job with error inserting job", http.MethodPost, "/v1/jobs", "/v1/jobs",
 			[]string{},
 			[]string{},
 			map[string]string{
 				echo.HeaderContentType: echo.MIMEApplicationJSON,
 			},
-			strings.NewReader(`{"components":"search"}`),
-			func(mock sqlmock.Sqlmock) {
-				mock.ExpectQuery(regexp.QuoteMeta(`SELECT * FROM "jobs"`)).
-					WillReturnRows(getMockedJobRow())
-			},
-			nil,
-			nil,
-			func(handler *Handler) func(ctx echo.Context) error {
+			strings.NewReader(`{"components":["SEARCH"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), models.JobRunning, "SEARCH", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
 				return handler.CreateJob
-			},
-			http.StatusConflict,
-			"job already exists",
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"create job with error queuing job mediaitems", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"components":["SEARCH"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), models.JobRunning, "SEARCH", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnError(errors.New("some db error"))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateJob
+			}, http.StatusInternalServerError, "some db error",
+		},
+		{
+			"create job with success", http.MethodPost, "/v1/jobs", "/v1/jobs", []string{}, []string{}, map[string]string{
+				echo.HeaderContentType: echo.MIMEApplicationJSON,
+			}, strings.NewReader(`{"components":["SEARCH"]}`), func(mock pgxmock.PgxPoolIface) {
+				mock.ExpectQuery(regexp.QuoteMeta(`SELECT COUNT(*) FROM jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnRows(pgxmock.NewRows([]string{"count"}).AddRow(0))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO jobs`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), models.JobRunning, "SEARCH", pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+				mock.ExpectExec(regexp.QuoteMeta(`INSERT INTO queue`)).
+					WithArgs(pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg(), pgxmock.AnyArg()).
+					WillReturnResult(pgxmock.NewResult("INSERT", 1))
+			}, nil, func(handler *Handler) func(ctx echo.Context) error {
+				return handler.CreateJob
+			}, http.StatusCreated, `"status":"RUNNING","components":["SEARCH"],`,
 		},
 	}
 	executeTests(t, tests)
 }
 
-func getMockedJobRow() *sqlmock.Rows {
-	return sqlmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "metadata,places", "SCHEDULED",
-			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sampleTime, sampleTime)
+func getMockedJobRow() *pgxmock.Rows {
+	return pgxmock.NewRows(jobCols).
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "SCHEDULED", "METADATA,PLACES", sampleTime, sampleTime)
 }
 
-func getMockedJobRows() *sqlmock.Rows {
-	return sqlmock.NewRows(jobCols).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567179", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "metadata,places", "RUNNING",
-			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sampleTime, sampleTime).
-		AddRow("4d05b5f6-17c2-475e-87fe-3fc8b9567180", "4d05b5f6-17c2-475e-87fe-3fc8b9567179", "faces", "RUNNING",
-			"4d05b5f6-17c2-475e-87fe-3fc8b9567179", sampleTime, sampleTime)
+func getMockedJobRows() *pgxmock.Rows {
+	return pgxmock.NewRows(jobCols).
+		AddRow("019b7796-6072-76ee-8be3-485ff2b32fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "RUNNING", "METADATA,PLACES", sampleTime, sampleTime).
+		AddRow("019b7796-6072-76ee-8be3-485ff2b33fd7", "019b7796-6072-76ee-8be3-485ff2b32fd7", "RUNNING", "FACES", sampleTime, sampleTime)
 }

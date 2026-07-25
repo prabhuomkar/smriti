@@ -4,14 +4,12 @@ import (
 	"reflect"
 	"testing"
 
-	"api/config"
-
 	"github.com/stretchr/testify/assert"
 )
 
 func TestInit(t *testing.T) {
-	cache := Init(&config.Config{Cache: config.Cache{Type: "inmemory"}})
+	cache := Init("inmemory", "", 0, "")
 	assert.Equal(t, reflect.TypeOf(&InMemoryCache{}), reflect.TypeOf(cache))
-	cache = Init(&config.Config{Cache: config.Cache{Type: "redis"}})
+	cache = Init("redis", "username", 0, "password")
 	assert.Equal(t, reflect.TypeOf(&RedisCache{}), reflect.TypeOf(cache))
 }

@@ -14,6 +14,13 @@ type mockRedisClient struct {
 	value string
 }
 
+func (m *mockRedisClient) Ping(context.Context) error {
+	if m.fail {
+		return errors.New("some error")
+	}
+	return nil
+}
+
 func (m *mockRedisClient) Get(context.Context, string) (string, error) {
 	if m.fail {
 		return "", errors.New("some error")
@@ -45,6 +52,7 @@ func TestRedisCache(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, "", val)
 	assert.Error(t, errCache.Remove("key"))
+	assert.Error(t, errCache.Ping())
 
 	// success
 	cache := RedisCache{
@@ -55,4 +63,5 @@ func TestRedisCache(t *testing.T) {
 	assert.NoError(t, err)
 	assert.Equal(t, "value", val)
 	assert.NoError(t, cache.Remove("key"))
+	assert.NoError(t, cache.Ping())
 }

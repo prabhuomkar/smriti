@@ -1,0 +1,55 @@
+include(FetchContent)
+set(FETCHCONTENT_BASE_DIR ${CMAKE_SOURCE_DIR}/third_party)
+function(fetch_dependency name repo tag)
+    FetchContent_Declare(
+        ${name}
+        GIT_REPOSITORY ${repo}
+        GIT_TAG        ${tag}
+    )
+    FetchContent_MakeAvailable(${name})
+    set(${name}_SOURCE_DIR ${${name}_SOURCE_DIR} PARENT_SCOPE)
+endfunction()
+
+set(CPR_USE_SYSTEM_CURL ON CACHE BOOL "Use system curl for cpr" FORCE)
+
+fetch_dependency(cpr https://github.com/libcpr/cpr.git 1.11.2)
+fetch_dependency(simdjson https://github.com/simdjson/simdjson.git v3.12.3)
+fetch_dependency(spdlog https://github.com/gabime/spdlog.git v1.15.2)
+
+function(fetch_onnxruntime TAG)
+    if(APPLE)
+        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "arm64")
+            set(ONNXRUNTIME_DOWNLOAD "onnxruntime-osx-arm64-${TAG}")
+        elseif(CMAKE_OSX_ARCHITECTURES STREQUAL "x86_64")
+            set(ONNXRUNTIME_DOWNLOAD "onnxruntime-osx-x86_64-${TAG}")
+        else()
+            set(ONNXRUNTIME_DOWNLOAD "onnxruntime-osx-universal2-${TAG}")
+        endif()
+    elseif(UNIX)
+        if(CMAKE_SYSTEM_PROCESSOR STREQUAL "aarch64")
+            set(ONNXRUNTIME_DOWNLOAD "onnxruntime-linux-aarch64-${TAG}")
+        else()
+            set(ONNXRUNTIME_DOWNLOAD "onnxruntime-linux-x64-${TAG}")
+        endif()
+    endif()
+
+    set(ONNXRUNTIME_DIR ${FETCHCONTENT_BASE_DIR}/onnxruntime)
+
+    if(NOT EXISTS ${ONNXRUNTIME_DIR})
+        file(DOWNLOAD https://github.com/microsoft/onnxruntime/releases/download/v${TAG}/${ONNXRUNTIME_DOWNLOAD}.tgz ${FETCHCONTENT_BASE_DIR}/${ONNXRUNTIME_DOWNLOAD}.tgz SHOW_PROGRESS)
+        file(ARCHIVE_EXTRACT INPUT ${FETCHCONTENT_BASE_DIR}/${ONNXRUNTIME_DOWNLOAD}.tgz DESTINATION ${FETCHCONTENT_BASE_DIR})
+        file(REMOVE ${FETCHCONTENT_BASE_DIR}/${ONNXRUNTIME_DOWNLOAD}.tgz)
+        file(RENAME ${FETCHCONTENT_BASE_DIR}/${ONNXRUNTIME_DOWNLOAD} ${ONNXRUNTIME_DIR})
+    endif()
+
+    set(ONNXRUNTIME_INCLUDE_DIRS ${ONNXRUNTIME_DIR}/include PARENT_SCOPE)
+    set(ONNXRUNTIME_LIB ${ONNXRUNTIME_DIR}/lib)
+    find_library(ONNXRUNTIME_LIBRARIES_LOCAL onnxruntime PATHS ${ONNXRUNTIME_LIB} NO_DEFAULT_PATH)
+    set(ONNXRUNTIME_LIBRARIES ${ONNXRUNTIME_LIBRARIES_LOCAL} PARENT_SCOPE)
+endfunction()
+fetch_onnxruntime(1.23.0)
+
+if(BUILD_TESTS)
+    fetch_dependency(googletest https://github.com/google/googletest.git v1.16.0)
+    fetch_dependency(benchmark https://github.com/google/benchmark.git v1.9.2)
+endif()

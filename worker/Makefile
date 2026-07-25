@@ -1,28 +1,39 @@
-install:
-	@pip install -r requirements.txt
+.PHONY: build
+build:
+	@mkdir -p build
+	@cmake -S . -B build -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTS=OFF
+	@cd build && make -j 4
 
+.PHONY: build-with-tests
+build-with-tests:
+	@mkdir -p build
+	@cmake -S . -B build -DCMAKE_PREFIX_PATH=${MY_INSTALL_DIR} -DBUILD_TESTS=ON
+	@cd build && make -j 4
+
+.PHONY: run
 run:
-	@python3 -m src.main
+	@./build/worker
 
-test-install:
-	@pip install pytest pytest-cov requests-mock pytest-asyncio
-
+.PHONY: test
 test: 
-	@python3 -m pytest
+	@cd build/tests && \
+		./worker_tests  && \
+		./worker_benchmarks
 
+.PHONY: cover
 cover: 
-	@coverage run --source src -m pytest
-	@coverage report --omit=src/protos/*,*__.py
-	@coverage xml --omit=src/protos/*,*__.py
+	@echo "TODO(omkar)"
 
+.PHONY: cover-html
 cover-html: cover
-	@coverage html --omit=src/protos/*,*__.py
+	@echo "TODO(omkar)"
 
+.PHONY: lint
 lint:
-	@pylint *
+	@cpplint --recursive include/ src/ tests/
 
+.PHONY: proto
 proto:
-	@mkdir -p ../src/protos
-	@cp -r ../protos/* ../src/protos/
-	@python3 -m grpc_tools.protoc -I../ --python_out=./ --pyi_out=./ --grpc_python_out=./ ../src/protos/*.proto
-	@rm -rf ../src
+	@mkdir -p generated/protos
+	@protoc -I../protos --cpp_out=./generated/protos ../protos/*.proto
+	@protoc -I../protos --grpc_out=generate_mock_code=true:./generated/protos --plugin=protoc-gen-grpc=`which grpc_cpp_plugin` ../protos/*.proto

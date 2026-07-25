@@ -1,37 +1,46 @@
 package database
 
 import (
+	"context"
 	"fmt"
+	"net"
+	"strconv"
+	"time"
 
-	"gorm.io/driver/postgres"
-	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
+	"github.com/jackc/pgx/v5"
+	"github.com/jackc/pgx/v5/pgconn"
+	"github.com/jackc/pgx/v5/pgxpool"
 )
 
-// Init ...
-func Init(logLevel, host string, port int, username, password, name string) (*gorm.DB, error) {
-	dsn := fmt.Sprintf("postgres://%s:%s@%s:%d/%s?sslmode=disable", username, password, host, port, name)
-	dbConn, err := gorm.Open(postgres.Open(dsn), &gorm.Config{
-		Logger: logger.Default.LogMode(getLogLevel(logLevel)),
-	})
-	if err != nil {
-		return nil, err
-	}
-	result := dbConn.Exec("CREATE EXTENSION IF NOT EXISTS vector")
-	if result.Error != nil {
-		return nil, result.Error
-	}
-	return dbConn, nil
+type DBInterface interface {
+	Ping(ctx context.Context) error
+	Query(ctx context.Context, sql string, args ...any) (pgx.Rows, error)
+	QueryRow(ctx context.Context, sql string, args ...any) pgx.Row
+	Exec(ctx context.Context, sql string, arguments ...any) (pgconn.CommandTag, error)
+	Begin(ctx context.Context) (pgx.Tx, error)
+	Close()
 }
 
-func getLogLevel(logLevel string) logger.LogLevel {
-	switch logLevel {
-	case "ERROR":
-		return logger.Error
-	case "WARN":
-		return logger.Warn
-	case "INFO":
-		return logger.Info
+// Init ...
+//
+//nolint:ireturn
+func Init(host string, port int, username, password, name string, timeout time.Duration) (DBInterface, error) {
+	ctx, cancel := context.WithTimeout(context.Background(), timeout)
+	defer cancel()
+
+	dsn := fmt.Sprintf("postgres://%s:%s@%s/%s?sslmode=disable", username, password, net.JoinHostPort(host, strconv.Itoa(port)), name)
+
+	conn, err := pgxpool.New(ctx, dsn)
+	if err != nil {
+		return nil, err //nolint: wrapcheck
 	}
-	return logger.Silent
+
+	err = conn.Ping(ctx)
+	if err != nil {
+		conn.Close()
+
+		return nil, err //nolint: wrapcheck
+	}
+
+	return conn, nil
 }

@@ -9,7 +9,9 @@ import (
 )
 
 func TestStartStopHTTPServer(t *testing.T) {
-	handler := &handlers.Handler{Config: &config.Config{Storage: config.Storage{Provider: "disk"}}}
+	handler := &handlers.Handler{
+		Config: &config.Config{Storage: config.Storage{Provider: "disk"}},
+	}
 	srv := StartHTTPServer(handler)
 	defer srv.Close()
 	assert.NotNil(t, srv)
@@ -25,28 +27,16 @@ func TestGetMiddlewareFuncs(t *testing.T) {
 		ExpectedLen int
 	}{
 		{
-			Name:        "without jwt check and no features",
-			JWTCheck:    false,
-			Features:    []string{},
-			ExpectedLen: 0,
+			Name: "without jwt check and no features", JWTCheck: false, Features: []string{}, ExpectedLen: 0,
 		},
 		{
-			Name:        "without jwt check and features",
-			JWTCheck:    false,
-			Features:    []string{"places", "favourites"},
-			ExpectedLen: 2,
+			Name: "without jwt check and features", JWTCheck: false, Features: []string{"places", "favourites"}, ExpectedLen: 2,
 		},
 		{
-			Name:        "with jwt check and no features",
-			JWTCheck:    true,
-			Features:    []string{},
-			ExpectedLen: 1,
+			Name: "with jwt check and no features", JWTCheck: true, Features: []string{}, ExpectedLen: 1,
 		},
 		{
-			Name:        "with jwt check and features",
-			JWTCheck:    true,
-			Features:    []string{"places", "favourites"},
-			ExpectedLen: 3,
+			Name: "with jwt check and features", JWTCheck: true, Features: []string{"places", "favourites"}, ExpectedLen: 3,
 		},
 	}
 	for _, tc := range tests {

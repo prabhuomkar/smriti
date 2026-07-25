@@ -1,4 +1,5 @@
 *.pt
+*.pth
 *.pdmodel
 *.pdiparams
 *.pdiparams.info
@@ -56,3 +57,7 @@ Thumbs.db
 *checkpoints*
 *.onnx
 search/**/*.json
+faces_output/
+**/inference.json
+**/inference.pdiparams
+**/inference.yml

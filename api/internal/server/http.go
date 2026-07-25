@@ -8,14 +8,15 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"log/slog"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/labstack/echo-contrib/echoprometheus"
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/prometheus/client_golang/prometheus"
-	"golang.org/x/exp/slog"
 )
 
 const httpTimeout = 10
@@ -27,24 +28,22 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	srvHandler := echo.New()
 	//nolint:gosec
 	httpServer := &http.Server{
-		Addr:    fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port),
-		Handler: srvHandler,
+		Addr: fmt.Sprintf("%s:%d", handler.Config.API.Host, handler.Config.API.Port), Handler: srvHandler,
 	}
 	// metrics
 	srvHandler.Use(echoprometheus.NewMiddlewareWithConfig(echoprometheus.MiddlewareConfig{
-		Namespace:  "http",
-		Subsystem:  "server",
-		Registerer: prometheus.DefaultRegisterer,
-	}))
+		Namespace: "http", Subsystem: "server", Registerer: prometheus.DefaultRegisterer,
+	}), middleware.CORS())
 	srvHandler.GET("/metrics", echoprometheus.NewHandler())
 	// file server
-	if handler.Config.Storage.Provider == "disk" {
-		fileRoute := getFileRoute(handler.Config.Storage.DiskRoot)
+	if handler.Config.Provider == "disk" {
+		fileRoute := getFileRoute(handler.Config.DiskRoot)
 		slog.Info("starting file server on: " + fileRoute)
-		srvHandler.Static(fileRoute, handler.Config.Storage.DiskRoot)
+		srvHandler.Static(fileRoute, handler.Config.DiskRoot)
 	}
 	// routes
 	srvHandler.GET("/version", handler.GetVersion)
+	srvHandler.GET("/health", handler.GetHealth)
 	srvHandler.GET("/disk", handler.GetDisk)
 	version1 := srvHandler.Group("/v1")
 	version1.GET("/features", handler.GetFeatures, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
@@ -52,24 +51,14 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	version1.GET("/search", handler.Search, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	// mediaitems
 	mediaItems := version1.Group("/mediaItems")
-	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true, "places")...)
-	mediaItems.GET("/:id/things", handler.GetMediaItemThings,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true, "things")...)
-	mediaItems.GET("/:id/people", handler.GetMediaItemPeople,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true, "people")...)
-	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true, "albums")...)
-	mediaItems.GET("/:id", handler.GetMediaItem,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
-	mediaItems.PUT("/:id", handler.UpdateMediaItem,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
-	mediaItems.DELETE("/:id", handler.DeleteMediaItem,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
-	mediaItems.GET("", handler.GetMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
-	mediaItems.POST("", handler.UploadMediaItems,
-		getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
+	mediaItems.GET("/:id/places", handler.GetMediaItemPlaces, getMiddlewareFuncs(handler.Config, handler.Cache, true, "places")...)
+	mediaItems.GET("/:id/people", handler.GetMediaItemPeople, getMiddlewareFuncs(handler.Config, handler.Cache, true, "people")...)
+	mediaItems.GET("/:id/albums", handler.GetMediaItemAlbums, getMiddlewareFuncs(handler.Config, handler.Cache, true, "albums")...)
+	mediaItems.GET("/:id", handler.GetMediaItem, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
+	mediaItems.PUT("/:id", handler.UpdateMediaItem, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
+	mediaItems.DELETE("/:id", handler.DeleteMediaItem, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
+	mediaItems.GET("", handler.GetMediaItems, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
+	mediaItems.POST("", handler.UploadMediaItems, getMiddlewareFuncs(handler.Config, handler.Cache, true)...)
 	// library
 	favourites := version1.Group("/favourites")
 	favourites.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "favourites")...)
@@ -95,14 +84,9 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	places.GET("/:id/mediaItems", handler.GetPlaceMediaItems)
 	places.GET("/:id", handler.GetPlace)
 	places.GET("", handler.GetPlaces)
-	things := explore.Group("/things")
-	things.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "things")...)
-	things.GET("/:id/mediaItems", handler.GetThingMediaItems)
-	things.GET("/:id", handler.GetThing)
-	things.GET("", handler.GetThings)
 	people := explore.Group("/people")
 	people.Use(getMiddlewareFuncs(handler.Config, handler.Cache, true, "people")...)
-	people.GET("/:id/mediaItems", handler.GetPeopleMediaItems)
+	people.GET("/:id/mediaItems", handler.GetPersonMediaItems)
 	people.GET("/:id", handler.GetPerson)
 	people.PUT("/:id", handler.UpdatePerson)
 	people.GET("", handler.GetPeople)
@@ -153,7 +137,7 @@ func StartHTTPServer(handler *handlers.Handler) *http.Server {
 	return httpServer
 }
 
-// StartHTTPServer ...
+// StopHTTPServer ...
 func StopHTTPServer(httpServer *http.Server) {
 	slog.Info("stopping http api server")
 	ctx, cancel := context.WithTimeout(context.Background(), httpTimeout*time.Second)
@@ -171,10 +155,12 @@ func getMiddlewareFuncs(cfg *config.Config, cache cache.Provider, jwtCheck bool,
 	for _, feature := range features {
 		middlewareFuncs = append(middlewareFuncs, middlewares.FeatureCheck(cfg, feature))
 	}
+
 	return middlewareFuncs
 }
 
 func getFileRoute(storageDiskRoot string) string {
 	fileRoute := strings.ReplaceAll(storageDiskRoot, "..", "")
+
 	return fileRoute
 }
